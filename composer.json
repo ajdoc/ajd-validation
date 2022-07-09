@@ -1,0 +1,25 @@
+{
+    "name": "ajd/ajd-validation",
+    "description": "A simple php validation library",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Aj Doc",
+            "email": "thedoctorisin17@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "AJD_validation\\": "src/AJD_validation"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {
+        "php": "^7.3"
+    },
+    "prefer-stable": true,
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist"
+    }
+}
