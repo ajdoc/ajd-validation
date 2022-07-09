@@ -236,7 +236,7 @@ class AJD_filter extends Base_validator
 		}*/
 
 		static::$cache_instance[ $filter ] 	= $filter_obj;
-
+		
 		$new_value 				= $filter_obj->filter( $value, $satisfier, $field );
 
 		$real_val 				= $this->_process_filter_values( $field, $new_value, $check_arr, $pre_filter, $counter, $val_only );		

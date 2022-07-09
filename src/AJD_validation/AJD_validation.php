@@ -614,7 +614,7 @@ class AJD_validation extends Base_validator
 	{
 		static::$constraintStorageName 	= $constraintGroup;
 
-		$ajd_ins 	= static::get_ajd_instance();
+		$ajd_ins 	= static::get_ajd_instance();		
 
 		return $ajd_ins;
 	}
@@ -1829,18 +1829,22 @@ class AJD_validation extends Base_validator
 			)
 		);
 
+		$real_value_before_filter = NULL;
+
 		if( !EMPTY( $prop['filters'] ) )
 		{
-			static::handle_filter( $prop['filters'], $value, $field, $prop['filter_satis'], $prop['pre_filters'], $check_arr );
+			$real_value_before_filter = $value;
+
+			static::handle_filter( $prop['filters'], $real_value_before_filter, $field, $prop['filter_satis'], $prop['pre_filters'], $check_arr );
 
 			$filt_value 		= static::pre_filter_value( $field );
-			
+
 			$value  			= ( ISSET( $filt_value ) AND !EMPTY( $filt_value ) ) ? $filt_value : $value;
 		}
 
 		if( EMPTY( $origValue ) )
 		{
-			$origValue 			= $value;
+			$origValue 			= (!is_null($real_value_before_filter)) ? $real_value_before_filter : $value;
 		}
 
 		if( !EMPTY( $origValue ) AND !EMPTY( $prop['filters'] ) )
@@ -2461,7 +2465,7 @@ class AJD_validation extends Base_validator
 				$ret_args['logic']	= $logic;
 			}
 		}
-		
+
 		return $ret_args;
 	}
 
@@ -2525,6 +2529,8 @@ class AJD_validation extends Base_validator
 		$this->reset_validation_prop( 'current_logic' );
 		$this->resetConstraintGroup();
 		$this->resetBail();
+
+		$filter_ins = static::get_filter_ins();
 	}
 
 	protected function resetConstraintGroup()

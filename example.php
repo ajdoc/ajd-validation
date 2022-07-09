@@ -233,6 +233,7 @@ try
 	$v->useContraintStorage('group1')->check('storage2', '');
 	var_dump($v->pre_filter_value());
 	
+	
 	// using middleware for conditional validation
 	$v->setMiddleWare('test_middleware', function( $ajd, $func, $args )
 	{
