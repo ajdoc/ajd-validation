@@ -277,6 +277,15 @@ abstract class Abstract_common
 
 	protected function process_format_errors( $field = NULL, $satisfier = NULL, $errors, $rules_name, $value, $inverse = FALSE )
 	{
+
+		if(function_exists('enum_exists')) 
+		{
+			if( $value instanceof \UnitEnum ) 
+			{
+				$value = $value->name;
+		    }
+		}
+
 		if( is_array( $satisfier ) ) 
 		{			
 			$errors 			= $this->replace_satisfier_errors( $satisfier, $errors, $rules_name, $inverse );

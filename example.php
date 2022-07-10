@@ -1,9 +1,25 @@
+<meta http-equiv="Cache-control" content="no-cache">
+
 <?php
 
 require 'vendor/autoload.php';
 
 use AJD_validation\Contracts\Base_extension;
 use AJD_validation\AJD_validation;
+
+enum Status : string
+{
+    case DRAFT = 's';
+    case PUBLISHED = 'b';
+    case ARCHIVED = 'a';
+}
+
+enum Sstatus
+{
+    case DRAFT;
+    case PUBLISHED;
+    case ARCHIVED;
+}
 
 $v = new AJD_validation;
 
@@ -68,6 +84,20 @@ try
 	$ct = false;
 	$dt = false;
 	var_dump($at and $bt xor $ct xor $dt);
+
+	$v
+		->enum(Sstatus::class)
+		->checkArr('enum.enums.1', 
+			[
+				'enum' => [
+					'enums' => [
+						'b',
+						's'
+					]
+				]
+			]
+		);
+
 	// example on how to use method chaining
 	$v->required()
 		->minlength(100)
