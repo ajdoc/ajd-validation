@@ -15,7 +15,8 @@
     },
     "minimum-stability": "dev",
     "require": {
-        "php": "^7.3"
+        "php": "^7.3",
+        "egulias/email-validator": "~2.1"
     },
     "prefer-stable": true,
     "config": {

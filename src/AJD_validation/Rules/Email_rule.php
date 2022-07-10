@@ -14,13 +14,17 @@ class Email_rule extends Abstract_rule
 	protected $eguilasValidationNamespace 	= 'Egulias\\EmailValidator\\Validation\\';
 	protected $eguilasValidations 			= array(
 		'RFCValidation',
-		'DNSCheckValidation',
+		// 'DNSCheckValidation',
 		'SpoofCheckValidation'
 	);
 
 	public function __construct($emailChecker = NULL)
     {
     	$this->emailChecker 	= $emailChecker;
+
+    	$this->eguilasValidations[] = [
+			$this, 'validateEmail'
+		];
     }
 
     public function getemailChecker()
@@ -42,6 +46,8 @@ class Email_rule extends Abstract_rule
 	 	$checkEm 			= FALSE;
 	 	$errorMessage 		= '';
 
+	 	$checkbByValidateEmail = null;
+
 	 	if( is_string( $value ) )
 	 	{
 	 		$value 			= $this->Femail()
@@ -51,7 +57,7 @@ class Email_rule extends Abstract_rule
 
 	 	if( !$emailChecker instanceof EmailValidator ) 
 	 	{
-	 		$checkEm 		= ( is_string($value) AND filter_var($value, FILTER_VALIDATE_EMAIL) );
+	 		$checkEm 		= $this->validateEmail($value);
 	 	}
 	 	else if( !class_exists('Egulias\\EmailValidator\\Validation\\RFCValidation') ) 
 	 	{
@@ -65,7 +71,7 @@ class Email_rule extends Abstract_rule
 	 		{
 	 			foreach( $this->eguilasValidations as $emailValidation )
 	 			{
-	 				if( class_exists( $this->eguilasValidationNamespace.$emailValidation ) )
+	 				if( !is_array($emailValidation) && class_exists( $this->eguilasValidationNamespace.$emailValidation ) )
 	 				{
 	 					if( !ISSET( $multipleArr[$emailValidation] ) )
 	 					{
@@ -81,26 +87,59 @@ class Email_rule extends Abstract_rule
 	 						}
 	 					}
 	 				}
-
+	 				else
+	 				{
+	 					if(isset($emailValidation[0])
+	 						&& isset($emailValidation[1])
+	 					)
+	 					{
+	 						if(method_exists($emailValidation[0], $emailValidation[1]))
+	 						{
+	 							$checkbByValidateEmail = $emailValidation[0]->{$emailValidation[1]}($value);
+	 						}
+	 					}
+	 				}
 	 			}
-
+	 			
 	 			if( !EMPTY( $multipleArr ) )
 	 			{
 	 				if( count( $multipleArr ) == 1 )
 	 				{
 	 					$checkEm 				= $emailChecker->isValid( $value, current( $multipleArr ) );
+
+	 					if(!is_null($checkbByValidateEmail))
+	 					{
+	 						$checkEm = ($checkEm && $checkbByValidateEmail);
+	 					}
 	 				}
 	 				else
 	 				{
 		 				$multipleValidations 	= new MultipleValidationWithAnd( array_values( $multipleArr ) );
 
 		 				$checkEm 				= $emailChecker->isValid( $value, $multipleValidations );
+
+		 				if(!is_null($checkbByValidateEmail))
+	 					{
+	 						$checkEm = ($checkEm && $checkbByValidateEmail);
+	 					}
 		 			}
+	 			}
+	 			else
+	 			{
+	 				if(!is_null($checkbByValidateEmail))
+ 					{
+ 						$checkEm = ($checkbByValidateEmail);
+ 					}
 	 			}
 	 		}
 	 		else
 	 		{
 	 			$checkEm 	= $emailChecker->isValid($value, new RFCValidation());
+
+	 			if(!is_null($checkbByValidateEmail))
+				{
+					$checkEm = ($checkbByValidateEmail);
+				}
 	 		}
 
 	 		$errorInstance 	= $emailChecker->getError();
@@ -129,6 +168,11 @@ class Email_rule extends Abstract_rule
     	}
 
     	return $check;
+    }
+
+    public function validateEmail($value)
+    {
+    	return ( is_string($value) AND filter_var($value, FILTER_VALIDATE_EMAIL) );
     }
 
     public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = FALSE, $satisfier = NULL, $error = NULL, $value = NULL )

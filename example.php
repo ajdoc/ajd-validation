@@ -227,6 +227,10 @@ $fiber->resume('test');*/
 		->is_numeric()
 		->check('amount', '1');
 
+	$v
+		->email()
+		->check('email_check', '');
+
 	// custom function using callback/Closure
 	$v->registerFunction('my_custom_func', function($value, $field, $satisfier)
 	{
