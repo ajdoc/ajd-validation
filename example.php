@@ -77,6 +77,17 @@ class Custom_extension extends Base_extension
 
 try
 {
+	/*$fiber = new Fiber(function (): void {
+   $value = Fiber::suspend('fiber');
+   echo "Value used to resume fiber: ", $value, PHP_EOL;
+});
+
+$value = $fiber->start();
+
+echo "Value from fiber suspending: ", $value, PHP_EOL;
+
+$fiber->resume('test');*/
+
 	$validator = $v->getValidator();
 
 	$at = true;
@@ -84,6 +95,7 @@ try
 	$ct = false;
 	$dt = false;
 	var_dump($at and $bt xor $ct xor $dt);
+
 
 	$v
 		->enum(Sstatus::class)
@@ -137,14 +149,23 @@ try
 		->eSrequired()
 		->checkGroup($_POST);
 
+	$v->oRis_bool()
+		->digit()
+		->check('or_rule', '');
+
 	$v->when()
 
 			->Givrequired()
 			->Givdigit()
+			
 		->endgiven('alles', '1')
 
 			->Givrequired()
 		->endgiven('a21', '', AJD_validation::LOG_OR)
+
+			->Givrequired()
+			->Givminlength(1)
+		->endgiven('a221', 'a', AJD_validation::LOG_XOR)
 
 			->Threquired()
 		->endthen('then', '')

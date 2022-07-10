@@ -52,11 +52,17 @@ class When extends Base_validator
 	protected function processMethodName( $name )
 	{
 		$ret_name 		= $name;
+		$method = null;
 
 		if( preg_match( '/^Giv/', $name ) )
 		{
 			$method 	= 'given';
 			$ret_name 	= static::removeWord( $name, '/^Giv/' );
+		}
+		if( preg_match( '/^OrGiv/', $name ) )
+		{
+			$method 	= 'givenOr';
+			$ret_name 	= static::removeWord( $name, '/^OrGiv/' );
 		}
 		else if( preg_match( '/^eGiv/', $name ) )
 		{
@@ -68,6 +74,11 @@ class When extends Base_validator
 			$method 	= 'then';
 			$ret_name 	= static::removeWord( $name, '/^Th/' );
 		}
+		else if( preg_match( '/^OrTh/' , $name ) )
+		{
+			$method 	= 'thenOr';
+			$ret_name 	= static::removeWord( $name, '/^OrTh/' );
+		}
 		else if( preg_match('/^eTh/', $name ) )
 		{
 			$method 	= 'endthen';
@@ -78,6 +89,12 @@ class When extends Base_validator
 			$method 	= 'otherwise';
 
 			$ret_name 	= static::removeWord( $name, '/^Oth/' );
+		}
+		else if( preg_match('/^OrOth/', $name ) )
+		{
+			$method 	= 'otherwiseOr';
+
+			$ret_name 	= static::removeWord( $name, '/^OrOth/' );
 		}
 		else if( preg_match('/^eOth/', $name ) )
 		{
@@ -286,6 +303,13 @@ class When extends Base_validator
 		}
 	}
 
+	public function givenOr( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_OR )
+	{
+		$this->given($rule, $satis, $custom_err, $client_side, $logic);
+
+		return $this;
+	}
+
 	public function given( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_AND )
 	{
 		$this->currRule 	= $rule;
@@ -359,7 +383,7 @@ class When extends Base_validator
 		
 		if( !empty($this->customTest) ) 
 		{
-			$passArr['result'] 	= !$result;
+			$passArr['result'] 	= $result;
 		}
 
 		if( !EMPTY( $this->given_field ) ) 
@@ -446,17 +470,78 @@ class When extends Base_validator
 
 		if( COUNT( $xor ) === 1 ) 
 		{
-			$xor_check 		= in_array( 0, $xor );
+			$xor_check 		= in_array( 1, $xor );
 		} 
 		else 
 		{
-			$xor_check 		= ( ( in_array( 0, $xor ) OR !in_array( 1, $xor ) ) AND ( !in_array( 0, $xor ) OR in_array( 1, $xor ) ) );
+			$str_func = '';
+			foreach($xor as $xorr)
+			{	
+
+				if(is_bool($xorr))
+				{
+					$xorr_str_val = ($xorr === true) ? 'true' : 'false';
+					$str_func .= $xorr_str_val.' xor ';
+				}
+
+			}
+
+
+			$str_func = rtrim($str_func, ' xor ');
+
+			$xor_check = eval( "return $str_func;" );
 		}
 
 
 		if( !EMPTY( $or ) OR !EMPTY( $xor ) ) 
 		{
-			if( !EMPTY( $and_check ) ) 
+			if(!empty($and))
+			{
+				if(!empty($xor) && empty($or))
+				{
+					return ( $and_check XOR $xor_check );
+				}
+				else if( !empty($xor) && !empty($or) )
+				{
+					return ( $and_check XOR $or_check XOR $xor_check );
+				}
+				else if( empty($xor) && !empty($or) )
+				{
+					return ( $and_check || $or_check );
+				}
+				else
+				{
+					return $and_check;
+				}
+			}
+			else
+			{
+				if( !empty( $xor ) && !empty($or) ) 
+				{
+					return ( $or_check XOR $xor_check );
+				}
+				else if( empty( $xor ) && !empty($or) )
+				{
+					return $or_check;
+				}
+				else if( !empty( $xor ) && empty($or) )
+				{
+					return $xor_check;
+				}
+				else
+				{
+					if(!empty($and))
+					{
+						return ( $and_check2 OR $or_check );	
+					}
+					else
+					{
+						return $or_check;
+					}
+				}
+			}
+
+			/*if( !EMPTY( $and_check ) ) 
 			{
 				if( !EMPTY( $xor ) ) 
 				{
@@ -489,7 +574,7 @@ class When extends Base_validator
 					}
 					
 				}
-			}
+			}*/
 		} 
 		else 
 		{
@@ -497,6 +582,14 @@ class When extends Base_validator
 		}
 
 		// return in_array( 1, $check );
+
+	}
+
+	public function thenOr( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_OR )
+	{
+		$this->then($rule, $satis, $custom_err, $client_side, $logic);
+
+		return $this;
 
 	}
 
@@ -537,6 +630,13 @@ class When extends Base_validator
 		}
 
 		$clean_rule 			= $this->ajd->clean_rule_name( $rule );
+
+		return $this;
+	}
+
+	public function otherwiseOr( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_OR )
+	{
+		$this->otherwise($rule, $satis, $custom_err, $client_side, $logic);
 
 		return $this;
 	}
