@@ -24,6 +24,7 @@ class Observable
 
 	public function attach_observer( $event, $observer, $obs_args = NULL )
 	{
+
 		$this->observers[ $event ][] 	 		= $observer;
 
 		if( !EMPTY( $obs_args ) ) 
@@ -41,7 +42,6 @@ class Observable
 		{
 			static::$statObserverArgs[ $event ][] 	= $obs_args;
 		}
-
 	}
 
 	public function notify_static_observer($event, array $args = array())
@@ -71,7 +71,7 @@ class Observable
 				if( $observer instanceof Closure AND is_callable( $observer ) ) 
 				{
 					$function 				= $function_factory->rules( $observer );
-					
+						
 					$function->invokeArgs( $args );					
 				} 
 				else 

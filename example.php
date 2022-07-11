@@ -77,16 +77,62 @@ class Custom_extension extends Base_extension
 
 try
 {
-	/*$fiber = new Fiber(function (): void {
-   $value = Fiber::suspend('fiber');
-   echo "Value used to resume fiber: ", $value, PHP_EOL;
-});
+	
 
-$value = $fiber->start();
+	/*$fiber = new Fiber(function ($ajd): void {
+		$ajd->check('ch_one', '');
 
-echo "Value from fiber suspending: ", $value, PHP_EOL;
+		$ch = $ajd->validation_fails('ch_one');
 
-$fiber->resume('test');*/
+   		$ajd2 = Fiber::suspend($ch);
+   		
+   		$ajd2 
+   			->check('ch_two', '');
+	});
+
+	$v->required();
+
+	$value = $fiber->start($v);
+
+	$v 
+		->required()->sometimes(function() use ($value)
+		{
+			return !$value;
+		});
+
+
+	$fiber->resume($v);*/
+	$v->trigger('add');	
+
+	$v
+		->required()
+			->on('add')
+			->publishFail('test_required', function($event, $closure, $ajd, $value = null, $field = null)
+			{
+				echo 'failed required field:'.$field;
+			})
+		->digit()
+			->on('edit')
+		->check('as_evemt', '')
+			->passed(function()
+			{
+				/*echo '<pre>';
+				var_dump(func_get_args());*/
+				echo 'passed';
+			})
+
+			->fails(function()
+			{
+				// var_dump(func_get_args());
+				echo 'falied 1';
+			})
+			->fails(function()
+			{
+				// var_dump(func_get_args());
+				echo 'falied 2';
+			});
+
+
 
 	$validator = $v->getValidator();
 
@@ -111,18 +157,19 @@ $fiber->resume('test');*/
 		);
 
 	// example on how to use method chaining
-	$v->required()
+	/*$v->required()
 		->minlength(100)
 		->check('username', '');
 
 	$v->required()
 		->minlength(100)
-		->check('fname', '');
+		->check('fname', '');*/
 
 	$v
 		->folder_custom()
 		->folder_custom2()
-		->check('folder_custom', 'folder_custom');
+
+		->check('folder_custom', '');
 
 
 /*	$validator = $v->getValidator();
@@ -133,21 +180,36 @@ $fiber->resume('test');*/
 	$v
 		->Srequired()
 			->field('username')
+				->publishFail('supper_test', function()
+				{
+					echo 'super field test required.';
+				})
 				->minlength(100)
 			->field('fname')
-				->minlength(150)
+			->publishFail('supper_minelen_test', function()
+				{
+					echo 'super field test minlength.';
+				})
+				->minlength(1)
+					->publishFail('minelen_test', function()
+					{
+						echo 'minlength test.';
+					})
 		->eSrequired()
-		->checkGroup($_POST);
+		->checkGroup([
+			'username' => '',
+			'fname' => 'a'
+		]);
 
 	// if both field has the same minumum lenght requirement
-	$v
+	/*$v
 		->Srequired()
 			->Sminlength(100)
 				->field('username')
 				->field('fname')
 			->eSminlength()
 		->eSrequired()
-		->checkGroup($_POST);
+		->checkGroup($_POST);*/
 
 	$v->oRis_bool()
 		->digit()
@@ -200,7 +262,7 @@ $fiber->resume('test');*/
 	$v->Ftest(NULL, TRUE)
 		->required()
 		->maxlength(2)
-		->check('username', '');
+		->check('usernameaa2', '');
 
 	// this will override the default error message for the rule
 	$v->minlength('2', '@custom_error_Custom error message runtime')

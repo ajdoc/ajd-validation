@@ -21,6 +21,17 @@ class Events_dispatcher
 
 	public function trigger( $event, $observer, $ajd )
 	{
+		$eventArr 	= explode('-|', $event);
+		
+		if(isset($eventArr[1]))
+		{
+			$event = $eventArr[1];
+		}
+		else
+		{
+			$event 	= $eventArr[0];
+		}
+		
 		$this->event 		= strtolower( $event );
 		$this->ajd 			= $ajd;
 		$this->observer 	= $observer;

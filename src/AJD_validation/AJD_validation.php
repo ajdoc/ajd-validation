@@ -1300,8 +1300,41 @@ class AJD_validation extends Base_validator
 
 				$details 					= $or_field[ $or_field_name ][ Abstract_common::LOG_AND ];
 				$field_arr 					= $this->format_field_name( $or_field_name );
-
+				
 				$subCheck 					= $this->_processOrCollection( $or_field_arr, $or_success, $or_field, $data );
+
+				$value_or = (isset($data[$field_arr['orig']])) ? $data[$field_arr['orig']] : null;
+
+				if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_arr['orig']] ) )
+				{
+					$eventLoad 	= static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_arr['orig']];
+
+					unset(static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_arr['orig']]);
+
+
+					$this->_runEvents($eventLoad, $value_or, $field_arr['orig']);
+				}
+
+				if(!in_array(0, $subCheck))
+				{
+					if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_arr['orig']] ) )
+					{
+						$eventFails 	= static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_arr['orig']];
+
+						unset(static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_arr['orig']]);
+						$this->_runEvents($eventFails, $value_or, $field_arr['orig']);
+					}
+				}
+				else
+				{
+					if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_arr['orig']] ) )
+					{
+						$eventSuccess 	= static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_arr['orig']];
+
+						unset(static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_arr['orig']]);
+						$this->_runEvents($eventSuccess, $value_or, $field_arr['orig']);
+					}
+				}
 
 				$or_check 					= array_merge( $or_check, $subCheck );
 			}
@@ -1385,9 +1418,42 @@ class AJD_validation extends Base_validator
 							$field_key 		= Validation_helpers::removeParentPath( $realFieldKey, $field_key );
 						}
 
+						if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_key] ) )
+						{
+							$eventLoad 	= static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_key];
+
+							unset(static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_key]);
+
+
+							$this->_runEvents($eventLoad, $value, $field_key);
+						}
+
 						$this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value );
 
-						$and_check[] 		= $this->validation_fails( $field_key );
+						$val_and_fails 		= $this->validation_fails( $field_key );
+
+						$and_check[] 		= $val_and_fails;
+
+						if($val_and_fails)
+						{
+							if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_key] ) )
+							{
+								$eventFails 	= static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_key];
+
+								unset(static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_key]);
+								$this->_runEvents($eventFails, $value, $field_key);
+							}
+						}
+						else
+						{
+							if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_key] ) )
+							{
+								$eventSuccess 	= static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_key];
+
+								unset(static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_key]);
+								$this->_runEvents($eventSuccess, $value, $field_key);
+							}
+						}
 					}
 
 				}
@@ -1435,14 +1501,17 @@ class AJD_validation extends Base_validator
 			{
 				$or_field_details 	= $or_field[ $f_arr ][ Abstract_common::LOG_AND ];
 				$or_f_arr 			= $this->format_field_name( $f_arr );
-				
-				if( is_array( $data[ $f_arr ] ) )
+
+				if(isset($data[ $f_arr ]))
 				{
-					$this->_processMultiOrRule( $or_success, $or_field_details, $or_f_arr );
-				}
-				else
-				{
-					$this->_processSingleOrRule( $or_success, $or_field_details, $or_f_arr, $data[ $f_arr ] );
+					if( is_array( $data[ $f_arr ] ) )
+					{
+						$this->_processMultiOrRule( $or_success, $or_field_details, $or_f_arr );
+					}
+					else
+					{
+						$this->_processSingleOrRule( $or_success, $or_field_details, $or_f_arr, $data[ $f_arr ] );
+					}
 				}
 
 				$check[] 			= $this->validation_fails($or_f_arr['orig']);
@@ -1633,16 +1702,16 @@ class AJD_validation extends Base_validator
 			{
 				if( ISSET( $checks['checkValidations'] ) )
 				{
-					$obs->attach_observer( 'passed', $ev, array( $this ) );
-					$obs->attach_observer( 'fails', $ev, array( $this ) );
+					$obs->attach_observer( $field.'-|passed', $ev, array( $this ) );
+					$obs->attach_observer( $field.'-|fails', $ev, array( $this ) );
 
 					if( !in_array(TRUE, $checks['checkValidations']) ) 
 					{
-						$obs->notify_observer( 'passed' );
+						$obs->notify_observer( $field.'-|passed' );
 					}
 					else
 					{
-						$obs->notify_observer( 'fails' );
+						$obs->notify_observer( $field.'-|fails' );
 					}
 
 					$this->reset_all_validation_prop();
@@ -1790,14 +1859,14 @@ class AJD_validation extends Base_validator
 		$prop 			= $propScene['prop'];
 		$prop_and 		= $propScene['prop_and'];
 		$prop_or 		= $propScene['prop_or'];
+
+		$and_search 	= array();
+		$or_search 		= array();
 		
 		if( !EMPTY( $prop['scenarios'] ) 
 			OR !EMPTY( $prop_or['scenarios'] )
 		)
 		{
-			$and_search 	= array();
-			$or_search 		= array();
-
 			if( ISSET( $prop['scenarios'] ) )
 			{
 				$and_search = $this->array_search_recursive( $field, $prop['scenarios'] );
@@ -1812,7 +1881,6 @@ class AJD_validation extends Base_validator
 			{
 				return;
 			}
-			
 		}
 
 		$extra_args 	= array();
@@ -1982,22 +2050,23 @@ class AJD_validation extends Base_validator
 
 		if( EMPTY( $group ) AND !$dontReset )
 		{
-			$obs->attach_observer( 'passed', $ev, array( $this ) );
-			$obs->attach_observer( 'fails', $ev, array( $this ) );
+			$obs->attach_observer( $field.'-|passed', $ev, array( $this ) );
+			$obs->attach_observer( $field.'-|fails', $ev, array( $this ) );
 
-			$obs->attach_observer( 'customEvent', array( $ev, 'customEvent' ), array( $obs, $this, $field ) );
+			$obs->attach_observer( $field.'-|customEvent', array( $ev, 'customEvent' ), array( $obs, $this, $field ) );
 
-			$obs->notify_observer('customEvent');
-
+			$obs->notify_observer($field.'-|customEvent');
+			
 			if( !$this->validation_fails( $field ) ) 
 			{
-				$obs->notify_observer( 'passed' );
+				$obs->notify_observer( $field.'-|passed' );
 			}
 
 			if( $this->validation_fails( $field ) ) 
 			{
-				$obs->notify_observer( 'fails' );
+				$obs->notify_observer( $field.'-|fails' );
 			}
+			
 		}
 		
 		if( !EMPTY( $group ) )
@@ -2151,16 +2220,19 @@ class AJD_validation extends Base_validator
 
 			$check 						= $this->_process_validate( $pass_arr, $auto_arr, $extra_args, $key, $countErr );
 
-			if( !$check['passed'][0] )
+			if(!is_null($check))
 			{
-				$countErr++;
-			}
-			
-			$check_arr['passed'][] 					= $check['passed'][0];
-			
-			$check_arr['pass_arr'][ $rule_value ] 	= $check['pass_arr'];
+				if(  !$check['passed'][0] )
+				{
+					$countErr++;
+				}
+				
+				$check_arr['passed'][] 					= $check['passed'][0];
+				
+				$check_arr['pass_arr'][ $rule_value ] 	= $check['pass_arr'];
 
-			$or_pass_arr[$rule_key]['pass_arr'] 	= $check_arr['pass_arr'];
+				$or_pass_arr[$rule_key]['pass_arr'] 	= $check_arr['pass_arr'];
+			}
 
 		}
 		
@@ -2622,7 +2694,7 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	private function _runEvents(array $events, $value, $field)
+	private function _runEvents(array $events, $value, $field, $checkForField = false)
 	{
 		try
 		{
@@ -2634,7 +2706,33 @@ class AJD_validation extends Base_validator
 			{
 				foreach( $events as $event )
 				{
-					$ob->notify_observer($event, $args);
+					if($checkForField)
+					{
+						$eventArr = explode('-|', $event);
+						$checkField = null;
+
+						if(isset($eventArr[1]))
+						{
+							$checkField = $eventArr[0];
+						}
+
+						if(!empty($checkField))
+						{
+							if($checkField == $field)
+							{
+								$ob->notify_observer($event, $args);	
+							}
+						}
+						else
+						{
+							$ob->notify_observer($event, $args);	
+						}
+					}
+					else
+					{
+						$ob->notify_observer($event, $args);	
+					}
+					
 				}
 			}
 		}
@@ -2662,7 +2760,7 @@ class AJD_validation extends Base_validator
 		{
 			$eventLoad 	= static::$ajd_prop['events'][Abstract_common::EV_LOAD][$details['rule']];
 			unset(static::$ajd_prop['events'][Abstract_common::EV_LOAD][$details['rule']]);
-			$this->_runEvents($eventLoad, $details['value'], $details['orig_field']);
+			$this->_runEvents($eventLoad, $details['value'], $details['orig_field'], TRUE);
 		}
 
 		if( $this->isset_empty( $details['details'], 2 ) )
@@ -2748,8 +2846,10 @@ class AJD_validation extends Base_validator
 			if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_FAILS][$details['rule']] ) )
 			{
 				$eventFails 	= static::$ajd_prop['events'][Abstract_common::EV_FAILS][$details['rule']];
+
 				unset(static::$ajd_prop['events'][Abstract_common::EV_FAILS][$details['rule']]);
-				$this->_runEvents($eventFails, $details['value'], $details['orig_field']);
+				
+				$this->_runEvents($eventFails, $details['value'], $details['orig_field'], TRUE);
 			}
 
 			if( static::$bail )
@@ -2819,7 +2919,7 @@ class AJD_validation extends Base_validator
 
 				unset(static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$details['rule']]);
 
-				$this->_runEvents($eventSuccess, $details['value'], $details['orig_field']);
+				$this->_runEvents($eventSuccess, $details['value'], $details['orig_field'], TRUE);
 			}
 		}
 
