@@ -4,7 +4,7 @@ use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\Base_validator;
 use AJD_validation\Contracts\Abstract_common;
 
-class When extends Base_validator
+class When extends AJD_validation
 {
 	protected $ajd;
 	protected $obs;
@@ -22,6 +22,7 @@ class When extends Base_validator
 
 	protected $currLogic;
 	protected $currRule;
+	protected $whenRuleName;
  
 	public function __construct( AJD_validation $ajd, $obs )
 	{
@@ -321,6 +322,7 @@ class When extends Base_validator
 
 		$clean_rule 			= $this->ajd->clean_rule_name( $rule );
 
+		$this->whenRuleName = $clean_rule['rule'];
 		return $this;
 	}
 
@@ -601,9 +603,11 @@ class When extends Base_validator
 		if( $this->_check_given() ) 
 		{
 			$this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
-		}
 
-		$clean_rule 			= $this->ajd->clean_rule_name( $rule );
+			$clean_rule 			= $this->ajd->clean_rule_name( $rule );
+
+			$this->whenRuleName = $clean_rule['rule'];
+		}
 
 		return $this;
 
@@ -627,9 +631,11 @@ class When extends Base_validator
 		if( !$this->_check_given() ) 
 		{
 			$this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
-		}
 
-		$clean_rule 			= $this->ajd->clean_rule_name( $rule );
+			$clean_rule 			= $this->ajd->clean_rule_name( $rule );
+
+			$this->whenRuleName = $clean_rule['rule'];
+		}
 
 		return $this;
 	}
@@ -677,12 +683,87 @@ class When extends Base_validator
 		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this )->sometimes( $sometimes );
 	}	
 
-	public function bail()
+	/*public static function bail()
 	{
 		$v 	= $this->ajd;
 		$v::bail();
 
 		return $this;
+	}*/
+
+	public function publish($event, \Closure $callback = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = NULL, $forJs = FALSE)
+	{
+		$logic 												= static::$ajd_prop[ 'current_logic' ];
+		$curr_field 										= static::$ajd_prop[ 'current_field' ];
+
+		$rule 												= $this->whenRuleName;
+
+		if(!empty($rule))
+		{
+
+			if(!empty($callback))
+			{
+				if(!empty($curr_field))
+				{
+					$this->subscribe($curr_field.'-|'.$event, $callback);
+				}
+				else
+				{
+					$this->subscribe($event, $callback);
+				}
+			}
+
+			if( !EMPTY( $ruleOverride ) )
+			{
+				$rule 											= $ruleOverride;
+			}
+
+			if( !$forJs )
+			{
+				if( !EMPTY( static::$constraintStorageName ) )
+				{
+					if(!empty($curr_field))
+					{
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][] 	= $curr_field.'-|'.$event;
+					}
+					else
+					{
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][] 	= $event;	
+					}
+					
+				}
+				else
+				{
+					if(!empty($curr_field))
+					{
+						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][] 	= 	$curr_field.'-|'.$event;
+					}
+					else
+					{	
+						static::$ajd_prop['events'][$eventType][$rule][] 	= 	$event;
+					}
+				}
+			}
+		}
+
+		if( !EMPTY( $this->when ) )
+		{
+			return $this->when;
+		}
+		else
+		{
+			return $this;
+		}
+	}
+
+	public function publishSuccess($event, \Closure $callback = null, $forJs = FALSE, $ruleOverride = NULL)
+	{
+		return $this->publish($event, $callback, Abstract_common::EV_SUCCESS, $ruleOverride, $forJs);
+	}
+
+	public function publishFail($event, \Closure $callback = null, $forJs = FALSE, $ruleOverride = NULL)
+	{
+		return $this->publish($event, $callback, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
 	}
 }
 

@@ -182,24 +182,40 @@ try
 			->field('username')
 				->publishFail('supper_test', function()
 				{
-					echo 'super field test required.';
+					echo '<pre>';
+					echo 'super field test required only.';
 				})
 				->minlength(100)
 			->field('fname')
-			->publishFail('supper_minelen_test', function()
+				->publishFail('supper_minelen_test', function()
 				{
+					echo '<pre>';
 					echo 'super field test minlength.';
 				})
 				->minlength(1)
 					->publishFail('minelen_test', function()
 					{
+						echo '<pre>';
 						echo 'minlength test.';
+					})
+					->publishFail('minlengthtest2', function()
+					{
+						echo '<pre>';
+						echo 'super field test minlength 2.';
 					})
 		->eSrequired()
 		->checkGroup([
 			'username' => '',
-			'fname' => 'a'
+			'fname' => ''
 		]);
+
+		$v 
+			->required(function($value)
+			{
+				// var_dump($value);
+				return false;
+			})
+			->check('callback_funct', 'a');
 
 	// if both field has the same minumum lenght requirement
 	/*$v
@@ -218,9 +234,15 @@ try
 	$v->when()
 
 			->Givrequired()
+				->publishFail('test_on_giv_when', function()
+				{
+					echo '<pre>';
+					echo 'test_on_giv_when';
+				})
+
 			->Givdigit()
 			
-		->endgiven('alles', '1')
+		->endgiven('alles', '')
 
 			->Givrequired()
 		->endgiven('a21', '', AJD_validation::LOG_OR)
@@ -230,10 +252,20 @@ try
 		->endgiven('a221', 'a', AJD_validation::LOG_XOR)
 
 			->Threquired()
+				->publishFail('test_on_then_when', function()
+				{
+					echo '<pre>';
+					echo 'test_on_then_when';
+				})
 		->endthen('then', '')
 
 			->Othrequired()
-		->endotherwise('otherwise')
+				->publishFail('test_on_otherwhise_when', function()
+				{
+					echo '<pre>';
+					echo 'test_on_otherwhise_when';
+				})
+		->endotherwise('otherwise', '')
 
 	->endwhen();
 

@@ -89,7 +89,7 @@ class Rule_scenario extends AJD_validation
 		$curr_field 										= static::$ajd_prop[ 'current_field' ];
 
 		$rule 												= $this->rule_name;
-		
+
 		if(!empty($callback))
 		{
 			if(!empty($curr_field))
@@ -113,7 +113,7 @@ class Rule_scenario extends AJD_validation
 			{
 				if(!empty($curr_field))
 				{
-					static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][] 	= $curr_field.'-|'.$event;
+					static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][] 	= $curr_field.'-|'.$event;
 				}
 				else
 				{
@@ -125,7 +125,7 @@ class Rule_scenario extends AJD_validation
 			{
 				if(!empty($curr_field))
 				{
-					static::$ajd_prop['events'][$eventType][$rule][] 	= 	$curr_field.'-|'.$event;
+					static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][] 	= 	$curr_field.'-|'.$event;
 				}
 				else
 				{	
