@@ -20,7 +20,7 @@ A php validation and filtering library.
 
 Contributors names and contact info
 
-ex. Aj Doc (thedoctorisin17@gmail.com)  
+Aj Doc (thedoctorisin17@gmail.com)  
 
 ## Version History
 
