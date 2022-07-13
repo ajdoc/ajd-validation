@@ -203,4 +203,24 @@ class Rule_scenario extends AJD_validation
 		}
 	}
 
+	public function suspend($ruleOverride = NULL, $forJs = FALSE)
+	{
+		$rule 			= $this->rule_name;
+
+		if( !EMPTY( $ruleOverride ) )
+		{
+			$rule 		= $ruleOverride;
+		}
+
+		static::$ajd_prop['fiber_suspend'][$rule] = true;
+
+		if( !EMPTY( $this->when ) )
+		{
+			return $this->when;
+		}
+		else
+		{
+			return $this;
+		}
+	}
 }

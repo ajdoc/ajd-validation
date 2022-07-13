@@ -4,8 +4,12 @@ use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\Base_validator;
 use AJD_validation\Contracts\Abstract_common;
 
+// use AJD_validation\Traits\Events_dispatcher_trait;
+
 class When extends AJD_validation
 {
+	// use Events_dispatcher_trait;	
+
 	protected $ajd;
 	protected $obs;
 	protected $testPath;
@@ -666,7 +670,7 @@ class When extends AJD_validation
 
 		$this->obs->detach_observer( 'endwhen' );
 
-		return $this->ajd;
+		return $this->ajd::get_event_dispatcher_instance();
 	}
 
 	public function on( $scenario )
@@ -764,6 +768,30 @@ class When extends AJD_validation
 	public function publishFail($event, \Closure $callback = null, $forJs = FALSE, $ruleOverride = NULL)
 	{
 		return $this->publish($event, $callback, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
+	}
+
+	public function suspend($ruleOverride = NULL, $forJs = FALSE)
+	{
+		$rule 			= $this->whenRuleName;
+
+		if( !EMPTY( $ruleOverride ) )
+		{
+			$rule 		= $ruleOverride;
+		}
+		
+		if(!empty($rule))
+		{
+			static::$ajd_prop['fiber_suspend'][$rule] = true;
+		}
+
+		if( !EMPTY( $this->when ) )
+		{
+			return $this->when;
+		}
+		else
+		{
+			return $this;
+		}
 	}
 }
 

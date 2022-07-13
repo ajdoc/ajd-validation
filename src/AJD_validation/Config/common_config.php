@@ -19,7 +19,8 @@ $config 	= array(
 		'dbuser' 	=> 'root',
 		'dbpass' 	=> ''
 	),
-	'symfony_path' 	=> $symfony_path
+	'symfony_path' 	=> $symfony_path,
+	'fiberize' => true
 
 );
 

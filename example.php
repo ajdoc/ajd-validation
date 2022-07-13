@@ -78,8 +78,8 @@ class Custom_extension extends Base_extension
 try
 {
 	
-
-	/*$fiber = new Fiber(function ($ajd): void {
+/*
+	$fiber = new Fiber(function ($ajd): void {
 		$ajd->check('ch_one', '');
 
 		$ch = $ajd->validation_fails('ch_one');
@@ -88,6 +88,8 @@ try
    		
    		$ajd2 
    			->check('ch_two', '');
+
+   			Fiber::suspend('aaaas');
 	});
 
 	$v->required();
@@ -98,22 +100,48 @@ try
 		->required()->sometimes(function() use ($value)
 		{
 			return !$value;
-		});
+		});*/
 
 
-	$fiber->resume($v);*/
 	$v->trigger('add');	
+	// $v->setGlobalFiberize(true);
+
 
 	$v
+		->fiberize()
 		->required()
-			->on('add')
+			->suspend()
 			->publishFail('test_required', function($event, $closure, $ajd, $value = null, $field = null)
 			{
 				echo 'failed required field:'.$field;
 			})
 		->digit()
-			->on('edit')
+			->suspend()
+		->minlength(1)
+
+		
 		->check('as_evemt', '')
+
+			->fiber(function($ajd, $fiber, $field, $rule, $val)
+			{	
+				echo '<pre>';
+				var_dump($field);
+				var_dump($rule);
+				$fiber->resume(function() use($rule)
+				{
+					echo $rule;
+				});
+
+			})
+			->fiber(function($ajd, $fiber, $field, $rule, $val)
+			{	
+				/*echo '<pre>';
+				var_dump($field);
+				var_dump($rule);
+				$fiber->resume($rule);*/
+
+			})
+
 			->passed(function()
 			{
 				/*echo '<pre>';
@@ -132,7 +160,7 @@ try
 				echo 'falied 2';
 			});
 
-
+		
 
 	$validator = $v->getValidator();
 
@@ -144,7 +172,9 @@ try
 
 
 	$v
+		->fiberize()
 		->enum(Sstatus::class)
+			->suspend()
 		->checkArr('enum.enums.1', 
 			[
 				'enum' => [
@@ -154,7 +184,14 @@ try
 					]
 				]
 			]
-		);
+		)
+		->fiber(function($ajd, $fiber)
+		{
+			// $fiber->resume('a');
+			echo 'fiber2';
+		})
+		;
+
 
 	// example on how to use method chaining
 	/*$v->required()
@@ -231,18 +268,21 @@ try
 		->digit()
 		->check('or_rule', '');
 
-	$v->when()
-
+	$v
+		->when()
+			// ->Givfiberize()
 			->Givrequired()
 				->publishFail('test_on_giv_when', function()
 				{
 					echo '<pre>';
 					echo 'test_on_giv_when';
 				})
+				->suspend()
 
 			->Givdigit()
 			
 		->endgiven('alles', '')
+
 
 			->Givrequired()
 		->endgiven('a21', '', AJD_validation::LOG_OR)
@@ -267,7 +307,14 @@ try
 				})
 		->endotherwise('otherwise', '')
 
-	->endwhen();
+	->endwhen()
+
+		->fiber(function($ajd, $fiber, $field)
+				{
+					$fiber->resume('from when');
+					var_dump($field);
+					echo 'when aaaaa';
+				});
 
 	$arrch = ['aass' => [1,1]];
 

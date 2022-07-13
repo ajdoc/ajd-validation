@@ -75,7 +75,7 @@ abstract class Abstract_common
 
 	}
 
-	protected function invoke_function( $func, $args = array() )
+	protected function invoke_function( $func, $args = array(), $event = null )
 	{
 		return call_user_func_array( $func , $args );
 	}

@@ -73,7 +73,12 @@ class AJD_validation extends Base_validator
 			'current_logic' 				=> Abstract_common::LOG_AND,
 			'check_group' 					=> FALSE,
 			'result_values' 				=> array(),
-			'events'						=> array()
+			'events'						=> array(),
+			// 'fiberize' 						=> [],
+			'global_fiberize' 				=> false,
+			'fibers' 						=> [],
+			'fiber_suspend' 				=> [],
+			'fiber_events' 					=> []
 	);
 
 	protected static $bail 					= FALSE;
@@ -101,6 +106,8 @@ class AJD_validation extends Base_validator
 	protected static $addRuleDirectory 		= array();
 
 	protected static $dbConnections			= array();
+
+	protected static $fiberRule = 'fiberize';
 
 	protected static function get_ajd_instance()
 	{
@@ -1823,7 +1830,7 @@ class AJD_validation extends Base_validator
 		$prop  			= array();
 
 		$field_arr 		= $this->format_field_name( $field );
-
+		
 		if( is_array( $value ) )
 		{
 			if( ISSET( $value[ $field_arr['orig'] ] ) )
@@ -1849,7 +1856,7 @@ class AJD_validation extends Base_validator
 		// }
 
 		$prop 			= $prop_and;
-
+		
 		$obs            = static::get_observable_instance();
 		$ev				= static::get_event_dispatcher_instance();
 		$auto_arr 		= ( is_array( $value ) AND $check_arr );
@@ -2052,6 +2059,7 @@ class AJD_validation extends Base_validator
 		{
 			$obs->attach_observer( $field.'-|passed', $ev, array( $this ) );
 			$obs->attach_observer( $field.'-|fails', $ev, array( $this ) );
+			
 
 			$obs->attach_observer( $field.'-|customEvent', array( $ev, 'customEvent' ), array( $obs, $this, $field ) );
 
@@ -2077,6 +2085,7 @@ class AJD_validation extends Base_validator
 		{
 			if( !$dontReset )
 			{
+				// $this->resetFiberize($field);
 				$this->reset_all_validation_prop();
 			}
 
@@ -2157,12 +2166,40 @@ class AJD_validation extends Base_validator
 
 	private function _process_and_or_check( $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, $key = NULL, $origValue = NULL )
 	{	
+		return call_user_func_array([$this, 'fiberize'], func_get_args());
+	}
+
+	private function _refactored_process_and_or_check($prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, $key = NULL, $origValue = NULL, $fibered = false)
+	{
+		$params = func_get_args();
 		$check_arr 			= array();
 		$or_pass_arr 		= array();
 		$countErr 			= 0;
+
+		// $params[] = true;
 		
+		$fiberize = ( in_array(static::$fiberRule, array_values($prop['rules']), true ) );
+
+		$global_fiberize = static::$ajd_prop['global_fiberize'];
+		
+		$fiberized 	= ($fiberize || $global_fiberize);
+
+		$obs            = static::get_observable_instance();
+		$ev				= static::get_event_dispatcher_instance();
+		$check_arr_det 	= [];
+
 		foreach( $prop['rules'] as $rule_key => $rule_value )
 		{
+			$paramaters = [
+				$rule_key,
+				$rule_value,
+				$check_arr,
+				$or_pass_arr,
+				$countErr
+			];
+			
+			$paramaters = array_merge($paramaters, $params);
+
 			if( !EMPTY( $prop['scenarios'] ) )
 			{
 				$check_scena 		= $this->array_search_recursive( $rule_value, $prop['scenarios'] );
@@ -2170,70 +2207,102 @@ class AJD_validation extends Base_validator
 				if( !EMPTY( $check_scena ) ) continue;
 			}
 
-			$pass_arr 		= array();
-
-			$satisfier 		= $prop['satisfier'][ $rule_key ];
-			$details 		= $prop['details'][ $rule_key ];
-			$sometimes 		= $prop['sometimes'][ $rule_value ];
-
-			$pass_arr['rule'] 			= $rule_value;
-			$pass_arr['satisfier'] 		= $satisfier;
-			$pass_arr['field'] 			= $field;
-			$pass_arr['details'] 		= $details;
-			$pass_arr['value'] 			= $value;
-			$pass_arr['cus_err'] 		= ( ISSET( $prop['cus_err'] ) ) ? $prop['cus_err'] : array();
-			$pass_arr['clean_field']	= $field_arr['clean'];
-			$pass_arr['orig_field'] 	= $field_arr['orig'];
-			$pass_arr['logic'] 			= $prop['logic'];
-			$pass_arr['field_logic'] 	= $logic;
-			$pass_arr['origValue'] 		= $origValue;
-
-			$or_pass_arr[$rule_key]['rule'] 		= $rule_value;
-			$or_pass_arr[$rule_key]['satisfier'] 	= $satisfier;
-			$or_pass_arr[$rule_key]['field'] 		= $field;
-			$or_pass_arr[$rule_key]['details'] 		= $details;
-			$or_pass_arr[$rule_key]['value'] 		= $value;
-			$or_pass_arr[$rule_key]['cus_err'] 		= ( ISSET( $prop['cus_err'] ) ) ? $prop['cus_err'] : array();
-			$or_pass_arr[$rule_key]['clean_field'] 	= $field_arr['clean'];
-			$or_pass_arr[$rule_key]['orig_field'] 	= $field_arr['orig'];
-			$or_pass_arr[$rule_key]['logic'] 		= $prop['logic'];
-			$or_pass_arr[$rule_key]['field_logic'] 	= $logic;
- 			
-			if( is_callable( $sometimes ) )
+			if(class_exists('Fiber') && $fiberized)
 			{
-				$sometimes 				= $this->invoke_func( $sometimes, array( $pass_arr['value'], $pass_arr['satisfier'], $pass_arr['orig_field'], $pass_arr['origValue'] ) );
+				$paramaters[] = true;
 
-			}
-			else if( $sometimes == Abstract_common::SOMETIMES 
-				OR $sometimes === TRUE
-			)
-			{
-				$sometimes 				= !EMPTY( $pass_arr['value'] );
-			}
-			else 
-			{
-				$sometimes 				= TRUE;
-			}
+				$fiber = new \Fiber([$this, '_refactor_fiber_process_and_or_check']);
 
-			$pass_arr['sometimes'] 					= $sometimes;
-			$or_pass_arr[$rule_key]['sometimes'] 	= $sometimes;
-
-			$check 						= $this->_process_validate( $pass_arr, $auto_arr, $extra_args, $key, $countErr );
-
-			if(!is_null($check))
-			{
-				if(  !$check['passed'][0] )
+				if(
+					isset(static::$ajd_prop['fiber_suspend'][$rule_value])
+					&&
+					!empty(static::$ajd_prop['fiber_suspend'][$rule_value])
+				)
 				{
-					$countErr++;
+					$fiber_ajd_prop['fibers'][$field][$rule_value] = [
+						'fiber' => $fiber,
+						'paramaters' => $paramaters,
+						'rule' => $rule_value,
+						'field' => $field
+					];
+				}
+
+				$val = [];
+
+				if(!$fiber->isStarted())
+				{
+					$val = call_user_func_array([$fiber, 'start'], $paramaters);
+				}
+
+				if(
+					isset(static::$ajd_prop['fiber_suspend'][$rule_value])
+					&&
+					!empty(static::$ajd_prop['fiber_suspend'][$rule_value])
+				)
+				{
+
+					$fiber_ajd_prop['fibers'][$field][$rule_value]['fiber_suspend_val'] = $val;
+
+					$obs->attach_observer( $rule_value.'_'.$field.'-|fiber', $ev, array( $this, $fiber_ajd_prop['fibers'], $rule_value, $field ) );
+					$obs->notify_observer( $rule_value.'_'.$field.'-|fiber' );
 				}
 				
-				$check_arr['passed'][] 					= $check['passed'][0];
-				
-				$check_arr['pass_arr'][ $rule_value ] 	= $check['pass_arr'];
+				/*if(!empty(static::$ajd_prop['fiber_events']))
+				{
+					foreach(static::$ajd_prop['fiber_events'] as $field => $rules)
+					{
+						foreach($rules as $rule => $events)
+						{
+							
+							foreach($events as $event)
+							{
+								$paramaters_sub = [];
 
-				$or_pass_arr[$rule_key]['pass_arr'] 	= $check_arr['pass_arr'];
+								$paramaters_sub[] = $this;
+								$paramaters_sub[] = $event['fiber'];
+								$paramaters_sub[] = $field;
+								$paramaters_sub[] = $rule;
+								// $paramaters_sub[] = $event['paramaters'];
+								$paramaters_sub[] = $event['fiber_suspend_val'];
+								
+								
+								call_user_func_array($event['closure'], $paramaters_sub);
+							}
+
+							unset(static::$ajd_prop['fiber_events'][$field][$rule]);
+						}
+					}
+				}*/
+
+				if($fiber->isTerminated())
+				{
+					$check_arr_det = $fiber->getReturn();
+				}
+
+			}
+			else
+			{
+				if(
+					isset(static::$ajd_prop['fiber_suspend'][$rule_value])
+					&&
+					!empty(static::$ajd_prop['fiber_suspend'][$rule_value])
+				)
+				{
+
+					$obs->attach_observer( $rule_value.'_'.$field.'-|fiber', $ev, array( $this, [] ) );
+					$obs->notify_observer( $rule_value.'_'.$field.'-|fiber' );
+				}
+
+				$check_arr_det = call_user_func_array([$this, '_refactor_fiber_process_and_or_check'], $paramaters);
+				
 			}
 
+			if(!empty($check_arr_det))
+			{
+				$pass_arr = $check_arr_det['pass_arr'];
+				$or_pass_arr = array_merge($or_pass_arr, $check_arr_det['or_pass_arr']);
+				$check_arr = array_merge($check_arr, $check_arr_det['check_arr']);
+			}
 		}
 		
 		if( $prop['logic'] == Abstract_common::LOG_OR )
@@ -2259,6 +2328,151 @@ class AJD_validation extends Base_validator
 		}
 
 		return $check_arr;
+	}
+
+	private function _refactor_fiber_process_and_or_check($rule_key, $rule_value, array $check_arr, array $or_pass_arr, $countErr, $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, $key = NULL, $origValue = NULL, $fibered = false)
+	{
+		$pass_arr 		= array();
+
+		$satisfier 		= $prop['satisfier'][ $rule_key ];
+		$details 		= $prop['details'][ $rule_key ];
+		$sometimes 		= $prop['sometimes'][ $rule_value ];
+
+		$pass_arr['rule'] 			= $rule_value;
+		$pass_arr['satisfier'] 		= $satisfier;
+		$pass_arr['field'] 			= $field;
+		$pass_arr['details'] 		= $details;
+		$pass_arr['value'] 			= $value;
+		$pass_arr['cus_err'] 		= ( ISSET( $prop['cus_err'] ) ) ? $prop['cus_err'] : array();
+		$pass_arr['clean_field']	= $field_arr['clean'];
+		$pass_arr['orig_field'] 	= $field_arr['orig'];
+		$pass_arr['logic'] 			= $prop['logic'];
+		$pass_arr['field_logic'] 	= $logic;
+		$pass_arr['origValue'] 		= $origValue;
+		$pass_arr['fibered'] 		= $fibered;
+
+		$or_pass_arr[$rule_key]['rule'] 		= $rule_value;
+		$or_pass_arr[$rule_key]['satisfier'] 	= $satisfier;
+		$or_pass_arr[$rule_key]['field'] 		= $field;
+		$or_pass_arr[$rule_key]['details'] 		= $details;
+		$or_pass_arr[$rule_key]['value'] 		= $value;
+		$or_pass_arr[$rule_key]['cus_err'] 		= ( ISSET( $prop['cus_err'] ) ) ? $prop['cus_err'] : array();
+		$or_pass_arr[$rule_key]['clean_field'] 	= $field_arr['clean'];
+		$or_pass_arr[$rule_key]['orig_field'] 	= $field_arr['orig'];
+		$or_pass_arr[$rule_key]['logic'] 		= $prop['logic'];
+		$or_pass_arr[$rule_key]['field_logic'] 	= $logic;
+		$or_pass_arr[$rule_key]['fibered'] 	= $fibered;
+			
+		if( is_callable( $sometimes ) )
+		{
+			$sometimes 				= $this->invoke_func( $sometimes, array( $pass_arr['value'], $pass_arr['satisfier'], $pass_arr['orig_field'], $pass_arr['origValue'] ) );
+
+		}
+		else if( $sometimes == Abstract_common::SOMETIMES 
+			OR $sometimes === TRUE
+		)
+		{
+			$sometimes 				= !EMPTY( $pass_arr['value'] );
+		}
+		else 
+		{
+			$sometimes 				= TRUE;
+		}
+
+		$pass_arr['sometimes'] 					= $sometimes;
+		$or_pass_arr[$rule_key]['sometimes'] 	= $sometimes;
+
+		$check 						= $this->_process_validate( $pass_arr, $auto_arr, $extra_args, $key, $countErr );
+
+		if( !$check['passed'][0] )
+		{
+			$countErr++;
+		}
+		
+		$check_arr['passed'][] 					= $check['passed'][0];
+		
+		$check_arr['pass_arr'][ $rule_value ] 	= $check['pass_arr'];
+
+		$or_pass_arr[$rule_key]['pass_arr'] 	= $check_arr['pass_arr'];
+
+		return [
+			'check_arr' => $check_arr,
+			'or_pass_arr' => $or_pass_arr,
+			'pass_arr' => $pass_arr
+		];
+	}
+	
+	private function fiberize()
+	{
+		$paramaters = func_get_args();
+
+		/*if(class_exists('Fiber'))
+		{
+			$fiber = new \Fiber([$this, '_refactored_process_and_or_check']);
+
+			$obs            = static::get_observable_instance();
+			$ev				= static::get_event_dispatcher_instance();
+			
+			$paramaters[] = true;
+
+			$val = [];
+
+			static::$ajd_prop['fibers'] = [
+				'fiber' => $fiber,
+				'paramaters' => $paramaters
+			];
+
+			$val = null;
+			$val2 = null;
+
+			if(!$fiber->isStarted())
+			{
+				$val = call_user_func_array([$fiber, 'start'], $paramaters);
+			}
+			
+			if($fiber->isSuspended())
+			{
+				$val2 = call_user_func_array([$fiber, 'resume'], []);
+			}
+			
+			static::$ajd_prop['fibers']['fiber_suspend_val'][] = $val;
+
+			if(!empty($val2))
+			{
+				static::$ajd_prop['fibers']['fiber_suspend_val'][] = $val2;
+			}
+
+			$obs->attach_observer( $field.'-|fiber', $ev, array( $this, static::$ajd_prop['fibers'] ) );
+			$obs->notify_observer($field.'-|fiber');
+
+			
+			if(!empty(static::$ajd_prop['fiber_events']))
+			{
+				foreach(static::$ajd_prop['fiber_events'] as $event)
+				{
+					$paramaters_sub = [];
+
+					$paramaters_sub[] = $this;
+					$paramaters_sub[] = $event['fiber'];
+					$paramaters_sub[] = $event['paramaters'];
+					$paramaters_sub[] = $event['fiber_suspend_val'];
+					
+					call_user_func_array($event['closure'], $paramaters_sub);
+				}
+			}
+			
+			
+			if($fiber->isTerminated())
+			{
+				return $fiber->getReturn();
+			}
+		}
+		else
+		{
+			return call_user_func_array([$this, '_refactored_process_and_or_check'], $paramaters);
+		}*/
+
+		return call_user_func_array([$this, '_refactored_process_and_or_check'], $paramaters);
 	}
 
 	public static function validateMetada( $object, $assert = FALSE )
@@ -2598,12 +2812,29 @@ class AJD_validation extends Base_validator
 		}
 
 		$this->reset_validation_prop( 'events' );
+		$this->reset_validation_prop( 'fibers' );
+		$this->reset_validation_prop( 'fiber_suspend' );
+		$this->reset_validation_prop( 'fiber_events' );
 		$this->reset_validation_prop( 'current_logic' );
 		$this->resetConstraintGroup();
+		
 		$this->resetBail();
 
 		$filter_ins = static::get_filter_ins();
 	}
+
+	/*protected function resetFiberize($field = null)
+	{
+		if(!empty($field))
+		{
+			unset(static::$ajd_prop['fiberize'][$field]);
+		}
+		else
+		{
+			static::$ajd_prop['fiberize'] = [];	
+		}
+		
+	}*/
 
 	protected function resetConstraintGroup()
 	{
@@ -2977,6 +3208,46 @@ class AJD_validation extends Base_validator
 		}
 
 		$extra_args['pass_arr']['values'][$details['rule']] 	= $details['value'];
+
+
+		if(!empty(static::$ajd_prop['fiber_suspend']) 
+			&&
+			(
+				isset($details['fibered'])
+				&&
+				!empty($details['fibered'])
+				&&
+				class_exists('Fiber')
+				
+			)
+		)
+		{
+			// var_dump($details['rule']);
+			if(
+				isset(static::$ajd_prop['fiber_suspend'][$details['rule']])
+				&&
+				!empty(static::$ajd_prop['fiber_suspend'][$details['rule']])
+			)
+			{
+
+				$suspend_val = \Fiber::suspend($details);
+				
+				if(!empty($suspend_val))
+				{
+					if($suspend_val instanceof \Closure)
+					{
+						$suspend_val($extra_args);	
+					}
+					else
+					{
+						var_dump($suspend_val);
+					}
+				}
+
+
+				unset(static::$ajd_prop['fiber_suspend'][$details['rule']]);
+			}
+		}
 	
 		return $extra_args;
 	}
@@ -3406,5 +3677,48 @@ class AJD_validation extends Base_validator
 			'args' 						=> $obj
 		);
 
+	}
+
+	public static function getFiberEvents()
+	{
+		return static::$ajd_prop['fiber_events'];	
+	}
+
+	public static function addFiberEvents( \Closure $func, $ajd = null, $fiber, $paramaters = [], $fiber_suspend_val = [], $rule = null, $field = null )
+	{
+		if(!empty($rule) && !empty($field))
+		{
+			static::$ajd_prop['fiber_events'][$field][$rule][] = [
+				'closure' => $func,
+				'ajd' => $ajd,
+				'fiber' => $fiber,
+				'paramaters' => $paramaters,
+				'fiber_suspend_val' => $fiber_suspend_val
+			];
+		}
+		else
+		{
+			static::$ajd_prop['fiber_events'][] = [
+				'closure' => $func,
+				'ajd' => $ajd,
+				'fiber' => $fiber,
+				'paramaters' => $paramaters,
+				'fiber_suspend_val' => $fiber_suspend_val
+			];
+		}
+
+		return static::$ajd_prop['fiber_events'];
+	}
+
+	/*public static function setFiberize($field, $onOff = false)
+	{
+		static::$ajd_prop['fiberize'][$field] = $onOff;
+	}*/
+
+	public static function setGlobalFiberize($onOff = false)
+	{
+		static::$ajd_prop['global_fiberize'] = $onOff;
+
+		return static::get_ajd_instance();
 	}
 }

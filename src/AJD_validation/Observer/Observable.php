@@ -44,17 +44,17 @@ class Observable
 		}
 	}
 
-	public function notify_static_observer($event, array $args = array())
+	public function notify_static_observer($event, array $args = array(), $return_specific = false)
 	{
-		$this->notify_common_observer($event, static::$statObserver, static::$statObserverArgs, $args);
+		return $this->notify_common_observer($event, static::$statObserver, static::$statObserverArgs, $args, $return_specific);
 	}
 
-	public function notify_observer($event, array $args = array())
+	public function notify_observer($event, array $args = array(), $return_specific = false)
 	{
-		$this->notify_common_observer($event, $this->observers, $this->observer_args, $args);
+		return $this->notify_common_observer($event, $this->observers, $this->observer_args, $args, $return_specific);
 	}
 
-	public function notify_common_observer( $event, array $observers, array $observer_args, array $extra_args = array() )
+	public function notify_common_observer( $event, array $observers, array $observer_args, array $extra_args = array(), $return_specific = false )
 	{
 		$method_factory 					= static::get_factory_instance()->get_instance( FALSE, FALSE, TRUE );
 		$function_factory 	 				= static::get_factory_instance()->get_instance( FALSE, TRUE, FALSE );
@@ -91,9 +91,20 @@ class Observable
 					} 
 					else 
 					{
-						$method 			= $method_factory->rules( $observer, 'trigger' );
+						$method 			= $method_factory->rules( $observer, 'triggerEvent' );
 
-						$method->invokeArgs( $observer, $args );
+						if($return_specific)
+						{
+							return [
+								'method' => $method,
+								'observer' => $observer,
+								'args' => $args
+							];
+						}
+						else
+						{
+							$method->invokeArgs( $observer, $args );
+						}
 					}
 
 				}
