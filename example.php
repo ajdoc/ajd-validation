@@ -218,9 +218,17 @@ try
 		->required()
 		->minlength(2)
 		->checkAsync('aeee', 'a')
-			->fails(function()
+			->fails(function($ajd)
 			{
+				/*$ajd->required()
+					->check('aaee_fail_event');*/
+
 				echo 'falied 1 aeee';
+			})
+			->passed(function($ajd)
+			{
+				/*$ajd->required()
+					->check('aaee_pass_event');*/
 			})
 			->then(function()
 			{
