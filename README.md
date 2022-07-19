@@ -27,7 +27,11 @@ Aj Doc (thedoctorisin17@gmail.com)
 * 0.1 (master)
     * Initial Release
 
+## Documentation
+* [Usage](docs/usage.md)
+
 ## Acknowledgments
 
 Inspiration, code snippets, etc.
 * [respect/validation](https://github.com/Respect/Validation)
+* [reactphp/promise](https://github.com/reactphp/promise)
