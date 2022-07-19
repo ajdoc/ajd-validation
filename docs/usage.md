@@ -67,4 +67,4 @@ Or you can wrap your field-rules definition in a try catch and after defining al
 
 See also:
 
-- [Events and Promises](docs/advance_usage/events_promises.md)
+- [Advance Usage](advance_usage/)
