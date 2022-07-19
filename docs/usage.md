@@ -64,3 +64,7 @@ You define rules by chaining like in the example, after you define all the rules
 If the validation fails, validation_fails method will return true, error messages can be retrieved using `$v->errors()->all()` which will return an associative array of field and rules error messages or you can use `$v->errors()->toStringErr()` which will return formated error messages. 
 
 Or you can wrap your field-rules definition in a try catch and after defining all use `$v->assert()` which will throw an exception of error messages.
+
+See also:
+
+- [Advance usage](docs/advance_usage)
