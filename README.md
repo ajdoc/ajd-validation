@@ -30,6 +30,10 @@ Aj Doc (thedoctorisin17@gmail.com)
 ## Documentation
 * [Usage](docs/usage.md)
 
+* See also:
+	- [Advance Usage](advance_usage/)
+	- [Rules](rules/)
+
 ## Acknowledgments
 
 Inspiration, code snippets, etc.
