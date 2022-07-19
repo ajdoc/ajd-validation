@@ -251,6 +251,9 @@ This works similarly with reactphp's promise resolution forwarding and Rejection
 		- will received an exception
 		- will remove the current validation field-error message in error message bag/stack.
 		
+
+## checkAsync($field,mixed $value, callable $resolver)
+
 ```php
 use AJD_validation\AJD_validation;
 
@@ -283,8 +286,6 @@ $v = new AJD_validation;
 	}
 
 ```
-
-## checkAsync($field,mixed $value, callable $resolver)
 	
 	1. [$field] for first paramater 
 		- required
