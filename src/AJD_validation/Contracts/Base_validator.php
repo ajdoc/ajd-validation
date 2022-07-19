@@ -102,9 +102,17 @@ abstract class Base_validator extends Abstract_common
 		
 	}
 
-	protected static function get_errors_instance( $lang = NULL )
+	protected static function get_errors_instance( $lang = NULL, $singleton = true )
 	{
-		return Vefja::singleton('AJD_validation\Helpers\Errors');
+		if($singleton)
+		{
+			return Vefja::singleton('AJD_validation\Helpers\Errors');
+		}
+		else
+		{
+			return Vefja::instance('AJD_validation\Helpers\Errors');
+		}
+		
 	}
 
 	protected static function getConfig( $file = 'common_config.php' )

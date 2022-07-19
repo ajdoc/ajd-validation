@@ -586,7 +586,7 @@ class Errors extends InvalidArgumentException
 		return $newMessage;
 	}
 
-	public function processExceptions( $rule_name, $called_class, $rule_instance, $satisfier, $values, $inverse, array $errors  )
+	public function processExceptions( $rule_name, $called_class, $rule_instance, $satisfier, $values, $inverse, array $errors, $passRuleObj = null  )
 	{
 		$exception_class 			= $this->exceptionNamespace.$called_class.'_exception';
 		$qualified_exception_class = $exception_class;
@@ -634,9 +634,21 @@ class Errors extends InvalidArgumentException
 			
 			if( !EMPTY( $exception_class_obj ) )
 			{
-				if( ISSET( $rule_instance[ $called_class ] ) )
+				if( ISSET( $rule_instance[ $called_class ] ) 
+					|| !empty($passRuleObj)
+				)
 				{
-					$rule 			= $rule_instance[ $called_class ];
+					if(!empty($passRuleObj))
+					{
+						$ruleCh 		= $passRuleObj;	
+						$rule 			= $passRuleObj;
+
+					}
+					else
+					{
+						$ruleCh 		= $rule_instance[ $called_class ];	
+						$rule 			= $rule_instance[ $called_class ];	
+					}
 					
 					$params 		= array_merge(
 						get_class_vars( get_class( $rule ) ),
@@ -645,8 +657,9 @@ class Errors extends InvalidArgumentException
 						compact('values'),
 						compact('inverse')
 					);
-
-					if( $rule_instance[$called_class] instanceof Invokable_rule_interface )
+					
+					
+				if( $ruleCh instanceof Invokable_rule_interface )
 					{
 						$params['id_pass'] = $qualified_exception_class;
 					}
@@ -655,17 +668,17 @@ class Errors extends InvalidArgumentException
 
 					$exceptionObj 			= $exception_class_obj;
 
-					if( $rule_instance[$called_class] instanceof Invokable_rule_interface )
+					if( $ruleCh instanceof Invokable_rule_interface )
 					{
-						$rule_instance[$called_class]->setException($exceptionObj);
+						$ruleCh->setException($exceptionObj);
 						
-						$message 	= $rule_instance[$called_class]($values, $satisfier, null, null, null);
+						$message 	= $ruleCh($values, $satisfier, null, null, null);
 					}
 					else
 					{
 						$message 				= $exception_class_obj->getExceptionMessage();
 					}
-
+					
 					$errors[$rule_name]		= $message;
 
 					$exception_arr[]  		= $exceptionObj;

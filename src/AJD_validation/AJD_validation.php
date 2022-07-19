@@ -1294,7 +1294,7 @@ class AJD_validation extends Base_validator
 								{
 									foreach( $val_res as $k => $v )
 									{
-										$or_success[ $key_res ][ $k ]['passed'][] 		= $or[Abstract_common::LOG_AND]['passed'][ $cnt ];
+										$or_success[ $key_res ][ $k ]['passed'][] 		= $orResultArr[Abstract_common::LOG_AND]['passed'][ $cnt ];
 
 										if( !EMPTY( $v ) AND ISSET( $v[0] ) )
 										{
@@ -1303,6 +1303,8 @@ class AJD_validation extends Base_validator
 											$or_success[ $key_res ][ $k ]['cus_err'][] 		= $v[2][ $k ];
 											$or_success[ $key_res ][ $k ]['values'][] 		= $v['values'][$v[0]];
 											$or_success[ $key_res ][ $k ]['append_error'][] = $v[3][ $k ];
+
+											$or_success[ $key_res ][ $k ]['rule_obj'][] 	= $v[4];
 
 										}
 
@@ -1315,7 +1317,7 @@ class AJD_validation extends Base_validator
 									/*if( ISSET( $val_res[0] ) )
 									{*/
 										$or_success[ $key_res ]['passed'][] 		= $orResultArr[Abstract_common::LOG_AND]['passed'][ $cnt ];
-
+										
 										if( ISSET( $val_res[0] ) )
 										{
 											
@@ -1324,7 +1326,10 @@ class AJD_validation extends Base_validator
 											$or_success[ $key_res ]['cus_err'][] 		= $val_res[2][ $key_res ];
 											$or_success[ $key_res ]['values'][] 		= $val_res['values'][$val_res[0]];
 
+											$or_success[ $key_res ]['rule_obj'][] 		= $val_res[4];
+
 											$or_success[ $key_res ]['append_error'][$val_res[0]] 	= $val_res[3][ $key_res ];
+
 										}
 									// }
 
@@ -1586,6 +1591,7 @@ class AJD_validation extends Base_validator
 
 		if( !EMPTY( $or_field_arr ) )
 		{
+			$or_cnt = 0;
 			foreach( $or_field_arr as $f_arr => $f_arr_v )
 			{
 				$or_field_details 	= $or_field[ $f_arr ][ Abstract_common::LOG_AND ];
@@ -1595,12 +1601,15 @@ class AJD_validation extends Base_validator
 				{
 					if( is_array( $data[ $f_arr ] ) )
 					{
-						$this->_processMultiOrRule( $or_success, $or_field_details, $or_f_arr );
+						$this->_processMultiOrRule( $or_success, $or_field_details, $or_f_arr, [], $or_cnt );
 					}
 					else
 					{
-						$this->_processSingleOrRule( $or_success, $or_field_details, $or_f_arr, $data[ $f_arr ] );
+			
+						$this->_processSingleOrRule( $or_success, $or_field_details, $or_f_arr, $data[ $f_arr ], $or_cnt );
 					}
+
+					$or_cnt++;
 				}
 
 				$check[] 			= $this->validation_fails($or_f_arr['orig']);
@@ -1610,7 +1619,7 @@ class AJD_validation extends Base_validator
 		return $check;
 	}
 
-	private function _processMultiOrRule( array $or_success, array $or_field_details, array $or_f_arr )
+	private function _processMultiOrRule( array $or_success, array $or_field_details, array $or_f_arr, $dataValue = null, $current_key )
 	{
 		foreach( $or_success as $rule => $value_ar )
 		{
@@ -1625,7 +1634,7 @@ class AJD_validation extends Base_validator
 					if( !in_array( 1, $v['passed'] ) AND $check_rule !== FALSE )
 					{
 						$real_det 					= array();
-						
+
 						$real_det['clean_field'] 	= $or_f_arr['clean'];
 						$real_det['orig_field'] 	= $or_f_arr['orig'];
 						$real_det['rule'] 			= $r;
@@ -1633,10 +1642,14 @@ class AJD_validation extends Base_validator
 						$real_det['value'] 			= $v['values'][0];						
 						$real_det['cus_err'] 		= $v['cus_err'][0];
 						$real_det['append_error']	= $v['append_error'][0];
+
+						$det_key = array_search($r, $or_field_details['rules']);
 						 
-					 	$real_det['details'] 		= $or_field_details['details'][$r_cnt];
+					 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+
+					 	$real_det['rule_obj'] = (isset($or_success[$r_cnt][$r]['rule_obj'][$current_key][$r])) ? $or_success[$r_cnt][$r]['rule_obj'][$current_key][$r] : null;
 					 	
-						$this->handle_errors( $real_det, TRUE, $rule );
+						$this->handle_errors( $real_det, TRUE, $rule, true, true );
 					}
 					
 					$r_cnt++;
@@ -1645,7 +1658,7 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	private function _processSingleOrRule( array $or_success, array $or_field_details, array $or_f_arr, $dataValue )
+	private function _processSingleOrRule( array $or_success, array $or_field_details, array $or_f_arr, $dataValue, $current_key )
 	{
 		foreach( $or_field_details['rules'] as $rule_key => $rule_per )
 	 	{
@@ -1655,18 +1668,20 @@ class AJD_validation extends Base_validator
 	 			
 	 			$check_rule 					= array_search($rule_per, $or_field_details['rules']);
 
+	 			
 		 		if( $check_rule !== FALSE )
 		 		{
+		 			
 			 		$real_det 					= array();
 			 		$real_det['clean_field'] 	= $or_f_arr['clean'];
 					$real_det['orig_field'] 	= $or_f_arr['orig'];
 					$real_det['rule'] 			= $rule_per;
-					$real_det['satisfier'] 		= ( ISSET( $or_success[$rule_per]['satisfier'][$rule_key] ) ) ? $or_success[$rule_per]['satisfier'][$rule_key] : NULL;
+					$real_det['satisfier'] 		= ( ISSET( $or_success[$rule_per]['satisfier'][$current_key] ) ) ? $or_success[$rule_per]['satisfier'][$current_key] : NULL;
 					$real_det['value'] 			= $dataValue;						
 
-					if( ISSET( $or_success[$rule_per]['cus_err'][$rule_key] ) )
+					if( ISSET( $or_success[$rule_per]['cus_err'][$current_key] ) )
 					{
-						$real_det['cus_err'] 	= $or_success[$rule_per]['cus_err'][$rule_key];
+						$real_det['cus_err'] 	= $or_success[$rule_per]['cus_err'][$current_key];
 					}
 					else
 					{
@@ -1678,10 +1693,15 @@ class AJD_validation extends Base_validator
 
 						$real_det['append_error']	= $or_success[$rule_per]['append_error'][$rule_per];
 					}
+
+					$det_key = array_search($rule_per, $or_field_details['rules']);
 					
-				 	$real_det['details'] 		= $or_field_details['details'][$rule_key];
+				 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+
+				 	$real_det['rule_obj'] = (isset($or_success[$rule_per]['rule_obj'][$current_key][$rule_per])) ? $or_success[$rule_per]['rule_obj'][$current_key][$rule_per] : null;
 				 	
-					$this->handle_errors( $real_det, FALSE );
+					$this->handle_errors( $real_det, FALSE, null, true, true );
+				
 				}
 			}
 		}
@@ -2304,7 +2324,7 @@ class AJD_validation extends Base_validator
 			if( $auto_arr )
 			{
 				foreach( $value as $k_value => $v_value )
-				{ 
+				{
 					$check_logic[ Abstract_common::LOG_OR ][] 	= $this->_process_and_or_check( $prop_or, $field, $field_arr, $v_value, $auto_arr, $extra_args, $group, $logic, $k_value, $origValue, $promise );				
 				}
 
@@ -2728,7 +2748,7 @@ class AJD_validation extends Base_validator
 		$check_arr['passed'][] 					= $check['passed'][0];
 		
 		$check_arr['pass_arr'][ $rule_value ] 	= $check['pass_arr'];
-
+		
 		$or_pass_arr[$rule_key]['pass_arr'] 	= $check_arr['pass_arr'];
 
 		return [
@@ -3242,17 +3262,17 @@ class AJD_validation extends Base_validator
 		return $this->rules_path;
 	}
 
-	protected static function get_errors_instance( $lang = NULL ) 
+	protected static function get_errors_instance( $lang = NULL, $singleton = true ) 
 	{
-		return parent::get_errors_instance( static::$lang );
+		return parent::get_errors_instance( static::$lang, $singleton );
 	}
 
-	protected function handle_errors( $details, $check_arr, $key = NULL )
+	protected function handle_errors( $details, $check_arr, $key = NULL, $singleton = true, $useRuleObj = false )
 	{
 		$cus_err 				= $details['cus_err'];
 		$append_err 			= ( ISSET( $details['append_error'] ) ) ? $details['append_error'] : array();
 
-		$err 					= static::get_errors_instance();
+		$err 					= static::get_errors_instance($singleton);
 		$errors 				= $err->get_errors();
 
 		$called_class 			= ( ISSET( $details['details'][1] ) ) ? $details['details'][1] : NULL;
@@ -3260,7 +3280,18 @@ class AJD_validation extends Base_validator
 
 		$inverse 				= $details['details'][0];
 
-		$errors 				= $err->processExceptions( $details['rule'], $called_class, $rule_instance, $details['satisfier'], $details['value'], $inverse, $errors );
+		$rule_obj 				= null;
+
+		if(
+			$useRuleObj
+			&& isset($details['rule_obj'])
+			&& !empty($details['rule_obj'])
+		)
+		{
+			$rule_obj = $details['rule_obj'];
+		}
+		
+		$errors 				= $err->processExceptions( $details['rule'], $called_class, $rule_instance, $details['satisfier'], $details['value'], $inverse, $errors, $rule_obj );
 
 		$errors 				= $this->format_errors( $details['rule'], $details['details'][1], $details['clean_field'], $details['value'], $details['satisfier'], $errors['errors'], $cus_err, $check_arr, $err, $key, $append_err, $inverse );
 		
@@ -3359,6 +3390,8 @@ class AJD_validation extends Base_validator
 
 		$details['append_error'][ $details['rule'] ]	= '';
 
+		$rule_obj = null;
+
 		// static $countErr 			= 0;
 		$key_load_event_common = $details['orig_field'].'-|'.$details['rule'];
 		$key_load_event = $key_load_event_common;
@@ -3402,6 +3435,17 @@ class AJD_validation extends Base_validator
 				else
 				{
 					$pass_check 		= $this->{ $details['details'][2] }( $details );	
+
+					if(
+						$details['details'][2] == '_process_class'
+						&& is_array($pass_check)
+					)
+					{
+						$rule_obj 	= $pass_check['rule_obj'];
+						
+						$pass_check = $pass_check['check'];
+						
+					}
 				}
 				
 				if( !is_array( $pass_check ) )
@@ -3515,6 +3559,9 @@ class AJD_validation extends Base_validator
 												),
 												array(
 													$details['rule'] => $details['append_error']
+												),
+												array(
+													$details['rule'] => $rule_obj
 												)
 											 );
 
@@ -3715,14 +3762,21 @@ class AJD_validation extends Base_validator
 		static::$cache_instance[ $append_rule ] 	= $rule_obj;
 		static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
 
+		$check_r = false;
+
 		if($rule_obj instanceof Invokable_rule_interface)
 		{
-			return $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+			$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
 		}
 		else
 		{
-			return $rule_obj->{ $details[ 'details' ][3][ 'class_meth_call' ] }( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+			$check_r = $rule_obj->{ $details[ 'details' ][3][ 'class_meth_call' ] }( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
 		}
+
+		return [
+			'check' => $check_r,
+			'rule_obj' => $rule_obj
+		];
 	}
 
 	private function _appendRuleNameSpace( $classFactory )
@@ -3994,6 +4048,7 @@ class AJD_validation extends Base_validator
 		$args['override'] 			= $override;
 		$args['meth_override'] 		= $method_override;
 		$args['obj_ins'] 			= $obj_ins;
+
 		$args['rules_path'] 		= $rules_path;
 		$args['class_name'] 		= get_class( $obj_ins );
 		$args['func_override'] 		= $function_override;

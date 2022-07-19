@@ -176,6 +176,60 @@ $v = new AJD_validation;
 	}
 ```
 
+## example of one dimensional array validation
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+	try 
+	{
+		$v
+
+		->Srequired(null, AJD_validation::LOG_OR)
+			->field('username')
+				->minlength(2)
+				->alpha()
+			->field('fname')
+				->minlength(1)
+		->eSrequired()
+
+		->Sdigit()
+			->field('digit_group')
+			->field('digit_group2')
+		->eSdigit()
+
+		->checkGroup([
+			'username' => ['username' => ['a', '']],
+			'fname' => ['fname' => ['', 'a']],
+			'digit_group' => '1',
+			'digit_group2' => ''
+		]);
+
+		$v->assert();
+	}
+	catch(Exception $e)
+	{
+		echo $e->getMessage();
+	}
+```
+
+This will ouput the following errors
+```
+All of the required rules must pass for "Username".
+  - Username must be greater than or equal to 2. character(s).  at row 1.
+  - Username must contain only letters (a-z). at row 2.
+All of the required rules must pass for "Fname".
+  - Fname must be greater than or equal to 1. character(s).  at row 1.
+All of the required rules must pass for "Digit group2".
+  - Digit group2 must contain only digits (0-9).
+```
+
+Since we define that rule required grouping is or fname row 1 does not output required error message because username row 1 passes required validation but username row 1 and fname row 1 will still output minlength error message.
+
+Since we define that rule required grouping is or username row 2 does not output required error message because fname row 2 passes required validation but username row 2 will still output alpha error message.
+
 See also:
 
 - [Events and Promises](advance_usage/events_promises.md)

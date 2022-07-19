@@ -428,7 +428,7 @@ try
 
 	// Another way of defining validation rules
 	$v
-		->Srequired(NULL, AJD_validation::LOG_AND)
+		->Srequired(NULL, AJD_validation::LOG_OR)
 			->field('username')
 				->publishFail('supper_test', function()
 				{
@@ -460,8 +460,8 @@ try
 			->field('digit_group2')
 		->eSdigit()
 		->checkGroup([
-			'username' => '',
-			'fname' => 'a',
+			'username' => ['username' => ['a', '']],
+			'fname' => ['fname' => ['', 'a']],
 			'digit_group' => '1',
 			'digit_group2' => ''
 		])
@@ -479,7 +479,7 @@ try
 				// var_dump($value);
 				return false;
 			})
-			->check('callback_funct', 'a');
+			->check('callback_funct', ['callback_funct' =>  ['', ''] ]);
 
 	// if both field has the same minumum lenght requirement
 	/*$v
