@@ -356,4 +356,4 @@ $v = new AJD_validation;
 5. Promise can be used in this library Async::when feature.
 	
 See also:
-- [Async](advance_usage/async.md)
+- [Async](async.md)
