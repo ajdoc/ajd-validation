@@ -72,7 +72,7 @@ class Observable
 				if( $observer instanceof Closure AND is_callable( $observer ) ) 
 				{
 					$function 				= $function_factory->rules( $observer );
-						
+					
 					$function->invokeArgs( $args );					
 				} 
 				else 

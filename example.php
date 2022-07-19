@@ -258,6 +258,8 @@ try
 			->suspend()
 			->publishFail('test_required', function($event, $closure, $ajd, $value = null, $field = null)
 			{
+				/*echo '<pre>';
+				print_r(func_get_args());*/
 				echo 'failed required field:'.$field;
 			})
 		->digit()
