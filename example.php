@@ -436,7 +436,8 @@ try
 					echo 'super field test required only.';
 				})
 				->minlength(2)
-			->field('fname')->on('edit')
+				->alpha()
+			->field('fname')
 				->publishFail('supper_minelen_test', function()
 				{
 					echo '<pre>';
@@ -456,11 +457,13 @@ try
 		->eSrequired()
 		->Sdigit(NULL, AJD_validation::LOG_AND)
 			->field('digit_group')
+			->field('digit_group2')
 		->eSdigit()
 		->checkGroup([
-			'username' => 'aa',
-			'fname' => '',
-			'digit_group' => '1'
+			'username' => '',
+			'fname' => 'a',
+			'digit_group' => '1',
+			'digit_group2' => ''
 		])
 		->then(function()
 		{

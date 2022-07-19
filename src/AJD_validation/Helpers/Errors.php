@@ -637,7 +637,7 @@ class Errors extends InvalidArgumentException
 				if( ISSET( $rule_instance[ $called_class ] ) )
 				{
 					$rule 			= $rule_instance[ $called_class ];
-
+					
 					$params 		= array_merge(
 						get_class_vars( get_class( $rule ) ),
 						get_object_vars( $rule ),

@@ -1,6 +1,8 @@
 ## Async 
 
 **Not really asynchronous**
+**Requires php 8.1 as this uses php fibers**
+
 
 ### Async when
 

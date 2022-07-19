@@ -110,7 +110,7 @@ abstract class Abstract_exceptions extends Errors
 
         $this->setId($this->guessId($idPass));
     	$this->setParams( $params );        
-
+        
     	$this->localize();
 
     	if( ISSET( $params['inverse'] ) AND !EMPTY( $params['inverse'] ) )
@@ -179,7 +179,7 @@ abstract class Abstract_exceptions extends Errors
         $messageKey 	= $this->chooseMessage();
 
         $message_str 	= static::$defaultMessages[$this->mode][$messageKey];
-        
+
         $message 		= $this->replaceErrorPlaceholder( $this->getParams(), $message_str );
 
         if( EMPTY( $message ) )
