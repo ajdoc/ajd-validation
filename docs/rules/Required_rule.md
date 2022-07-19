@@ -1,4 +1,4 @@
-# Age
+# Required
 
 - `required()`
 - `Required_rule($minAge = NULL, $maxAge = NULL, $inclusive = true)`
