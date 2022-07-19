@@ -1,7 +1,7 @@
 # Required
 
 - `required()`
-- `Required_rule($minAge = NULL, $maxAge = NULL, $inclusive = true)`
+- `Required_rule()`
 
 Validates whether the input is not empty.
 
