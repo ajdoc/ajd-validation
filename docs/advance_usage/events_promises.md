@@ -91,11 +91,11 @@ It is also possible to define events per rule definition there are currently thr
 
 		1. [uniq-event-name] for first paramater
 		2. [Closure] for second paramater will received 
-			* $event - event name.
-			* $closure - current closure (just ignore).
-			* $ajd - current ajd validation instance.
-			* $value - current given value. 
-			* $field - current field.
+			- $event - event name.
+			- $closure - current closure (just ignore).
+			- $ajd - current ajd validation instance.
+			- $value - current given value. 
+			- $field - current field.
 
 * publishFail
 	
@@ -103,11 +103,11 @@ It is also possible to define events per rule definition there are currently thr
 
 		1. [uniq-event-name] for first paramater
 		2. [Closure] for second paramater will received 
-			* $event - event name.
-			* $closure - current closure (just ignore).
-			* $ajd - current ajd validation instance.
-			* $value - current given value.
-			* $field - current field.
+			- $event - event name.
+			- $closure - current closure (just ignore).
+			- $ajd - current ajd validation instance.
+			- $value - current given value.
+			- $field - current field.
 
 * publishSuccess
 
@@ -115,10 +115,10 @@ It is also possible to define events per rule definition there are currently thr
 
 		1. [uniq-event-name] for first paramater
 		2. [Closure] for second paramater will received 
-			* $event - event name.
-			* $closure - current closure (just ignore).
-			* $ajd - current ajd validation instance.
-			* $value - current given value.
-			* $field - current field.
+			- $event - event name.
+			- $closure - current closure (just ignore).
+			- $ajd - current ajd validation instance.
+			- $value - current given value.
+			- $field - current field.
 
 ## Promises
