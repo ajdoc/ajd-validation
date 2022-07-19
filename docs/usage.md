@@ -2,6 +2,7 @@
 
 In this document we'll see how to use ajd-validation
 
+## Basic usage
 ```php
 use AJD_validation\AJD_validation;
 
