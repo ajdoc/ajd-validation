@@ -31,8 +31,8 @@ Aj Doc (thedoctorisin17@gmail.com)
 * [Usage](docs/usage.md)
 
 * See also:
-	- [Advance Usage](advance_usage/)
-	- [Rules](rules/)
+	- [Advance Usage](docs/advance_usage/)
+	- [Rules](docs/rules/)
 
 ## Acknowledgments
 
