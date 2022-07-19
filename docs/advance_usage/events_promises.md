@@ -94,7 +94,7 @@ It is also possible to define events per rule definition there are currently thr
 ......* $event - event name.
 ......* $closure - current closure (just ignore).
 ......* $ajd - current ajd validation instance.
-......* $value - current given value.
+......* $value - current given value. 
 ......* $field - current field.
 
 * publishFail
