@@ -2,6 +2,9 @@
 
 In this document we'll see how to use an alternative way of defining fields-rules.
 
+**It is recommended to use normal/basic usage which is this link**
+	- [Usage](usage.md)
+
 ## Alternative usage
 ```php
 use AJD_validation\AJD_validation;
