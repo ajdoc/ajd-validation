@@ -1,6 +1,6 @@
 <?php namespace AJD_validation\Rules;
 
-use AJD_Validation\Contracts\Abstract_rule;
+use AJD_validation\Contracts\Abstract_rule;
 use AJD_validation\Contracts\Uncompromised_interface;
 
 class Uncompromised_rule extends Abstract_rule

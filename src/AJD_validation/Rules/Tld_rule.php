@@ -1,6 +1,6 @@
 <?php namespace AJD_validation\Rules;
 
-use AJD_Validation\Contracts\Abstract_search;
+use AJD_validation\Contracts\Abstract_search;
 
 class Tld_rule extends Abstract_search
 {

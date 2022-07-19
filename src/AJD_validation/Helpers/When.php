@@ -670,7 +670,7 @@ class When extends AJD_validation
 
 		$this->obs->detach_observer( 'endwhen' );
 
-		return $this->ajd::get_event_dispatcher_instance();
+		return $this->ajd::get_promise_validator_instance();
 	}
 
 	public function on( $scenario )

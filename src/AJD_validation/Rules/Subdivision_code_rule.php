@@ -1,8 +1,8 @@
 <?php namespace AJD_validation\Rules;
 
 use Exception;
-use AJD_Validation\Contracts\Abstract_wrapper;
-use AJD_Validation\Contracts\Abstract_common;
+use AJD_validation\Contracts\Abstract_wrapper;
+use AJD_validation\Contracts\Abstract_common;
 
 class Subdivision_code_rule extends Abstract_wrapper
 {

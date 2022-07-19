@@ -1,7 +1,7 @@
 <?php namespace AJD_validation\Rules;
 
-use AJD_Validation\Contracts\Abstract_rule;
-use AJD_Validation\Contracts\Abstract_exceptions;
+use AJD_validation\Contracts\Abstract_rule;
+use AJD_validation\Contracts\Abstract_exceptions;
 
 class Domain_rule extends Abstract_rule
 {

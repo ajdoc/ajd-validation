@@ -6,6 +6,7 @@ require 'vendor/autoload.php';
 
 use AJD_validation\Contracts\Base_extension;
 use AJD_validation\AJD_validation;
+use AJD_validation\Async\Async;
 
 enum Status : string
 {
@@ -77,7 +78,107 @@ class Custom_extension extends Base_extension
 
 try
 {
+/*	AJD_validation::makeAsync()
+			->required()
+			->check('aaasera')->getFiber();*/
+
+	$dependent_arr = ['dependent_field' => 's', 'd2' => 'a', 'real_field' => 'a'];
+
+	/*$v 
+		->dependent(
+			'dependent_field', $v->getValidator()->digit(),
+			$v->getValidator()->email()
+		)
+		->checkDependent('real_field', $dependent_arr, $dependent_arr);*/
+
+	$v 
+		->Notrequired_unless_message(
+			['dependent_field', 'd2'], ['dependent_field' => 's', 'd2' => 'a']
+		)
+		->checkDependent('real_field', $dependent_arr, $dependent_arr)
+		->then(function()
+		{
+			echo "dependent success";
+		},
+		function()
+		{
+			echo "dependent fails";	
+		});
+
+	$v
+		->subdivision_code('PH')
+		->check('Ph_subdiv', '22CASa');
+
+
+
+	Async::when(
+		AJD_validation::makeAsync()
+			->required()
+			->check('aaasera'),
+
+		AJD_validation::makeAsync()
+			->required()
+			->check('aaasera2')
+	)->promise()
 	
+	->then(function()
+	{
+		echo 'aa';
+
+		return 1;
+	}, function()
+	{
+		echo 'error';
+	})
+	->then(function($a)
+	{
+
+		echo $a + 1;
+		return $a + 1;
+	})
+	->catch(function($e)
+	{
+		var_dump($e->getMessage());
+	})
+	;
+
+	Async::when(
+		AJD_validation::makeAsync()
+			->required()
+			->check('aaasera_me1', '1'),
+
+		AJD_validation::makeAsync()
+			->required()
+			->check('aaasera_me2', '1'),
+
+		AJD_validation::makeAsync()
+			->required()
+			->check('aaasera_me3', '1')
+	)->promise()
+	->fails(function()
+	{
+		echo 'failed async aa2';
+	})
+	->passed(function()
+	{
+		echo 'passed async aa a2';
+	})
+	->then(function()
+	{
+		echo 'aa sex 2';
+
+		return 1;
+	}, function()
+	{
+		echo 'error 2';
+	})
+
+	->catch(function($e)
+	{
+		var_dump($e->getMessage());
+	});
+
+
 /*
 	$fiber = new Fiber(function ($ajd): void {
 		$ajd->check('ch_one', '');
@@ -103,9 +204,45 @@ try
 		});*/
 
 
+
 	$v->trigger('add');	
 	// $v->setGlobalFiberize(true);
 
+	/*$main = new \Fiber(function() use($v){
+		
+	});*/
+
+	
+
+	$v
+		->required()
+		->minlength(2)
+		->checkAsync('aeee', 'a')
+			->fails(function()
+			{
+				echo 'falied 1 aeee';
+			})
+			->then(function()
+			{
+				
+				echo 'aaa aeee success';
+			},
+			function()
+			{
+				echo '<br/> error on aeee 1 <br/>';
+			})
+			->catch(function($e)
+			{
+
+				return $e->getMessage();
+			})
+			->then(function($a)
+			{
+				var_dump($a) ;
+			});
+			
+
+			
 
 	$v
 		->fiberize()
@@ -121,7 +258,6 @@ try
 
 		
 		->check('as_evemt', '')
-
 			->fiber(function($ajd, $fiber, $field, $rule, $val)
 			{	
 				echo '<pre>';
@@ -140,6 +276,7 @@ try
 				var_dump($rule);
 				$fiber->resume($rule);*/
 
+				// echo 'as event fiber 2';
 			})
 
 			->passed(function()
@@ -158,9 +295,55 @@ try
 			{
 				// var_dump(func_get_args());
 				echo 'falied 2';
+			})
+			->then(function()
+			{
+				echo 'eerthen';
 			});
 
-		
+		/*Async::await(
+
+			$v
+				->makeAsync()
+				->required()
+				->minlength(1)
+				->check('async1', '1')
+		);
+
+	Async::await(
+
+			$v
+				->makeAsync()
+				->required()
+				->minlength(2)
+				->digit()
+				->check('async2', '2')
+		);
+
+	Async::await(
+
+			$v
+				->makeAsync()
+				->required()
+				
+				->check('async3', '')
+		);
+
+	// $main->start();
+
+	Async::run()->then(function()
+		{
+			AJD_validation::required()
+			->check('thenasyncsuccess');
+		},
+		function()
+		{
+			AJD_validation::required()
+			->check('thenasyncfails');	
+		}
+
+	);*/
+	
 
 	$validator = $v->getValidator();
 
@@ -175,12 +358,12 @@ try
 		->fiberize()
 		->enum(Sstatus::class)
 			->suspend()
-		->checkArr('enum.enums.1', 
+		->checkArr('enum.enums', 
 			[
 				'enum' => [
 					'enums' => [
-						'b',
-						's'
+						'b' => Sstatus::DRAFT,
+						'a' => ''
 					]
 				]
 			]
@@ -190,6 +373,23 @@ try
 			// $fiber->resume('a');
 			echo 'fiber2';
 		})
+		->passed(function()
+		{
+			echo 'enums passed';
+		})
+		->fails(function()
+		{
+			echo 'enums fails';
+		})
+		->then(function()
+		{
+			echo 'enum passed then';
+		},
+		function($e)
+		{
+			echo $e->getMessage();
+		})
+		
 		;
 
 
@@ -215,15 +415,15 @@ try
 
 	// Another way of defining validation rules
 	$v
-		->Srequired()
+		->Srequired(NULL, AJD_validation::LOG_AND)
 			->field('username')
 				->publishFail('supper_test', function()
 				{
 					echo '<pre>';
 					echo 'super field test required only.';
 				})
-				->minlength(100)
-			->field('fname')
+				->minlength(2)
+			->field('fname')->on('edit')
 				->publishFail('supper_minelen_test', function()
 				{
 					echo '<pre>';
@@ -241,10 +441,21 @@ try
 						echo 'super field test minlength 2.';
 					})
 		->eSrequired()
+		->Sdigit(NULL, AJD_validation::LOG_AND)
+			->field('digit_group')
+		->eSdigit()
 		->checkGroup([
-			'username' => '',
-			'fname' => ''
-		]);
+			'username' => 'aa',
+			'fname' => '',
+			'digit_group' => '1'
+		])
+		->then(function()
+		{
+			echo 'group passed';
+		}, function()
+		{
+			echo 'group failed';
+		});
 
 		$v 
 			->required(function($value)
@@ -314,7 +525,8 @@ try
 					$fiber->resume('from when');
 					var_dump($field);
 					echo 'when aaaaa';
-				});
+				})
+		;
 
 	$arrch = ['aass' => [1,1]];
 
@@ -415,18 +627,22 @@ try
 			->maxlength(30);
 	});
 
-	$v->macro('test_macro')->check('macro', '');
+	$v->macro('test_macro')->check('macro', '')
+	;
 
 	// Or you can use this syntax
 
 	$v->storeConstraintTo('group1')
-			->Ftest( array(), TRUE )
+			->Ftest( array(), true )
 			  ->required()
 				->maxlength(30)
 		->endstoreConstraintTo();
 
 	$v->useContraintStorage('group1')->check('storage1', 'e');
-	$v->useContraintStorage('group1')->check('storage2', '');
+	$v->useContraintStorage('group1')->check('storage2', '')
+	;
+
+
 	var_dump($v->pre_filter_value());
 	
 	
@@ -439,13 +655,24 @@ try
 		
 		if( $ch )
 		{
-			$func($ajd, $args);
+			return $func($ajd, $args);
 		}
 	});
 
 	$v->required()
 		->minlength(2)
-		->middleware('test_middleware','asex', '');
+		->middleware('test_middleware','asex', '')
+		
+		/*->fails(function()
+		{
+			echo 'middleware fails';
+		})
+		
+		->passed(function()
+		{
+			echo 'middleware passed';
+		})*/
+		;
 
 	// using sometimes to run a rule if value is not empty
 	$v->required()

@@ -269,7 +269,7 @@ class Errors extends InvalidArgumentException
 		return static::outputError( TRUE );
 	}
 
-	protected static function outputError( $assoc_msg = TRUE, $keys = NULL, $err_key = NULL )
+	public static function outputError( $assoc_msg = TRUE, $keys = NULL, $err_key = NULL )
 	{
 		$msg 							= array();
 
@@ -320,8 +320,16 @@ class Errors extends InvalidArgumentException
 		return $msg;
 	}
 
-	public function toStringErr( $msg = array(), $addParent = FALSE )
+	public function removeFieldError($field)
 	{
+		if(!empty(static::$validation_err_msg))
+		{
+			unset(static::$validation_err_msg[$field]);
+		}
+	}
+
+	public function toStringErr( $msg = array(), $addParent = FALSE )
+	{	
 		$err_msg 		= !EMPTY( $msg ) ? $msg : static::$validation_err_msg;
 
 		if( !is_array( $msg ) )

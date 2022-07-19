@@ -68,6 +68,7 @@ class Observable
 				$args 						= $this->process_args( $event, $cnt, $observer, $observer_args );
 				$args 						= array_merge( $args, $extra_args );
 				// print_r($extra_args);
+
 				if( $observer instanceof Closure AND is_callable( $observer ) ) 
 				{
 					$function 				= $function_factory->rules( $observer );

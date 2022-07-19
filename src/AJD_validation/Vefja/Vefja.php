@@ -29,8 +29,9 @@ class Vefja
 		}
 		else
 		{
-			$reflection 		= $factory->make( Factory_strategy::F_CLASS, $definition );
 
+			$reflection 		= $factory->make( Factory_strategy::F_CLASS, $definition );
+			
 			return  $reflection->getConstructor() ? $reflection->newInstanceArgs( $args ) : $reflection->newInstanceWithoutConstructor();
 		}
 	}

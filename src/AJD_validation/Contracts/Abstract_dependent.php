@@ -179,6 +179,7 @@ abstract class Abstract_dependent extends Abstract_rule
 				else
 				{
 					$checkDet 		= $this->processCheckField( $dependetFields, $value );
+
 					$checks[] 		= $checkDet['check'];
 					$append_msg 	.= '<br/>&nbsp;&nbsp;&nbsp;&nbsp;- '.$checkDet['append_msg'];
 				}
@@ -361,7 +362,7 @@ abstract class Abstract_dependent extends Abstract_rule
 
 				if( $this->needsComparing )
 				{
-					$checks 	= $this->processComparing( $this->values[ $dependetFields ] );
+					$checks 	= $this->processComparing( $this->values[ $dependetFields ], $dependetFields );
 
 					$subCheck 	= in_array(TRUE, $checks);
 
@@ -375,12 +376,22 @@ abstract class Abstract_dependent extends Abstract_rule
 					$check 		= TRUE;
 				}
 
+				/*if( $this->needsComparing )
+				{
+					$checks 	= $this->processComparing( $this->values[ $dependetFields ] );
+
+					$subCheck 	= in_array(TRUE, $checks);
+
+					$check 		= $subCheck;
+				}*/
+
 				try
 				{
 					$this->checkValidator->setName( $dependetFields )->assertErr( $this->values[ $dependetFields ], TRUE );
 				}
 				catch( Nested_rule_exception $e )
 				{
+
 					$append_msg = $e->getFullMessage(function($messages)
                     {
                         $firstMessage   = str_replace('-', '', $messages[0]);
@@ -410,8 +421,10 @@ abstract class Abstract_dependent extends Abstract_rule
                         return implode('', $realMessage);
 
                     });
+
 				}
 			}
+
 		}
 
 		return array(
@@ -420,28 +433,50 @@ abstract class Abstract_dependent extends Abstract_rule
 		);
 	}
 
-	protected function processComparing( $dependentValue )
+	protected function processComparing( $dependentValue, $dependetFields = null )
 	{
 		$checks 	= array();
 
 		if( !EMPTY( $this->dependentValue ) )
 		{
-			foreach( $this->dependentValue as $val )
+			if(empty($dependetFields))
 			{
-				$comparatorValidator 			= NULL;
-
-				switch( $this->comparator )
+				foreach( $this->dependentValue as $val )
 				{
-					case '==' :
-						$comparatorValidator 	= $this->getValidator()->equals($val);
-					break;
+					$comparatorValidator 			= NULL;
 
-					case '!=' :
-						$comparatorValidator	= $this->getValidator()->inverse( Validator::equals($val) );
-					break;
+					switch( $this->comparator )
+					{
+						case '==' :
+							$comparatorValidator 	= $this->getValidator()->equals($val);
+						break;
+
+						case '!=' :
+							$comparatorValidator	= $this->getValidator()->inverse( Validator::equals($val) );
+						break;
+					}
+
+					$checks[] 						= $comparatorValidator->validate( $dependentValue );
 				}
+			}
+			else
+			{
+				if(isset($this->dependentValue[$dependetFields]))
+				{
+					$val = $this->dependentValue[$dependetFields];
+					switch( $this->comparator )
+					{
+						case '==' :
+							$comparatorValidator 	= $this->getValidator()->equals($val);
+						break;
 
-				$checks[] 						= $comparatorValidator->validate( $dependentValue );
+						case '!=' :
+							$comparatorValidator	= $this->getValidator()->inverse( Validator::equals($val) );
+						break;
+					}
+
+					$checks[] 						= $comparatorValidator->validate( $dependentValue );
+				}
 			}
 		}
 		else

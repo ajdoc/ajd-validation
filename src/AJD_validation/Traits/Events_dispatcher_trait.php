@@ -21,8 +21,9 @@ Trait Events_dispatcher_trait
 	protected $customObserver;
 
 	protected $field;
-	protected $fibers = [];
+	protected static $fibers = [];
 	protected $eventField;
+	protected $events = [];
 
 	public function __construct()
 	{
@@ -31,20 +32,36 @@ Trait Events_dispatcher_trait
 		];
 	}
 
-	public function triggerEvent( $event, $observer, $ajd, $fibers = null )
+	public function triggerEvent( $event, $observer, $ajd, $fibers = null, $field = null )
 	{
+
+		if(empty(static::$valid_events))
+		{
+			static::$valid_events = [
+				static::$PASSED, static::$FAILS, static::$FAILS
+			];
+		}
+
 		$eventArr 	= explode('-|', $event);
 		
 		if(isset($eventArr[1]))
 		{
 			$event = $eventArr[1];
+
+			$this->field = $eventArr[0];
 		}
 		else
 		{
 			$event 	= $eventArr[0];
 		}
+
+		if(!empty($field))
+		{
+			$this->field = $field;
+		}
 		
-		$this->fibers[$event] = $fibers;
+		static::$fibers[$event] = $fibers;
+		$this->events[] 		= $event;
 		$this->event 		= strtolower( $event );
 		$this->ajd 			= $ajd;
 		$this->observer 	= $observer;
@@ -62,6 +79,7 @@ Trait Events_dispatcher_trait
 
 	public function fails( Closure $func )
 	{
+
 		if( $this->check_event( static::$FAILS ) ) 
 		{
 			$this->invoke_function( $func );
@@ -72,9 +90,10 @@ Trait Events_dispatcher_trait
 
 	public function fiber( Closure $func )
 	{
-		if( isset($this->fibers[static::$FIBER]) && !empty($this->fibers[static::$FIBER]) ) 
+		if( isset(static::$fibers[static::$FIBER]) && !empty(static::$fibers[static::$FIBER]) ) 
 		{
-			foreach($this->fibers[static::$FIBER] as $field => $rules)
+
+			foreach(static::$fibers[static::$FIBER] as $field => $rules)
 			{
 				foreach($rules as $rule => $value)
 				{
@@ -202,8 +221,13 @@ Trait Events_dispatcher_trait
 			
 		}
 
+		if($this->field)
+		{
+			$paramaters[] = $this->field;
+		}
+
 		call_user_func_array( $func, $paramaters );
 
-		$this->fibers = [];
+		static::$fibers = [];
 	}
 }

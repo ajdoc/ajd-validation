@@ -2,7 +2,7 @@
 
 use finfo;
 use SplFileInfo;
-use AJD_Validation\Contracts\Abstract_rule;
+use AJD_validation\Contracts\Abstract_rule;
 
 class Mime_type_upload_rule extends Abstract_rule
 {
