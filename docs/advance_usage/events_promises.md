@@ -199,6 +199,20 @@ $v = new AJD_validation;
 					echo $e->getMessage();
 				});
 
+		$v
+			->required()
+			->minlength(5)
+			->checkAsync('middlename', 'value-of-middlename', function($ajd)
+				{
+					// resolver custom callback
+				})
+				->catch(function(Exception $exception)
+				{
+					// will remove this field-rule error message in the error message bag and will be received in this closure as an exception
+
+					echo $e->getMessage();
+				});
+
 
 		$v->assert();
 	}
@@ -236,6 +250,52 @@ This works similarly with reactphp's promise resolution forwarding and Rejection
 		- will trigger if validation fails or is not completed
 		- will received an exception
 		- will remove the current validation field-error message in error message bag/stack.
+		
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+
+	try 
+	{
+
+		$v
+			->required()
+			->minlength(5)
+			->checkAsync('middlename', 'value-of-middlename', function($ajd)
+				{
+					// resolver custom callback
+				})
+				->catch(function(Exception $exception)
+				{
+					// will remove this field-rule error message in the error message bag and will be received in this closure as an exception
+
+					echo $e->getMessage();
+				});
+
+
+		$v->assert();
+	}
+	catch(Exception $e)
+	{
+		echo $e->getMessage();
+	}
+
+```
+
+## checkAsync($field,mixed $value, callable $resolver)
+	
+	1. [$field] for first paramater 
+		- required
+		- field that will be validated
+	2. [mixed $value]
+		- can be a string
+		- numeric 
+		- array [1,2,3]
+		- array [$field => 'field_value'], [$field => 1], [$field => [1,2,3] ]
+	3. [callable $resolver]
+		- custom resolver for the promise.
 
 
 ## Difference vs Events and Promise

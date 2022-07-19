@@ -78,6 +78,9 @@ class Custom_extension extends Base_extension
 
 try
 {
+	$v 
+		->age(11)
+		->check('age_field', 11);
 /*	AJD_validation::makeAsync()
 			->required()
 			->check('aaasera')->getFiber();*/

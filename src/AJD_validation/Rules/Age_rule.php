@@ -143,7 +143,7 @@ class Age_rule extends Abstract_interval
 	        $minDate->setTime(0, 0, 0);
 	    }
 
-        $minLen 	= Vefja::singleton('AJD_validation\\Rules\\Minlength_rule', array($this->inclusive));
+        $minLen 	= Vefja::instance('AJD_validation\\Rules\\Minlength_rule', array($this->inclusive));
 
         return $minLen->run( $this->value, $minDate, $this->field );
     }
@@ -167,7 +167,7 @@ class Age_rule extends Abstract_interval
 	        $maxDate->setTime(23, 59, 59);
 	    }
 
-        $maxLen 	= Vefja::singleton('AJD_validation\\Rules\\Maxlength_rule', array($this->inclusive));
+        $maxLen 	= Vefja::instance('AJD_validation\\Rules\\Maxlength_rule', array($this->inclusive));
 
         return $maxLen->run( $this->value, $maxDate, $this->field );
     }

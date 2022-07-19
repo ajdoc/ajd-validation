@@ -52,7 +52,7 @@ $v = new v;
 	}
 
 ```
-Async when emulates jquery's $.when function define all the field-rule validation needed and if all passess promise then(callabale $resolution) will be triggered if one or all fails then(callabale $rejection) will be triggered and error message will be catchable and can be access thru catch(callable $callback). See events_promises.md for promise documents.
+Async when emulates jquery's $.when function define all the field-rule validation needed and if all passess promise then(callabale $resolution) will be triggered if one or all fails then(callabale $rejection) will be triggered and error message will be catchable and can be access thru catch(callable $callback). So it can emulate like an if else statement. See events_promises.md for promise documents.
 
 See also:
 - [Async](events_promises.md)
