@@ -452,15 +452,12 @@ try
 			
 		]);
 
-	$v 
-			->required()
-			->minlength(3)->sometimes(function($value = null, $satisfier = null, $field)
-				{
-
-					return strlen($value) == 2;
-				})
+		$v 
+			->minlength(2)
+			->digit()
+			->compare('==', 'b', '@custom_error_"b" is the value for middlename2 to be accpted.')
 			->check('middlename2', 'aa');
-
+	
 	// Another way of defining validation rules
 	$v
 		->Srequired(NULL, AJD_validation::LOG_AND)

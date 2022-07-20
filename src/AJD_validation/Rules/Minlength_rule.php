@@ -4,10 +4,12 @@ use AJD_validation\Contracts\Abstract_interval;
 
 class Minlength_rule extends Abstract_interval
 {
+	protected $length;
 	public function __construct($length = 0, $inclusive = true, $isString = false)
     {
     	$this->inclusive 	= $inclusive;
     	$this->isString 	= $isString;
+    	$this->length 		= $length;
     }
 
 	public function run( $value, $satisfier = NULL, $field = NULL )
@@ -27,6 +29,16 @@ class Minlength_rule extends Abstract_interval
 		else
 		{
 			$length 	= $satisfier;
+		}
+
+		if(!isset($length))
+		{
+			$length = $this->interval;
+		}
+
+		if(!isset($length))
+		{
+			$length = $this->length;
 		}
 
 		$forceString = FALSE;
@@ -85,7 +97,7 @@ class Minlength_rule extends Abstract_interval
 
 	public function validate( $value )
 	{
-		$satisfier 	= array( $this->inclusive );
+		$satisfier 	= array();
 
 		$check 		= $this->run( $value, $satisfier );
 

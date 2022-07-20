@@ -160,7 +160,88 @@ $v = new AJD_validation;
 		- if $addHeaderErrorMessage = true will add 
 			"All of the required rules must pass for "[field]"." message
 
+## Inversing The Result
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+	$v->Notrequired()
+		->check('firstname', ''); // doesn't output error.
+
+```
+
+You can inverse a validation by prefixing rule name with `Not` followed by the rule name. Does not output error but if you put a value it will output error below.
+
+```
+All of the required rules must pass for "Middlename2".
+  - The Middlename2 field is not required.
+```
+
+## Using Or logic when defining Rules
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+	$v 
+	->oRminlength(2)
+	->oRdigit()
+	->oRcompare('==', 'b')
+	->check('middlename2', 'a');
+
+```
+
+The above example will output the error 
+
+```
+All of the required rules must pass for "Middlename2".
+  - Middlename2 must be greater than or equal to 2. character(s). 
+  - Middlename2 must contain only digits (0-9).
+  - Middlename2 must be equal to "b".
+```
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+	$v 
+	->oRminlength(2)
+	->oRdigit()
+	->oRcompare('==', 'b')
+	->check('middlename2', 'aa');
+
+```
+
+But if the validation passes any of the rules defined it will not output error. Basically this definition meant if any of the rules passes field passes.
+
+## Basic customization of error message
+	
+If for instance you want to customize the error message per error message this could be achived by `->[rulename](null, '@custom_error_Place your custom error message here')`
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+	$v 
+	->minlength(2)
+	->digit()
+	->compare('==', 'b', '@custom_error_"b" is the value for middlename2 to be accpted.')
+	->check('middlename2', 'a');
+
+```
+The rule compare will have this output error
+```
+All of the required rules must pass for "Middlename2".
+  - Middlename2 must be greater than or equal to 2. character(s). 
+  - Middlename2 must contain only digits (0-9).
+  - "b" is the value for middlename2 to be accpted.
+```
+
+
 See also:
 
 - [Advance Usage](advance_usage/)
 - [Rules](rules/)
+- [Alternative Usage](alternative_usage.md)

@@ -2831,7 +2831,7 @@ class AJD_validation extends Base_validator
 			if(!empty($check_arr_det))
 			{
 				$pass_arr = $check_arr_det['pass_arr'];
-				$or_pass_arr = array_merge($or_pass_arr, $check_arr_det['or_pass_arr']);
+				$or_pass_arr = $check_arr_det['or_pass_arr'];
 				$check_arr = array_merge($check_arr, $check_arr_det['check_arr']);
 			}
 		}
@@ -2847,7 +2847,7 @@ class AJD_validation extends Base_validator
 			if( !in_array( 1, $check_arr['passed'] ) )
 			{
 				// $pass_arr['rule'] 		= current( $prop['rules'] );
-
+				
 				foreach( $or_pass_arr as $rule_key => $or_pass )
 				{
 					$or_pass['cus_err']			= $or_pass['pass_arr'][$or_pass['rule']][2][$or_pass['rule']];
