@@ -72,6 +72,7 @@ class AJD_validation extends Base_validator
 			'method_override' 				=> array(),
 			'function_override' 			=> array(),
 			'current_field' 				=> NULL,
+			'current_rule' 					=> NULL,
 			'current_logic' 				=> Abstract_common::LOG_AND,
 			'check_group' 					=> FALSE,
 			'result_values' 				=> array(),
@@ -881,7 +882,8 @@ class AJD_validation extends Base_validator
 	public static function superRule( $rule, $satis = NULL, $logic = Abstract_common::LOG_AND, $custom_err = NULL, $client_side = NULL )
 	{
 		static::$ajd_prop[ 'current_field' ] 				= NULL;
-
+		static::$ajd_prop[ 'current_rule' ] 				= $rule;
+		
 		static::$ajd_prop[ 'and_or_stack' ][] 	= $logic;
 		static::$ajd_prop['current_logic'] 		= $logic;
 		
@@ -892,7 +894,7 @@ class AJD_validation extends Base_validator
 	public static function endSuperRule()
 	{
 		static::$ajd_prop[ 'current_field' ] 				= NULL;
-
+		static::$ajd_prop[ 'current_rule' ] 				= NULL;
 		$logic 		= array_pop( static::$ajd_prop[ 'and_or_stack' ] );
 
 		$key_arr 	= static::get_ajd_and_or_prop();
@@ -1182,6 +1184,7 @@ class AJD_validation extends Base_validator
 
 		if( ISSET( static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ] ) )
 		{
+
 			if( !EMPTY( static::$useContraintGroup ) )
 			{
 				$or_field 						= static::$ajd_prop[static::$useContraintGroup][ 'fields' ][ Abstract_common::LOG_OR ];
@@ -1190,11 +1193,12 @@ class AJD_validation extends Base_validator
 			{
 				$or_field 						= static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ];
 			}
-
+			
 			if( !EMPTY( $or_field ) )
 			{
 				foreach( $or_field as $field_key => $field_value )
 				{
+
 					$fieldValueOr 	= array();
 
 					$realFieldKey 	= Validation_helpers::getParentPath($field_key);
@@ -1232,10 +1236,10 @@ class AJD_validation extends Base_validator
 						{
 							$or_search 	= $this->array_search_recursive( $field_key, $field_value[Abstract_common::LOG_OR]['scenarios'] );
 						}
-						
+
 						if( !EMPTY( $and_search ) OR !EMPTY( $or_search ) )
 						{
-							return;
+							break;
 						}
 					}
 
@@ -1264,7 +1268,7 @@ class AJD_validation extends Base_validator
 					$or_field_ch_orig 		= $this->validation_fails( $field_key );
 					
 					if($or_field_ch)
-					{
+					{						
 						$or->then(function()
 						{
 							throw new Exception('Promise Failed');
@@ -1292,8 +1296,10 @@ class AJD_validation extends Base_validator
 							{
 								if( ISSET( $or_pass_arr['pass_arr'][ 0 ] ) AND is_array( $or_pass_arr['pass_arr'][ 0 ] ) )
 								{
+
 									foreach( $val_res as $k => $v )
 									{
+
 										$or_success[ $key_res ][ $k ]['passed'][] 		= $orResultArr[Abstract_common::LOG_AND]['passed'][ $cnt ];
 
 										if( !EMPTY( $v ) AND ISSET( $v[0] ) )
@@ -1450,7 +1456,7 @@ class AJD_validation extends Base_validator
 						
 						if( !EMPTY( $and_search ) OR !EMPTY( $or_search ) )
 						{
-							continue;
+							break;
 						}
 					}
 
@@ -1621,6 +1627,7 @@ class AJD_validation extends Base_validator
 
 	private function _processMultiOrRule( array $or_success, array $or_field_details, array $or_f_arr, $dataValue = null, $current_key )
 	{
+		
 		foreach( $or_success as $rule => $value_ar )
 		{
 			if( is_numeric( $rule ) )
@@ -1633,23 +1640,56 @@ class AJD_validation extends Base_validator
 					
 					if( !in_array( 1, $v['passed'] ) AND $check_rule !== FALSE )
 					{
-						$real_det 					= array();
 
-						$real_det['clean_field'] 	= $or_f_arr['clean'];
-						$real_det['orig_field'] 	= $or_f_arr['orig'];
-						$real_det['rule'] 			= $r;
-						$real_det['satisfier'] 		= $v['satisfier'][0];
-						$real_det['value'] 			= $v['values'][0];						
-						$real_det['cus_err'] 		= $v['cus_err'][0];
-						$real_det['append_error']	= $v['append_error'][0];
+						$sometimes_and = null;
+						$sometime_and_result = true;
+						
+						if(isset($or_field_details['sometimes'][$or_f_arr['orig']]))
+						{
+							$sometimes_and = $or_field_details['sometimes'][$or_f_arr['orig']];
+						}
+						
+						$vvv = $v['values'][0];
+						
+						if(!empty($sometimes_and))
+						{
+							if( is_callable( $sometimes_and ) )
+							{
+								$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $vvv, $or_f_arr['orig'], $or_field_details, $dataValue ) );
 
-						$det_key = array_search($r, $or_field_details['rules']);
-						 
-					 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+							}
+							else if( $sometimes_and == Abstract_common::SOMETIMES 
+								OR $sometimes_and === TRUE
+							)
+							{
+								$sometime_and_result 				= !EMPTY( $vv );
+							}
+							else
+							{
+								$sometime_and_result 				= true;	
+							}
+						}
 
-					 	$real_det['rule_obj'] = (isset($or_success[$r_cnt][$r]['rule_obj'][$current_key][$r])) ? $or_success[$r_cnt][$r]['rule_obj'][$current_key][$r] : null;
-					 	
-						$this->handle_errors( $real_det, TRUE, $rule, true, true );
+						if($sometime_and_result)
+						{
+							$real_det 					= array();
+
+							$real_det['clean_field'] 	= $or_f_arr['clean'];
+							$real_det['orig_field'] 	= $or_f_arr['orig'];
+							$real_det['rule'] 			= $r;
+							$real_det['satisfier'] 		= $v['satisfier'][0];
+							$real_det['value'] 			= $v['values'][0];						
+							$real_det['cus_err'] 		= $v['cus_err'][0];
+							$real_det['append_error']	= $v['append_error'][0];
+
+							$det_key = array_search($r, $or_field_details['rules']);
+							 
+						 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+
+						 	$real_det['rule_obj'] = (isset($or_success[$r_cnt][$r]['rule_obj'][$current_key][$r])) ? $or_success[$r_cnt][$r]['rule_obj'][$current_key][$r] : null;
+						 	
+							$this->handle_errors( $real_det, TRUE, $rule, true, true );
+						}
 					}
 					
 					$r_cnt++;
@@ -1671,36 +1711,68 @@ class AJD_validation extends Base_validator
 	 			
 		 		if( $check_rule !== FALSE )
 		 		{
-		 			
-			 		$real_det 					= array();
-			 		$real_det['clean_field'] 	= $or_f_arr['clean'];
-					$real_det['orig_field'] 	= $or_f_arr['orig'];
-					$real_det['rule'] 			= $rule_per;
-					$real_det['satisfier'] 		= ( ISSET( $or_success[$rule_per]['satisfier'][$current_key] ) ) ? $or_success[$rule_per]['satisfier'][$current_key] : NULL;
-					$real_det['value'] 			= $dataValue;						
-
-					if( ISSET( $or_success[$rule_per]['cus_err'][$current_key] ) )
-					{
-						$real_det['cus_err'] 	= $or_success[$rule_per]['cus_err'][$current_key];
-					}
-					else
-					{
-						$real_det['cus_err'] 	= array();
-					}
-
-					if( ISSET( $or_success[$rule_per]['append_error'][$rule_per]  ) )
-					{
-
-						$real_det['append_error']	= $or_success[$rule_per]['append_error'][$rule_per];
-					}
-
-					$det_key = array_search($rule_per, $or_field_details['rules']);
+		 			$sometimes_and = null;
+					$sometime_and_result = true;
 					
-				 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+					if(isset($or_field_details['sometimes'][$or_f_arr['orig']]))
+					{
+						$sometimes_and = $or_field_details['sometimes'][$or_f_arr['orig']];
+					}
 
-				 	$real_det['rule_obj'] = (isset($or_success[$rule_per]['rule_obj'][$current_key][$rule_per])) ? $or_success[$rule_per]['rule_obj'][$current_key][$rule_per] : null;
-				 	
-					$this->handle_errors( $real_det, FALSE, null, true, true );
+					$vvv = $dataValue;
+
+					if(!empty($sometimes_and))
+					{
+						if( is_callable( $sometimes_and ) )
+						{
+							$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $vvv, $or_f_arr['orig'], $or_field_details, $dataValue ) );
+
+						}
+						else if( $sometimes_and == Abstract_common::SOMETIMES 
+							OR $sometimes_and === TRUE
+						)
+						{
+							$sometime_and_result 				= !EMPTY( $vv );
+						}
+						else
+						{
+							$sometime_and_result 				= true;	
+						}
+					}
+
+					if($sometime_and_result)
+					{
+		 			
+				 		$real_det 					= array();
+				 		$real_det['clean_field'] 	= $or_f_arr['clean'];
+						$real_det['orig_field'] 	= $or_f_arr['orig'];
+						$real_det['rule'] 			= $rule_per;
+						$real_det['satisfier'] 		= ( ISSET( $or_success[$rule_per]['satisfier'][$current_key] ) ) ? $or_success[$rule_per]['satisfier'][$current_key] : NULL;
+						$real_det['value'] 			= $dataValue;						
+
+						if( ISSET( $or_success[$rule_per]['cus_err'][$current_key] ) )
+						{
+							$real_det['cus_err'] 	= $or_success[$rule_per]['cus_err'][$current_key];
+						}
+						else
+						{
+							$real_det['cus_err'] 	= array();
+						}
+
+						if( ISSET( $or_success[$rule_per]['append_error'][$rule_per]  ) )
+						{
+
+							$real_det['append_error']	= $or_success[$rule_per]['append_error'][$rule_per];
+						}
+
+						$det_key = array_search($rule_per, $or_field_details['rules']);
+						
+					 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+
+					 	$real_det['rule_obj'] = (isset($or_success[$rule_per]['rule_obj'][$current_key][$rule_per])) ? $or_success[$rule_per]['rule_obj'][$current_key][$rule_per] : null;
+					 	
+						$this->handle_errors( $real_det, FALSE, null, true, true );
+					}
 				
 				}
 			}
@@ -1970,7 +2042,7 @@ class AJD_validation extends Base_validator
 			
 			$this->reset_validation_selected_prop(
 				[
-					'current_field', 'and_or_stack', 'given_values'
+					'current_rule', 'current_field', 'and_or_stack', 'given_values'
 				]
 			);
 
@@ -2025,7 +2097,7 @@ class AJD_validation extends Base_validator
 			{
 				$this->reset_validation_selected_prop(
 					[
-						'fields', 'current_field'
+						'fields', 'current_field', 'current_rule'
 					],
 					true
 				);
@@ -2275,11 +2347,73 @@ class AJD_validation extends Base_validator
 		
 		if( !EMPTY( $prop_and['rules'] ) )
 		{   
+			$sometimes_and = null;
+			$sometime_and_result = true;
+
+			$sometimes_or = null;
+			$sometime_or_result = true;
+
+			if(!empty($group))
+			{
+
+				if(isset($group[Abstract_common::LOG_AND]['sometimes'][$field_arr['orig']]))
+				{
+					$sometimes_and = $group[Abstract_common::LOG_AND]['sometimes'][$field_arr['orig']];
+				}
+
+				if(isset($group[Abstract_common::LOG_OR]['sometimes'][$field_arr['orig']]))
+				{
+					$sometimes_or = $group[Abstract_common::LOG_OR]['sometimes'][$field_arr['orig']];
+				}
+				
+			}
+
 			if( $auto_arr )
 			{
 				foreach( $value as $k_value => $v_value ) 
 				{
-					$check_logic[ Abstract_common::LOG_AND ][] =  $this->_process_and_or_check( $prop, $field, $field_arr, $v_value, $auto_arr, $extra_args, $group, $logic, $k_value, $origValue, $promise );
+					if(!empty($sometimes_and))
+					{
+						if( is_callable( $sometimes_and ) )
+						{
+							$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $v_value, $field_arr['orig'], $group, $origValue ) );
+
+						}
+						else if( $sometimes_and == Abstract_common::SOMETIMES 
+							OR $sometimes_and === TRUE
+						)
+						{
+							$sometime_and_result 				= !EMPTY( $v_value );
+						}
+						else
+						{
+							$sometime_and_result 				= true;	
+						}
+					}
+
+					if(!empty($sometimes_or))
+					{
+						if( is_callable( $sometimes_or ) )
+						{
+							$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $v_value, $field_arr['orig'], $group, $origValue ) );
+
+						}
+						else if( $sometimes_or == Abstract_common::SOMETIMES 
+							OR $sometimes_or === TRUE
+						)
+						{
+							$sometime_or_result 				= !EMPTY( $v_value );
+						}
+						else
+						{
+							$sometime_or_result 				= true;	
+						}
+					}
+
+					if($sometime_and_result && $sometime_or_result)
+					{
+						$check_logic[ Abstract_common::LOG_AND ][] =  $this->_process_and_or_check( $prop, $field, $field_arr, $v_value, $auto_arr, $extra_args, $group, $logic, $k_value, $origValue, $promise );
+					}
 				}
 
 				foreach( $check_logic[ Abstract_common::LOG_AND ] as $k_and => $and )
@@ -2312,7 +2446,48 @@ class AJD_validation extends Base_validator
 			}
 			else 
 			{
-				$check_logic[ Abstract_common::LOG_AND ] 		=  $this->_process_and_or_check( $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, NULL, $origValue, $promise );
+				if(!empty($sometimes_and))
+				{
+					if( is_callable( $sometimes_and ) )
+					{
+						$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $value, $field_arr['orig'], $group, $origValue ) );
+
+					}
+					else if( $sometimes_and == Abstract_common::SOMETIMES 
+						OR $sometimes_and === TRUE
+					)
+					{
+						$sometime_and_result 				= !EMPTY( $value );
+					}
+					else
+					{
+						$sometime_and_result 				= true;	
+					}
+				}
+
+				if(!empty($sometimes_or))
+				{
+					if( is_callable( $sometimes_or ) )
+					{
+						$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $value, $field_arr['orig'], $group, $origValue ) );
+
+					}
+					else if( $sometimes_or == Abstract_common::SOMETIMES 
+						OR $sometimes_or === TRUE
+					)
+					{
+						$sometime_or_result 				= !EMPTY( $value );
+					}
+					else
+					{
+						$sometime_or_result 				= true;	
+					}
+				}
+
+				if($sometime_and_result && $sometime_or_result)
+				{
+					$check_logic[ Abstract_common::LOG_AND ] 		=  $this->_process_and_or_check( $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, NULL, $origValue, $promise );
+				}
 			}
 			
 		}
@@ -2427,7 +2602,7 @@ class AJD_validation extends Base_validator
 				if($fiberize)
 				{
 					$this->reset_validation_selected_prop(
-						['current_field', 'and_or_stack', 'given_values']
+						['current_rule', 'current_field', 'and_or_stack', 'given_values']
 					);
 				}
 				else
@@ -3158,7 +3333,7 @@ class AJD_validation extends Base_validator
 	protected function reset_validation_selected_prop($pass_properties = [], $given_prop_only = false)
 	{
 		$common_prop = array(
-			'fields', 'current_field', 'and_or_stack', 'given_values'
+			'fields', 'current_rule', 'current_field', 'and_or_stack', 'given_values'
 		);
 
 		if(empty($pass_properties))

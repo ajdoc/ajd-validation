@@ -421,14 +421,49 @@ try
 
 		->check('folder_custom', '');
 
+		/*$v 
+			->required()->on('add')
+			->minlength(1)
+			->check('middlename');*/
 
 /*	$validator = $v->getValidator();
 
 	var_dump($validator->folder_custom2()->validate('folder_custom2'));*/
 
+	$v
+
+		->Srequired()
+			->field('username2')->sometimes(function($value = null, $field, $details)
+				{
+					return $value == 'a';
+				})
+				->minlength(2)
+				->alpha()
+			->field('fname2')
+				->minlength(1)->sometimes(function($value = null, $satisfier = null, $field)
+				{
+					return true;
+				})
+		->eSrequired()
+
+		->checkGroup([
+			'username2' => 'a',
+			'fname2' => '',
+			
+		]);
+
+	$v 
+			->required()
+			->minlength(3)->sometimes(function($value = null, $satisfier = null, $field)
+				{
+
+					return strlen($value) == 2;
+				})
+			->check('middlename2', 'aa');
+
 	// Another way of defining validation rules
 	$v
-		->Srequired(NULL, AJD_validation::LOG_OR)
+		->Srequired(NULL, AJD_validation::LOG_AND)
 			->field('username')
 				->publishFail('supper_test', function()
 				{
@@ -436,14 +471,14 @@ try
 					echo 'super field test required only.';
 				})
 				->minlength(2)
-				->alpha()
+				->alpha()->sometimes('sometimes')
 			->field('fname')
 				->publishFail('supper_minelen_test', function()
 				{
 					echo '<pre>';
 					echo 'super field test minlength.';
 				})
-				->minlength(1)
+				->minlength(1)->on('add')
 					->publishFail('minelen_test', function()
 					{
 						echo '<pre>';
@@ -460,8 +495,10 @@ try
 			->field('digit_group2')
 		->eSdigit()
 		->checkGroup([
-			'username' => ['username' => ['a', '']],
+			'username' => ['username' => ['aa', '']],
 			'fname' => ['fname' => ['', 'a']],
+			/*'username' => 'a',
+			'fname' => '',*/
 			'digit_group' => '1',
 			'digit_group2' => ''
 		])

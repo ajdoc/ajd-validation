@@ -41,7 +41,7 @@ $v = new AJD_validation;
 
 ```
 
-After defining a field-rule validation you can define to listeners fails or passed or both, both of which must have a closure as their argument and the closure will receive AJD_validation instance as their argument. fails event listener will trigger when validation fails and passed will trigger if the validation passes. You can also create like in the example if this validation fails or passes do another validation. 
+After defining a field-rule validation you can define listeners fails or passed or both, both of which must have a closure as their argument and the closure will receive AJD_validation instance as their argument. fails event listener will trigger when validation fails and passed will trigger if the validation passes. You can also create like in the example if this validation fails or passes do another validation. 
 
 ### Rules and Fields Events
 ```php
@@ -471,4 +471,6 @@ $v = new AJD_validation;
 	
 See also:
 - [Async](async.md)
-- [Alternative Usage](../usage.md)
+- [Alternative Usage](../alternative_usage.md)
+- [Usage](../usage.md)
+- [Scenarios](scenarios.md)

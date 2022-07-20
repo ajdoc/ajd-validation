@@ -44,8 +44,8 @@ class Field_scenario extends AJD_validation
 	{
 		$logic 												= static::$ajd_prop[ 'current_logic' ];
 		$curr_field 										= static::$ajd_prop[ 'current_field' ];
-
-		$rule 												= $this->rule_name;
+		
+		$rule 												= static::$ajd_prop['current_rule'];
 
 		if( !EMPTY( $ruleOverride ) )
 		{
