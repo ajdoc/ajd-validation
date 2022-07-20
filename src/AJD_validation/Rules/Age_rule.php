@@ -64,7 +64,7 @@ class Age_rule extends Abstract_interval
 			{
 				$minCheck 	= $this->setMinAge( $satisfier[0] );
 				$maxCheck 	= $this->setMaxAge( $satisfier[1] );
-
+				
 				return ( $minCheck AND $maxCheck );
 			}
 			else if(  
@@ -81,7 +81,7 @@ class Age_rule extends Abstract_interval
 			{
 				if( is_numeric( $value ) )
 				{
-					return $this->setMinAge( $satisfier[1] );
+					return $this->setMaxAge( $satisfier[1] );
 				}
 				else
 				{
@@ -92,7 +92,7 @@ class Age_rule extends Abstract_interval
 			{
 				if( is_numeric( $value ) )
 				{
-					return $this->setMaxAge( $satisfier[0] );
+					return $this->setMinAge( $satisfier[0] );
 				}
 				else
 				{
@@ -143,9 +143,18 @@ class Age_rule extends Abstract_interval
 	        $minDate->setTime(0, 0, 0);
 	    }
 
-        $minLen 	= Vefja::instance('AJD_validation\\Rules\\Minlength_rule', array($this->inclusive));
+        $minLen 	= Vefja::instance('AJD_validation\\Rules\\Maxlength_rule', array($this->inclusive));
 
-        return $minLen->run( $this->value, $minDate, $this->field );
+        $check = $minLen->run( $this->value, $minDate, $this->field );
+
+        if(is_array($check))
+        {
+        	return $check['check'];
+        }
+        else
+        {
+        	return $check;
+        }
     }
 
     private function setMinAge($minAge)
@@ -167,8 +176,18 @@ class Age_rule extends Abstract_interval
 	        $maxDate->setTime(23, 59, 59);
 	    }
 
-        $maxLen 	= Vefja::instance('AJD_validation\\Rules\\Maxlength_rule', array($this->inclusive));
+        $maxLen 	= Vefja::instance('AJD_validation\\Rules\\Minlength_rule', array($this->inclusive));
 
-        return $maxLen->run( $this->value, $maxDate, $this->field );
+        $check = $maxLen->run( $this->value, $maxDate, $this->field );
+
+        if(is_array($check))
+        {
+        	return $check['check'];
+        }
+        else
+        {
+        	return $check;
+        }
+        
     }
 }

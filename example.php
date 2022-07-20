@@ -78,9 +78,10 @@ class Custom_extension extends Base_extension
 
 try
 {
+	/*var_dump($v->getValidator()->maxlength(2)->validate(3));
 	$v 
-		->age(11)
-		->check('age_field', 11);
+		->email()
+		->check('te_1', 'ssa@yopmail.com');*/
 /*	AJD_validation::makeAsync()
 			->required()
 			->check('aaasera')->getFiber();*/
