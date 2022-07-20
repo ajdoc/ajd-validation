@@ -23,13 +23,17 @@ class Distinct_rule extends Abstract_rule
 			$this->origData 	= $origData;
 		}
 		
-		if( is_array( $this->origData ) AND !EMPTY( $this->origData ) AND !EMPTY( $field ) )
+		if( is_array( $this->origData ) AND !EMPTY( $this->origData ) )
 		{
-			$pattern 			= str_replace('\*', '[^.]+', preg_quote($field, '#'));
+			$checkValidator = false;
+			if(!empty($field))
+			{
+				$pattern 			= str_replace('\*', '[^.]+', preg_quote($field, '#'));
 
-			$validator 			= $this->getValidator();
-			$paramValidator 	= $validator->contains('.');
-			$checkValidator 	= $paramValidator->validate($field);
+				$validator 			= $this->getValidator();
+				$paramValidator 	= $validator->contains('.');
+				$checkValidator 	= $paramValidator->validate($field);
+			}
 			
 			if( $checkValidator )
 			{
@@ -45,15 +49,29 @@ class Distinct_rule extends Abstract_rule
 	        {
 	        	$checks 	= array();
 
-	        	foreach( $this->origData as $val )
+	        	if(is_array($value))
 	        	{
-	        		if( $val == $value )
+	        		$duplicates = array_diff_assoc($value, array_unique($value));
+
+	        		$subCheck = true;
+
+	        		if(!empty($duplicates))
 	        		{
-	        			$checks[] 	= TRUE;
+	        			$subCheck = false;
 	        		}
 	        	}
-	        	
-	        	$subCheck 	= ( count( $checks ) == 1 );
+	        	else
+	        	{
+		        	foreach( $this->origData as $val )
+		        	{
+	        			if( $val == $value )
+		        		{
+		        			$checks[] 	= TRUE;
+		        		}	
+		        	}
+
+		        	$subCheck 	= ( count( $checks ) == 1 );
+		        }
 	        }
 			
 			if( !EMPTY( $value ) )
@@ -66,7 +84,21 @@ class Distinct_rule extends Abstract_rule
         	}
         	
 		}
+		else
+		{
+			if(is_array($value))
+        	{
+        		$duplicates = array_diff_assoc($value, array_unique($value));
 
+        		$check = true;
+
+        		if(!empty($duplicates))
+        		{
+        			$check = false;
+        		}
+        	}
+		}
+		
 		return $check;
 	}
 
@@ -74,7 +106,7 @@ class Distinct_rule extends Abstract_rule
 	{
 		$check 					= $this->run( $value );
 
-		if( is_array( $check['check'] ) )
+		if( is_array( $check ) )
 		{
 			return $check['check'];
 		}

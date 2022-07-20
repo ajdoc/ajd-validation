@@ -366,7 +366,6 @@ try
 	$dt = false;
 	var_dump($at and $bt xor $ct xor $dt);
 
-
 	$v
 		->fiberize()
 		->enum(Sstatus::class)
@@ -578,11 +577,13 @@ try
 				})
 		;
 
-	$arrch = ['aass' => [1,1]];
+	$arrch = ['aass' => [1,'1']];
 
 	$v
 		->distinct($arrch)
 		->check('aass', $arrch);
+		var_dump('distinct');
+	var_dump($v->getValidator()->distinct()->validate([1,'2']));
 
 	$v->Ftest_custom()
 		->required()

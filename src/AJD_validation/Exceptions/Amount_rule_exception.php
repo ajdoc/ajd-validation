@@ -8,11 +8,11 @@ class Amount_rule_exception extends Alpha_rule_exception
 	public static $defaultMessages 	= array(
         self::ERR_DEFAULT 			=> array(
             self::STANDARD 			=> ':field must be a valid amount.',
-            self::DECIMAL_PLACE     => ':field must be a valid amount and must have {decimalPlace} place.'
+            self::DECIMAL_PLACE     => ':field must be a valid amount and must have {decimalPlace} decimal place.'
         ),
         self::ERR_NEGATIVE 			=> array(
             self::STANDARD 			=> ':field must not be a valid amount.',
-            self::DECIMAL_PLACE     => ':field must not be a valid amount and must not have {decimalPlace} place.'
+            self::DECIMAL_PLACE     => ':field must not be a valid amount and must not have {decimalPlace} decimal place.'
         ),
     );
 

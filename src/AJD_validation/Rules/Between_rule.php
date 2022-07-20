@@ -79,27 +79,49 @@ class Between_rule extends Abstract_rule
 	 		$check 				= FALSE;
         }
 
-        $this->minlength 		= Vefja::singleton('AJD_validation\\Rules\\Minlength_rule', array($this->inclusive));
-        $this->maxlength 		= Vefja::singleton('AJD_validation\\Rules\\Maxlength_rule', array($this->inclusive));
+        $this->minlength 		= Vefja::instance('AJD_validation\\Rules\\Minlength_rule', array($this->inclusive));
+        $this->maxlength 		= Vefja::instance('AJD_validation\\Rules\\Maxlength_rule', array($this->inclusive));
 
         if( !IS_NULL( $this->minValue ) AND !IS_NULL( $this->maxValue ) )
         {
         	$minCheck 			= $this->minlength->run( $value, array( $this->minValue, $this->inclusive ) );
         	$maxCheck 			= $this->maxlength->run( $value, array( $this->maxValue, $this->inclusive ) );
         	
-        	$check 				= ( $minCheck AND $maxCheck );
+        	if(is_array($minCheck) && is_array($maxCheck))
+        	{
+        		$check 				= ( $minCheck['check'] AND $maxCheck['check'] );
+        	}
+        	else
+        	{
+        		$check 				= ( $minCheck AND $maxCheck );	
+        	}
+        	
         }
         else if( !IS_NULL( $this->minValue ) AND IS_NULL( $this->maxValue ) )
         {
         	$minCheck 			= $this->minlength->run( $value, array( $this->minValue, $this->inclusive ) );
 
-        	$check 				= $minCheck;
+        	if(is_array($minCheck))
+        	{
+        		$check 				= $minCheck['check'];	
+        	}
+        	else
+        	{
+        		$check 				= $minCheck;	
+        	}
         }
         else if( IS_NULL( $this->minValue ) AND !IS_NULL( $this->maxValue ) )
         {
         	$maxCheck 			= $this->maxlength->run( $value, array( $this->maxValue, $this->inclusive ) );
 
-        	$check 				= $maxCheck;
+        	if(is_array($minCheck))
+        	{
+        		$check 				= $minCheck['check'];
+        	}
+        	else
+        	{
+        		$check 				= $maxCheck;
+        	}
         }
 
         return $check;
@@ -111,7 +133,7 @@ class Between_rule extends Abstract_rule
 
 		$check 					= $this->run( $value, $satisfier );
 
-		if( is_array( $check['check'] ) )
+		if( is_array( $check ) )
 		{
 			return $check['check'];
 		}
