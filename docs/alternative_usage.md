@@ -130,29 +130,29 @@ $v = new AJD_validation;
 		$v
 		->Srequired(NULL, AJD_validation::LOG_AND)
 			->field('username')->on('edit')
-				->publishFail('supper_test', function()
+				->publishFail('username_fail_event', function()
 				{
 					echo '<pre>';
-					echo 'super field test required only.';
+					echo 'username_fail_event.';
 				})
 				->minlength(2)->on('edit')
 				->alpha()
 			->field('fname')
-				->publishFail('supper_minelen_test', function()
+				->publishFail('fname_fail_event', function()
 				{
 					echo '<pre>';
-					echo 'super field test minlength.';
+					echo 'fname_fail_event.';
 				})
 				->minlength(1)
-					->publishFail('minelen_test', function()
+					->publishFail('minlength_fail_event', function()
 					{
 						echo '<pre>';
-						echo 'minlength test.';
+						echo 'minlength_fail_event.';
 					})
-					->publishFail('minlengthtest2', function()
+					->publishFail('minelength_fail_event2', function()
 					{
 						echo '<pre>';
-						echo 'super field test minlength 2.';
+						echo 'minelength_fail_event2.';
 					})
 		->eSrequired()
 		->Sdigit(NULL, AJD_validation::LOG_AND)

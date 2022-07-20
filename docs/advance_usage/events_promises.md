@@ -43,7 +43,7 @@ $v = new AJD_validation;
 
 After defining a field-rule validation you can define to listeners fails or passed or both, both of which must have a closure as their argument and the closure will receive AJD_validation instance as their argument. fails event listener will trigger when validation fails and passed will trigger if the validation passes. You can also create like in the example if this validation fails or passes do another validation. 
 
-### Rules Events
+### Rules and Fields Events
 ```php
 use AJD_validation\AJD_validation;
 
@@ -83,11 +83,64 @@ $v = new AJD_validation;
 	}
 
 ```
-It is also possible to define events per rule definition there are currently three event listener available.
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+	try 
+	{
+		$v
+		->Srequired()
+			->field('username')
+				->publishFail('username_fail_event', function()
+				{
+					echo '<pre>';
+					echo 'username_fail_event.';
+				})
+				->minlength(2)
+				->alpha()
+			->field('fname')
+				->publishFail('fname_fail_event', function()
+				{
+					echo '<pre>';
+					echo 'fname_fail_event.';
+				})
+				->minlength(1)
+					->publishFail('minlength_fail_event', function()
+					{
+						echo '<pre>';
+						echo 'minlength_fail_event.';
+					})
+					->publishFail('minelength_fail_event2', function()
+					{
+						echo '<pre>';
+						echo 'minelength_fail_event2.';
+					})
+		->eSrequired()
+		->checkGroup([
+			'username' => '',
+			'fname' => 'a',
+		])
+		->then(function()
+		{
+			echo 'group passed';
+		}, function()
+		{
+			echo 'group failed';
+		});
+	}
+	catch(Exception $e)
+	{
+		echo $e->getMessage();
+	}
+```
+It is also possible to define events per rule or per field definition there are currently three event listener available.
 
 * publish
 	
-	Will trigger once the validation rule has started.
+	Will trigger once the validation rule or field has started.
 
 		1. [uniq-event-name] for first paramater
 		2. [Closure] for second paramater will received 
@@ -99,7 +152,7 @@ It is also possible to define events per rule definition there are currently thr
 
 * publishFail
 	
-	Will trigger once the validation rule has failed.
+	Will trigger once the validation rule or field has failed.
 
 		1. [uniq-event-name] for first paramater
 		2. [Closure] for second paramater will received 
@@ -111,7 +164,7 @@ It is also possible to define events per rule definition there are currently thr
 
 * publishSuccess
 
-	Will trigger once the validation rule has passed.
+	Will trigger once the validation rule or field has passed.
 
 		1. [uniq-event-name] for first paramater
 		2. [Closure] for second paramater will received 
@@ -418,3 +471,4 @@ $v = new AJD_validation;
 	
 See also:
 - [Async](async.md)
+- [Alternative Usage](../usage.md)
