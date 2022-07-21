@@ -3752,11 +3752,12 @@ class AJD_validation extends Base_validator
 					!EMPTY( static::$ajd_prop['result_values'][ $details['field'] ] )
 				)
 				{
-
 					if(isset(static::$ajd_prop['result_values'][ $details['field'] ][ $key ]))
 					{
-					
-						static::$ajd_prop['result_values'][ $details['field'] ][ $key ]  	= $real_val;
+						if(is_array(static::$ajd_prop['result_values'][ $details['field'] ][ $key ]))
+						{
+							static::$ajd_prop['result_values'][ $details['field'] ][ $key ]  	= $real_val;
+						}
 					}
 				}
 			}

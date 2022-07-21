@@ -86,7 +86,7 @@ $v
 	
 	->check('email', 'test@yopmail.com');
 
-	// will put error in error bag if value already exists in users table but at the same time we will exclude user_id = 1 in checking, so in this scenario the action is most likely update is exclude_value is not null or empty.
+	// will put error in error bag if value already exists in users table but at the same time we will exclude user_id = 1 in checking, so in this scenario the action is most likely update if exclude_value is not null or empty.
 
 ```
 

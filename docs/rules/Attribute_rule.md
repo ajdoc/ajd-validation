@@ -3,7 +3,7 @@
 - `attribute()`
 - `Attribute_rule($relation, Rule_interface $referenceValidator = NULL, $mandatory = true)`
 
-Validates whether the input's object attribute.
+Validates the input's object attribute.
 
 ```php
 use AJD_validation\AJD_validation as v;

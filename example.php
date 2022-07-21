@@ -78,12 +78,11 @@ class Custom_extension extends Base_extension
 
 try
 {
-	$obj = new stdClass;
-	$obj->foo = '';
-	var_dump($v->getValidator()->attribute('foo', $v->getValidator()->required()->digit())->validate($obj));
+	// ['te_1' => ['aa', 'ipsum']]
+	/*var_dump($v->getValidator()->ends_with('ipsum')->validate('lorem'));
 	$v 
-		->attribute('foo', $v->getValidator()->required()->digit())
-		->check('te_1', $obj);
+		->ends_with('ipsum')
+		->check('te_1', ['te_1' => ['aa', 'ipsum']]);*/
 /*	AJD_validation::makeAsync()
 			->required()
 			->check('aaasera')->getFiber();*/

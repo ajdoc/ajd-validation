@@ -23,6 +23,11 @@ class Digit_count_rule extends Abstract_rule
 	
 	public function run( $value, $satisfier = NULL, $field = NULL )
 	{
+		if(!$this->getValidator()->digit()->validate($value))
+		{
+			return false;
+		}
+
 		$digitCount 		= strlen( preg_replace( '/[^0-9]+/', "", $value ) );
 
 		$check 				= TRUE;

@@ -11,10 +11,10 @@ use AJD_validation\AJD_validation as v;
 
 $v = new v;
 
-$v->compare('==', 'b')->check('compare_value', 'a'); // will put error in error bag
+$v->compare('==', 'b')->check('compare_field', 'a'); // will put error in error bag
 $v->getValidator()->compare('==', 'b')->validate('a'); // false
 
-$v->compare('==', 'b')->check('compare_value', 'b'); // validation passes
+$v->compare('==', 'b')->check('compare_field', 'b'); // validation passes
 $v->getValidator()->compare('==', 'b')->validate('b'); // true
 
 ```
