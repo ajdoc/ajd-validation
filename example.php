@@ -78,11 +78,12 @@ class Custom_extension extends Base_extension
 
 try
 {
-	
-	/*var_dump($v->getValidator()->exists('test|table=requests|primary_id=request_id')->validate(4));
+	$obj = new stdClass;
+	$obj->foo = '';
+	var_dump($v->getValidator()->attribute('foo', $v->getValidator()->required()->digit())->validate($obj));
 	$v 
-		->exists('test|table=requests|primary_id=request_id')
-		->check('te_1', 4);*/
+		->attribute('foo', $v->getValidator()->required()->digit())
+		->check('te_1', $obj);
 /*	AJD_validation::makeAsync()
 			->required()
 			->check('aaasera')->getFiber();*/

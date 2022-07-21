@@ -106,10 +106,19 @@ abstract class Abstract_related extends Abstract_rule
             }
     	}
 
-    	return array(
-            'check'     => $check,
-            'append_error'  => '<br>'.$append_error
-        );
+        if(!empty($append_error))
+        {
+            return array(
+                'check'     => $check,
+                'append_error'  => '<br>'.$append_error
+            );
+        }
+        else
+        {
+            return array(
+                'check'     => $check,
+            );
+        }
     }
 
     public function validate($value)

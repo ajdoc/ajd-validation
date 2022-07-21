@@ -21,7 +21,7 @@ class Attribute_rule extends Abstract_related
 	{
 		$propertyReflection = new ReflectionProperty($value, $this->relation);
 		$propertyReflection->setAccessible(TRUE);
-
+        
 		return $propertyReflection->getValue($value);
 	}
 

@@ -298,7 +298,15 @@ abstract class Abstract_common
 			}
 			else
 			{
-				$errors 		= str_replace( array( ':field', ':value' ), array( $field, $value ), $errors );
+				if(is_object($value))
+				{
+					$errors 		= str_replace( array( ':field' ), array( $field ), $errors );
+				}
+				else
+				{
+					$errors 		= str_replace( array( ':field', ':value' ), array( $field, $value ), $errors );	
+				}
+				
 			}
 		} 
 		else 
@@ -313,12 +321,27 @@ abstract class Abstract_common
 					$satisfier  = $cl_satis['clean'];
 				}
 
-				$errors 		= str_replace( array( ':field', ':value', ':satisfier' ), array( $field, $value, $satisfier ), $errMsg );
+				if(is_object($value))
+				{
+					$errors 		= str_replace( array( ':field', ':satisfier' ), array( $field, $satisfier ), $errMsg );
+				}
+				else
+				{
+
+					$errors 		= str_replace( array( ':field', ':value', ':satisfier' ), array( $field, $value, $satisfier ), $errMsg );
+				}
 
 			} 
 			else 
 			{
-				$errors 		= str_replace( array( ':field', ':value', ':satisfier' ), array( $field, $value, $satisfier ), $errMsg );
+				if(is_object($value))
+				{
+					$errors 		= str_replace( array( ':field', ':satisfier' ), array( $field, $satisfier ), $errMsg );
+				}
+				else
+				{
+					$errors 		= str_replace( array( ':field', ':value', ':satisfier' ), array( $field, $value, $satisfier ), $errMsg );
+				}
 			}
 		}
 

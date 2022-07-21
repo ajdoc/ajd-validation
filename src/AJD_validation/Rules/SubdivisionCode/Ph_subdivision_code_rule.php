@@ -1,6 +1,6 @@
 <?php namespace AJD_validation\Rules\SubdivisionCode;
 
-use AJD_Validation\Contracts\Abstract_search;
+use AJD_validation\Contracts\Abstract_search;
 
 class Ph_subdivision_code_rule extends Abstract_search
 {

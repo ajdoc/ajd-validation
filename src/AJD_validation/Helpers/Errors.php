@@ -659,7 +659,7 @@ class Errors extends InvalidArgumentException
 					);
 					
 					
-				if( $ruleCh instanceof Invokable_rule_interface )
+					if( $ruleCh instanceof Invokable_rule_interface )
 					{
 						$params['id_pass'] = $qualified_exception_class;
 					}
@@ -680,7 +680,7 @@ class Errors extends InvalidArgumentException
 					}
 					
 					$errors[$rule_name]		= $message;
-
+					
 					$exception_arr[]  		= $exceptionObj;
 					
 				}
