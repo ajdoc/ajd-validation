@@ -79,10 +79,10 @@ class Custom_extension extends Base_extension
 try
 {
 	// ['te_1' => ['aa', 'ipsum']]
-	var_dump($v->getValidator()->identical(1)->validate(1));
+	/*var_dump($v->getValidator()->identical(1)->validate(1));
 	$v 
 		->identical(1)
-		->check('te_1', 1);
+		->check('te_1', 1);*/
 /*	AJD_validation::makeAsync()
 			->required()
 			->check('aaasera')->getFiber();*/
