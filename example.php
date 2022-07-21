@@ -78,10 +78,11 @@ class Custom_extension extends Base_extension
 
 try
 {
-	/*var_dump($v->getValidator()->maxlength(2)->validate(3));
+	
+	/*var_dump($v->getValidator()->exists('test|table=requests|primary_id=request_id')->validate(4));
 	$v 
-		->email()
-		->check('te_1', 'ssa@yopmail.com');*/
+		->exists('test|table=requests|primary_id=request_id')
+		->check('te_1', 4);*/
 /*	AJD_validation::makeAsync()
 			->required()
 			->check('aaasera')->getFiber();*/

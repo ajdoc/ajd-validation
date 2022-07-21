@@ -109,7 +109,7 @@ class Database
 
     protected $defaultOptions                   = array();
 
-    public function __construct( $connection = NULL, $dbuser= NULL, $dbpass= NULL, $options = array() )
+    public function __construct( $connection = NULL, $dbuser= NULL, $dbpass= NULL, $options = array(), ...$extra )
     {
 
         $this->connection           = $connection;
@@ -121,11 +121,11 @@ class Database
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         );
 
-        $this->process_connection( $connection, $dbuser, $dbpass, $options );
+        $this->process_connection( $connection, $dbuser, $dbpass, $options, ...$extra );
 
     }
 
-    protected function process_connection( $connection, $dbuser, $dbpass, $options = array() )
+    protected function process_connection( $connection = null, $dbuser = null, $dbpass, $options = array(), ...$extra )
     {
 
 
@@ -172,6 +172,31 @@ class Database
 
                 $options            = array_merge( $options, $this->defaultOptions );
 
+                if(!empty($extra))
+                {
+                    if(isset($extra[0]) && !empty($extra[0]))
+                    {
+                        $connection = $extra[0];    
+                    }
+                    
+                    if(isset($extra[1]))
+                    {
+                        $user = $extra[1];    
+                    }
+
+                    if(isset($extra[2]))
+                    {
+                        $pass = $extra[2];    
+                    }
+
+                    if(isset($extra[3]) && !empty($extra[3])
+                        && is_array($extra[3])    
+                    )
+                    {
+                        $options            = array_merge( $options, $extra[3] );
+                    }
+                }
+                
                 static::$db = new PDO( $connection, $user, $pass, $options );
 
             } 

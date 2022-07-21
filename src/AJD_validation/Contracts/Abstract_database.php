@@ -86,7 +86,15 @@ abstract class Abstract_database extends Abstract_rule
 				{
 					if( ISSET( static::$dbConnections[ $mainConfig['connection'] ] ) )
 					{
-						$this->db = new Database( static::$dbConnections[ $mainConfig['connection'] ] );
+						if(is_array(static::$dbConnections[ $mainConfig['connection'] ]))
+						{
+							$this->db = new Database( null, null, null, [], ...static::$dbConnections[ $mainConfig['connection'] ] );
+						}
+						else
+						{
+							$this->db = new Database( static::$dbConnections[ $mainConfig['connection'] ] );	
+						}
+						
 					}
 					else if( is_object( $mainConfig['connection'] ) )
 					{
