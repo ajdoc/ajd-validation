@@ -57,7 +57,7 @@ class NotPawnedVerifier implements Uncompromised_interface
 				$ret = !in_array(TRUE, $check_arr);
 			}
 		}
-
+		
 		return $ret;
 	}
 

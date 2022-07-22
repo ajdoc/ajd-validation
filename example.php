@@ -86,9 +86,8 @@ try
 	$obj->bar = '1';*/
 	// $arr2 = ['key_value_field' => ['key_value_field' => 'ss', 'confirm' => 'ssa']];
 	
-	$v->type('null')->check('type_rule', null); 
-
-	var_dump($v->getValidator()->type('null')->validate(null));
+	/*$v->dimensions(['ratio' => 0.0007])->check('dimensions_field', '/home/asiagate/Pictures/decision.png'); 
+	var_dump($v->getValidator()->dimensions(['ratio' => 0.0007])->validate('/home/asiagate/Pictures/decision.png'));*/
 /*	AJD_validation::makeAsync()
 			->required()
 			->check('aaasera')->getFiber();*/

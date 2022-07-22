@@ -42,11 +42,9 @@ class Uncompromised_rule extends Abstract_rule
 				if( $valid )
 				{
 					$getConstructor 	= $reflection->getConstructor();
-
 					$resolve 			=  (bool) $getConstructor ? $reflection->newInstanceArgs( $this->args ) : $reflection->newInstanceWithoutConstructor();
 
 					$check 				= $resolve->verify($value);
-					
 				}
 				
 			}

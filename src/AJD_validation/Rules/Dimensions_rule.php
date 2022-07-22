@@ -19,6 +19,7 @@ class Dimensions_rule extends Abstract_rule
 
 	public function __construct( array $options, $width, $height, $maxHeight = NULL, $maxWidth = NULL, $ratio = NULL )
 	{
+		$origOptions 		= $options;
 		$options 			= $this->Fnumeric()
 									->cacheFilter('width')
 									->cacheFilter('height')
@@ -59,10 +60,10 @@ class Dimensions_rule extends Abstract_rule
 		{
 			$this->minHeight = $options['minHeight'];
 		}
-
-		if( ISSET( $options['ratio'] ) )
+		
+		if( ISSET( $origOptions['ratio'] ) )
 		{
-			$this->ratio 	= $options['ratio'];
+			$this->ratio 	= $origOptions['ratio'];
 		}
 
 		if( !EMPTY( $options ) )
@@ -155,8 +156,8 @@ class Dimensions_rule extends Abstract_rule
 		    array(1, 1), array_filter(sscanf($this->ratio, '%f/%d'))
 		);
 
-		$precision 						= 1 / max($width, $height);
-
+		$precision 						= 1 / ( max($width, $height) + 1 );
+		
 		return abs($numerator / $denominator - $width / $height) > $precision;
 	}
 
