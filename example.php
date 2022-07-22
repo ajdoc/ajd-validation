@@ -78,11 +78,15 @@ class Custom_extension extends Base_extension
 
 try
 {
-	// ['te_1' => ['aa', 'ipsum']]
-	/*var_dump($v->getValidator()->identical(1)->validate(1));
+	$arr1 = ['password' => '1', 'password_confirm' => '1'];
+	$arr2 = ['password' => 'ssa', 'password_confirm' => 'ssa'];
+
+	// $arr2 = ['key_value_field' => ['key_value_field' => 'ss', 'confirm' => 'ssa']];
+	
+	var_dump($v->getValidator()->key_value(['password_confirm', 'equals', 'password'])->validate($arr1));
 	$v 
-		->identical(1)
-		->check('te_1', 1);*/
+		->key_value(['password_confirm', 'equals', 'password'])
+		->check('password_confirm', $arr2, false);
 /*	AJD_validation::makeAsync()
 			->required()
 			->check('aaasera')->getFiber();*/

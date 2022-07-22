@@ -13,7 +13,7 @@ class Equals_rule extends Abstract_rule
 	public function run( $value, $satisfier = NULL, $field = NULL )
 	{
 		$check 		= $value == $this->compareto;
-
+		
 		return $check;
 	}
 

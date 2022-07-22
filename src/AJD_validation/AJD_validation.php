@@ -2178,7 +2178,7 @@ class AJD_validation extends Base_validator
 
 		$field_arr 		= $this->format_field_name( $field );
 		
-		if( is_array( $value ) )
+		if( is_array( $value ) && $check_arr )
 		{
 			if( ISSET( $value[ $field_arr['orig'] ] ) )
 			{
@@ -2189,8 +2189,6 @@ class AJD_validation extends Base_validator
 				$value 	= NULL;
 			}
 		}
-
-		
 
 		if($fiberize)
 		{
