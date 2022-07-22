@@ -10,7 +10,7 @@ class Extract_length_filter extends Abstract_filter
 			return mb_strlen( $value, mb_detect_encoding( $value ) );
 		}
 
-		if( is_array( $value ) AND $value instanceof \Countable )
+		if( is_array( $value ) || $value instanceof \Countable )
 		{
 			return count( $value );
 		}

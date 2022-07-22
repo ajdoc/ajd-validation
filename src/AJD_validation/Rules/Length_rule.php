@@ -46,10 +46,12 @@ class Length_rule extends Abstract_rule
 
 	public function run( $value, $satisfier = NULL, $field = NULL )
 	{
+		$check_arr 	= (is_array($value)) ? false : true;
+		
 		$check 		= FALSE;
 		$length 	= $this->Fextract_length()
 					->cacheFilter('value')
-					->filterSingleValue( $value, TRUE );
+					->filterSingleValue( $value, true, $check_arr );
 
 		$check 		= ( $this->validateMin( $length ) AND $this->validateMax($length) );
 

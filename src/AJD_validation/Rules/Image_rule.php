@@ -32,7 +32,7 @@ class Image_rule extends Abstract_rule
 			$check 		= FALSE;
 		}
 
-		$check 			= ( 0 === strpos( $this->fileInfo->file( $value ), 'image/' ) );
+		$check 			= ( 0 === @strpos( $this->fileInfo->file( $value ), 'image/' ) );
 		
 		return $check;
 	}

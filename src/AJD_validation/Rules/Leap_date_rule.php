@@ -11,6 +11,7 @@ class Leap_date_rule extends Abstract_rule
 	public function __construct( $format = 'Y-m-d' )
 	{
 		$this->format 	= $format;
+
 	}
 
 	public function run( $value, $satisfier = NULL, $field = NULL )
@@ -28,6 +29,11 @@ class Leap_date_rule extends Abstract_rule
 			{
 				$this->format = $satisfier;
 			}
+		}
+
+		if(empty($this->format))
+		{
+			$this->format = 'Y-m-d';
 		}
 
 		if( is_string( $value ) )

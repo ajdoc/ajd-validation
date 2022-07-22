@@ -20,7 +20,7 @@ class File_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-		 $check              = $this->run( $value );
+	 	$check              = $this->run( $value );
 
         if( is_array( $check ) )
         {

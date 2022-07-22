@@ -80,13 +80,15 @@ try
 {
 	$arr1 = ['password' => '1', 'password_confirm' => '1'];
 	$arr2 = ['password' => 'ssa', 'password_confirm' => 'ssa'];
+	/*$obj = new StdClass;
 
+	$obj->foo = '1';
+	$obj->bar = '1';*/
 	// $arr2 = ['key_value_field' => ['key_value_field' => 'ss', 'confirm' => 'ssa']];
 	
-	var_dump($v->getValidator()->key_value(['password_confirm', 'equals', 'password'])->validate($arr1));
-	$v 
-		->key_value(['password_confirm', 'equals', 'password'])
-		->check('password_confirm', $arr2, false);
+	$v->type('null')->check('type_rule', null); 
+
+	var_dump($v->getValidator()->type('null')->validate(null));
 /*	AJD_validation::makeAsync()
 			->required()
 			->check('aaasera')->getFiber();*/

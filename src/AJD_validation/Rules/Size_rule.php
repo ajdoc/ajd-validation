@@ -41,9 +41,11 @@ class Size_rule extends Abstract_rule
 			$this->isString 	= TRUE;
 		}
 
+		$check_arr 		= is_array($value) ? false : true;
+
 		$countVal 		= $this->Fsize_count()
 	                        ->cacheFilter( 'value' )
-	                        ->filterSingleValue( $value, TRUE );
+	                        ->filterSingleValue( $value, true, $check_arr );
 
 	    $check 			= $countVal == $this->size;
 

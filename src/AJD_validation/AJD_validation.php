@@ -1016,6 +1016,10 @@ class AJD_validation extends Base_validator
 							$check 	= FALSE;
 						}
 					}
+					else
+					{
+						$check = false;
+					}
 
 					$real_val 			= static::handle_filter( $filter_details['filters'], $value, $field, $filter_details['filter_satis'], $filter_details['pre_filters'], $check, $val_only );
 
