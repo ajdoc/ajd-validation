@@ -10,6 +10,7 @@ abstract class Base_validator extends Abstract_common
 	
 	protected static $scen_ins;	
 	protected static $field_scene_ins;
+	protected static $lang;
 
 	protected static function get_factory_instance()
 	{
@@ -104,15 +105,26 @@ abstract class Base_validator extends Abstract_common
 
 	protected static function get_errors_instance( $lang = NULL, $singleton = true )
 	{
+		$error = null;
+
 		if($singleton)
 		{
-			return Vefja::singleton('AJD_validation\Helpers\Errors');
+			$error = Vefja::singleton('AJD_validation\Helpers\Errors');
 		}
 		else
 		{
-			return Vefja::instance('AJD_validation\Helpers\Errors');
+			$error = Vefja::instance('AJD_validation\Helpers\Errors');
+		}
+
+		if($error)
+		{
+			if(static::$lang)
+			{
+				$error::setLang(static::$lang);
+			}
 		}
 		
+		return $error;
 	}
 
 	protected static function getConfig( $file = 'common_config.php' )

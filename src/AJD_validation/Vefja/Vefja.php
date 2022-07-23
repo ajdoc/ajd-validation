@@ -51,7 +51,7 @@ class Vefja
 		$vefja 		= static::get_instance();
 
 		$obj_ins 	= NULL;
-
+		
 		if( !ISSET( static::$singleton[ $alias ] ) )
 		{
 			if( class_exists( $alias ) )

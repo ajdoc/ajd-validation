@@ -2914,8 +2914,11 @@ class AJD_validation extends Base_validator
 				{
 					$or_pass['cus_err']			= $or_pass['pass_arr'][$or_pass['rule']][2][$or_pass['rule']];
 					$or_pass['append_error']	= $or_pass['pass_arr'][$or_pass['rule']][3][$or_pass['rule']];
-					
-					$this->handle_errors( $or_pass, $auto_arr, $key );
+
+					if( $this->check_cond ) 
+					{
+						$this->handle_errors( $or_pass, $auto_arr, $key );
+					}
 				}
 			}
 		}
@@ -3130,7 +3133,7 @@ class AJD_validation extends Base_validator
 	public static function setLang( $lang )
 	{
 		static::$lang 	= $lang;
-		Errors::$lang 	= $lang;
+		Errors::setLang($lang);
 	}
 
 	public static function validation_fails( $key = NULL, $err_key = NULL, $when = FALSE )
@@ -3531,6 +3534,7 @@ class AJD_validation extends Base_validator
 		$append_err 			= ( ISSET( $details['append_error'] ) ) ? $details['append_error'] : array();
 
 		$err 					= static::get_errors_instance($singleton);
+
 		$errors 				= $err->get_errors();
 
 		$called_class 			= ( ISSET( $details['details'][1] ) ) ? $details['details'][1] : NULL;

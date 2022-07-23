@@ -4,13 +4,14 @@ use AJD_validation\Config\Config;
 use AJD_validation\Vefja\Vefja;
 use AJD_validation\Contracts\Nested_rule_exception;
 use AJD_validation\Contracts\Invokable_rule_interface;
+use AJD_validation\Constants\Lang;
 
 use InvalidArgumentException;
 
 class Errors extends InvalidArgumentException
 {
 
-	public static $lang 					= 'en';
+	public static $lang 					= Lang::EN;
 
 	protected static $config_ins;
 
@@ -44,6 +45,24 @@ class Errors extends InvalidArgumentException
 		$config 					= static::get_config_ins();
 
 		static::$error_msg 			= $config::get( 'error_msg' );
+		
+	}
+
+	public static function setLang($lang)
+	{
+		static::$lang = $lang;
+
+		$config 					= static::get_config_ins(static::$lang);
+		$newError 					= $config::get( 'error_msg' );
+
+		if(!empty(static::$error_msg))
+		{
+			static::$error_msg 			= array_merge(static::$error_msg, $newError);
+		}
+		else
+		{
+			static::$error_msg 			= $newError;
+		}
 	}
 
 	public static function addExceptionNamespace( $namespace )
@@ -184,16 +203,23 @@ class Errors extends InvalidArgumentException
     	return sprintf('`[object] (%s: %s)`', $class, str_replace('`', '', $errProp));
     }
 
-	protected static function get_config_ins()
+	public static function get_config_ins($lang = null)
 	{
-		if( IS_NULL( static::$config_ins ) ) 
+		if( IS_NULL( static::$config_ins ) || !empty($lang) ) 
 		{
 			$dir 				= dirname( dirname( __FILE__ ) ).DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR;
 
 			static::$errDir 	= $dir;
 
-			$file_name 			= static::$lang.'_lang.php';
+			$realLang 			= static::$lang;
 
+			if(!empty($lang))
+			{
+				$realLang 		= $lang;
+			}
+			
+			$file_name 			= $realLang.'_lang.php';
+			
 			static::$config_ins = new Config( $file_name, $dir );
 		}
 

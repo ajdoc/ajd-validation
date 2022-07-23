@@ -94,11 +94,27 @@ abstract class Abstract_exceptions extends Errors
 
     public function localize()
     {
-        $file                       = static::$localizeFile.'_'.static::$lang.'.php';
+        $file                       = static::$localizeFile.'.php';
         
-        $file_data                  = static::$config->getConfigFile( $file, static::$errDir );
+        $file_data                  = static::$config->getConfigFile( $file, static::$errDir.static::$lang.DIRECTORY_SEPARATOR );
 
-        if( !EMPTY( $file_data ) )
+        $hasLocale = false;
+
+        if( isset(static::$localizeMessage)
+            &&
+            (
+                isset(static::$localizeMessage[static::$lang])
+                &&
+                !empty(static::$localizeMessage[static::$lang])
+            )
+        )   
+        {
+            $hasLocale = true;
+
+            static::$defaultMessages = static::$localizeMessage[static::$lang];
+        }
+
+        if( !EMPTY( $file_data ) && !$hasLocale )
         {
             static::$defaultMessages = $file_data;
         }

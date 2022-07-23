@@ -7,6 +7,7 @@ require 'vendor/autoload.php';
 use AJD_validation\Contracts\Base_extension;
 use AJD_validation\AJD_validation;
 use AJD_validation\Async\Async;
+use AJD_validation\Constants\Lang;
 
 enum Status : string
 {
@@ -84,6 +85,13 @@ class Custom_extension extends Base_extension
 
 try
 {
+	// $v->setLang(LANG::FIL);
+
+	$v
+		->folder_custom()
+		->folder_custom2()
+
+		->check('folder_custom', '');
 
 	$v->addDbConnection(
 		'test', 
@@ -447,12 +455,6 @@ try
 		->minlength(100)
 		->check('fname', '');*/
 
-	$v
-		->folder_custom()
-		->folder_custom2()
-
-		->check('folder_custom', '');
-
 		/*$v 
 			->required()->on('add')
 			->minlength(1)
@@ -576,7 +578,7 @@ try
 
 			->Givdigit()
 			
-		->endgiven('alles', '')
+		->endgiven('alles', null)
 
 
 			->Givrequired()
@@ -664,7 +666,7 @@ try
 	// to use the function 
 	$v->required()
 		->is_numeric()
-		->check('amount', '1');
+		->check('amount', '');
 
 	$v
 		->email()
