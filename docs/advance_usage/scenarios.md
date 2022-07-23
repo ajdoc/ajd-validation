@@ -208,7 +208,7 @@ All of the required rules must pass for "Middlename2".
 ```
 
 ### Sometimes using with a logic or validator
-- We can also pass a ajd validation logic or ajd validation validator in sometimes 
+- We can also pass an ajd validation logic or ajd validation validator in sometimes 
 ```php
 use AJD_validation\AJD_validation;
 
