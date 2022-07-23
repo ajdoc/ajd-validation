@@ -32,6 +32,12 @@ $v
 	->addRuleDirectory(__DIR__.DIRECTORY_SEPARATOR.'CustomRuless'.DIRECTORY_SEPARATOR)
 	->addRuleNamespace('AJD_validation\\');
 
+$v
+	->when(true)
+	->addLogicClassPath(__DIR__.DIRECTORY_SEPARATOR.'CustomLogics'.DIRECTORY_SEPARATOR)
+	->addLogicNamespace('CustomLogics\\')
+	->endwhen();
+
 
 class Custom_extension extends Base_extension
 {
@@ -78,6 +84,26 @@ class Custom_extension extends Base_extension
 
 try
 {
+
+	$v->addDbConnection(
+		'test', 
+		[
+			'mysql:host=127.0.0.1;port=3306;dbname=dti_1bps',
+			'root',
+			'default'
+		]
+	);
+
+	$ch_db = $v->exists('test|table=requests', $v->LgDb_example()->Lgfirst(true)->wrapLogic()
+	)
+
+	// ->validate(5);
+
+	->check('db_ch', 4)
+	;
+
+	// var_dump($ch_db);
+
 	$arr1 = ['password' => '1', 'password_confirm' => '1'];
 	$arr2 = ['password' => 'ssa', 'password_confirm' => 'ssa'];
 	/*$obj = new StdClass;
@@ -436,13 +462,15 @@ try
 
 	var_dump($validator->folder_custom2()->validate('folder_custom2'));*/
 
+	$v 
+		->required()
+		->minlength(3)->sometimes($v->getValidator()->required_allowed_zero()->digit())
+		->check('sometimes_new', '000');
+
 	$v
 
 		->Srequired()
-			->field('username2')->sometimes(function($value = null, $field, $details)
-				{
-					return $value == 'a';
-				})
+			->field('username2')->sometimes($v->Lgfirst(true)->wrapLogic())
 				->minlength(2)
 				->alpha()
 			->field('fname2')
@@ -453,7 +481,7 @@ try
 		->eSrequired()
 
 		->checkGroup([
-			'username2' => 'a',
+			'username2' => '',
 			'fname2' => '',
 			
 		]);

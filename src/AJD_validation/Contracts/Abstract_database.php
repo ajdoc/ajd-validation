@@ -4,6 +4,7 @@ use PDO;
 use Exception;
 use AJD_validation\Contracts\Abstract_rule;
 use AJD_validation\Helpers\Database;
+use AJD_validation\Helpers\Logics_map;
 
 abstract class Abstract_database extends Abstract_rule
 {
@@ -16,7 +17,10 @@ abstract class Abstract_database extends Abstract_rule
 		  AES_DECRYPT_STR	= 'aes_decrypt',
 		  DEFAULT_PORT 	= '3306',
 		  EXCLUDE_ID 	= 'exclude_id',
-		  EXCLUDE_VALUE = 'exclude_value';
+		  EXCLUDE_VALUE = 'exclude_value',
+		  CALLABLE_QUERY_STR = 'callback',
+		  LOGICS_MAP_STR = 'logics_map',
+		  JUST_INSTANCE_STR = 'just_instance';
 
 	protected $allowedStr 	= array();
 	protected $db;
@@ -30,7 +34,7 @@ abstract class Abstract_database extends Abstract_rule
 
 	public function __construct($config, $queryConfig = array(), $callableQueryConfig= NULL)
 	{
-		$this->allowedStr 	= array( self::USERNAME_STR, self::PASSWORD_STR, self::TABLE_STR, self::PRIMARY_ID_STR, self::AES_DECRYPT_STR, self::EXCLUDE_ID, self::EXCLUDE_VALUE );
+		$this->allowedStr 	= array( self::USERNAME_STR, self::PASSWORD_STR, self::TABLE_STR, self::PRIMARY_ID_STR, self::AES_DECRYPT_STR, self::EXCLUDE_ID, self::EXCLUDE_VALUE, self::CALLABLE_QUERY_STR, self::LOGICS_MAP_STR, self::JUST_INSTANCE_STR );
 		
 		$mainConfig 		= $this->processConfig($config);
 
@@ -54,8 +58,27 @@ abstract class Abstract_database extends Abstract_rule
 		{
 			throw new Exception('Database is required.');
 		}
-
-		if( EMPTY( $this->callableQueryConfig ) )
+		
+		if( 
+			!empty($this->queryConfig)
+			&& empty( $this->callableQueryConfig ) 
+			&&
+			(
+				!isset($this->queryConfig[self::CALLABLE_QUERY_STR])
+				|| empty($this->queryConfig[self::CALLABLE_QUERY_STR])
+			)
+			&& 
+			(
+				!isset($this->queryConfig[self::LOGICS_MAP_STR])
+				|| empty($this->queryConfig[self::LOGICS_MAP_STR])
+			)
+			&& 
+			(
+				!isset($this->queryConfig[self::JUST_INSTANCE_STR])
+				|| empty($this->queryConfig[self::JUST_INSTANCE_STR])	
+			)
+			
+		)
 		{
 			if( !$paramValidator->validate( $this->queryConfig[ self::TABLE_STR ] ) )
 			{
@@ -112,7 +135,7 @@ abstract class Abstract_database extends Abstract_rule
 	protected function processQueryConfig($queryConfig)
 	{
 		$config 	= array();
-
+		
 		if( ISSET( $this->config[ self::TABLE_STR ] ) )
 		{
 			$config[ self::TABLE_STR ]		= $this->config[ self::TABLE_STR ];
@@ -138,31 +161,55 @@ abstract class Abstract_database extends Abstract_rule
 			$config[ self::EXCLUDE_VALUE ] 	= $this->config[ self::EXCLUDE_VALUE ];
 		}
 
-		// 
-
-		if( ISSET( $this->queryConfig[ self::TABLE_STR ] ) )
+		if( ISSET( $this->config[ self::EXCLUDE_VALUE ] ) )
 		{
-			$config[ self::TABLE_STR ]		= $this->queryConfig[ self::TABLE_STR ];
+			$config[ self::EXCLUDE_VALUE ] 	= $this->config[ self::EXCLUDE_VALUE ];
 		}
 
-		if( ISSET( $this->queryConfig[ self::PRIMARY_ID_STR ] ) )
+		if(is_array($queryConfig))
 		{
-			$config[ self::PRIMARY_ID_STR ]	= $this->queryConfig[ self::PRIMARY_ID_STR ];
-		}
 
-		if( ISSET( $this->queryConfig[ self::AES_DECRYPT_STR ] ) )
-		{
-			$config[ self::AES_DECRYPT_STR ]= $this->queryConfig[ self::AES_DECRYPT_STR ];
-		}
+			if( ISSET( $this->queryConfig[ self::TABLE_STR ] ) )
+			{
+				$config[ self::TABLE_STR ]		= $this->queryConfig[ self::TABLE_STR ];
+			}
 
-		if( ISSET( $this->queryConfig[ self::EXCLUDE_ID ] ) )
-		{
-			$config[ self::EXCLUDE_ID ]= $this->queryConfig[ self::EXCLUDE_ID ];
-		}
+			if( ISSET( $this->queryConfig[ self::PRIMARY_ID_STR ] ) )
+			{
+				$config[ self::PRIMARY_ID_STR ]	= $this->queryConfig[ self::PRIMARY_ID_STR ];
+			}
 
-		if( ISSET( $this->queryConfig[ self::EXCLUDE_VALUE ] ) )
+			if( ISSET( $this->queryConfig[ self::AES_DECRYPT_STR ] ) )
+			{
+				$config[ self::AES_DECRYPT_STR ]= $this->queryConfig[ self::AES_DECRYPT_STR ];
+			}
+
+			if( ISSET( $this->queryConfig[ self::EXCLUDE_ID ] ) )
+			{
+				$config[ self::EXCLUDE_ID ]= $this->queryConfig[ self::EXCLUDE_ID ];
+			}
+
+			if( ISSET( $this->queryConfig[ self::EXCLUDE_VALUE ] ) )
+			{
+				$config[ self::EXCLUDE_VALUE ]= $this->queryConfig[ self::EXCLUDE_VALUE ];
+			}
+
+			if( ISSET( $this->queryConfig[ self::CALLABLE_QUERY_STR ] ) )
+			{
+				$config[ self::CALLABLE_QUERY_STR ]= $this->queryConfig[ self::CALLABLE_QUERY_STR ];
+			}
+
+			if( ISSET( $this->queryConfig[ self::JUST_INSTANCE_STR ] ) )
+			{
+				$config[ self::JUST_INSTANCE_STR ]= $this->queryConfig[ self::JUST_INSTANCE_STR ];
+			}
+		}
+		else
 		{
-			$config[ self::EXCLUDE_VALUE ]= $this->queryConfig[ self::EXCLUDE_VALUE ];
+			if($queryConfig instanceof Logics_map)
+			{
+				$config[self::LOGICS_MAP_STR] = $queryConfig;
+			}
 		}
 
 		if( is_callable( $queryConfig ) )
@@ -192,7 +239,7 @@ abstract class Abstract_database extends Abstract_rule
 			self::PRIMARY_ID_STR 	=> '',
 			self::AES_DECRYPT_STR 	=> '',
 			self::EXCLUDE_ID 		=> '',
-			self::EXCLUDE_VALUE 	=> ''
+			self::EXCLUDE_VALUE 	=> '',
 		);
 
 		if( is_string( $config ) )
@@ -310,64 +357,126 @@ abstract class Abstract_database extends Abstract_rule
 	public function run( $value, $satisfier = NULL, $field = NULL )
 	{
 		$check 	= FALSE;
+		$result = null;
 
-		$table 	= ( ISSET( $this->queryConfig[ self::TABLE_STR ] ) ) ? $this->queryConfig[ self::TABLE_STR ] : '';
-		$id 	= ( ISSET( $this->queryConfig[ self::PRIMARY_ID_STR ] ) ) ? $this->queryConfig[ self::PRIMARY_ID_STR ] : '';
-
-		$aes_decrypt 	= ( ISSET( $this->queryConfig[ self::AES_DECRYPT_STR ] ) ) ? $this->queryConfig[ self::AES_DECRYPT_STR ] : '';
-		
-		if( !EMPTY( $this->db ) AND !EMPTY( $value ) )
-		{
-
-			$qb 		= $this->db
-							->select( "COUNT(".$id.") as check_id" )
-							->from( $table );
-
-			if( !EMPTY( $aes_decrypt ) )
-			{
-				$id 	= $this->Fadd_aes_decrypt($aes_decrypt)
-	                        ->cacheFilter( 'value' )
-	                        ->filterSingleValue( $id, TRUE );
-            }
-
-			$qb->where( $id, $value );
-
-			if( 
-				( 
-					ISSET( $this->queryConfig[ self::EXCLUDE_ID ] ) 
-					AND !EMPTY( $this->queryConfig[ self::EXCLUDE_ID ] )
-				)
-				AND 
-				(
-					ISSET( $this->queryConfig[ self::EXCLUDE_VALUE ] ) 
-					AND !EMPTY( $this->queryConfig[ self::EXCLUDE_VALUE ] )
-				)
-
+		if( 
+			isset($this->queryConfig[self::LOGICS_MAP_STR]) 
+			&& !empty($this->queryConfig[self::LOGICS_MAP_STR])
+			&& (
+				$this->queryConfig[self::LOGICS_MAP_STR] instanceof Logics_map
 			)
+		)
+		{
+			$args 		= [
+				'db' => $this->db,
+				'queryConfig' => $this->queryConfig
+			];
+
+			$whenObj = $this->queryConfig[self::LOGICS_MAP_STR];
+
+			$resultArr = $whenObj->deferToWhen()->runLogics($value, $args);
+
+			if(is_bool($resultArr))
 			{
-				$qb->where( $this->queryConfig[ self::EXCLUDE_ID ], '!=', $this->queryConfig[ self::EXCLUDE_VALUE ] );
+				$result = $resultArr;	
 			}
+		}
+		else if( 
+			isset($this->queryConfig[self::CALLABLE_QUERY_STR]) 
+			&& !empty($this->queryConfig[self::CALLABLE_QUERY_STR])
+			&& (
+				is_callable($this->queryConfig[self::CALLABLE_QUERY_STR])
+			)
+		)
+		{
+			$args 		= [$this->db, $value, $this->queryConfig];
+			$resultArr 	= call_user_func_array($this->queryConfig[self::CALLABLE_QUERY_STR], $args);
 
-			if( !EMPTY( $this->callableQueryConfig ) )
+			if(is_array($resultArr))
 			{
-				$args 	= array( $qb, $this->db, $value );
+				if(isset($resultArr['check']))
+				{
+					$result = $resultArr['check'];
+				}
 
-				$qb 	= call_user_func_array($this->callableQueryConfig, $args);
+				if(isset($resultArr['main_table']))
+				{
+					$table = $resultArr['main_table'];
+
+					if(!empty($table))
+					{
+						$this->table = $table;	
+					}
+					
+				}
 			}
+			else
+			{
+				if(is_bool($resultArr))
+				{
+					$result = $resultArr;	
+				}
+			}
+		}
+		else
+		{
+			$table 	= ( ISSET( $this->queryConfig[ self::TABLE_STR ] ) ) ? $this->queryConfig[ self::TABLE_STR ] : '';
+			$id 	= ( ISSET( $this->queryConfig[ self::PRIMARY_ID_STR ] ) ) ? $this->queryConfig[ self::PRIMARY_ID_STR ] : '';
 
-			$result 	= $qb->fetchColumn();
+			$aes_decrypt 	= ( ISSET( $this->queryConfig[ self::AES_DECRYPT_STR ] ) ) ? $this->queryConfig[ self::AES_DECRYPT_STR ] : '';
 			
+			if( !EMPTY( $this->db ) AND !EMPTY( $value ) )
+			{
+
+				$qb 		= $this->db
+								->select( "COUNT(".$id.") as check_id" )
+								->from( $table );
+
+				if( !EMPTY( $aes_decrypt ) )
+				{
+					$id 	= $this->Fadd_aes_decrypt($aes_decrypt)
+		                        ->cacheFilter( 'value' )
+		                        ->filterSingleValue( $id, TRUE );
+	            }
+
+				$qb->where( $id, $value );
+
+				if( 
+					( 
+						ISSET( $this->queryConfig[ self::EXCLUDE_ID ] ) 
+						AND !EMPTY( $this->queryConfig[ self::EXCLUDE_ID ] )
+					)
+					AND 
+					(
+						ISSET( $this->queryConfig[ self::EXCLUDE_VALUE ] ) 
+						AND !EMPTY( $this->queryConfig[ self::EXCLUDE_VALUE ] )
+					)
+
+				)
+				{
+					$qb->where( $this->queryConfig[ self::EXCLUDE_ID ], '!=', $this->queryConfig[ self::EXCLUDE_VALUE ] );
+				}
+
+				if( !EMPTY( $this->callableQueryConfig ) )
+				{
+					$args 	= array( $qb, $this->db, $value );
+					$qb 	= call_user_func_array($this->callableQueryConfig, $args);
+				}
+			}
+			
+			$result 	= $qb->fetchColumn();
+
 			/*$result 	= $qb->debug();
 			var_dump($result);*/
-			
-			if( EMPTY( $result ) )
-			{
-				$check 	= ( $this->reverseCheck ) ? TRUE : FALSE;
-			}
-			else 
-			{
-				$check 	= ( $this->reverseCheck ) ? FALSE : TRUE;
-			}
+		}
+
+		if( EMPTY( $result ) )
+		{
+			$check 	= ( $this->reverseCheck ) ? TRUE : FALSE;
+		}
+		else 
+		{
+			$check 	= ( $this->reverseCheck ) ? FALSE : TRUE;
 		}
 
 		return $check;

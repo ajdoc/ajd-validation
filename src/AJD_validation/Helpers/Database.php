@@ -216,14 +216,69 @@ class Database
 
     }
 
-    public function execute_query( $query, $params = array(), $fetch_type = self::FETCH )
+    public function rawQuery($query, array $params = [])
+    {
+        $result = [];
+        try
+        {
+            $result = $this->execute_query($query, $params, self::FETCH);
+        }
+        catch( PDOException $e ) 
+        {
+            throw $e;
+
+        }
+
+        return $result;
+    }
+
+    public function rawQueryMulti($query, array $params = [])
+    {
+        $result = [];
+        try
+        {
+            $result = $this->execute_query($query, $params, self::FETCH_ALL);
+        }
+        catch( PDOException $e ) 
+        {
+            throw $e;
+
+        }
+
+        return $result;
+    }
+
+    public function lazyRawQuery($query, array $params = [], $fetch_type = self::FETCH)
+    {
+        $result = [];
+        try
+        {
+            $result = $this->execute_query($query, $params, $fetch_type, true);
+
+            if(!empty($result))
+            {
+                foreach($result as $key => $record)
+                {
+                    yield $record;
+                }
+            }
+        }
+        catch( PDOException $e ) 
+        {
+            throw $e;
+
+        }
+
+        return $result;
+    }
+
+    public function execute_query( $query, $params = array(), $fetch_type = self::FETCH, $lazy = false )
     {
 
         $result     = NULL;
 
         try 
         {
-
             $fetch_type     = strtolower( $fetch_type );
 
             $db             = static::$db;
@@ -231,30 +286,41 @@ class Database
             $stmt           = $db->prepare( $query );
             $stmt->execute( $params );
 
-            if( $fetch_type != FALSE ) 
+            if(!$lazy)
             {
-
-                $fetch          = static::$_fetch_type_array[ $fetch_type ];
-
-                if( $fetch == self::FETCH OR $fetch == self::FETCH_ALL ) 
+                if( $fetch_type != FALSE ) 
                 {
-                    
-                    $result     = $stmt->{ $fetch }( PDO::FETCH_ASSOC );
+
+                    $fetch          = static::$_fetch_type_array[ $fetch_type ];
+
+                    if( $fetch == self::FETCH OR $fetch == self::FETCH_ALL ) 
+                    {
+                        
+                        $result     = $stmt->{ $fetch }( PDO::FETCH_ASSOC );
+
+                    } 
+                    else 
+                    {
+
+                        $result     = $stmt->{ $fetch }();
+
+                    }
 
                 } 
                 else 
                 {
 
-                    $result     = $stmt->{ $fetch }();
+                    $result         = $stmt;
 
                 }
 
-            } 
-            else 
+                static::$params         = array();
+            }
+            else
             {
+                static::$params         = array();
 
-                $result         = $stmt;
-
+                $result = $stmt;
             }
 
         } 
@@ -263,8 +329,6 @@ class Database
             throw $e;
 
         }
-
-        static::$params         = array();
 
         return $result;
 
@@ -1419,7 +1483,6 @@ class Database
     {
         static::$params     = array();
     }
-
 }
 
 

@@ -16,6 +16,8 @@ use AJD_validation\Helpers\Validation_helpers;
 use AJD_validation\Contracts\Invokable_rule_interface;
 use AJD_validation\Async\PromiseValidator;
 use AJD_validation\Async\PromiseHelpers;
+use AJD_validation\Helpers\Db_instance;
+use AJD_validation\Helpers\Logics_map;
 
 class AJD_validation extends Base_validator
 {
@@ -185,6 +187,18 @@ class AJD_validation extends Base_validator
 		static::$dbConnections[$name] 	= $dbConn;
 
 		return static::get_ajd_instance();
+	}
+
+	public static function getDb( $name )
+	{
+		if(!isset(static::$dbConnections[$name]))
+		{
+			return null;
+		}
+
+		$db_instance = new Db_instance($name, [Db_instance::JUST_INSTANCE_STR => true]);
+
+		return $db_instance->getDbInstance();
 	}
 
 	public static function addRuleNamespace( $namespace )
@@ -1657,7 +1671,15 @@ class AJD_validation extends Base_validator
 						
 						if(!empty($sometimes_and))
 						{
-							if( is_callable( $sometimes_and ) )
+							if($sometimes_and instanceof Validator)
+							{
+								$sometime_and_result = $sometimes_and->validate($vvv);	
+							}
+							else if( $sometimes_and instanceof Logics_map )
+							{
+								$sometime_and_result = $sometimes_and->deferToWhen()->runLogics($vvv, [], false);
+							}
+							else if( is_callable( $sometimes_and ) )
 							{
 								$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $vvv, $or_f_arr['orig'], $or_field_details, $dataValue ) );
 
@@ -1706,13 +1728,10 @@ class AJD_validation extends Base_validator
 	{
 		foreach( $or_field_details['rules'] as $rule_key => $rule_per )
 	 	{
-	 		
 	 		if( ISSET( $or_success[$rule_per]['passed'] ) AND !in_array( 1, $or_success[$rule_per]['passed'] ) )
 			{
-	 			
 	 			$check_rule 					= array_search($rule_per, $or_field_details['rules']);
 
-	 			
 		 		if( $check_rule !== FALSE )
 		 		{
 		 			$sometimes_and = null;
@@ -1727,7 +1746,15 @@ class AJD_validation extends Base_validator
 
 					if(!empty($sometimes_and))
 					{
-						if( is_callable( $sometimes_and ) )
+						if($sometimes_and instanceof Validator)
+						{
+							$sometime_and_result = $sometimes_and->validate($vvv);	
+						}
+						else if( $sometimes_and instanceof Logics_map )
+						{
+							$sometime_and_result = $sometimes_and->deferToWhen()->runLogics($vvv, [], false);
+						}
+						else if( is_callable( $sometimes_and ) )
 						{
 							$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $vvv, $or_f_arr['orig'], $or_field_details, $dataValue ) );
 
@@ -2260,7 +2287,7 @@ class AJD_validation extends Base_validator
 			$prop_or 	= static::process_check_args( Abstract_common::LOG_OR, $group );
 			// $prop 		= $prop_or;
 		// }
-			
+		
 		$prop 			= $prop_and;
 		
 		$obs            = static::get_observable_instance();
@@ -2376,7 +2403,15 @@ class AJD_validation extends Base_validator
 				{
 					if(!empty($sometimes_and))
 					{
-						if( is_callable( $sometimes_and ) )
+						if($sometimes_and instanceof Validator)
+						{
+							$sometime_and_result = $sometimes_and->validate($v_value);
+						}
+						else if($sometimes_and instanceof Logics_map)
+						{
+							$sometime_and_result = $sometimes_and->deferToWhen()->runLogics($v_value, [], false);
+						}
+						else if( is_callable( $sometimes_and ) )
 						{
 							$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $v_value, $field_arr['orig'], $group, $origValue ) );
 
@@ -2395,7 +2430,15 @@ class AJD_validation extends Base_validator
 
 					if(!empty($sometimes_or))
 					{
-						if( is_callable( $sometimes_or ) )
+						if( $sometimes_or instanceof Validator )
+						{
+							$sometime_or_result = $sometimes_or->validate($v_value);
+						}
+						else if($sometimes_or instanceof Logics_map)
+						{
+							$sometime_or_result = $sometimes_or->deferToWhen()->runLogics($v_value, [], false);
+						}
+						else if( is_callable( $sometimes_or ) )
 						{
 							$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $v_value, $field_arr['orig'], $group, $origValue ) );
 
@@ -2450,7 +2493,15 @@ class AJD_validation extends Base_validator
 			{
 				if(!empty($sometimes_and))
 				{
-					if( is_callable( $sometimes_and ) )
+					if( $sometimes_and instanceof Validator )
+					{
+						$sometime_and_result = $sometimes_and->validate($value);
+					}
+					else if($sometimes_and instanceof Logics_map)
+					{
+						$sometime_and_result = $sometimes_and->deferToWhen()->runLogics($value, [], false);
+					}
+					else if( is_callable( $sometimes_and ) )
 					{
 						$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $value, $field_arr['orig'], $group, $origValue ) );
 
@@ -2469,7 +2520,16 @@ class AJD_validation extends Base_validator
 
 				if(!empty($sometimes_or))
 				{
-					if( is_callable( $sometimes_or ) )
+					if($sometimes_or instanceof Validator )
+					{
+						$sometime_or_result = $sometimes_or->validate($value);
+					}
+					else if($sometimes_or instanceof Logics_map)
+					{
+						$sometime_or_result = $sometimes_or->deferToWhen()->runLogics($value, [], false);
+
+					}
+					else if( is_callable( $sometimes_or ) )
 					{
 						$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $value, $field_arr['orig'], $group, $origValue ) );
 
@@ -2895,8 +2955,16 @@ class AJD_validation extends Base_validator
 		$or_pass_arr[$rule_key]['logic'] 		= $prop['logic'];
 		$or_pass_arr[$rule_key]['field_logic'] 	= $logic;
 		$or_pass_arr[$rule_key]['fibered'] 	= $fibered;
-			
-		if( is_callable( $sometimes ) )
+		
+		if( $sometimes instanceof Validator )
+		{
+			$sometimes = $sometimes->validate($pass_arr['value']);
+		}
+		else if( $sometimes instanceof Logics_map )
+		{
+			$sometimes = $sometimes->deferToWhen()->runLogics($pass_arr['value'], [], false);
+		}
+		else if( is_callable( $sometimes ) )
 		{
 			$sometimes 				= $this->invoke_func( $sometimes, array( $pass_arr['value'], $pass_arr['satisfier'], $pass_arr['orig_field'], $pass_arr['origValue'] ) );
 
@@ -3235,6 +3303,12 @@ class AJD_validation extends Base_validator
 
 			$ret_name 	= '!'.$ret_name;
 		}
+		else if( preg_match('/^Lg/', $name ) )
+		{
+			$method 	= 'addMainLogic';
+
+			$ret_name 	= static::removeWord( $name, '/^Lg/' );
+		}
 		else 
 		{
 			$method 	= 'addRule';
@@ -3245,6 +3319,13 @@ class AJD_validation extends Base_validator
 			'method' 	=> $method,
 			'name' 		=> $ret_name
 		);
+	}
+
+	public function addMainLogic($test, ...$args)
+	{
+		$when = $this->when(true);
+
+		return $when->addLogic($test, ...$args);
 	}
 
 	protected static function process_check_args( $logic, $group )
@@ -3860,13 +3941,18 @@ class AJD_validation extends Base_validator
 		return static::$ajd_prop['result_values'];
 	}
 
-	public function when()
+	public function when($justInstance = false)
 	{
-		static::$ajd_prop['result'] = array();
+		$ob = null;
 
-		$ob = static::get_observable_instance();
+		if(!$justInstance)
+		{
+			static::$ajd_prop['result'] = array();
 
-		$ob->attach_observer( 'ongiven', array( $this, 'checkCondition' ) );
+			$ob = static::get_observable_instance();
+
+			$ob->attach_observer( 'ongiven', array( $this, 'checkCondition' ) );
+		}
 
 		$when 						= new When( $this, $ob );
 

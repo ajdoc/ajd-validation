@@ -3,7 +3,7 @@
 use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\Base_validator;
 use AJD_validation\Contracts\Abstract_common;
-
+use AJD_validation\Helpers\Logics_map;
 // use AJD_validation\Traits\Events_dispatcher_trait;
 
 class When extends AJD_validation
@@ -28,7 +28,7 @@ class When extends AJD_validation
 	protected $currRule;
 	protected $whenRuleName;
  
-	public function __construct( AJD_validation $ajd, $obs )
+	public function __construct( AJD_validation $ajd, $obs = null )
 	{
 		$this->ajd 	= $ajd;
 
@@ -38,7 +38,10 @@ class When extends AJD_validation
 			$this->ajd->getValidator(), $this->ajd, $this->obs
 		);
 
-		$this->obs->attach_observer( 'endwhen', array( $ajd, 'reset_all_validation_prop' ) );
+		if($this->obs)
+		{
+			$this->obs->attach_observer( 'endwhen', array( $ajd, 'reset_all_validation_prop' ) );
+		}
 	}
 
 	public function __call( $name, array $args )
@@ -142,7 +145,7 @@ class When extends AJD_validation
 		unset( $arguments[0] );
 
 		$this->ajd->accessInitExtensions();
-
+		
 		$options 	= $this->processTests( $test, $arguments );
 
 		if( is_array( $options['testObj'] ) )
@@ -154,12 +157,33 @@ class When extends AJD_validation
 		}
 		else
 		{
-			$this->customTest[spl_object_hash($options['testObj'])] 	= $options['testObj'];
+			if(!empty($options['testObj']))
+			{
+				$this->customTest[spl_object_hash($options['testObj'])] 	= $options['testObj'];
+			}
 		}
 
-		$this->obs->notify_observer( 'ongiven' );
+		if($this->obs)
+		{
+			$this->obs->notify_observer( 'ongiven' );
+		}
 
 		return $this;
+	}
+
+	public function wrapLogic()
+	{
+		return new Logics_map($this, $this->customTest);
+	}
+
+	public function getCustomTest()
+	{
+		return $this->customTest;
+	}
+
+	public function clearCustomTest()
+	{
+		$this->customTest = [];
 	}
 	
 	protected function processTests( $test, $arguments )
@@ -322,7 +346,10 @@ class When extends AJD_validation
 
 		$this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
 
-		$this->obs->notify_observer( 'ongiven' );
+		if($this->obs)
+		{
+			$this->obs->notify_observer( 'ongiven' );
+		}
 
 		$clean_rule 			= $this->ajd->clean_rule_name( $rule );
 
@@ -330,7 +357,7 @@ class When extends AJD_validation
 		return $this;
 	}
 
-	protected function processCustomTest( $value )
+	protected function processCustomTest( $value, array $paramaters = [] )
 	{
 		if( !EMPTY( $this->customTest ) )
 		{
@@ -340,7 +367,7 @@ class When extends AJD_validation
 				{
 					if( ISSET( $test['extensionObj'] ) )
 					{
-						if( !$this->processCustomExtensionTest( $value, $test ) )
+						if( !$this->processCustomExtensionTest( $value, $test, $paramaters ) )
 						{
 							return FALSE;
 						}
@@ -348,6 +375,14 @@ class When extends AJD_validation
 				}
 				else
 				{
+					if(!empty($paramaters))
+					{
+						foreach($paramaters as $paramKey => $paramValue)
+						{
+							$test->$paramKey = $paramValue;
+						}
+					}
+
 					if( !$test->logic( $value ) )
 					{
 						return FALSE;
@@ -359,11 +394,12 @@ class When extends AJD_validation
 		return TRUE;
 	}
 
-	protected function processCustomExtensionTest( $value, $test )
+	protected function processCustomExtensionTest( $value, $test, array $paramaters = [] )
 	{
 		if( method_exists( $test['extensionObj'], $test['extensionName'] ) )
 		{
 			$args 		= array( $value );
+			$args 		= array_merge($args, $paramaters);
 
 			$args 		= array_merge( $args, $test['classArgs'] );
 
@@ -376,6 +412,23 @@ class When extends AJD_validation
 		}
 
 		return TRUE;
+	}
+
+	public function runLogics($value, array $paramaters = [], $reset = true)
+	{
+		if($reset && $this->obs)
+		{
+			$this->obs->notify_observer( 'endwhen' );
+
+			$this->obs->detach_observer( 'ongiven' );
+			$this->obs->detach_observer( 'endgiven' );
+
+			$this->obs->detach_observer( 'endwhen' );
+		}
+
+		return $this->processCustomTest($value, $paramaters);
+
+
 	}
 
 	public function endgiven( $field, $value = NULL, $operator = NULL, $check_arr = TRUE, $customMesage = array() )
@@ -412,7 +465,10 @@ class When extends AJD_validation
 
 		$this->ajd->checkArr( $field, $value, $customMesage, $check_arr );
 
-		$this->obs->notify_observer( 'endgiven' );
+		if($this->obs)
+		{
+			$this->obs->notify_observer( 'endgiven' );
+		}
 
 		return $this;
 
@@ -663,12 +719,15 @@ class When extends AJD_validation
 
 	public function endwhen()
 	{
-		$this->obs->notify_observer( 'endwhen' );
+		if($this->obs)
+		{
+			$this->obs->notify_observer( 'endwhen' );
 
-		$this->obs->detach_observer( 'ongiven' );
-		$this->obs->detach_observer( 'endgiven' );
+			$this->obs->detach_observer( 'ongiven' );
+			$this->obs->detach_observer( 'endgiven' );
 
-		$this->obs->detach_observer( 'endwhen' );
+			$this->obs->detach_observer( 'endwhen' );
+		}
 
 		return $this->ajd::get_promise_validator_instance();
 	}

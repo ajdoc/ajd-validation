@@ -207,6 +207,55 @@ All of the required rules must pass for "Middlename2".
   - Middlename2 must be greater than or equal to 3. character(s). 
 ```
 
+### Sometimes using with a logic or validator
+- We can also pass a ajd validation logic or ajd validation validator in sometimes 
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+	try 
+	{
+		/* example 1 */
+		$v
+
+		->Srequired()
+			->field('username2')->sometimes($v->Lgfirst(true)->wrapLogic())
+				->minlength(2)
+				->alpha()
+			->field('fname2')
+				->minlength(1)->sometimes($v->getValidator()->digit())
+		->eSrequired()
+
+		->checkGroup([
+			'username2' => 'a',
+			'fname2' => '',
+			
+		]);
+
+		/* example 2 */
+
+		$v 
+			->required()
+			->minlength(3)->sometimes($v->getValidator()->required_allowed_zero()->digit())
+			->check('middlename2', 'aa');
+
+		$v->assert();
+	}
+	catch(Exception $e)
+	{
+		echo $e->getMessage();
+	}
+
+```
+* Example 1 will only output if field username2 sometimes logic returns true it will run the field validation because that First_logic returns true you may check src/AJD_validation/Logics/First_logic.php
+
+* Example 1's field fname2 minlength rule will only run if value is digit.
+
+* Example 2's field middlename2 minlength rule will only run if value is required but allows zero meaning if value zero required_allowed_zero is true and if value is digit, in this case since the value is `aa` minlength rule will not run
+
+
+
 See also:
 - [Async](async.md)
 - [Alternative Usage](../alternative_usage.md)
