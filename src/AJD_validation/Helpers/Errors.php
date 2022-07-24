@@ -5,6 +5,7 @@ use AJD_validation\Vefja\Vefja;
 use AJD_validation\Contracts\Nested_rule_exception;
 use AJD_validation\Contracts\Invokable_rule_interface;
 use AJD_validation\Constants\Lang;
+use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 
 use InvalidArgumentException;
 
@@ -35,7 +36,7 @@ class Errors extends InvalidArgumentException
     protected static $addExceptionNamespace 	= array();
     protected static $addExceptionDirectory 	= array();
 
-    protected static $exceptionAnonymousObj 	= [];
+    protected static $anonymousObj 	= [];
 
 	public function __construct( $lang = NULL )
 	{
@@ -52,7 +53,7 @@ class Errors extends InvalidArgumentException
 
 	public static function addAnonExceptions($rule, $exception)
 	{
-		static::$exceptionAnonymousObj[$rule] = $exception;
+		static::$anonymousObj[$rule] = $exception;
 	}
 
 	public static function setLang($lang)
@@ -624,14 +625,19 @@ class Errors extends InvalidArgumentException
 		$exception_class 			= $this->exceptionNamespace.$called_class.'_exception';
 		$qualified_exception_class = $exception_class;
 
-		if( isset($rule_instance[$called_class]) && $rule_instance[$called_class] instanceof Invokable_rule_interface )
+		$is_annon_class = false;
+
+		if( isset($rule_instance[$called_class]) 
+			&& $rule_instance[$called_class] instanceof Invokable_rule_interface 
+			&& !isset(static::$anonymousObj[$called_class])
+		)
 		{
 			$exception_class 			= $this->exceptionNamespace.'Common_invokable_rule'.'_exception';
 		}
-
+	
 		$exceptionObj 				= NULL;
 		$exception_arr 				= array();
-
+		
 		if( !EMPTY( static::$addExceptionDirectory ) )
 		{
 			foreach( static::$addExceptionDirectory as $key => $directory )
@@ -661,9 +667,40 @@ class Errors extends InvalidArgumentException
 			}
 		}
 
-		if( class_exists( $exception_class ) ) 
+		if( isset(static::$anonymousObj[$called_class]) )
 		{
-			$exception_class_obj 	= Vefja::singleton($exception_class);
+			$is_annon_class = true;
+		}
+
+		if( class_exists( $exception_class ) || $is_annon_class ) 
+		{
+			if(!empty($passRuleObj))
+			{
+				$ruleCh 		= $passRuleObj;	
+				$rule 			= $passRuleObj;
+
+			}
+			else
+			{
+				$ruleCh 		= $rule_instance[ $called_class ];	
+				$rule 			= $rule_instance[ $called_class ];	
+			}
+
+			if( isset(static::$anonymousObj[$called_class]) )
+			{
+				$exception_class_obj 	= new class() extends Abstract_anonymous_rule_exception
+				{
+					public static $defaultMessages = [];
+
+					public static $localizeMessage = [];
+				};
+
+				$rule::getAnonExceptionMessage($exception_class_obj);
+			}
+			else
+			{
+				$exception_class_obj 	= Vefja::singleton($exception_class);
+			}
 			
 			if( !EMPTY( $exception_class_obj ) )
 			{
@@ -671,18 +708,6 @@ class Errors extends InvalidArgumentException
 					|| !empty($passRuleObj)
 				)
 				{
-					if(!empty($passRuleObj))
-					{
-						$ruleCh 		= $passRuleObj;	
-						$rule 			= $passRuleObj;
-
-					}
-					else
-					{
-						$ruleCh 		= $rule_instance[ $called_class ];	
-						$rule 			= $rule_instance[ $called_class ];	
-					}
-					
 					$params 		= array_merge(
 						get_class_vars( get_class( $rule ) ),
 						get_object_vars( $rule ),
@@ -692,7 +717,10 @@ class Errors extends InvalidArgumentException
 					);
 					
 					
-					if( $ruleCh instanceof Invokable_rule_interface )
+					if( 
+						$ruleCh instanceof Invokable_rule_interface 
+						&& !isset(static::$anonymousObj[$called_class])
+					)
 					{
 						$params['id_pass'] = $qualified_exception_class;
 					}
@@ -701,7 +729,10 @@ class Errors extends InvalidArgumentException
 
 					$exceptionObj 			= $exception_class_obj;
 
-					if( $ruleCh instanceof Invokable_rule_interface )
+					if( 
+						$ruleCh instanceof Invokable_rule_interface 
+						&& !isset(static::$anonymousObj[$called_class])
+					)
 					{
 						$ruleCh->setException($exceptionObj);
 						

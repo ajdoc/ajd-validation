@@ -19,7 +19,6 @@ use AJD_validation\Async\PromiseHelpers;
 use AJD_validation\Helpers\Db_instance;
 use AJD_validation\Helpers\Logics_map;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
-use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 
 class AJD_validation extends Base_validator
 {
@@ -430,20 +429,24 @@ class AJD_validation extends Base_validator
 		{
 			$raw_class_name = strtolower($anon::getAnonName());
 			$class_name 	= ucfirst($raw_class_name);
+			$append_rule 	= $class_name.'_'.static::$rules_suffix;
 
-			if($anon instanceof Abstract_anonymous_rule)
+			if(!isset(static::$cache_instance[$append_rule]))
 			{
-				$exception = $anon::getAnonExceptionClass();
-
-				static::$ajd_prop[ 'anonymous_class_override' ][ $class_name.'_'.static::$rules_suffix ] 	= [
-					'raw_class_name' => $raw_class_name,
-					'class_name' => $class_name,
-					'obj' => $anon
-				];
-
-				if($exception instanceof Abstract_anonymous_rule_exception)
+				if($anon instanceof Abstract_anonymous_rule)
 				{
-					static::$ajd_prop[ 'anonymous_class_override' ][ $class_name.'_'.static::$rules_suffix ]['exception'] = $exception;
+					$exception = true;
+
+					static::$ajd_prop[ 'anonymous_class_override' ][ $append_rule ] 	= [
+						'raw_class_name' => $raw_class_name,
+						'class_name' => $class_name,
+						'obj' => $anon
+					];
+
+					if($exception)
+					{
+						static::$ajd_prop[ 'anonymous_class_override' ][ $append_rule ]['exception'] = $exception;
+					}
 				}
 			}
 			
@@ -4053,19 +4056,20 @@ class AJD_validation extends Base_validator
 		static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
 
 		$check_r = false;
-/*
+
+		Errors::addAnonExceptions($append_rule, $exceptionObj);
+
 		if($rule_obj instanceof Invokable_rule_interface)
 		{
 			$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
 		}
 		else
-		{*/
+		{
 			if(method_exists($rule_obj, 'run'))
 			{
-				Errors::addAnonExceptions($append_rule, $exceptionObj);
 				$check_r = $rule_obj->run( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
 			}
-		// }
+		}
 
 		return [
 			'check' => $check_r,

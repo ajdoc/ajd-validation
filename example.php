@@ -94,27 +94,14 @@ try
 
 	// $v->setLang(LANG::FIL);
 
-
-
 	$v->registerAnonClass(
 
 		new class() extends Abstract_anonymous_rule
 		{
-			public function run($value, $satisfier = NULL, $field = NULL)
+			public function __invoke($value, $satisfier = NULL, $field = NULL)
 			{
-				return false;
-			}
+				return in_array($value, $satisfier);
 
-			public function validate($value)
-			{
-				$check      = $this->run( $value );
-
-		        if( is_array( $check ) )
-		        {
-		            return $check['check'];
-		        }
-
-		        return $check;
 			}
 
 			public static function getAnonName() : string
@@ -123,31 +110,46 @@ try
 				return 'anontest';
 			}
 
-			public static function getAnonExceptionClass()
+			public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj)
 			{
-				return new class() extends Abstract_anonymous_rule_exception
-				{
-					public static $defaultMessages 	= array(
-						 self::ERR_DEFAULT 			=> array(
-						 	self::STANDARD 			=> 'The :field field is anonymous test',
+				$exceptionObj::$defaultMessages 	= array(
+					 $exceptionObj::ERR_DEFAULT 			=> array(
+					 	$exceptionObj::STANDARD 			=> 'The :field field is anontest',
+					 ),
+					  $exceptionObj::ERR_NEGATIVE 		=> array(
+			            $exceptionObj::STANDARD 			=> 'The :field field is not anontest.',
+			        )
+				);
+
+				$exceptionObj::$localizeMessage 	= [
+					Lang::FIL => [
+						$exceptionObj::ERR_DEFAULT 			=> array(
+						 	$exceptionObj::STANDARD 			=> 'The :field field ay anontest',
 						 ),
-						  self::ERR_NEGATIVE 		=> array(
-				            self::STANDARD 			=> 'The :field field is not anonymous test.',
-				        )
-					);
-				};
+						  $exceptionObj::ERR_NEGATIVE 		=> array(
+				            $exceptionObj::STANDARD 			=> 'The :field field ay hindi anontest.',
+				        ),
+					]
+				];
 			}
 		}
 	);
 
-	$v->anontest()
-	->check('anontest');
+
+	$v->anontest(3)
+	->check('anontest1', '1');
+
+	$v->anontest(5)
+	->check('anontest2', '3');
+	
 
 	$v
 		->folder_custom()
 		->folder_custom2()
 
 		->check('folder_custom', '');
+
+	
 
 	$v->addDbConnection(
 		'test', 
