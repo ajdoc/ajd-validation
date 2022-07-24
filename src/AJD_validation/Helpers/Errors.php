@@ -35,6 +35,8 @@ class Errors extends InvalidArgumentException
     protected static $addExceptionNamespace 	= array();
     protected static $addExceptionDirectory 	= array();
 
+    protected static $exceptionAnonymousObj 	= [];
+
 	public function __construct( $lang = NULL )
 	{
 		if( !IS_NULL( $lang ) ) 
@@ -46,6 +48,11 @@ class Errors extends InvalidArgumentException
 
 		static::$error_msg 			= $config::get( 'error_msg' );
 		
+	}
+
+	public static function addAnonExceptions($rule, $exception)
+	{
+		static::$exceptionAnonymousObj[$rule] = $exception;
 	}
 
 	public static function setLang($lang)

@@ -4028,10 +4028,12 @@ class AJD_validation extends Base_validator
 	private function _process_anon_class($details)
 	{
 		
+		
 		$raw_append_rule 		= $details['details'][3]['raw_append_rule'];
 		$append_rule 			= $details['details'][3]['append_rule'];
 		$rule_details 			= $details['details'];
 		$anon_obj 				= $rule_details[3]['anon_obj'];
+		$exceptionObj 				= $rule_details[3]['anon_exception_obj'];
 		$rule_obj 				= $anon_obj;
 		$origValue 				= ( ISSET( $details['origValue'] ) ) ? $details['origValue'] : NULL;	
 
@@ -4060,6 +4062,7 @@ class AJD_validation extends Base_validator
 		{*/
 			if(method_exists($rule_obj, 'run'))
 			{
+				Errors::addAnonExceptions($append_rule, $exceptionObj);
 				$check_r = $rule_obj->run( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
 			}
 		// }
