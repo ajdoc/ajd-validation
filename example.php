@@ -8,8 +8,9 @@ use AJD_validation\Contracts\Base_extension;
 use AJD_validation\AJD_validation;
 use AJD_validation\Async\Async;
 use AJD_validation\Constants\Lang;
-
 use AJD_validation\Contracts\Abstract_exceptions;
+use AJD_validation\Contracts\Abstract_anonymous_rule;
+use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 
 enum Status : string
 {
@@ -87,8 +88,60 @@ class Custom_extension extends Base_extension
 
 try
 {
+	/*
+		Make anonymous class register function and extension anonymous class
+	*/
 
 	// $v->setLang(LANG::FIL);
+
+
+
+	$v->registerAnonClass(
+
+		new class() extends Abstract_anonymous_rule
+		{
+			public function run($value, $satisfier = NULL, $field = NULL)
+			{
+				return false;
+			}
+
+			public function validate($value)
+			{
+				$check      = $this->run( $value );
+
+		        if( is_array( $check ) )
+		        {
+		            return $check['check'];
+		        }
+
+		        return $check;
+			}
+
+			public static function getAnonName() : string
+			{
+
+				return 'anontest';
+			}
+
+			public static function getAnonExceptionClass()
+			{
+				return new class() extends Abstract_anonymous_rule_exception
+				{
+					public static $defaultMessages 	= array(
+						 self::ERR_DEFAULT 			=> array(
+						 	self::STANDARD 			=> 'The :field field is anonymous test',
+						 ),
+						  self::ERR_NEGATIVE 		=> array(
+				            self::STANDARD 			=> 'The :field field is not anonymous test.',
+				        )
+					);
+				};
+			}
+		}
+	);
+
+	$v->anontest()
+	->check('anontest');
 
 	$v
 		->folder_custom()

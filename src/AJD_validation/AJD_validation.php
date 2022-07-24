@@ -18,6 +18,8 @@ use AJD_validation\Async\PromiseValidator;
 use AJD_validation\Async\PromiseHelpers;
 use AJD_validation\Helpers\Db_instance;
 use AJD_validation\Helpers\Logics_map;
+use AJD_validation\Contracts\Abstract_anonymous_rule;
+use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 
 class AJD_validation extends Base_validator
 {
@@ -71,6 +73,7 @@ class AJD_validation extends Base_validator
 			'cache_filters' 				=> array(),
 			'and_or_stack' 					=> array(),
 			'class_override' 				=> array(),
+			'anonymous_class_override' 		=> [],
 			'method_override' 				=> array(),
 			'function_override' 			=> array(),
 			'current_field' 				=> NULL,
@@ -414,6 +417,37 @@ class AJD_validation extends Base_validator
 			$this->reset_all_validation_prop();
 		}
 
+	}
+
+	public static function registerAnonClass( $anons )
+	{
+		if(!is_array($anons))
+		{
+			$anons = [$anons];
+		}
+
+		foreach($anons as $anon)
+		{
+			$raw_class_name = strtolower($anon::getAnonName());
+			$class_name 	= ucfirst($raw_class_name);
+
+			if($anon instanceof Abstract_anonymous_rule)
+			{
+				$exception = $anon::getAnonExceptionClass();
+
+				static::$ajd_prop[ 'anonymous_class_override' ][ $class_name.'_'.static::$rules_suffix ] 	= [
+					'raw_class_name' => $raw_class_name,
+					'class_name' => $class_name,
+					'obj' => $anon
+				];
+
+				if($exception instanceof Abstract_anonymous_rule_exception)
+				{
+					static::$ajd_prop[ 'anonymous_class_override' ][ $class_name.'_'.static::$rules_suffix ]['exception'] = $exception;
+				}
+			}
+			
+		}
 	}
 
 	public static function registerClass( $class_name, $path, $namespace = NULL, $from_framework = NULL, $class_method = 'run' )
@@ -3991,6 +4025,51 @@ class AJD_validation extends Base_validator
 		return $extension_result;
 	}
 
+	private function _process_anon_class($details)
+	{
+		
+		$raw_append_rule 		= $details['details'][3]['raw_append_rule'];
+		$append_rule 			= $details['details'][3]['append_rule'];
+		$rule_details 			= $details['details'];
+		$anon_obj 				= $rule_details[3]['anon_obj'];
+		$rule_obj 				= $anon_obj;
+		$origValue 				= ( ISSET( $details['origValue'] ) ) ? $details['origValue'] : NULL;	
+
+		if( ISSET( static::$cache_instance[ $append_rule ] ) AND static::$cache_instance[ $append_rule ] instanceof \Closure )
+		{
+			unset( static::$cache_instance[ $append_rule ] );
+		}
+		
+			
+		/*}
+		else 
+		{
+			$rule_obj 			= static::$cache_instance[ $append_rule ];
+		}*/
+		
+		static::$cache_instance[ $append_rule ] 	= $rule_obj;
+		static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
+
+		$check_r = false;
+/*
+		if($rule_obj instanceof Invokable_rule_interface)
+		{
+			$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+		}
+		else
+		{*/
+			if(method_exists($rule_obj, 'run'))
+			{
+				$check_r = $rule_obj->run( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+			}
+		// }
+
+		return [
+			'check' => $check_r,
+			'rule_obj' => $rule_obj
+		];
+	}
+
 	private function _process_class( $details )
 	{
 		$append_rule 			= $details['details'][3]['raw_class'];
@@ -4174,6 +4253,8 @@ class AJD_validation extends Base_validator
 		$lower_rule 	= strtolower( $append_rule );
 		$options 		= $this->_process_overrides( $lower_rule, $append_rule, $raw_rule, $rule, $satis );
 
+		$is_anon_class = false;
+
 		if( is_string($options['rules_path']) && !is_object($options['rules_path']) )
 		{
 			$is_class 		= file_exists( $options['rules_path'] );	
@@ -4189,6 +4270,11 @@ class AJD_validation extends Base_validator
 		$is_extension   = ISSET( static::$ajd_prop['extension_rule'][ $lower_rule ] );
 		$satis 			= !EMPTY( $satis ) ? $satis : array();
 		$satis 			= !is_array( $satis ) ? array( $satis ) : $satis;
+
+		if(isset($options['is_anon_class']) && !empty($options['is_anon_class']))
+		{
+			$is_anon_class = $options['is_anon_class'];
+		}
 		
 		$args['lower_rule'] 		= $lower_rule;
 		$args['rule_kind'] 			= NULL;
@@ -4208,6 +4294,10 @@ class AJD_validation extends Base_validator
 		else if( $is_function OR $options['func_override'] )
 		{
 			$args['rule_kind'] 		= '_process_function';
+		}
+		else if($is_anon_class)
+		{
+			$args['rule_kind'] 		= '_process_anon_class';
 		}
 
 		//var_dump(file_exists('application/libraries/respect/validation/library/Rules/EndsWith.php'));
@@ -4230,6 +4320,10 @@ class AJD_validation extends Base_validator
 		$obj_ins 			= static::get_ajd_instance();
 		$rules_path 		= $this->get_rules_path().$append_rule.'.php';
 
+		$args['is_anon_class'] = false;
+		$args['anon_obj'] = null;
+		$args['anon_exception_obj'] = null;
+
 		if( !EMPTY( static::$addRuleDirectory ) )
 		{
 			foreach( static::$addRuleDirectory as $classPath )
@@ -4251,7 +4345,6 @@ class AJD_validation extends Base_validator
 		$class_meth_call 	= 'run';
 		$raw_class 			= $append_rule;
 		$symfony_args 		= NULL;
-		
 
 		if( $this->isset_empty( static::$ajd_prop['class_override'], $append_rule ) OR
 			$this->isset_empty( static::$ajd_prop['class_override'], $raw_append_rule ) )
@@ -4311,6 +4404,29 @@ class AJD_validation extends Base_validator
 			$function_override 	= TRUE;
 			$func 				= static::$ajd_prop['function_override'][ $rule ];
 			$args['func'] 		= $func;
+		}
+		else if( $this->isset_empty( static::$ajd_prop['anonymous_class_override'], $append_rule ) OR
+			$this->isset_empty( static::$ajd_prop['anonymous_class_override'], $raw_append_rule ) )
+		{
+			$anon_details = [];
+
+			if(isset(static::$ajd_prop['anonymous_class_override'][$raw_append_rule]))
+			{
+				$anon_details =	static::$ajd_prop['anonymous_class_override'][$raw_append_rule];
+			}
+			else if(isset(static::$ajd_prop['anonymous_class_override'][$append_rule]))
+			{
+				$anon_details =	static::$ajd_prop['anonymous_class_override'][$append_rule];
+			}
+
+			if(!empty($anon_details))
+			{
+				$args['append_rule'] = $append_rule;
+				$args['raw_append_rule'] = $raw_append_rule;
+				$args['is_anon_class'] = true;
+				$args['anon_obj'] = $anon_details['obj'];
+				$args['anon_exception_obj'] = $anon_details['exception'];
+			}
 		}
 
 		$args['override'] 			= $override;
