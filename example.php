@@ -304,11 +304,16 @@ try
 		->one_or([$v->getValidator()->digit(), $v->getValidator()->email()])
 		->check('none_field', 'a@test.coma');
 
+		
+	$v 
+		->mime_type('image/png')
+		->check('mime_type_field', '/home/asiagate/Pictures/decision.png');
+
 	var_dump(
 		$v 
 			->getValidator()
-			->one_or([$v->getValidator()->digit(), $v->getValidator()->email()])
-			->validate('a@test.com')
+			->mime_type('image/png')
+			->validate('/home/asiagate/Pictures/decision.png')
 	);
 
 	$v

@@ -3,7 +3,7 @@
 - `required_without_all()`
 - `Required_without_all_rule(array|string $dependetFields, array $dependentValue = [], array $values = [])`
 
-Validates the input only if al of the dependent field is empty.
+Validates the input only if all of the dependent field is empty.
 
 This rule must use the `->checkDependent()` method
 

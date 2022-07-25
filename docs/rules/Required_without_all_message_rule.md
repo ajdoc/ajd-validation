@@ -3,7 +3,7 @@
 - `required_without_all_message()`
 - `Required_without_all_message_rule(array|string $dependetFields, array $dependentValue = [], array $values = [])`
 
-Validates the input only if al of the dependent field is empty and prints dependent field error.
+Validates the input only if all of the dependent field is empty and prints dependent field error.
 
 This rule must use the `->checkDependent()` method
 
