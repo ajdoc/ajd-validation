@@ -99,7 +99,7 @@ $v
 	->check('custom_field', ''); // outputs error 
 /*
 	Outputs error
-	The custom_field is validated using custom rule
+	The Custom Field is validated using custom rule
 */
 
 $v 
@@ -136,14 +136,14 @@ class Invokable_custom_rule extends Abstract_invokable
 
 	public function __invoke($value, $satisfier = NULL, $field = NULL)
     {
-        $check = strtolower($value) == 'custom_rule';
+        $check = strtolower($value) == 'invokable_custom_rule';
 
         if($this->exception)
         {
 
             return $this->exception->message($check, [
                 $this->exception::ERR_DEFAULT => [
-                    $this->exception::STANDARD => 'The :field field is custom invokable.'
+                    $this->exception::STANDARD => 'The :field field is validated using custom invokable.'
                 ],
                 $this->exception::ERR_NEGATIVE      => [
                     $this->exception::STANDARD          => 'The :field field is not custom invokable.',
@@ -168,4 +168,26 @@ class Invokable_custom_rule extends Abstract_invokable
 
     }
 }
+
+$v 
+	->invokable_custom()
+	->check('invokable_custom_field', ''); // outputs error 
+/*
+	Outputs error
+	The Invokable Custom Field field is validated using custom invokable.
+*/
+
+$v 
+	->getValidator()
+	->invokable_custom()
+	->validate(''); // false
+
+$v 
+	->invokable_custom()
+	->check('invokable_custom_field', 'invokable_custom_rule'); // validation passes
+
+$v 
+	->getValidator()
+	->custom()
+	->validate('invokable_custom_rule'); // true
 ```
