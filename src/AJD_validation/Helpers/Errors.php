@@ -5,7 +5,6 @@ use AJD_validation\Vefja\Vefja;
 use AJD_validation\Contracts\Nested_rule_exception;
 use AJD_validation\Contracts\Invokable_rule_interface;
 use AJD_validation\Constants\Lang;
-use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 
 use InvalidArgumentException;
 
@@ -688,12 +687,7 @@ class Errors extends InvalidArgumentException
 
 			if( isset(static::$anonymousObj[$called_class]) )
 			{
-				$exception_class_obj 	= new class() extends Abstract_anonymous_rule_exception
-				{
-					public static $defaultMessages = [];
-
-					public static $localizeMessage = [];
-				};
+				$exception_class_obj 	= static::$anonymousObj[$called_class];
 
 				$rule::getAnonExceptionMessage($exception_class_obj);
 			}
@@ -716,6 +710,7 @@ class Errors extends InvalidArgumentException
 						compact('inverse')
 					);
 					
+					$params['called_class'] = $called_class;
 					
 					if( 
 						$ruleCh instanceof Invokable_rule_interface 
@@ -746,7 +741,6 @@ class Errors extends InvalidArgumentException
 					$errors[$rule_name]		= $message;
 					
 					$exception_arr[]  		= $exceptionObj;
-					
 				}
 			}
 		}

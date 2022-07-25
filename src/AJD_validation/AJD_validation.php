@@ -19,6 +19,7 @@ use AJD_validation\Async\PromiseHelpers;
 use AJD_validation\Helpers\Db_instance;
 use AJD_validation\Helpers\Logics_map;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
+use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 
 class AJD_validation extends Base_validator
 {
@@ -63,6 +64,7 @@ class AJD_validation extends Base_validator
 			'extension_rule' 				=> array(),
 			'extension_filter' 				=> array(),
 			'extension_test' 				=> array(),
+			'extension_anonymous_class' 	=> [],
 			'extensions_initialize' 		=> FALSE,
 			'fields' 						=> array(),
 			'js_rule' 						=> array(),
@@ -100,8 +102,6 @@ class AJD_validation extends Base_validator
 	// protected static $exceptionObj 			= array();
 	protected static $constraintStorageName;
 	protected static $useContraintGroup;
-
-	protected static $rules_suffix 			= 'rule';
 
 	protected static $lang;
 	protected static $ajd_ins;
@@ -425,11 +425,15 @@ class AJD_validation extends Base_validator
 			$anons = [$anons];
 		}
 
+		$exceptions = static::createAnonExceptionObj($anons);
+
 		foreach($anons as $anon)
 		{
-			$raw_class_name = strtolower($anon::getAnonName());
-			$class_name 	= ucfirst($raw_class_name);
-			$append_rule 	= $class_name.'_'.static::$rules_suffix;
+			$ruleNames = static::createRulesName($anon::getAnonName());
+
+			$raw_class_name = $ruleNames['raw_class_name'];
+			$class_name 	= $ruleNames['class_name'];
+			$append_rule 	= $ruleNames['append_rule'];
 
 			if(!isset(static::$cache_instance[$append_rule]))
 			{
@@ -445,7 +449,17 @@ class AJD_validation extends Base_validator
 
 					if($exception)
 					{
-						static::$ajd_prop[ 'anonymous_class_override' ][ $append_rule ]['exception'] = $exception;
+						if(!empty($exceptions)
+							&& isset($exceptions[$append_rule])
+							&& !empty($exceptions[$append_rule])
+						)
+						{
+							if($exceptions[$append_rule] instanceof Abstract_anonymous_rule_exception)
+							{
+
+								static::$ajd_prop[ 'anonymous_class_override' ][ $append_rule ]['exception'] = $exceptions[$append_rule];
+							}
+						}
 					}
 				}
 			}
@@ -3251,6 +3265,7 @@ class AJD_validation extends Base_validator
 		static::$ajd_prop['extension_rule'] 		= array();
 		static::$ajd_prop['extension_filter'] 		= array();
 		static::$ajd_prop['extension_test'] 		= array();
+		static::$ajd_prop['extension_anonymous_class'] = [];
 
 		foreach( static::$ajd_prop['extensions'] as $name => $extension )
 		{
@@ -3283,6 +3298,13 @@ class AJD_validation extends Base_validator
 		foreach( $extension->getMiddleWares() as $name => $func )
 		{	
 			static::$middleware[ $name ][ 'func' ] 				= $func;
+		}
+
+		$anons = $extension->getAnonClass();
+
+		if(!empty($anons))
+		{
+			static::registerAnonClass($anons);
 		}
 	}
 

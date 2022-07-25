@@ -19,11 +19,11 @@ abstract class Abstract_anonymous_rule extends Abstract_rule implements Invokabl
 
     public function run($value, $satisfier = NULL, $field = NULL)
     {
-
+        return false;
     }
 
     public function validate($value)
     {
-
+        return false;
     }
 }

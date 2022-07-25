@@ -16,4 +16,6 @@ interface Extension_interface
 
 	public function getLogics();
 
+	public function getAnonClass();
+
 }

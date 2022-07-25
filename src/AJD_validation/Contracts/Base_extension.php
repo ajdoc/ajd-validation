@@ -41,4 +41,9 @@ abstract class Base_extension implements Extension_interface
 	{
 		return array();
 	}
+
+	public function getAnonClass()
+	{
+		return [];
+	}
 }

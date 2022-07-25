@@ -110,7 +110,7 @@ abstract class Abstract_exceptions extends Errors
         )   
         {
             $hasLocale = true;
-
+            
             static::$defaultMessages = static::$localizeMessage[static::$lang];
         }
 
@@ -120,10 +120,10 @@ abstract class Abstract_exceptions extends Errors
         }
     }
 
-	public function configure( array $params = array() )
+	public function configure( array $params = array())
     {       
         $idPass = (isset($params['id_pass']) && !empty($params['id_pass'])) ? $params['id_pass'] : null;
-
+        
         $this->setId($this->guessId($idPass));
     	$this->setParams( $params );        
         

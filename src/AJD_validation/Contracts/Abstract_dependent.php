@@ -84,6 +84,11 @@ abstract class Abstract_dependent extends Abstract_rule
 		$result 			= array();
 		$msg 				= '';
 		
+		if(!empty($this->values))
+		{
+			$origValues = $this->values;
+		}
+
 		if( !EMPTY( $this->dependetFields ) AND !EMPTY( $origValues ) )
 		{
 			$this->values 	= $origValues;
@@ -493,7 +498,7 @@ abstract class Abstract_dependent extends Abstract_rule
 	}
 
  	public function validate( $value )
-    {
+    {	
         $check              = $this->run( $value );
 
         if( is_array( $check ) )

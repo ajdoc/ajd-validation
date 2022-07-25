@@ -12,6 +12,8 @@ abstract class Base_validator extends Abstract_common
 	protected static $field_scene_ins;
 	protected static $lang;
 
+	protected static $rules_suffix 			= 'rule';
+
 	protected static function get_factory_instance()
 	{
 		if( IS_NULL( static::$factory ) ) 
@@ -132,5 +134,64 @@ abstract class Base_validator extends Abstract_common
 		return Vefja::singleton('AJD_validation\Config\Config', array( $file ) );
 	}
 
+	protected static function createRulesName($rule)
+	{
+		$rule 			= filter_var($rule, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+		$raw_class_name = strtolower($rule);
+		$class_name 	= ucfirst($raw_class_name);
+		$append_rule 	= $class_name.'_'.static::$rules_suffix;
+
+		return [
+			'raw_class_name' => $raw_class_name,
+			'class_name' => $class_name,
+			'append_rule' => $append_rule
+		];
+	}
+
+	protected static function createAnonExceptionObj($anons)
+	{
+		$exceptions = [];
+		try
+		{
+			$newClassStr = '';
+			$usClassStr = 'use AJD_validation\Contracts\Abstract_anonymous_rule_exception;';
+
+			foreach($anons as $anon)
+			{
+				$ruleNames = static::createRulesName($anon::getAnonName());
+
+				$raw_class_name = $ruleNames['raw_class_name'];
+				$class_name 	= $ruleNames['class_name'];
+				$append_rule 	= $ruleNames['append_rule'];
+
+				$newClassStr .= '
+
+					$exceptions["'.$append_rule.'"] = new class() extends Abstract_anonymous_rule_exception
+					{
+						public static $defaultMessages = [];
+
+						public static $localizeMessage = [];
+					};
+				';
+			}
+
+			if(!empty($newClassStr))
+			{
+				$exceptions = eval(
+					$usClassStr.' '.
+					'$exceptions = []; '.
+					$newClassStr
+					.' return $exceptions; '
+				);
+			}
+
+		}
+		catch(Exception $e) 
+		{
+			throw $e;
+		}
+
+		return $exceptions;
+	}
 }
 

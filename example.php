@@ -84,6 +84,71 @@ class Custom_extension extends Base_extension
 		return false;
 		
 	}
+
+	public function getAnonClass()
+	{
+		return [
+			new class() extends Abstract_anonymous_rule
+			{
+				public function __invoke($value, $satisfier = NULL, $field = NULL)
+				{
+					return in_array($value, $satisfier);
+				}
+
+				public static function getAnonName() : string
+				{
+					return 'ext1_anontest';
+				}
+
+				public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj)
+				{
+					$exceptionObj::$defaultMessages 	= array(
+						 $exceptionObj::ERR_DEFAULT 			=> array(
+						 	$exceptionObj::STANDARD 			=> 'The :field field is ext1_anontest',
+						 ),
+						  $exceptionObj::ERR_NEGATIVE 		=> array(
+				            $exceptionObj::STANDARD 			=> 'The :field field is not ext1_anontest.',
+				        )
+					);
+				}
+			},
+			new class() extends Abstract_anonymous_rule
+			{
+				public function __invoke($value, $satisfier = NULL, $field = NULL)
+				{
+					return in_array($value, $satisfier);
+				}
+
+				public static function getAnonName() : string
+				{
+					return 'ext2_anontest';
+				}
+
+				public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj)
+				{
+					$exceptionObj::$defaultMessages 	= array(
+						 $exceptionObj::ERR_DEFAULT 			=> array(
+						 	$exceptionObj::STANDARD 			=> 'The :field field is ext2_anontest',
+						 ),
+						  $exceptionObj::ERR_NEGATIVE 		=> array(
+				            $exceptionObj::STANDARD 			=> 'The :field field is not ext2_anontest.',
+				        )
+					);
+
+					$exceptionObj::$localizeMessage 	= [
+						Lang::FIL => [
+							$exceptionObj::ERR_DEFAULT 			=> array(
+							 	$exceptionObj::STANDARD 			=> 'The :field field ay ext2_anontest',
+							 ),
+							  $exceptionObj::ERR_NEGATIVE 		=> array(
+					            $exceptionObj::STANDARD 			=> 'The :field field ay hindi ext2_anontest.',
+					        ),
+						]
+					];
+				}
+			}
+		];
+	}
 }
 
 try
@@ -135,8 +200,7 @@ try
 		}
 	);
 
-
-	$v->anontest(3)
+	$v->anontest(3, 'a')
 	->check('anontest1', '1');
 
 	$v->anontest(5)
@@ -184,7 +248,6 @@ try
 			->required()
 			->check('aaasera')->getFiber();*/
 
-	$dependent_arr = ['dependent_field' => 's', 'd2' => 'a', 'real_field' => 'a'];
 
 	/*$v 
 		->dependent(
@@ -193,11 +256,15 @@ try
 		)
 		->checkDependent('real_field', $dependent_arr, $dependent_arr);*/
 
+	$dependent_arr = ['dependent_field' => 's', 'd2' => '', 'real_field' => ''];
+	$dependent_field = ['dependent_field', 'd2'];
+	$dependent_values = ['dependent_field' => 's', 'd2' => 'a'];
+
 	$v 
-		->Notrequired_unless_message(
-			['dependent_field', 'd2'], ['dependent_field' => 's', 'd2' => 'a']
+		->required_unless_message(
+			$dependent_field, $dependent_values, $dependent_arr
 		)
-		->checkDependent('real_field', $dependent_arr, $dependent_arr)
+		->checkDependent('real_field', $dependent_arr)
 		->then(function()
 		{
 			echo "dependent success";
@@ -206,6 +273,14 @@ try
 		{
 			echo "dependent fails";	
 		});
+
+	var_dump(
+	$v 
+		->getValidator()
+		->required_unless(
+			$dependent_field, $dependent_values, $dependent_arr
+		)
+		->validate(''));
 
 	$v
 		->subdivision_code('PH')
@@ -763,6 +838,12 @@ try
 	$extension 	= new Custom_extension;
 	$v->registerExtension($extension);
 	$v->custom_validation()->custom_validation2()->check('custom_extension', '');
+
+	$v->ext1_anontest(3)
+	->check('ext1_anontest', '1');
+
+	$v->ext2_anontest(3)
+	->check('ext2_anontest', '1');
 
 	// Adding macros for reusable set of rules
 	$v->setMacro('test_macro', function( $ajd )
