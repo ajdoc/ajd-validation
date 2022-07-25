@@ -1,9 +1,9 @@
-# Required if
+# Required unless message
 
-- `required_unless()`
-- `Required_unless_rule(array|string $dependetFields, array $dependentValue = [], array $values = [])`
+- `required_unless_message()`
+- `Required_unless_message_rule(array|string $dependetFields, array $dependentValue = [], array $values = [])`
 
-Validates the input only if all of the dependent field is equals to the dependent value.
+Validates the input only if all of the dependent field is equals to the dependent value and prints dependent field error.
 
 This rule must use the `->checkDependent()` method
 
@@ -16,12 +16,18 @@ $dependent_post_data = ['dependent_field' => 's', 'dependent_field2' => '', 'rea
 $dependent_fields = ['dependent_field', 'dependent_field2'];
 $dependent_values = ['dependent_field' => 'foo', 'dependent_field2' => 'bar'];
 
-$v->required_unless(
+$v->required_unless_message(
 	$dependent_fields, $dependent_values, $dependent_post_data
 )
 ->checkDependent('real_field', $dependent_post_data);  // will not validate because none of the dependent_post_data is equals to the dependent_values.
 
-$v->getValidator()->required_unless(
+/*
+	Outputs error
+	All of the required rules must pass for "Real field".
+  	- Real field is required when all "dependent_field, dependent_field2" is in "foo, bar".
+*/
+
+$v->getValidator()->required_unless_message(
 	$dependent_fields, $dependent_values, $dependent_post_data
 )
 ->validate(''); // false. because none of the dependent_post_data is equals to the dependent_values.
@@ -30,12 +36,18 @@ $dependent_post_data = ['dependent_field' => 'foo', 'dependent_field2' => 'bar',
 $dependent_fields = ['dependent_field', 'dependent_field2'];
 $dependent_values = ['dependent_field' => 'foo', 'dependent_field2' => 'bar'];
 
-$v->required_unless(
+$v->required_unless_message(
 	$dependent_fields, $dependent_values, $dependent_post_data
 )
 ->checkDependent('real_field', $dependent_post_data);  // will output error because all of the dependent field is equal and real field is empty.
 
-$v->getValidator()->required_unless(
+/*
+	Outputs error
+	All of the required rules must pass for "Real field".
+  	- The "Real field" field is required
+*/
+
+$v->getValidator()->required_unless_message(
 	$dependent_fields, $dependent_values, $dependent_post_data
 )
 ->validate(''); // false. because all of the dependent field is equal and real field is empty.
@@ -44,12 +56,12 @@ $dependent_post_data = ['dependent_field' => 'foo', 'dependent_field2' => 'bar',
 $dependent_fields = ['dependent_field', 'dependent_field2'];
 $dependent_values = ['dependent_field' => 'foo', 'dependent_field2' => 'bar'];
 
-$v->required_unless(
+$v->required_unless_message(
 	$dependent_fields, $dependent_values, $dependent_post_data
 )
 ->checkDependent('real_field', $dependent_post_data);  // validation passes because all of the dependent field is equal and real field is not empty.
 
-$v->getValidator()->required_unless(
+$v->getValidator()->required_unless_message(
 	$dependent_fields, $dependent_values, $dependent_post_data
 )
 ->validate('a'); // true. because all of the dependent field is equal and real field not empty.

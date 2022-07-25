@@ -256,12 +256,12 @@ try
 		)
 		->checkDependent('real_field', $dependent_arr, $dependent_arr);*/
 
-	$dependent_arr = ['dependent_field' => 's', 'd2' => '', 'real_field' => ''];
+	$dependent_arr = ['dependent_field' => 'a', 'd2' => '', 'real_field' => ''];
 	$dependent_field = ['dependent_field', 'd2'];
 	$dependent_values = ['dependent_field' => 's', 'd2' => 'a'];
 
 	$v 
-		->required_unless_message(
+		->required_without_all_message(
 			$dependent_field, $dependent_values, $dependent_arr
 		)
 		->checkDependent('real_field', $dependent_arr)
@@ -274,13 +274,43 @@ try
 			echo "dependent fails";	
 		});
 
+	$dependent_arr1 = [
+		'dependent_field' => '',
+		'dependent_field2' => '1',
+		'check_dependent_field' => ''
+	];
+
+	$dependent_field1 = [
+		'dependent_field', 'dependent_field2'
+	];
+
+	$dependent_values1 = [];
+
+	$checkValidator1 = $v->getValidator()->required()->digit();
+
+	$fieldValidator1 = $v->getValidator()->required()->alpha();
+
+	$v 
+		->dependent_all(
+			$dependent_field1, 
+			$checkValidator1,
+			$fieldValidator1,
+			$dependent_values1, 
+			$dependent_arr1
+		)
+		->checkDependent('check_dependent_field', $dependent_arr1);
+
 	var_dump(
 	$v 
 		->getValidator()
-		->required_unless(
-			$dependent_field, $dependent_values, $dependent_arr
+		->dependent_all(
+			$dependent_field1, 
+			$checkValidator1,
+			$fieldValidator1,
+			$dependent_values1, 
+			$dependent_arr1
 		)
-		->validate(''));
+		->validate('a'));
 
 	$v
 		->subdivision_code('PH')

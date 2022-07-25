@@ -94,11 +94,11 @@ abstract class Abstract_dependent extends Abstract_rule
 			$this->values 	= $origValues;
 
 			$subCheck 		= $this->processDependency( $value );
-
+			
 			if( $subCheck['check'] )
 			{
 				$check 		= $this->validator->validate($value);
-
+				
 				if( !$check )
 				{
 					try
@@ -140,15 +140,24 @@ abstract class Abstract_dependent extends Abstract_rule
 			}
 			else
 			{
+
 				$check 		= FALSE;
 
 				if( !EMPTY( $subCheck ) AND $this->showSubError )  
 				{
-					$result['append_error'] 	= '<br/>&nbsp;&nbsp;&nbsp;- '.$subCheck['append_msg'];
+					if(!$subCheck['check'])
+					{
+						if(!empty($subCheck['append_msg']))
+						{
+							$result['append_error'] 	= '<br/>&nbsp;&nbsp;&nbsp;- '.$subCheck['append_msg'];
+
+						}
+					}
 				}
 				else
 				{
-					$check 	= TRUE;
+
+					$check 	= $subCheck['check'];
 				}
 			}
 		}
