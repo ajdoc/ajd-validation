@@ -426,7 +426,7 @@ class AJD_validation extends Base_validator
 		}
 
 		$exceptions = static::createAnonExceptionObj($anons);
-		
+
 		foreach($anons as $anon)
 		{
 			$ruleNames = static::createRulesName($anon::getAnonName());
@@ -648,7 +648,9 @@ class AJD_validation extends Base_validator
 			$curr_field 	= static::$ajd_prop[ 'current_field' ];
 
 			if( !EMPTY( $curr_field ) )
+			{
 				static::$macros[ $macro_name ][ 'fields' ] 		= static::$ajd_prop[ 'fields' ];
+			}
 
 			$ajd->reset_all_validation_prop();
 		}
@@ -4355,11 +4357,11 @@ class AJD_validation extends Base_validator
 		{
 			foreach( static::$addRuleDirectory as $classPath )
 			{
-				$requiredFiles 	= get_required_files();
+				// $requiredFiles 	= get_required_files();
 
 				$pathHolder 	= $classPath.$append_rule.'.php';
 
-				$search 		= array_search($pathHolder, $requiredFiles);
+				// $search 		= array_search($pathHolder, $requiredFiles);
 				
 				if( file_exists( $pathHolder ) )
 				{
