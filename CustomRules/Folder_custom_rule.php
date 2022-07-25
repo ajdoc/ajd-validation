@@ -36,22 +36,11 @@ class Folder_custom_rule extends Abstract_rule
 	{
 		$check 	= FALSE;
 
-		try
-		{
-			$check 			= $this->run( $value );
+		$check 			= $this->run( $value );
 
-			if( is_array( $check ) )
-			{
-				return $check['check'];
-			}
-		}
-		catch(PDOException $e)
+		if( is_array( $check ) )
 		{
-			throw $e;
-		}
-		catch( Exception $e )
-		{
-			throw $e;
+			return $check['check'];
 		}
 
 		return $check;

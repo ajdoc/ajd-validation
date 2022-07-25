@@ -122,9 +122,12 @@ class Class_factory implements Factory_interface
 				}
 			}
 
+			
 			if(is_string($rules_path) && !is_object($rules_path))
 			{
-				return (bool) $getConstructor ? $reflect->newInstanceArgs( $args ) : $reflect->newInstanceWithoutConstructor();
+				$newObj = (bool) $getConstructor ? $reflect->newInstanceArgs( $args ) : $reflect->newInstanceWithoutConstructor();
+
+				return $newObj;
 			}
 			else
 			{

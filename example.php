@@ -200,18 +200,31 @@ try
 		}
 	);
 
-	$v->anontest(3, 'a')
-	->check('anontest1', '1');
+
+	$v
+	->invokable_required()
+	->check('invokeme', '');
+
+	$v
+	->anontest(3, 'a')
+	->check('anontest1', '3');
 
 	$v->anontest(5)
 	->check('anontest2', '3');
+
+
+	/*var_dump($v
+		->getValidator()
+		->folder_custom()
+		
+		->validate('folder_custom'));*/
 	
 
 	$v
 		->folder_custom()
 		->folder_custom2()
 
-		->check('folder_custom', '');
+		->check('folder_custom', 'b');
 
 	
 
@@ -309,12 +322,12 @@ try
 		->mime_type('image/png')
 		->check('mime_type_field', '/home/asiagate/Pictures/decision.png');
 
-	var_dump(
+	/*var_dump(
 		$v 
 			->getValidator()
 			->mime_type('image/png')
 			->validate('/home/asiagate/Pictures/decision.png')
-	);
+	);*/
 
 	$v
 		->subdivision_code('PH')

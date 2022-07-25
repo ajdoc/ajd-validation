@@ -3767,6 +3767,7 @@ class AJD_validation extends Base_validator
 						$pass_check = $pass_check['check'];
 						
 					}
+
 				}
 				
 				if( !is_array( $pass_check ) )
@@ -3914,7 +3915,7 @@ class AJD_validation extends Base_validator
 
 
 			$key_load_sucess = $key_load_event_common;
-		
+			
 			if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$details['rule']] ) )
 			{
 				$eventSuccess 	= static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$details['rule']];
@@ -3995,7 +3996,7 @@ class AJD_validation extends Base_validator
 				unset(static::$ajd_prop['fiber_suspend'][$details['rule']]);
 			}
 		}
-	
+		
 		return $extra_args;
 	}
 
@@ -4067,13 +4068,6 @@ class AJD_validation extends Base_validator
 			unset( static::$cache_instance[ $append_rule ] );
 		}
 		
-			
-		/*}
-		else 
-		{
-			$rule_obj 			= static::$cache_instance[ $append_rule ];
-		}*/
-		
 		static::$cache_instance[ $append_rule ] 	= $rule_obj;
 		static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
 
@@ -4140,13 +4134,17 @@ class AJD_validation extends Base_validator
 
 		$check_r = false;
 
-		if($rule_obj instanceof Invokable_rule_interface)
+		if(!$details['details'][3]['is_anon_class'])
 		{
-			$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
-		}
-		else
-		{
-			$check_r = $rule_obj->{ $details[ 'details' ][3][ 'class_meth_call' ] }( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+
+			if($rule_obj instanceof Invokable_rule_interface)
+			{
+				$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+			}
+			else
+			{
+				$check_r = $rule_obj->{ $details[ 'details' ][3][ 'class_meth_call' ] }( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+			}
 		}
 
 		return [
@@ -4292,7 +4290,7 @@ class AJD_validation extends Base_validator
 		{
 			$is_class 		= (!is_string($options['rules_path']) && is_object($options['rules_path']));
 		}
-		
+
 		$is_method 		= method_exists( $options['obj_ins'], $append_rule );
 
 		$is_function 	= function_exists( $rule );
@@ -4312,7 +4310,7 @@ class AJD_validation extends Base_validator
 		{	
 			$args['rule_kind'] 		= '_process_extension';
 		}
-		else if( $is_class AND !$options['override'] )
+		else if( $is_class AND !$options['override'] AND !$is_anon_class )
 		{
 			$args['rule_kind']  	= '_process_class';
 		}
@@ -4362,8 +4360,8 @@ class AJD_validation extends Base_validator
 				$pathHolder 	= $classPath.$append_rule.'.php';
 
 				$search 		= array_search($pathHolder, $requiredFiles);
-
-				if( file_exists( $pathHolder ) AND EMPTY( $search ) )
+				
+				if( file_exists( $pathHolder ) )
 				{
 					$rules_path 	= $pathHolder;
 				}	
