@@ -118,9 +118,13 @@ $v
 ```
 
 #### Adding an invokable rule
+	- For simple rule implementation create invokable rule
 	- You can add custom invokable rules under the new rules directory and rules namespace by extending to \AJD_validation\Contracts\Abstract_invokable
 
 ```php
+
+namespace CustomRules;
+
 use AJD_validation\Contracts\Abstract_invokable;
 use AJD_validation\Constants\Lang;
 
