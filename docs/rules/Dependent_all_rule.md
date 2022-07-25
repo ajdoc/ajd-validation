@@ -36,7 +36,7 @@ $v
 		$dependent_values1, 
 		$dependent_arr1
 	)
-	->checkdependent_all('check_dependent_field', $dependent_arr1) // validation of check_dependent_field will not run because not all of the dependent field passes the $checkValidator.
+	->checkDependent('check_dependent_field', $dependent_arr1) // validation of check_dependent_field will not run because not all of the dependent field passes the $checkValidator.
 
 /*
 	Outputs error
@@ -84,7 +84,7 @@ $v
 		$dependent_values1, 
 		$dependent_arr1
 	)
-	->checkdependent_all('check_dependent_field', $dependent_arr1) // validation of check_dependent_field will run because all of the dependent field passes the $checkValidator.
+	->checkDependent('check_dependent_field', $dependent_arr1) // validation of check_dependent_field will run because all of the dependent field passes the $checkValidator.
 
 /*
 	Outputs error
