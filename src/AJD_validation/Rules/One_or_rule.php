@@ -87,11 +87,28 @@ class One_or_rule extends Abstract_all
                 {
                     foreach( $subRule->getRules() as $rule )
                     {
-                        $check  = $rule->run( $value, NULL, $field );
-
-                        if( $check )
+                        if($rule instanceof Abstract_invokable)
                         {
-                            $checkRule[]    = TRUE;
+                            $check  = $rule( $value, NULL, $field );
+                        }
+                        else
+                        {
+                            $check  = $rule->run( $value, NULL, $field );
+                        }
+
+                        if(is_array($check))
+                        {
+                            if($check['check'])
+                            {
+                                $checkRule[]    = TRUE;
+                            }
+                        }
+                        else
+                        {
+                            if( $check )
+                            {
+                                $checkRule[]    = TRUE;
+                            }
                         }
 
                       /*  try
@@ -128,9 +145,19 @@ class One_or_rule extends Abstract_all
                         $check  = $rule->run( $value, NULL, $field );
                     }
 
-                    if( $check )
+                    if(is_array($check))
                     {
-                        $checkRule[]    = TRUE;
+                        if($check['check'])
+                        {
+                            $checkRule[]    = TRUE;
+                        }
+                    }
+                    else
+                    {
+                        if( $check )
+                        {
+                            $checkRule[]    = TRUE;
+                        }
                     }
                     
                    /* try

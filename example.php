@@ -300,17 +300,16 @@ try
 		)
 		->checkDependent('check_dependent_field', $dependent_arr1);
 
-	var_dump(
 	$v 
-		->getValidator()
-		->dependent_all(
-			$dependent_field1, 
-			$checkValidator1,
-			$fieldValidator1,
-			$dependent_values1, 
-			$dependent_arr1
-		)
-		->validate('a'));
+		->one_or([$v->getValidator()->digit(), $v->getValidator()->email()])
+		->check('none_field', 'a@test.coma');
+
+	var_dump(
+		$v 
+			->getValidator()
+			->one_or([$v->getValidator()->digit(), $v->getValidator()->email()])
+			->validate('a@test.com')
+	);
 
 	$v
 		->subdivision_code('PH')

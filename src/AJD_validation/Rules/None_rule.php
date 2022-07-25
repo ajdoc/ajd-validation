@@ -63,9 +63,19 @@ class None_rule extends Abstract_all
                             $check  = $rule->run( $value, NULL, $field );       
                         }
 
-                        if( $check )
+                        if(is_array($check))
                         {
-                            $checkRule[]    = TRUE;
+                            if($check['check'])
+                            {
+                                $checkRule[]    = TRUE;
+                            }
+                        }
+                        else
+                        {
+                            if( $check )
+                            {
+                                $checkRule[]    = TRUE;
+                            }
                         }
                         
                         $exception          = $this->getExceptionError($value, array(), $rule, false, $rule);
@@ -95,9 +105,19 @@ class None_rule extends Abstract_all
                         $check  = $rule->run( $value, NULL, $field );
                     }
                     
-                    if( $check )
+                    if(is_array($check))
                     {
-                        $checkRule[]    = TRUE;
+                        if($check['check'])
+                        {
+                            $checkRule[]    = TRUE;
+                        }
+                    }
+                    else
+                    {
+                        if( $check )
+                        {
+                            $checkRule[]    = TRUE;
+                        }
                     }
                     
                     $exception          = $this->getExceptionError($value, array(), $rule, false, $rule);
