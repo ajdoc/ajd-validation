@@ -205,7 +205,7 @@ use AJD_validation\AJD_validation;
 
 $v = new AJD_validation;
 
-$v->LgDb_example()->runLogics('value');
+$v->LgDb_example()->runLogics('value'); // returns bool (true/false)
 /* or */
 $v
 	->when()
