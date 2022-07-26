@@ -136,7 +136,7 @@ $v
 	->addLogicNamespace('CustomLogics\\')
 	->endwhen();
 ```
-2. Logic class must extend to \AJD_validation\Contracts\Abstract_logic and all logic class name must [Custom]`_logic` suffix;
+2. Logic class must extend to \AJD_validation\Contracts\Abstract_logic and all logic class name must have [Custom]`_logic` as suffix;
 ```php
 namespace CustomLogics;
 
