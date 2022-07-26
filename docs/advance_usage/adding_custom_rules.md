@@ -442,6 +442,7 @@ class Custom_extension extends Base_extension
 
 	/*
 		Adding custom rule method error message
+		When adding custom rule method error message remove _rule suffix for the key
 	*/
 	public function getRuleMessages()
 	{
@@ -451,6 +452,9 @@ class Custom_extension extends Base_extension
 		];
 	}
 
+	/*
+		rule method must always have _rule suffix
+	*/
 	public function custom_validation_rule( $value, $satisfier, $field )
 	{
 		if( $value == 'a' )
@@ -463,6 +467,9 @@ class Custom_extension extends Base_extension
 		}
 	}
 
+	/*
+		rule method must always have _rule suffix
+	*/
 	public function custom_validation2_rule( $value, $satisfier, $field )
 	{
 		return false;
