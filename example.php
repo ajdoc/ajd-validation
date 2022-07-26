@@ -984,7 +984,9 @@ try
 		}
 	});
 
-	
+	$v
+		->required()
+		->checkAllMiddleware('all_middleware2', '');
 
 	$v->required()
 		->minlength(2)

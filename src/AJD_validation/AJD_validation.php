@@ -435,7 +435,7 @@ class AJD_validation extends Base_validator
 
 			$main = $ajd->invoke_func( static::$middleware[ $name ]['func'], array( $ajd, $func, $args ) );
 
-			if($all)
+			if($all && !empty(static::$cacheMiddleware))
 			{
 				$middleKeys = array_keys(static::$cacheMiddleware);
 				$lastKey = end($middleKeys);
