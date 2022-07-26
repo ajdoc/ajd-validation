@@ -327,7 +327,7 @@ class Custom_method
 
 	2. Then add rule msg for rule name.
 */
-$v->registerMethod('custom_method', $custom_method);
+$v->registerMethod('custom_method', new Custom_method);
 $v->add_rule_msg('custom_method', 'this value custom method is not a');
 
 $v->custom_method()->check('custom_method', ''); // outputs error 
