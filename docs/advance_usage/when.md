@@ -190,7 +190,7 @@ class Db_example_logic extends Abstract_logic
 	}
 }
 ```
-3. You can use your custom logics by prefixing your custom logic with `Lg` and removing `_logic` suffix. 
+3. You can use your custom logics by prefixing your custom logic class name with `Lg` and removing `_logic` suffix. 
 ```php
 use AJD_validation\AJD_validation;
 
