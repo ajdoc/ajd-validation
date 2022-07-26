@@ -939,13 +939,24 @@ try
 	// Or you can use this syntax
 
 	$v->storeConstraintTo('group1')
-			->Ftest( array(), true )
+			// ->Ftest( array(), true )
 			  ->required()
-				->maxlength(30)
+			  ->maxlength(30)
 		->endstoreConstraintTo();
 
-	$v->useContraintStorage('group1')->check('storage1', 'e');
-	$v->useContraintStorage('group1')->check('storage2', '')
+	$v->storeConstraintTo('group2')
+		// ->Ftest( array(), true )
+		  ->required()
+		  ->minlength(2)
+	->endstoreConstraintTo();
+
+
+	$v->useContraintStorage('group1')->check('storage1', '');
+
+	$v->useContraintStorage('group2')->alpha()->check('storage2', '')
+	;
+
+	$v->useContraintStorage('group1')->digit()->check('storage3', '')
 	;
 
 

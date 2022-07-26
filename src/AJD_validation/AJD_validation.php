@@ -681,6 +681,7 @@ class AJD_validation extends Base_validator
 	public static function useContraintStorage( $constraintGroup, $clientField = NULL  )
 	{
 		static::$useContraintGroup 		= $constraintGroup;
+		static::$constraintStorageName 	= $constraintGroup;
 		
 		if( !EMPTY( $clientField ) AND !EMPTY( static::$ajd_prop['js_rule'] ) )
 		{
@@ -816,6 +817,25 @@ class AJD_validation extends Base_validator
 		return static::get_scene_ins( $clean_rule['rule'], $logic, TRUE );
 	}
 
+	/*public static function processConstraintName()
+	{
+		$constraintName = null;
+
+		if( !EMPTY( static::$constraintStorageName ) )
+		{
+			$constraintName = static::$constraintStorageName;
+		}
+		else
+		{
+			if(!empty(static::$useContraintGroup))
+			{
+				$constraintName = static::$useContraintGroup;
+			}
+		}
+
+		return $constraintName;
+	}*/
+
 	protected static function plotValidationDetails( array $args )
 	{
 		$curr_field 	= $args['curr_field'];
@@ -838,6 +858,8 @@ class AJD_validation extends Base_validator
 				'satisfier' 					=> $satis,
 				'details' 						=> array( $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'] ),
 			);
+
+			$constraintName = null;
 
 			foreach( $key_value as $key => $value )
 			{
@@ -3296,7 +3318,7 @@ class AJD_validation extends Base_validator
 		{
 			static::$ajd_prop['extension_test'][ $test ] 	= array( 'test' => $test, 'extension_name' => $name, 'extension_obj' => $extension );
 		}
-		
+
 		foreach( $extension->getMiddleWares() as $name => $func )
 		{	
 			static::$middleware[ $name ][ 'func' ] 				= $func;

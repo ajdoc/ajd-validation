@@ -239,6 +239,31 @@ All of the required rules must pass for "Middlename2".
   - "b" is the value for middlename2 to be accpted.
 ```
 
+## Reuse rule definition
+- Reuse or store rule defintions by:
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v->storeConstraintTo('group1')
+	->required()
+	->minlength(3)
+	->maxlength(30)
+->endstoreConstraintTo();
+
+$v->storeConstraintTo('group2')
+	->required()
+  	->minlength(2)
+->endstoreConstraintTo();
+
+$v->useContraintStorage('group1')->check('field1', 'e');
+$v->useContraintStorage('group2')->check('field2', '');
+
+$v->useContraintStorage('group1')->digit()->check('field3', '');
+```
+- We store rule definition `required`, `minlength`, `maxlength` in storage `group1` and we could reuse the rule definition by using `$v->useContraintStorage('group1')`
+- We could define another rule definition not in the storage for a specific field like in 'field3'.
 
 See also:
 
