@@ -409,7 +409,7 @@ $v->is_array()->check('is_array_field', '', false); // outputs error
 */
 $v->is_array()->check('is_array_field', [], false); // validation passes		
 ```
-	- **Note: these default php won't work when using `$v->getValidator()->is_array()`.**
+	- **Note: these default php functions won't work when using `$v->getValidator()->is_array()`.**
 
 ## Registering custom rule using `$v->registerExtension()`
 	- registering extension not only registers custom rule but can also register custom filtering, custom logics, custom middlewares, custom anonymous class rule.
