@@ -258,6 +258,18 @@ try
 	->check('db_ch', 4)
 	;
 
+	/*$v
+	->when()
+			->Lgfirst(false)
+		->endgiven('lgonlyfield1')
+
+			->Threquired()
+		->endthen('thenprintthis1')
+
+			->Othrequired()
+		->endotherwise('elseprintthis')
+	->endwhen();*/
+
 	// var_dump($ch_db);
 
 	$arr1 = ['password' => '1', 'password_confirm' => '1'];

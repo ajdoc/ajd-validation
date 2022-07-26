@@ -9,6 +9,8 @@
 ```php
 use AJD_validation\AJD_validation;
 
+$v = new AJD_validation;
+
 $v
 	->addRuleDirectory(__DIR__.DIRECTORY_SEPARATOR.'CustomRules'.DIRECTORY_SEPARATOR)
 	->addRuleNamespace('CustomRules\\');
@@ -169,6 +171,9 @@ class Invokable_custom_rule extends Abstract_invokable
     }
 }
 
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
 $v 
 	->invokable_custom()
 	->check('invokable_custom_field', ''); // outputs error 
@@ -199,6 +204,8 @@ use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
 use AJD_validation\Contracts\Abstract_exceptions;
 use AJD_validation\Constants\Lang;
+
+$v = new AJD_validation;
 
 $v->registerAnonClass(
 	new class() extends Abstract_anonymous_rule
@@ -266,6 +273,8 @@ $v
 ```php
 use AJD_validation\AJD_validation;
 
+$v = new AJD_validation;
+
 class Custom_class
 {
 	// must have a method run
@@ -303,6 +312,8 @@ $v->custom_class()->check('custom_class', 'a'); // validation passes
 ## Registering Custom Rule using `$v->registerMethod()`
 ```php
 use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
 
 class Custom_method
 {
@@ -342,6 +353,8 @@ $v->custom_method()->check('custom_method', 'a'); // validation passes
 
 ## Registering custom rule using `$v->registerFunction()`
 ```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
 // custom function using callback/Closure
 /*
 	1. Register the rule name and the callback/Closure
@@ -418,6 +431,8 @@ use AJD_validation\Contracts\Base_extension;
 use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\Abstract_exceptions;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
+
+$v = new AJD_validation;
 
 class Custom_extension extends Base_extension
 {

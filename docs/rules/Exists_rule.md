@@ -265,4 +265,4 @@ Version | Description
 
 See also:
 - [Usage](../usage.md)
-- [Scenarios](scenarios.md)
+- [Scenarios](advance_usage/scenarios.md)
