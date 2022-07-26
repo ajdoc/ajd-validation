@@ -3296,7 +3296,7 @@ class AJD_validation extends Base_validator
 		{
 			static::$ajd_prop['extension_test'][ $test ] 	= array( 'test' => $test, 'extension_name' => $name, 'extension_obj' => $extension );
 		}
-
+		
 		foreach( $extension->getMiddleWares() as $name => $func )
 		{	
 			static::$middleware[ $name ][ 'func' ] 				= $func;
@@ -4145,7 +4145,10 @@ class AJD_validation extends Base_validator
 			}
 			else
 			{
-				$check_r = $rule_obj->{ $details[ 'details' ][3][ 'class_meth_call' ] }( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+				if(method_exists($rule_obj, $details[ 'details' ][3][ 'class_meth_call' ]))
+				{
+					$check_r = $rule_obj->{ $details[ 'details' ][3][ 'class_meth_call' ] }( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+				}
 			}
 		}
 

@@ -149,6 +149,19 @@ class Custom_extension extends Base_extension
 			}
 		];
 	}
+
+	public function getLogics()
+	{
+		return [
+			'custom_logics_logic'
+		];
+	}
+
+	public function custom_logics_logic($value = null, ...$satisfier) : bool
+	{
+		
+		return $value == $satisfier[0];
+	}
 }
 
 try
@@ -852,6 +865,11 @@ try
 		->email()
 		->check('email_check', '');
 
+	$v
+		->required()
+		->is_array()
+		->check('is_array_field', '', false);
+
 	// custom function using callback/Closure
 	$v->registerFunction('my_custom_func', function($value, $field, $satisfier)
 	{
@@ -866,17 +884,17 @@ try
 	});
 
 	$v->add_rule_msg('my_custom_func', 'this value is not a');
-	$v->my_custom_func()->check('my_custom_func', '');
+	$v->my_custom_func()->check('my_custom_func', 'b');
 
 	// Registering a Method 
-	$custom_method 	= new Custom_method_rule;
+	$custom_method 	= new Custom_method;
 	$v->registerMethod('custom_method', $custom_method);
 	$v->add_rule_msg('custom_method', 'this value custom method is not a');
 	$v->custom_method()->check('custom_method', '');
 
 	// Registering a Custom class
 	// $path 	= dirname();
-	$v->registerClass('custom_class', new Custom_class_rule);
+	$v->registerClass('custom_class', new Custom_class);
 	$v->add_rule_msg('custom_class', 'this value is not custom class a');
 	$v->custom_class()->check('custom_class', '');
 
@@ -885,6 +903,8 @@ try
 	$extension 	= new Custom_extension;
 	$v->registerExtension($extension);
 	$v->custom_validation()->custom_validation2()->check('custom_extension', '');
+
+	// $v->Lgcustom_logics(5)->runLogics('5');
 
 	$v->ext1_anontest(3)
 	->check('ext1_anontest', '1');
@@ -981,7 +1001,7 @@ catch( Exception $e )
 }
 
 // there must be a suffix _rule to the class name to avoid class conflict
-class Custom_class_rule
+class Custom_class
 {
 	// must have a method run
 	public function run( $value = null, $satisfier = null, $field = null )
@@ -997,7 +1017,7 @@ class Custom_class_rule
 	}
 }
 
-class Custom_method_rule
+class Custom_method
 {
 	// there must be a suffix _rule to the method name to avoid method conflict
 	public function custom_method_rule( $value = null, $satisfier = null, $field = null )

@@ -191,3 +191,428 @@ $v
 	->custom()
 	->validate('invokable_custom_rule'); // true
 ```
+
+## Registering custom rules using Anonymous class
+
+```php
+use AJD_validation\AJD_validation;
+use AJD_validation\Contracts\Abstract_anonymous_rule;
+use AJD_validation\Contracts\Abstract_exceptions;
+use AJD_validation\Constants\Lang;
+
+$v->registerAnonClass(
+	new class() extends Abstract_anonymous_rule
+	{
+		/*
+			must return boolean
+		*/
+		public function __invoke($value, $satisfier = NULL, $field = NULL)
+		{
+			return in_array($value, $satisfier);
+
+		}
+
+		/*
+			your custom rule name
+		*/
+		public static function getAnonName() : string
+		{
+			return 'custom_anonymous';
+		}
+
+		public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj)
+		{
+			$exceptionObj::$defaultMessages 	= [
+				 $exceptionObj::ERR_DEFAULT 			=> [
+				 	$exceptionObj::STANDARD 			=> 'The :field field is validated using custom_anonymous rule.',
+				 ],
+				  $exceptionObj::ERR_NEGATIVE 		=> [
+		            $exceptionObj::STANDARD 			=> 'The :field field is not validated using custom_anonymous rule.',
+		        ]
+			];
+
+			$exceptionObj::$localizeMessage 	= [
+				Lang::FIL => [
+					$exceptionObj::ERR_DEFAULT 			=> [
+					 	$exceptionObj::STANDARD 			=> 'The :field field localization example for custom_anonymous rule.',
+					 ],
+					  $exceptionObj::ERR_NEGATIVE 		=> [
+			            $exceptionObj::STANDARD 			=> 'The :field field not localization example for custom_anonymous rule.',
+			        ],
+				]
+			];
+		}
+	}
+);
+
+$v 
+	->custom_anonymous(3)
+	->check('anonymous_custom_field', '1'); // outputs error 
+/*
+	Outputs error
+	The Anonymous Custom Field field is validated using custom_anonymous rule.
+*/
+
+
+$v 
+	->custom_anonymous(3)
+	->check('anonymous_custom_field', '3'); // validation passes
+
+
+```
+	- **Note: Custom rules Registered using anoymous class won't work when using `$v->getValidator()->custom_anonymous()`, might add support in the future.**
+
+## Registering Custom Rule using `$v->registerClass()`
+```php
+use AJD_validation\AJD_validation;
+
+class Custom_class
+{
+	// must have a method run
+	public function run( $value = null, $satisfier = null, $field = null )
+	{
+		if( $value == 'a' )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
+
+/*
+	1. Register the rule name and the Object, object must have method run
+	2. Then add rule msg for rule name.
+*/
+
+$v->registerClass('custom_class', new Custom_class);
+$v->add_rule_msg('custom_class', 'this value is not custom class a');
+
+$v->custom_class()->check('custom_class', ''); // outputs error 
+/*
+	Outputs error
+		this value is not custom class a
+*/
+
+$v->custom_class()->check('custom_class', 'a'); // validation passes
+```
+	- **Note: Custom rules Registered using `$v->registerClass()` won't work when using `$v->getValidator()->custom_class()`. There is also no localization support for this way of adding custom rule.**
+
+## Registering Custom Rule using `$v->registerMethod()`
+```php
+use AJD_validation\AJD_validation;
+
+class Custom_method
+{
+	// there must be a suffix _rule to the method name to avoid method conflict.
+	// whatever name you register as method name in `$v->registerMethod()` there must be always a suffix _rule
+	public function custom_method_rule( $value = null, $satisfier = null, $field = null )
+	{
+		if( $value == 'a' )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+}
+
+/*
+	1. Register the rule name and the Object, object must have method name with a suffix _rule
+		e.g. 'custom_method_rule'
+
+	2. Then add rule msg for rule name.
+*/
+$v->registerMethod('custom_method', $custom_method);
+$v->add_rule_msg('custom_method', 'this value custom method is not a');
+
+$v->custom_method()->check('custom_method', ''); // outputs error 
+/*
+	Outputs error
+		this value custom method is not a
+*/
+
+$v->custom_method()->check('custom_method', 'a'); // validation passes
+```
+	- **Note: Custom rules Registered using `$v->registerMethod()` won't work when using `$v->getValidator()->custom_method()`. There is also no localization support for this way of adding custom rule.**
+
+## Registering custom rule using `$v->registerFunction()`
+```php
+// custom function using callback/Closure
+/*
+	1. Register the rule name and the callback/Closure
+	2. Then add rule msg for rule name.
+*/
+$v->registerFunction('my_custom_func', function($value, $field, $satisfier)
+{
+	if( $value == 'a' )
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+});
+
+$v->add_rule_msg('my_custom_func', 'this value is not a');
+
+$v->my_custom_func()->check('my_custom_func', 'b'); // outputs error
+/*
+	Outputs error
+		this value is not a
+*/
+
+$v->my_custom_func()->check('my_custom_func', 'a'); // validation passes
+```
+	- **Note: Custom rules Registered using `$v->registerFunction()` won't work when using `$v->getValidator()->my_custom_func()`. There is also no localization support for this way of adding custom rule.**
+
+### Default php function supported
+	- error message for the following supported php function is found under src/AJD_validation/lang/[current_lang]_lang.php
+```php
+	[
+		'filter_var',
+		'in_array',
+		'preg_match',
+		'is_int',
+		'is_numeric',
+		'is_array',
+		'is_float',
+		'is_string',
+		'is_object',
+		'is_callable',
+		'is_bool',
+		'is_null',
+		'is_resource',
+		'is_scalar',
+		'is_finite'
+	]
+
+$v->is_numeric()->check('is_numeric_field', 'a'); // outputs error
+/*
+	Outputs error
+		Is numeric field must be numeric.
+*/
+$v->is_numeric()->check('is_numeric_field', '1'); // validation passes
+
+/*
+	Third paramater false turns off auto loop array checking
+*/
+$v->is_array()->check('is_array_field', '', false); // outputs error
+/*
+	Outputs error
+		Is array field must be a php array.
+*/
+$v->is_array()->check('is_array_field', [], false); // validation passes		
+```
+	- **Note: these default php won't work when using `$v->getValidator()->is_array()`.**
+
+## Registering custom rule using `$v->registerExtension()`
+	- registering extension not only registers custom rule but can also register custom filtering, custom logics, custom middlewares, custom anonymous class rule.
+```php
+use AJD_validation\Contracts\Base_extension;
+use AJD_validation\AJD_validation;
+use AJD_validation\Contracts\Abstract_exceptions;
+use AJD_validation\Contracts\Abstract_anonymous_rule;
+
+class Custom_extension extends Base_extension
+{
+	/*
+		Desired name of the extension
+	*/
+	public function getName()
+	{
+		return 'Custom_extension';
+	}
+
+	/*
+		Adding custom rule method
+	*/
+	public function getRules()
+	{
+		return [
+			'custom_validation_rule',
+			'custom_validation2_rule'
+		];
+	}
+
+	/*
+		Adding custom rule method error message
+	*/
+	public function getRuleMessages()
+	{
+		return [
+			'custom_validation' 	=> 'The :field field is not a a.',
+			'custom_validation2' 	=> 'The :field field is not a a 2.',
+		];
+	}
+
+	public function custom_validation_rule( $value, $satisfier, $field )
+	{
+		if( $value == 'a' )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public function custom_validation2_rule( $value, $satisfier, $field )
+	{
+		return false;
+	}
+
+	/*
+		Adding custom rule using anonymous class
+	*/
+	public function getAnonClass()
+	{
+		return [
+			new class() extends Abstract_anonymous_rule
+			{
+				public function __invoke($value, $satisfier = NULL, $field = NULL)
+				{
+					return in_array($value, $satisfier);
+				}
+
+				public static function getAnonName() : string
+				{
+					return 'ext1_anontest';
+				}
+
+				public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj)
+				{
+					$exceptionObj::$defaultMessages 	= array(
+						 $exceptionObj::ERR_DEFAULT 			=> array(
+						 	$exceptionObj::STANDARD 			=> 'The :field field is ext1_anontest',
+						 ),
+						  $exceptionObj::ERR_NEGATIVE 		=> array(
+				            $exceptionObj::STANDARD 			=> 'The :field field is not ext1_anontest.',
+				        )
+					);
+				}
+			},
+			new class() extends Abstract_anonymous_rule
+			{
+				public function __invoke($value, $satisfier = NULL, $field = NULL)
+				{
+					return in_array($value, $satisfier);
+				}
+
+				public static function getAnonName() : string
+				{
+					return 'ext2_anontest';
+				}
+
+				public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj)
+				{
+					$exceptionObj::$defaultMessages 	= array(
+						 $exceptionObj::ERR_DEFAULT 			=> array(
+						 	$exceptionObj::STANDARD 			=> 'The :field field is ext2_anontest',
+						 ),
+						  $exceptionObj::ERR_NEGATIVE 		=> array(
+				            $exceptionObj::STANDARD 			=> 'The :field field is not ext2_anontest.',
+				        )
+					);
+
+					$exceptionObj::$localizeMessage 	= [
+						Lang::FIL => [
+							$exceptionObj::ERR_DEFAULT 			=> array(
+							 	$exceptionObj::STANDARD 			=> 'The :field field ay ext2_anontest',
+							 ),
+							  $exceptionObj::ERR_NEGATIVE 		=> array(
+					            $exceptionObj::STANDARD 			=> 'The :field field ay hindi ext2_anontest.',
+					        ),
+						]
+					];
+				}
+			}
+		];
+	}
+
+	/*
+		Adding custom filters
+	*/
+	public function getFilters()
+	{
+		return [
+			'custom_string_filter',
+		];
+	}
+
+	/*
+		filter method must always have _filter suffix
+	*/
+	public function custom_string_filter( $field, $value, $satisfier )
+	{
+		$value 	= filter_var( $value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES );
+
+		return $value;
+	}
+
+	/*
+		Adding custom middlewares
+	*/
+	public function getMiddleWares()
+	{
+		return [];
+	}
+
+	/*
+		Adding custom logics
+	*/
+	public function getLogics()
+	{
+		return [
+			'custom_logics_logic'
+		];
+	}
+
+	/*
+		logics method must alwasy have _logic suffix
+	*/
+	public function custom_logics_logic($value = null, ...$satisfier) : bool
+	{
+		return $value == $satisfier[0];
+	}
+}
+
+/*
+	1. Register the extension object.
+*/
+$extension 	= new Custom_extension;
+$v->registerExtension($extension);
+
+$v->custom_validation()->custom_validation2()->check('custom_extension', '');
+/*
+	Outputs error
+		All of the required rules must pass for "Custom extension".
+		  - The Custom extension field is not a a.
+		  - The Custom extension field is not a a 2.
+*/
+
+$v->ext1_anontest(3)->check('ext1_anontest', '1');
+/*
+	Outputs error
+		The Ext1 anontest field is ext1_anontest
+*/
+
+$v->ext2_anontest(3)->check('ext2_anontest', '1');
+/*
+	Outputs error
+		The Ext2 anontest field is ext2_anontest
+*/
+
+/*
+	using custom logic
+*/
+$v->Lgcustom_logics(5)->runLogics('1'); // false
+$v->Lgcustom_logics(5)->runLogics('5'); // true
+```
+	- **Note: custom rules registered using `$v->registerExtension()` won't work when using `$v->getValidator()->custom_validation()`. Might add support for custom rules using Anonymous class in `$v->getAnonClass()` to work when using `$v->getValidator()->ext1_anontest()` in the future.**

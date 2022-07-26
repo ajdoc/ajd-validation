@@ -399,9 +399,16 @@ class When extends AJD_validation
 		if( method_exists( $test['extensionObj'], $test['extensionName'] ) )
 		{
 			$args 		= array( $value );
-			$args 		= array_merge($args, $paramaters);
 
 			$args 		= array_merge( $args, $test['classArgs'] );
+			
+			if(!empty($paramaters))
+			{
+				foreach($paramaters as $paramKey => $paramValue)
+				{
+					$test['extensionObj']->$paramKey = $paramValue;
+				}
+			}
 
 			$result 	= call_user_func_array( array( $test['extensionObj'], $test['extensionName'] ), $args );
 			
