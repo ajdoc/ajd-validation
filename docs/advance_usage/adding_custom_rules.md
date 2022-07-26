@@ -149,7 +149,7 @@ class Invokable_custom_rule extends Abstract_invokable
                     $this->exception::STANDARD          => 'The :field field is not custom invokable.',
                 ],
                 /*
-                	If you want localiztion
+                	If you want localization
                 */
                 Lang::FIL => [
                     $this->exception::ERR_DEFAULT => [
