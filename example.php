@@ -962,10 +962,18 @@ try
 
 	var_dump($v->pre_filter_value());
 	
+	$v->setMiddleWare('test_middleware2', function( $ajd, $func, $args )
+	{
+		// echo 'middleware 2';
+		
+		return $func($ajd, $args);
+		
+	});
 	
 	// using middleware for conditional validation
 	$v->setMiddleWare('test_middleware', function( $ajd, $func, $args )
 	{
+		// echo 'middleware 1';
 		$ajd2 	= $ajd->getValidator();
 	
 		$ch  = $ajd2->required()->validate('a');
@@ -975,6 +983,12 @@ try
 			return $func($ajd, $args);
 		}
 	});
+
+	
+
+	$v->required()
+		->minlength(2)
+		->middleware('test_middleware2','asex2', '');
 
 	$v->required()
 		->minlength(2)
@@ -990,6 +1004,23 @@ try
 			echo 'middleware passed';
 		})*/
 		;
+
+	$v
+		->required()
+		->checkAllMiddleware('all_middleware', '')
+		->fails(function()
+		{
+			echo 'all middleware fails';
+		})
+		
+		->passed(function()
+		{
+			echo 'all middleware passed';
+		})
+		->otherwise(function($e)
+		{
+			echo $e->getMessage();
+		});
 
 	// using sometimes to run a rule if value is not empty
 	$v->required()

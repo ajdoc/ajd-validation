@@ -16,6 +16,7 @@ use AJD_validation\Helpers\Validation_helpers;
 use AJD_validation\Contracts\Invokable_rule_interface;
 use AJD_validation\Async\PromiseValidator;
 use AJD_validation\Async\PromiseHelpers;
+use AJD_validation\Async\FailedPromise;
 use AJD_validation\Helpers\Db_instance;
 use AJD_validation\Helpers\Logics_map;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
@@ -97,6 +98,7 @@ class AJD_validation extends Base_validator
 
 	protected static $cacheByFieldInstance 	= array();
 	protected static $middleware 			= array();
+	protected static $cacheMiddleware 		= [];
 	protected static $globalVar 			= array();
 	protected static $remove_scenario 		= array();
 	// protected static $exceptionObj 			= array();
@@ -259,7 +261,7 @@ class AJD_validation extends Base_validator
 		{
 			$current_name 	= key(static::$middleware);
 
-			return $this->middleware($current_name, $field, $value, $check_arr);
+			return $this->middleware($current_name, $field, $value, $check_arr, true);
 		}
 		else
 		{
@@ -267,7 +269,7 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	public function middleware( $name, $field, $value = NULL, $check_arr = TRUE )
+	public function middleware( $name, $field, $value = NULL, $check_arr = TRUE, $all = false )
 	{
 		$ajd 			= static::get_ajd_instance();
 		$args 			= array( $field, $value, $check_arr );
@@ -323,18 +325,36 @@ class AJD_validation extends Base_validator
 				}
 			}
 
-			$middleWareKeys 	= array_keys( static::$middleware );
-			$nextKey 			= next( $middleWareKeys );
+			$nextKey = false;
 
+			$allMiddlewares 	= static::$middleware;
+
+			$middleWareKeys 	= array_keys( static::$middleware );
+
+			if($all)
+			{
+				$nextKey 			= next( $middleWareKeys );
+			}
+			
 			if( !EMPTY( $nextKey ) )
 			{
 				if( ISSET( static::$middleware[ $nextKey ] ) )
 				{
-					$func 	= function( $q, $args ) use ( $name, $curr_field, $nextKey, $field, $value, $check_arr ) {
+					$keys = array_keys(static::$cacheMiddleware);
+							
+					if(empty($keys))
+					{
+						static::$cacheMiddleware = static::$middleware;
+					}
+
+					$func 	= function( $q, $args ) use ( $name, $curr_field, $nextKey, $field, $value, $check_arr, $all ) {
 
 						unset( static::$middleware[ $name ] );
+					
 
-						$q->invoke_func( array( $q, 'middleware' ), array( $nextKey, $field, $value, $check_arr ) );
+						$result = $q->invoke_func( array( $q, 'middleware' ), array( $nextKey, $field, $value, $check_arr, $all ) );
+
+						return static::handleFailedMiddleware($result);
 
 						// unset( static::$middleware[ $name ] );
 						
@@ -342,7 +362,9 @@ class AJD_validation extends Base_validator
 
 					$currentKeyValue 	= array_search($name, $middleWareKeys);
 
-					unset( $middleWareKeys[ $currentKeyValue ] ); 
+
+					unset( $middleWareKeys[ $currentKeyValue ] ); 	
+					
 				}
 			}
 			else
@@ -403,19 +425,94 @@ class AJD_validation extends Base_validator
 						unset( static::$middleware[ $name ]['prop_and'] );
 						unset( static::$middleware[ $name ]['prop_or'] );
 					}
+
+					$result = $q->invoke_func( array( $q, 'check' ), $args );
+						
+					return static::handleFailedMiddleware($result);
 					
-					return $q->invoke_func( array( $q, 'check' ), $args );
 				};
 			}
-			
-			return $ajd->invoke_func( static::$middleware[ $name ]['func'], array( $ajd, $func, $args ) );
+
+			$main = $ajd->invoke_func( static::$middleware[ $name ]['func'], array( $ajd, $func, $args ) );
+
+			if($all)
+			{
+				$middleKeys = array_keys(static::$cacheMiddleware);
+				$lastKey = end($middleKeys);
+				
+				if(strtolower($lastKey) == strtolower($nextKey))
+				{
+					static::$middleware = static::$cacheMiddleware;
+
+					static::$cacheMiddleware = [];
+				}
+				
+			}
+
+			return static::handleFailedMiddleware($main);
 
 		}
 		else 
 		{
+
 			$this->reset_all_validation_prop();
 		}
 
+	}
+
+	public static function handleFailedMiddleware($result)
+	{
+		if(!$result)
+		{
+			$ajd = static::get_ajd_instance();
+
+			$ajd->reset_all_validation_prop();
+
+			$obs           	 					= static::get_observable_instance();
+
+			return (static function() use ($result, $ajd, $obs)
+			{
+				
+
+				$promise = new PromiseValidator(function(callable $resolve, callable $reject, $target) use ($result, $ajd)
+				{
+					try 
+					{
+						
+						throw new \Exception("Middleware Failed.");
+					}
+				 	catch (\Throwable $exception) 
+	                {
+	                    $reject($exception);
+	                } 
+					finally 
+	                {
+	                	return $target;
+	                }
+
+				},
+				function () use (&$mainFiber) 
+				{
+	        		// FiberMap::cancel($fiber);
+	        		if (\method_exists($target, 'cancel')) 
+					{
+	                	$target->cancel();
+	                }
+	            	
+	            	
+        		});
+
+        		$obs->attach_observer( 'fails', $promise, array( $ajd ) );
+        		$obs->notify_observer( 'fails' );
+
+				return $promise;
+
+			})($result, $ajd, $obs);
+		}
+		else
+		{
+			return $result;
+		}
 	}
 
 	public static function registerAnonClass( $anons )
@@ -1364,7 +1461,7 @@ class AJD_validation extends Base_validator
 					{						
 						$or->then(function()
 						{
-							throw new Exception('Promise Failed');
+							throw new Exception('Validation Failed.');
 							
 						});
 						
@@ -2272,7 +2369,7 @@ class AJD_validation extends Base_validator
 				$target->setHasErrors($errorMessages);
 			}
 
-			throw new \Exception("Promise Failed");
+			throw new \Exception("Validation Failed.");
 		}
 	}
 

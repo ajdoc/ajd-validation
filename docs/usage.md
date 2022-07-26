@@ -265,6 +265,26 @@ $v->useContraintStorage('group1')->digit()->check('field3', '');
 - We store rule definition `required`, `minlength`, `maxlength` in storage `group1` and we could reuse the rule definition by using `$v->useContraintStorage('group1')`
 - We could define another rule definition not in the storage for a specific field like in 'field3'.
 
+## The Validator Object
+- To get the validator object use:
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v->getValidator();
+
+$v->getValidator()->required()->validate(''); // returns false
+$v->getValidator()->required()->assertErr(''); // throws an Exception
+```
+- When using the Validator Object it exposes 
+	* `->validate(mixed $value)` method which returns true/false if the rule or rules passes or not
+	* `->assertErr(mixed $value)` method which will throw an Exception if the rule or rules validation fails
+	* This object works similarly with [respect/validation](https://github.com/Respect/Validation)
+	* This is useful for other rules and when using inside `->sometimes()` method
+		- [Rules](rules/)
+		- `->sometimes()` - [Scenarios](advance_usage/scenarios.md)
+
 See also:
 
 - [Advance Usage](advance_usage/)
