@@ -141,7 +141,7 @@ $v->Ffilter_sanitize([FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES], fal
 $pre_filter = $v->pre_filter_value();
 /*
 	returns array;
-	array(5) {
+	array(1) {
 	  ["test_digit"]=>
 	  string(0) ""
 	  
@@ -151,7 +151,7 @@ $filtered_values = $v->filter_value();
 
 /*
 	returns array;
-	array(6) {
+	array(1) {
 	  
 	  ["test_string"]=>
 	  string(0) ""

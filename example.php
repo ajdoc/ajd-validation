@@ -899,6 +899,8 @@ try
 		->maxlength(2)
 		->check('username3', 'aause3');
 
+	$v->Finterval(null, true)->check('filter_interval_field', '201');
+
 	// if you want to run the filter before validating
 	$v->Ftest(NULL, TRUE)
 		->required()
