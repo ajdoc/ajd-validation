@@ -17,13 +17,13 @@ abstract class Abstract_filter_sanitize extends Abstract_filter_callback
 
 	public function __construct()
     {
-    	 $args       = func_get_args();
+        $args       = func_get_args();
         
         if( !EMPTY( $args ) )
         {
             $this->arguments    = $args;
         }
-
+        
         if( !ISSET( $this->arguments[0] ) ) 
         {
             throw new Exception('Cannot sanitize without filter flag');

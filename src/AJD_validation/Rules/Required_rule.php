@@ -7,7 +7,7 @@ class Required_rule extends Abstract_rule
 	public function run( $value, $satisfier = NULL, $field = NULL )
 	{   
 		$check 		= FALSE;
-
+        
 		if( is_numeric( $value ) ) 
 		{
             $check 	= $value != 0;

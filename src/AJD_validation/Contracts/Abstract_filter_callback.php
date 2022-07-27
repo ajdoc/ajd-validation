@@ -22,7 +22,7 @@ abstract class Abstract_filter_callback extends Abstract_filter
     {
     	$args 				= $this->arguments;
     	array_unshift($args, $value);
-    	
+        
     	$filtValue 			= call_user_func_array($this->callback, $args);
     	
     	return $filtValue;

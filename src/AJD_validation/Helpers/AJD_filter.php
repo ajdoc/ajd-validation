@@ -13,6 +13,7 @@ class AJD_filter extends Base_validator
 	protected static $filter 			= array();
 	protected static $value;
 	protected static $field;
+	protected static $append;
 	protected static $satisfier			= array();
 	protected static $pre_filter 		= array();
 	protected static $extension_filter 	= array();
@@ -48,7 +49,7 @@ class AJD_filter extends Base_validator
 		return $this;
 	}
 
-	public function set_filter( $filter, $value, $field, $satisfier, $pre_filter, array $extension_filter = array() )
+	public function set_filter( $filter, $value, $field, $satisfier, $pre_filter, array $extension_filter = array(), $append = false )
 	{
 		static::$extension_filter 	= $extension_filter;
 		static::$filter 	= $filter;
@@ -58,20 +59,24 @@ class AJD_filter extends Base_validator
 		$field 				= strtolower( $field_arr[ 'clean' ] );
 		$orig_field 		= $field_arr[ 'orig' ];
 
-		static::$field 		= $field;
+		static::$field 		= $orig_field;
 		static::$satisfier 	= $satisfier;
 		static::$pre_filter = $pre_filter;
+		static::$append = $append;
 	}
 
 	public function filter( $check_arr = TRUE, $val_only = FALSE )
 	{
 		$filter_arr 	= static::$filter;
 		$real_val 		= NULL;
-		
+
+		$v 			= static::$value;
+
 		if( !EMPTY( static::$value ) ) 
 		{
 			foreach( $filter_arr as $fil_key => $fil_value ) 
 			{
+
 				$filter 	= $fil_value.'_'.static::$filter_suffix;
 
 				$field 		= static::$field;
@@ -95,20 +100,38 @@ class AJD_filter extends Base_validator
 
 				}
 
+				if(static::$append)
+				{
+					if($fil_key == 0)
+					{
+						$v 		= $value;
+					}
+				}
+				else
+				{
+					$v = $value;
+				}
+				
+				
 				$satis 		= static::$satisfier[ $fil_key ];
 
-				if( is_array( $value ) AND $check_arr ) 
+				if( is_array( $v ) AND $check_arr ) 
 				{
-					$value 	= $this->flattened_array( $value );
+					$v 	= $this->flattened_array( $v );
 
-					foreach ( $value as $k_val => $v_val ) 
+					foreach ( $v as $k_val => $v_val ) 
 					{
 						$real_val = $this->_process_filter( $fil_value, $filter, $v_val, $satis, $field, $pre_fil, TRUE, $k_val, $val_only );	
+
+						$v_val = $real_val;
 					}
 				} 
 				else 
 				{
-					$real_val 		= $this->_process_filter( $fil_value, $filter, $value, $satis, $field, $pre_fil, FALSE, NULL, $val_only );
+					$real_val 		= $this->_process_filter( $fil_value, $filter, $v, $satis, $field, $pre_fil, FALSE, NULL, $val_only );
+					
+					$v = $real_val;
+
 				}
 
 				// call_user_func_array( array( $this, $filter ) , array( $value, $satis, $field ) );
@@ -238,9 +261,10 @@ class AJD_filter extends Base_validator
 		static::$cache_instance[ $filter ] 	= $filter_obj;
 		
 		$new_value 				= $filter_obj->filter( $value, $satisfier, $field );
+		
 
 		$real_val 				= $this->_process_filter_values( $field, $new_value, $check_arr, $pre_filter, $counter, $val_only );		
-
+		
 		if( $val_only )
 		{
 			return $real_val;
@@ -296,30 +320,105 @@ class AJD_filter extends Base_validator
 
 	private function _process_filter_values( $field, $val, $check_arr, $pre_filter, $counter, $val_only = FALSE )
 	{
+
 		if( $pre_filter ) 
 		{
-			if( $check_arr ) 
+			if( $check_arr && !is_null($counter) ) 
 			{
-				static::$pre_filter_value[ $field ][ $counter ] 	= $val;
+				if(!isset(static::$pre_filter_value[ $field ]))
+				{
+					static::$pre_filter_value[ $field ] = [];
+				}
+				else
+				{
+					if(!is_array(static::$pre_filter_value[ $field ]))
+					{
+						$pre_filt = static::$pre_filter_value[ $field ];
+
+						static::$pre_filter_value[ $field ] = [];
+
+						static::$pre_filter_value[ $field ][ $counter ] = $pre_filt;
+					}
+				}
+
+				static::$pre_filter_value[ $field ][ $counter ] 	= $val;	
 			} 
 			else 
 			{
-				static::$pre_filter_value[ $field ] 				= $val;	
+				if(isset(static::$pre_filter_value[ $field ]))
+				{
+					if(is_array(static::$pre_filter_value[ $field ]))
+					{
+
+					}
+					else
+					{
+						static::$pre_filter_value[ $field ] 				= $val;	
+					}
+				}
+				else
+				{
+					static::$pre_filter_value[ $field ] 				= $val;		
+				}
 			}
 
 		} 
 		else 
 		{
-			if( $check_arr ) 
+			if( $check_arr && !is_null($counter) ) 
 			{
-				if(isset(static::$filter_value[ $field ][ $counter ]))
+				if(!isset(static::$filter_value[ $field ]))
 				{
-					static::$filter_value[ $field ][ $counter ] 		= $val;
+					static::$filter_value[ $field ] = [];
 				}
+				else
+				{
+					if(!is_array(static::$filter_value[ $field ]))
+					{
+						$filt = static::$filter_value[ $field ];
+
+						static::$filter_value[ $field ] = [];
+
+						static::$filter_value[ $field ][ $counter ] = $filt;
+					}
+					
+				}
+				
+				static::$filter_value[ $field ][ $counter ] 	= $val;	
+
+				/*if(isset(static::$filter_value[ $field ]))
+				{
+					if(!is_array(static::$filter_value[ $field ]))
+					{
+						static::$filter_value[ $field ] = [
+							$counter => $val
+						];
+					}
+					else
+					{
+						static::$filter_value[ $field ][$counter] 		= $val;
+					}
+				}
+				*/
 			} 
 			else 
 			{
-				static::$filter_value[ $field ] 					= $val;
+				if(isset(static::$filter_value[ $field ]))
+				{
+					if(is_array(static::$filter_value[ $field ]))
+					{
+
+					}
+					else
+					{
+						static::$filter_value[ $field ] 				= $val;	
+					}
+				}
+				else
+				{
+					static::$filter_value[ $field ] 				= $val;		
+				}
+				// static::$filter_value[ $field ] 					= $val;
 			}
 		}
 
@@ -352,6 +451,10 @@ class AJD_filter extends Base_validator
 			if( ISSET( $arr[ $key ] ) ) 
 			{
 				$filt_value = $arr[ $key ];
+			}
+			else
+			{
+				$filt_value = NULL;
 			}
 		}
 

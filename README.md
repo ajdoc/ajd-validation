@@ -29,6 +29,7 @@ Aj Doc (thedoctorisin17@gmail.com)
 
 ## Documentation
 * [Usage](docs/usage.md)
+* [Filters](docs/filters.md)
 
 * See also:
 	- [Advance Usage](docs/advance_usage/)

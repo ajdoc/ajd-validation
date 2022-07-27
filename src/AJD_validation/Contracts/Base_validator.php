@@ -42,9 +42,16 @@ abstract class Base_validator extends Abstract_common
 		}
 	}
 
-	protected static function get_filter_ins()
+	protected static function get_filter_ins($singleton = true)
 	{
-		return Vefja::singleton('AJD_validation\Helpers\AJD_filter');
+		if($singleton)
+		{
+			return Vefja::singleton('AJD_validation\Helpers\AJD_filter');	
+		}
+		else
+		{
+			return Vefja::instance('AJD_validation\Helpers\AJD_filter');		
+		}
 	}
 
 	protected static function getMetadata()

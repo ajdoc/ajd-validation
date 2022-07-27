@@ -840,26 +840,70 @@ try
 		var_dump('distinct');
 	var_dump($v->getValidator()->distinct()->validate([1,'2']));
 
-	$v->Ftest_custom()
+	$toFiler = [
+		'field1' => '1aas',
+		'field2' => '1'
+	];
+
+	$filteredValues = $v
+		->Ffilter_sanitize([FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES])
+		->Fextract_length()
+		->Fadd_aes_decrypt('test')
+		
+		
+			->cacheFilter('field1')
+		->Ffilter_sanitize(FILTER_SANITIZE_NUMBER_INT)
+		
+			->cacheFilter('field2')
+		->filterAllValues($toFiler);
+
+	var_dump($filteredValues);
+
+	$filteredSingle = $v 
+							->Ffilter_sanitize([FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES])
+							->Fwhite_space_option()
+							->Fadd_aes_decrypt('test')
+						->cacheFilter('fieldsingle')
+						->filterValue('as   ');
+
+	var_dump($filteredSingle);
+
+	$v->required()
+		->maxlength(5)
+		->check('field1', $filteredValues);
+
+	$v
+		->Fadd_aes_decrypt('test', true)
+		->Fextract_length(null, true)
+		
 		->required()
-		->alpha()
-		->test_custom()
-		->check('aa|Al', '');
+		->digit()
+		->check('aa|Al', 'a');
 
 	// using filters 
 	// there must be a prefix (F) on the filter name
 	// this will apply the define the filter after it runs the validation
 
+	$v->Ffilter_sanitize(FILTER_SANITIZE_NUMBER_INT, true)
+		->required()
+		->digit()
+		->check('test_digit', 'aa');
+
+	$v->Ffilter_sanitize([FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES])
+		->required()
+		->alpha()
+		->check('test_string', '<<aa>>');
+
 	$v->Ftest()
 		->required()
 		->maxlength(2)
-		->check('username3', 'aa');
+		->check('username3', 'aause3');
 
 	// if you want to run the filter before validating
 	$v->Ftest(NULL, TRUE)
 		->required()
 		->maxlength(2)
-		->check('usernameaa2', '');
+		->check('usernameaa2', 's');
 
 	// this will override the default error message for the rule
 	$v->minlength('2', '@custom_error_Custom error message runtime')
@@ -951,7 +995,8 @@ try
 	// Or you can use this syntax
 
 	$v->storeConstraintTo('group1')
-			// ->Ftest( array(), true )
+			->Ftest( array(), true )
+			->Fadd_aes_decrypt('aa', true)
 			  ->required()
 			  ->maxlength(30)
 		->endstoreConstraintTo();
@@ -963,7 +1008,7 @@ try
 	->endstoreConstraintTo();
 
 
-	$v->useContraintStorage('group1')->check('storage1', '');
+	$v->useContraintStorage('group1')->check('storage1', ['storage1' => ['ss', 'bb']]);
 
 	$v->useContraintStorage('group2')->alpha()->check('storage2', '')
 	;
@@ -971,8 +1016,8 @@ try
 	$v->useContraintStorage('group1')->digit()->check('storage3', '')
 	;
 
-
 	var_dump($v->pre_filter_value());
+	var_dump($v->filter_value());
 	
 	$v->setMiddleWare('test_middleware2', function( $ajd, $func, $args )
 	{

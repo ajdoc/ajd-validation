@@ -1184,7 +1184,52 @@ class AJD_validation extends Base_validator
 		return static::get_ajd_instance();
 	}
 
-	public static function filterSingleValue( $value, $val_only = FALSE, $check_arr = TRUE, $clearCache = TRUE )
+	protected static function processFilters(array $filter_details, $field, $value, $check_arr, $val_only, $append = false)
+	{
+		$filter_value = null;
+
+		if( !EMPTY( $filter_details['filters'] ) )
+		{
+			$check 	= TRUE;
+
+			if( !EMPTY( $check_arr ) )
+			{
+				if( !is_array( $value ) )
+				{
+					$check 	= FALSE;
+				}
+			}
+			else
+			{
+				$check = false;
+			}
+			
+			$real_val 			= static::handle_filter( $filter_details['filters'], $value, $field, $filter_details['filter_satis'], $filter_details['pre_filters'], $check, $val_only, $append );
+
+			$pre_filt_value 	= static::pre_filter_value( $field );
+			$filt_value 		= static::filter_value( $field );
+
+			if( $val_only )
+			{
+				$new_value		= $real_val;
+			}
+			else
+			{
+				$new_value  	= ( ISSET( $pre_filt_value ) AND !EMPTY( $pre_filt_value ) ) ? $pre_filt_value : $filt_value;
+			}
+
+			/*if( EMPTY( $new_value ) )
+			{
+				$new_value 	= $value;
+			}*/
+
+			$filter_value	= $new_value;
+		}
+
+		return $filter_value;
+	}
+
+	public static function filterSingleValue( $value, $val_only = FALSE, $check_arr = TRUE, $clearCache = TRUE, $append = false )
 	{
 		$filter_value 	= $value;
 
@@ -1192,7 +1237,9 @@ class AJD_validation extends Base_validator
 		{
 			foreach( static::$ajd_prop['cache_filters'] as $field => $filter_details )
 			{
-				if( !EMPTY( $filter_details['filters'] ) )
+
+				$filter_value = static::processFilters($filter_details, $field, $value, $check_arr, $val_only, $append);
+				/*if( !EMPTY( $filter_details['filters'] ) )
 				{
 					$check 	= TRUE;
 
@@ -1222,13 +1269,13 @@ class AJD_validation extends Base_validator
 						$new_value  	= ( ISSET( $pre_filt_value ) AND !EMPTY( $pre_filt_value ) ) ? $pre_filt_value : $filt_value;
 					}
 
-					if( EMPTY( $new_value ) )
-					{
-						$new_value 	= $value;
-					}
+					// if( EMPTY( $new_value ) )
+					// {
+					// 	$new_value 	= $value;
+					// }
 
 					$filter_value	= $new_value;
-				}
+				}*/
 			}
 		}
 
@@ -1240,7 +1287,17 @@ class AJD_validation extends Base_validator
 		return $filter_value;
 	}
 
-	public static function filterValues( array $values, $check_arr = TRUE )
+	public static function filterValue($value, $append = true, $val_only = true, $check_arr = true, $clearCache = true)
+	{
+		return static::filterSingleValue($value, $val_only, $check_arr, $clearCache, $append);
+	}
+
+	public static function filterAllValues( array $value, $append = true, $check_arr = true)
+	{
+		return static::filterValues($value, $check_arr, $append);
+	}
+
+	public static function filterValues( array $values, $check_arr = TRUE, $append = false )
 	{
 		$filter_value 	= array();
 		$ajd_ins 		= static::get_ajd_instance();
@@ -1252,13 +1309,14 @@ class AJD_validation extends Base_validator
 				if( ISSET( $values[ $field ] ) )
 				{
 					$value 		= $values[ $field ];
-					
-					$new_value 	= $ajd_ins->filterSingleValue( $value, TRUE, $check_arr, FALSE );
 
-					if( EMPTY( $new_value ) )
+					$new_value = static::processFilters($filter_details, $field, $value, true, true, $append );
+					/*$new_value 	= $ajd_ins->filterSingleValue( $value, TRUE, $check_arr, FALSE );*/
+
+					/*if( EMPTY( $new_value ) )
 					{
 						$new_value 	= $value;
-					}
+					}*/
 
 					$filter_value[ $field ]	= $new_value;
 				}
@@ -2546,12 +2604,21 @@ class AJD_validation extends Base_validator
 		if( !EMPTY( $prop['filters'] ) )
 		{
 			$real_value_before_filter = $value;
+			
+			static::handle_filter( $prop['filters'], $real_value_before_filter, $field, $prop['filter_satis'], $prop['pre_filters'], $check_arr, true, true );
 
-			static::handle_filter( $prop['filters'], $real_value_before_filter, $field, $prop['filter_satis'], $prop['pre_filters'], $check_arr );
+			$filt_value 		= static::pre_filter_value($field_arr['orig']);
 
-			$filt_value 		= static::pre_filter_value( $field );
-
-			$value  			= ( ISSET( $filt_value ) AND !EMPTY( $filt_value ) ) ? $filt_value : $value;
+			if(in_array(1, $prop['pre_filters']))
+			{
+				$value  			= ( ISSET( $filt_value ) ) ? $filt_value : $value;
+			}
+			else
+			{
+				$value  			= ( ISSET( $filt_value ) AND !EMPTY( $filt_value ) ) ? $filt_value : $value;	
+			}
+			
+			
 		}
 
 		if( EMPTY( $origValue ) )
@@ -2745,6 +2812,7 @@ class AJD_validation extends Base_validator
 
 				if($sometime_and_result && $sometime_or_result)
 				{
+
 					$check_logic[ Abstract_common::LOG_AND ] 		=  $this->_process_and_or_check( $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, NULL, $origValue, $promise );
 				}
 			}
@@ -2893,7 +2961,7 @@ class AJD_validation extends Base_validator
 				}
 				else
 				{
-					$newVal 		= static::handle_filter( $filters, $val, $field, $filterSatis, $preFilters, $check_arr, TRUE );
+					$newVal 		= static::handle_filter( $filters, $val, $field, $filterSatis, $preFilters, $check_arr, TRUE, true );
 						
 					$newArr[$key] 	= $newVal;
 				}
@@ -2903,7 +2971,7 @@ class AJD_validation extends Base_validator
 		}
 		else
 		{
-			$newVal 				= static::handle_filter( $filters, $origValue, $field, $filterSatis, $preFilters, $check_arr, TRUE );
+			$newVal 				= static::handle_filter( $filters, $origValue, $field, $filterSatis, $preFilters, $check_arr, TRUE, true );
 
 			return $newVal;
 		}
@@ -3285,7 +3353,7 @@ class AJD_validation extends Base_validator
 	public static function pre_filter_value( $key = NULL )
 	{
 		$filter 	= static::get_filter_ins();
-
+		
 		return $filter->get_pre_filter_value( $key );
 	}
 
@@ -3454,7 +3522,7 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	protected static function handle_filter( $filter, $value, $field, $satisfier, $pre_filter, $check_arr, $val_only = FALSE )
+	protected static function handle_filter( $filter, $value, $field, $satisfier, $pre_filter, $check_arr, $val_only = FALSE, $append = false )
 	{
 		$filter_ins 						= static::get_filter_ins();
 		$ajd  								= static::get_ajd_instance();
@@ -3465,7 +3533,7 @@ class AJD_validation extends Base_validator
 		$satisfier 							= ( $ajd->isset_empty( $satisfier ) ) ? $satisfier : NULL;
 		$pre_filter 						= ( $ajd->isset_empty( $pre_filter ) ) ? $pre_filter : array();
 
-		$filter_ins->set_filter( $filter, $value, $field, $satisfier, $pre_filter, $extension_filter );
+		$filter_ins->set_filter( $filter, $value, $field, $satisfier, $pre_filter, $extension_filter, $append );
 
 		$real_val 	= $filter_ins->filter( $check_arr, $val_only );
 		
