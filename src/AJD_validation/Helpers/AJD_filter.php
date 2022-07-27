@@ -161,13 +161,13 @@ class AJD_filter extends Base_validator
 		{
 			foreach( static::$addFilterDirectory as $classPath )
 			{
-				$requiredFiles 	= get_required_files();
+				// $requiredFiles 	= get_required_files();
 
 				$pathHolder 	= $classPath.$class_filt.'.php';
 
-				$search 		= array_search($pathHolder, $requiredFiles);
-
-				if( file_exists( $pathHolder ) AND EMPTY( $search ) )
+				// $search 		= array_search($pathHolder, $requiredFiles);
+				 // AND EMPTY( $search )
+				if( file_exists( $pathHolder ) )
 				{
 					$filter_path 	= $pathHolder;
 				}	
