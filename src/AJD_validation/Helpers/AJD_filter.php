@@ -118,12 +118,17 @@ class AJD_filter extends Base_validator
 				if( is_array( $v ) AND $check_arr ) 
 				{
 					$v 	= $this->flattened_array( $v );
-
+					
+					$cnt = 0;
+					
 					foreach ( $v as $k_val => $v_val ) 
 					{
-						$real_val = $this->_process_filter( $fil_value, $filter, $v_val, $satis, $field, $pre_fil, TRUE, $k_val, $val_only );	
+						$rv 		= $this->_process_filter( $fil_value, $filter, $v_val, $satis, $field, $pre_fil, TRUE, $k_val, $val_only );
 
-						$v_val = $real_val;
+						$real_val[$k_val] = $rv;	
+
+						$v[$k_val] = $rv;
+
 					}
 				} 
 				else 

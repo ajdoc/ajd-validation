@@ -841,7 +841,7 @@ try
 	var_dump($v->getValidator()->distinct()->validate([1,'2']));
 
 	$toFiler = [
-		'field1' => '1aas',
+		'field1' => ['1aas', '2sd'],
 		'field2' => '1'
 	];
 
