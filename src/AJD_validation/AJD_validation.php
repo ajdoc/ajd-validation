@@ -454,8 +454,9 @@ class AJD_validation extends Base_validator
 		}
 		else 
 		{
+			return $this->check($field, $value, $check_arr);
 
-			$this->reset_all_validation_prop();
+			// $this->reset_all_validation_prop();
 		}
 
 	}
@@ -2168,10 +2169,34 @@ class AJD_validation extends Base_validator
 
 				if( is_array( $v ) )
 				{
-					$this->_checkArr($subField.'.*', $value, $check_arr, $logic, $group, $func);
+					if(!empty($v))
+					{
+						$this->_checkArr($subField.'.*', $value, $check_arr, $logic, $group, $func);
+					}
+					else
+					{
+						$checkDet 				= $this->check( $formatSubField, $v, false, $logic, $group, TRUE, $value, $func );
+
+						if( is_array( $checkDet ) )
+						{
+							$checkArr 			= array_merge( $checkArr, $checkDet );
+						}
+						else
+						{
+							$checkArr 			= $checkDet;
+						}
+
+						$checkValidations[] 	= $this->validation_fails( $subField );
+					}
+					
 				}
 				else
 				{
+					if(empty($v))
+					{
+						$check_arr = false;
+					}
+
 					$checkDet 				= $this->check( $formatSubField, $v, $check_arr, $logic, $group, TRUE, $value, $func );
 
 					if( is_array( $checkDet ) )

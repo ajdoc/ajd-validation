@@ -612,6 +612,19 @@ try
 	$dt = false;
 	var_dump($at and $bt xor $ct xor $dt);
 
+	/*$v 
+		->required()
+		->digit()
+		->checkArr('arr.arr1.sub_arr2', [
+			'arr' => [
+				'arr1' => [
+					'sub_arr' => 'a',
+					'sub_arr2' => ['', '']
+				],
+				'arr2' => []
+			]
+		]);*/
+
 	$v
 		->fiberize()
 		->enum(Sstatus::class)
@@ -929,12 +942,11 @@ try
 	{
 		$ajd
 			->required()
-			->minlength(2)
+			->minlength(4)
 			->maxlength(30);
 	});
 
-	$v->macro('test_macro')->check('macro', '')
-	;
+	$v->macro('test_macro')->check('macro', '');
 
 	// Or you can use this syntax
 

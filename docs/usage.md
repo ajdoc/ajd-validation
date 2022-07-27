@@ -239,6 +239,148 @@ All of the required rules must pass for "Middlename2".
   - "b" is the value for middlename2 to be accpted.
 ```
 
+## Set error messages language
+- To set the error messages Languae `$v->setLang(Lang::FIL);`
+```php
+use AJD_validation\AJD_validation;
+use AJD_validation\Constants\Lang;
+
+$v = new AJD_validation;
+
+$v->setLang(LANG::FIL);
+
+$v 
+	->required()
+	->check('field', '');
+
+/*
+	Outputs error 
+		The Field field ay kelangan
+*/
+
+```
+- Check src\AJD_validation\Constants\Lang.php on what language are currently supported 
+- **Note not yet all rules has localization, will gradually add localization support :))**
+
+## checkArr method
+- `->checkArr(string $field, array $value)` - method that allows array traversing validation by using dot notation
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v 
+->required()
+->digit()
+->checkArr('arr.*', [
+	'arr' => [
+		'arr1' => [
+			'sub_arr' => 'a',
+			'sub_arr2' => ['', '']
+		],
+		'arr2' => []
+	]
+]);
+
+/*
+	Outputs error
+		All of the required rules must pass for "Arr.arr1.sub arr".
+		  - Arr.arr1.sub arr must contain only digits (0-9).
+		All of the required rules must pass for "Arr.arr1.sub arr2.0".
+		  - The Arr.arr1.sub arr2.0 field is required
+		  - Arr.arr1.sub arr2.0 must contain only digits (0-9).
+		All of the required rules must pass for "Arr.arr1.sub arr2.1".
+		  - The Arr.arr1.sub arr2.1 field is required
+		  - Arr.arr1.sub arr2.1 must contain only digits (0-9).
+		All of the required rules must pass for "Arr.arr2".
+		  - The Arr.arr2 field is required
+		  - Arr.arr2 must contain only digits (0-9).
+*/
+
+$v 
+->required()
+->digit()
+->checkArr('arr.arr1', [
+	'arr' => [
+		'arr1' => [
+			'sub_arr' => 'a',
+			'sub_arr2' => ['', '']
+		],
+		'arr2' => []
+	]
+]);
+/*
+	Outputs error
+		All of the required rules must pass for "Arr.arr1.sub arr".
+		  - Arr.arr1.sub arr must contain only digits (0-9).
+		All of the required rules must pass for "Arr.arr1.sub arr2.0".
+		  - The Arr.arr1.sub arr2.0 field is required
+		  - Arr.arr1.sub arr2.0 must contain only digits (0-9).
+		All of the required rules must pass for "Arr.arr1.sub arr2.1".
+		  - The Arr.arr1.sub arr2.1 field is required
+		  - Arr.arr1.sub arr2.1 must contain only digits (0-9).
+*/
+
+$v 
+->required()
+->digit()
+->checkArr('arr.arr1.sub_arr', [
+	'arr' => [
+		'arr1' => [
+			'sub_arr' => 'a',
+			'sub_arr2' => ['', '']
+		],
+		'arr2' => []
+	]
+]);
+
+/*
+	Outputs error
+		All of the required rules must pass for "Arr.arr1.sub arr".
+  			- Arr.arr1.sub arr must contain only digits (0-9).
+*/
+
+$v 
+->required()
+->digit()
+->checkArr('arr.arr1.sub_arr2', [
+	'arr' => [
+		'arr1' => [
+			'sub_arr' => 'a',
+			'sub_arr2' => ['', '']
+		],
+		'arr2' => []
+	]
+]);
+/*
+	Outputs error
+		All of the required rules must pass for "Arr.arr1.sub arr2.0".
+		  - The Arr.arr1.sub arr2.0 field is required
+		  - Arr.arr1.sub arr2.0 must contain only digits (0-9).
+		All of the required rules must pass for "Arr.arr1.sub arr2.1".
+		  - The Arr.arr1.sub arr2.1 field is required
+		  - Arr.arr1.sub arr2.1 must contain only digits (0-9).
+*/
+
+$v 
+->required()
+->checkArr('arr.arr2', [
+	'arr' => [
+		'arr1' => [
+			'sub_arr' => '',
+			'sub_arr2' => ['', '']
+		],
+		'arr2' => []
+	]
+]);
+/*
+	Outputs error
+		All of the required rules must pass for "Arr.arr2".
+  			- The Arr.arr2 field is required
+*/
+
+```
+
 ## Reuse rule definition
 - Reuse or store rule defintions by:
 ```php
