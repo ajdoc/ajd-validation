@@ -42,5 +42,10 @@ $v->macro('test_macro')->digit()->alpha()->check('macro', '');
 
 ```
 
-## Difference of `$v->storeConstraintTo(string $group)->endstoreConstraintTo(); $v->useContraintStorage(string $string)->check($field, mixed $value)` to `$v->setMacro(string $uniqueMacroName, \Closure $func); $v->macro(string $uniqueMacroName)->check(string $field, mixed $value);`
+## Differences from store constraint and macro.
+
+- `$v->storeConstraintTo(string $group)->endstoreConstraintTo(); $v->useContraintStorage(string $string)->check($field, mixed $value)`
+
+- `$v->setMacro(string $uniqueMacroName, \Closure $func); $v->macro(string $uniqueMacroName)->check(string $field, mixed $value);`
+
 1. Main difference is setting macro uses a closure/callback setting Constraint storage does not, which opens unique possiblity to macros.
