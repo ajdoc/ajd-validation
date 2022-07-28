@@ -571,9 +571,9 @@ class Custom_extension extends Base_extension
 	/*
 		filter method must always have _filter suffix
 	*/
-	public function custom_string_filter( $field, $value, $satisfier )
+	public function custom_string_filter( $value, $satisfier, $field )
 	{
-		$value 	= filter_var( $value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES );
+		$value 	= filter_var( $value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES ).'_from_extension';
 
 		return $value;
 	}

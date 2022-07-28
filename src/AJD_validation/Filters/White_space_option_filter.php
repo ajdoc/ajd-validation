@@ -11,7 +11,7 @@ class White_space_option_filter extends Abstract_filter
 	 	if ( !EMPTY( $satisfier ) ) 
 	 	{
             $satisfier_arr = str_split( $satisfier );
-
+            
             $satisfier_imp = '';
 
             foreach( $satisfier_arr as $key => $sat )

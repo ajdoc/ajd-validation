@@ -83,6 +83,13 @@ class AJD_filter extends Base_validator
 
 				$pre_fil 	= ( $this->isset_empty( static::$pre_filter, $fil_key ) ) ? TRUE : FALSE;
 
+				$origValue = null;
+
+				if(( is_array(static::$value) || is_object(static::$value) ) && !$check_arr)
+				{
+					$origValue = static::$value;
+				}
+
 				if( $val_only )
 				{
 					$value 		= static::$value;
@@ -118,12 +125,12 @@ class AJD_filter extends Base_validator
 				if( is_array( $v ) AND $check_arr ) 
 				{
 					$v 	= $this->flattened_array( $v );
-					
+
 					$cnt = 0;
 					
 					foreach ( $v as $k_val => $v_val ) 
 					{
-						$rv 		= $this->_process_filter( $fil_value, $filter, $v_val, $satis, $field, $pre_fil, TRUE, $k_val, $val_only );
+						$rv 		= $this->_process_filter( $fil_value, $filter, $v_val, $satis, $field, $pre_fil, TRUE, $k_val, $val_only, $origValue );
 
 						$real_val[$k_val] = $rv;	
 
@@ -133,8 +140,9 @@ class AJD_filter extends Base_validator
 				} 
 				else 
 				{
-					$real_val 		= $this->_process_filter( $fil_value, $filter, $v, $satis, $field, $pre_fil, FALSE, NULL, $val_only );
-					
+
+					$real_val 		= $this->_process_filter( $fil_value, $filter, $v, $satis, $field, $pre_fil, FALSE, NULL, $val_only, $origValue );
+
 					$v = $real_val;
 
 				}
@@ -150,7 +158,7 @@ class AJD_filter extends Base_validator
 
 	}
 
-	private function _process_filter( $filter, $append_filter, $value, $satisfier, $field, $pre_filter, $check_arr, $counter = NULL, $val_only = FALSE )
+	private function _process_filter( $filter, $append_filter, $value, $satisfier, $field, $pre_filter, $check_arr, $counter = NULL, $val_only = FALSE, $origValue = null )
 	{
 
 		$class_filt 		= ucfirst( strtolower( $append_filter ) );	
@@ -191,19 +199,20 @@ class AJD_filter extends Base_validator
 		{
 			$extension_filter 	= static::$extension_filter[ $append_filter ];
 
-			$real_val			= $this->_process_extension( $extension_filter, $append_filter, $filter, $is_extension, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only );
+			$real_val			= $this->_process_extension( $extension_filter, $append_filter, $filter, $is_extension, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only, $origValue );
 		}
 		else if( $is_class ) 
 		{
-			$real_val 			= $this->_process_class( $class_filt, $filter, $filter_path, $is_class, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only );			
+
+			$real_val 			= $this->_process_class( $class_filt, $filter, $filter_path, $is_class, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only, $origValue );			
 		} 
 		else if( $is_function ) 
 		{
-			$real_val 			= $this->_process_function( $filter, $value, $satisfier, $field, $is_function, $pre_filter, $check_arr, $counter, $val_only );
+			$real_val 			= $this->_process_function( $filter, $value, $satisfier, $field, $is_function, $pre_filter, $check_arr, $counter, $val_only, $origValue );
 		} 
 		else if( $is_method ) 
 		{
-			$real_val 			= $this->_process_method( $append_filter, $filter, $field, $value, $satisfier, $is_method, $pre_filter, $check_arr, $counter, $val_only );
+			$real_val 			= $this->_process_method( $append_filter, $filter, $field, $value, $satisfier, $is_method, $pre_filter, $check_arr, $counter, $val_only, $origValue );
 		}
 
 		if( $val_only AND ISSET( $real_val ) )
@@ -213,7 +222,7 @@ class AJD_filter extends Base_validator
 
 	}
 
-	private function _process_extension( array $extension_filter, $append_filter, $filter, $is_extension, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only = FALSE )
+	private function _process_extension( array $extension_filter, $append_filter, $filter, $is_extension, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only = FALSE, $origValue = null )
 	{
 		if( ISSET( $extension_filter['extension_obj'] ) )
 		{
@@ -237,7 +246,7 @@ class AJD_filter extends Base_validator
 		}
 	}
 
-	private function _process_class( $filter, $filter_name, $filter_path, $is_class, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only = FALSE )
+	private function _process_class( $filter, $filter_name, $filter_path, $is_class, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only = FALSE, $origValue = null )
 	{
 
 		/*if( !ISSET( static::$cache_instance[ $filter ] ) ) 
@@ -267,7 +276,6 @@ class AJD_filter extends Base_validator
 		
 		$new_value 				= $filter_obj->filter( $value, $satisfier, $field );
 		
-
 		$real_val 				= $this->_process_filter_values( $field, $new_value, $check_arr, $pre_filter, $counter, $val_only );		
 		
 		if( $val_only )
@@ -285,7 +293,7 @@ class AJD_filter extends Base_validator
 		}
 	}
 
-	private function _process_function( $filter_name, $value, $satisfier, $field, $is_function, $pre_filter, $check_arr, $counter= NULL, $val_only = FALSE )
+	private function _process_function( $filter_name, $value, $satisfier, $field, $is_function, $pre_filter, $check_arr, $counter= NULL, $val_only = FALSE, $origValue = null )
 	{
 		$function_factory 		= static::get_factory_instance()->get_instance( FALSE, $is_function );
 
@@ -305,7 +313,7 @@ class AJD_filter extends Base_validator
 		}
 	}
 
-	private function _process_method( $append_filter, $filter, $field, $value, $satisfier, $is_method, $pre_filter, $check_arr, $counter, $val_only = FALSE )
+	private function _process_method( $append_filter, $filter, $field, $value, $satisfier, $is_method, $pre_filter, $check_arr, $counter, $val_only = FALSE, $origValue = null )
 	{
 		$filter_ins 			= static::get_filter_ins();
 

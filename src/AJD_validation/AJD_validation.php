@@ -2947,10 +2947,10 @@ class AJD_validation extends Base_validator
 
 	protected function processFilterOrigValue( $filters, $origValue, $field, $filterSatis, $preFilters, $check_arr )
 	{
-		if( is_array( $origValue ) )
+		if( is_array( $origValue ) && $check_arr )
 		{
 			$newArr 	= array();
-
+			
 			foreach( $origValue as $key => $val )
 			{
 				if( is_array( $val ) )
@@ -3524,6 +3524,7 @@ class AJD_validation extends Base_validator
 
 	protected static function handle_filter( $filter, $value, $field, $satisfier, $pre_filter, $check_arr, $val_only = FALSE, $append = false )
 	{
+
 		$filter_ins 						= static::get_filter_ins();
 		$ajd  								= static::get_ajd_instance();
 

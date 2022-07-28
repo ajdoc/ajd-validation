@@ -37,6 +37,10 @@ $v
 	->addRuleNamespace('AJD_validation\\');
 
 $v
+	->addFilterDirectory(__DIR__.DIRECTORY_SEPARATOR.'CustomFilters'.DIRECTORY_SEPARATOR)
+	->addFilterNamespace('CustomFilters\\');
+
+$v
 	->when(true)
 	->addLogicClassPath(__DIR__.DIRECTORY_SEPARATOR.'CustomLogics'.DIRECTORY_SEPARATOR)
 	->addLogicNamespace('CustomLogics\\')
@@ -162,6 +166,26 @@ class Custom_extension extends Base_extension
 		
 		return $value == $satisfier[0];
 	}
+
+	/*
+		Adding custom filters
+	*/
+	public function getFilters()
+	{
+		return [
+			'custom_string_filter',
+		];
+	}
+
+	/*
+		filter method must always have _filter suffix
+	*/
+	public function custom_string_filter( $value, $satisfier, $field )
+	{
+		$value 	= filter_var( $value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES ).'_from_extension';
+
+		return $value;
+	}
 }
 
 try
@@ -171,6 +195,10 @@ try
 	*/
 
 	// $v->setLang(LANG::FIL);
+
+	// Registering an extension
+	$extension 	= new Custom_extension;
+	$v->registerExtension($extension);
 
 	$v->registerAnonClass(
 
@@ -859,10 +887,12 @@ try
 
 	var_dump($filteredValues);
 
+
 	$filteredSingle = $v 
 							->Ffilter_sanitize([FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES])
 							->Fwhite_space_option()
 							->Fadd_aes_decrypt('test')
+
 						->cacheFilter('fieldsingle')
 						->filterValue('as   ');
 
@@ -884,7 +914,8 @@ try
 	// there must be a prefix (F) on the filter name
 	// this will apply the define the filter after it runs the validation
 
-	$v->Ffilter_sanitize(FILTER_SANITIZE_NUMBER_INT, true)
+	$v
+	->Ffilter_sanitize(FILTER_SANITIZE_NUMBER_INT, true)
 		->required()
 		->digit()
 		->check('test_digit', 'aa');
@@ -899,7 +930,9 @@ try
 		->maxlength(2)
 		->check('username3', 'aause3');
 
-	$v->Finterval(null, true)->check('filter_interval_field', '201');
+	/*$v->Furl(null, true)->check('field', 'https://www.examp��le.co�m');
+	$v->Furl()->check('field', 'https://www.example.com');*/
+	
 
 	// if you want to run the filter before validating
 	$v->Ftest(NULL, TRUE)
@@ -970,9 +1003,7 @@ try
 	$v->custom_class()->check('custom_class', '');
 
 
-	// Registering an extension
-	$extension 	= new Custom_extension;
-	$v->registerExtension($extension);
+	
 	$v->custom_validation()->custom_validation2()->check('custom_extension', '');
 
 	// $v->Lgcustom_logics(5)->runLogics('5');

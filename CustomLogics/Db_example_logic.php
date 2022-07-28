@@ -30,7 +30,7 @@ class Db_example_logic extends Abstract_logic
 				$db = $this->db;
 			}
 		}
-
+		
 		if(!empty($db))
 		{
 			$query = "

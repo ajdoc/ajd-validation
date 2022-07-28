@@ -3,6 +3,7 @@
 use AJD_validation\Contracts\Logic_interface;
 use AJD_validation\AJD_validation;
 use AJD_validation\Helpers\Db_instance;
+use AJD_validation\Helpers\Database;
 
 abstract class Abstract_logic implements Logic_interface
 {
@@ -36,12 +37,13 @@ abstract class Abstract_logic implements Logic_interface
    	public function checkDbInstance($db, $obj = null)
    	{
    		$objCheck = Db_instance::class;
+   		$objCheckDbHelper = Database::class;
 
    		if(!empty($obj))
    		{
    			$objCheck = $obj::class;
    		}
 
-   		return $db instanceof $objCheck;
+   		return ( $db instanceof $objCheck || $db instanceof $objCheckDbHelper );
    	}
 }

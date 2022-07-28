@@ -10,5 +10,5 @@ interface Logic_interface
 
 	public function __isset($name);
 
-	public function checkDbInstance($db);
+	public function checkDbInstance($db, $obj = null);
 }

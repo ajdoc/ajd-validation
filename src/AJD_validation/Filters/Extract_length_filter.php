@@ -5,6 +5,7 @@ class Extract_length_filter extends Abstract_filter
 {
 	public function filter( $value, $satisfier = NULL, $field = NULL )
 	{
+		
 		if( is_string( $value ) )
 		{
 			return mb_strlen( $value, mb_detect_encoding( $value ) );
@@ -12,6 +13,7 @@ class Extract_length_filter extends Abstract_filter
 
 		if( is_array( $value ) || $value instanceof \Countable )
 		{
+
 			return count( $value );
 		}
 

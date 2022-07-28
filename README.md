@@ -29,11 +29,12 @@ Aj Doc (thedoctorisin17@gmail.com)
 
 ## Documentation
 * [Usage](docs/usage.md)
-* [Filters](docs/filters.md)
+* [Filter Usage](docs/filters.md)
 
 * See also:
 	- [Advance Usage](docs/advance_usage/)
 	- [Rules](docs/rules/)
+	- [Filters](docs/filters/)
 
 ## Acknowledgments
 

@@ -429,6 +429,7 @@ $v->getValidator()->required()->assertErr(''); // throws an Exception
 
 See also:
 
+- [Filter Usage](docs/filters.md)
 - [Advance Usage](advance_usage/)
 - [Rules](rules/)
 - [Alternative Usage](alternative_usage.md)
