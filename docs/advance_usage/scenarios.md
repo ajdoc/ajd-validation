@@ -260,5 +260,4 @@ See also:
 - [Async](async.md)
 - [Alternative Usage](../alternative_usage.md)
 - [Usage](../usage.md)
-- [Scenarios](scenarios.md)
 - [Event and Promise](events_promises.md)
