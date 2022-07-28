@@ -91,12 +91,12 @@ $filteredValues = $v
 
 $v 
 	->required()
-	->check('field1', $filterValues);
+	->check('field1', $filteredValues);
 
 $v 
 	->required()
 	->digit()
-	->check('field2', $filterValues);
+	->check('field2', $filteredValues);
 ```
 
 ## Filter and validate at the same time 
