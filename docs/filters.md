@@ -32,7 +32,7 @@ $filteredValues = $v
 		->Ffilter_sanitize(FILTER_SANITIZE_NUMBER_INT)
 		
 			->cacheFilter('field2')
-		->filterValues($toFiler);
+		->filterAllValues($toFiler);
 
 /*
 	This will print 
@@ -53,7 +53,7 @@ $filteredSingle = $v
 	->Fwhite_space_option()
 	->Fadd_aes_decrypt('test')
 		->cacheFilter('fieldsingle')
-	->filterAllValues('as   ');
+	->filterValue('as   ');
 
 /*
 	This will print 
@@ -87,7 +87,7 @@ $filteredValues = $v
 		->Ffilter_sanitize(FILTER_SANITIZE_NUMBER_INT)
 		
 			->cacheFilter('field2')
-		->filterValues($toFiler);
+		->filterAllValues($toFiler);
 
 $v 
 	->required()
@@ -213,7 +213,7 @@ $filteredValues = $v
 		->Ffilter_sanitize(FILTER_SANITIZE_NUMBER_INT)
 		
 			->cacheFilter('field2')
-		->filterValues($toFiler);
+		->filterAllValues($toFiler);
 
 /*
 	prints 
