@@ -61,7 +61,7 @@ $filteredSingle = $v
 */
 
 ```
-- It is recommended that you filter that data to be validated first then define the field-rule validation like in the example below
+- It is recommended that you filter the data to be validated first then define the field-rule validation like in the example below
 
 ```php
 use AJD_validation\AJD_validation;
