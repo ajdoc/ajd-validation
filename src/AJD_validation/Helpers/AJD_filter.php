@@ -235,7 +235,12 @@ class AJD_filter extends Base_validator
 
 			$method 				= $method_factory->rules( $extension_class_name, $append_filter );
 
-			$new_value				= $method_factory->process_method( array( $value, $satisfier, $field ), $extension_obj, TRUE );
+			$new_value = null;
+
+			if(!empty($value))
+			{
+				$new_value				= $method_factory->process_method( array( $value, $satisfier, $field ), $extension_obj, TRUE );
+			}
 
 			$real_val 				= $this->_process_filter_values( $field, $new_value, $check_arr, $pre_filter, $counter, $val_only );
 
@@ -273,8 +278,13 @@ class AJD_filter extends Base_validator
 		}*/
 
 		static::$cache_instance[ $filter ] 	= $filter_obj;
-		
-		$new_value 				= $filter_obj->filter( $value, $satisfier, $field );
+
+		$new_value = null;
+
+		if(!empty($value))
+		{
+			$new_value 				= $filter_obj->filter( $value, $satisfier, $field );
+		}
 		
 		$real_val 				= $this->_process_filter_values( $field, $new_value, $check_arr, $pre_filter, $counter, $val_only );		
 		
@@ -301,7 +311,12 @@ class AJD_filter extends Base_validator
 		{
 			$func 				= $function_factory->rules( $filter_name );
 
-			$new_value 			= $function_factory->process_function( $field, $value, $satisfier );
+			$new_value = null;
+
+			if(!empty($value))
+			{
+				$new_value 			= $function_factory->process_function( $field, $value, $satisfier );
+			}
 
 			$real_val 			= $this->_process_filter_values( $field, $new_value, $check_arr, $pre_filter, $counter, $val_only );
 
@@ -321,7 +336,12 @@ class AJD_filter extends Base_validator
 
 		$method 				= $method_factory->rules( __CLASS__, $append_filter );
 
-		$new_value				= $method_factory->process_method( array( $value, $satisfier, $field ), $filter_ins, TRUE );
+		$new_value = null;
+
+		if(!empty($value))
+		{
+			$new_value				= $method_factory->process_method( array( $value, $satisfier, $field ), $filter_ins, TRUE );
+		}
 
 		$real_val 				= $this->_process_filter_values( $field, $new_value, $check_arr, $pre_filter, $counter, $val_only );
 

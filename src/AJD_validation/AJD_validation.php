@@ -73,6 +73,7 @@ class AJD_validation extends Base_validator
 			'result' 						=> array(),
 			'given_values' 					=> array(),
 			'cache_filters' 				=> array(),
+			'cache_stored_filters' 			=> [],
 			'and_or_stack' 					=> array(),
 			'class_override' 				=> array(),
 			'anonymous_class_override' 		=> [],
@@ -1154,9 +1155,39 @@ class AJD_validation extends Base_validator
 		{
 			if( !EMPTY( static::$constraintStorageName ) )
 			{
+				$constraintStorageName = static::$constraintStorageName;
 				$filters 		= static::$ajd_prop[static::$constraintStorageName][ $logic ]['filters'];
 				$filter_satis 	= static::$ajd_prop[static::$constraintStorageName][ $logic ]['filter_satis'];
 				$pre_filters 	= static::$ajd_prop[static::$constraintStorageName][ $logic ]['pre_filters'];
+
+				if($field == $constraintStorageName)
+				{
+
+					$filters_stored = $filters;
+					$filter_satis_stored = $filter_satis;
+					$pre_filters_stored = $pre_filters;
+
+					if(empty($filters))
+					{
+						$filters_stored = static::$ajd_prop['cache_stored_filters'][$constraintStorageName]['filters'];
+					}
+
+					if(empty($filter_satis))
+					{
+						$filter_satis_stored = static::$ajd_prop['cache_stored_filters'][$constraintStorageName]['filter_satis'];
+					}
+
+					if(empty($pre_filters))
+					{
+						$pre_filters_stored = static::$ajd_prop['cache_stored_filters'][$constraintStorageName]['pre_filters'];
+					}
+
+					static::$ajd_prop['cache_stored_filters'][ $constraintStorageName ] 	= array(
+						'filters' 			=> $filters_stored,
+						'filter_satis'		=> $filter_satis_stored,
+						'pre_filters' 		=> $pre_filters_stored
+					);
+				}
 
 				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filters'] 			= array();
 				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filter_satis'] 	= array();
@@ -2530,7 +2561,6 @@ class AJD_validation extends Base_validator
 			
 		}
 		
-			
 		// if( $logic == Abstract_common::LOG_AND )
 		// {
 			$prop_and 	= static::process_check_args( Abstract_common::LOG_AND, $group );
@@ -2962,8 +2992,6 @@ class AJD_validation extends Base_validator
 				else
 				{
 					$newVal 		= static::handle_filter( $filters, $val, $field, $filterSatis, $preFilters, $check_arr, TRUE, true );
-						
-					$newArr[$key] 	= $newVal;
 				}
 			}
 
@@ -3634,6 +3662,17 @@ class AJD_validation extends Base_validator
 					if( ISSET( static::$ajd_prop[static::$useContraintGroup][ $logic ][ $prop ] ) )
 					{
 						$ret_args[ $prop ]	= static::$ajd_prop[static::$useContraintGroup][ $logic ][ $prop ];
+					}
+
+					if(isset(static::$ajd_prop['cache_stored_filters'][static::$useContraintGroup]))
+					{
+						if(isset(static::$ajd_prop['cache_stored_filters'][static::$useContraintGroup][$prop]))
+						{
+							$storedVal = static::$ajd_prop['cache_stored_filters'][static::$useContraintGroup][$prop];
+
+
+							$ret_args[ $prop ] = $storedVal;
+						}
 					}
 				}
 				else

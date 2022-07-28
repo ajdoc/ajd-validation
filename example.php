@@ -907,6 +907,7 @@ try
 		->Fextract_length(null, true)
 		
 		->required()
+		->maxlength(5)
 		->digit()
 		->check('aa|Al', 'a');
 
@@ -1030,7 +1031,10 @@ try
 	$v->storeConstraintTo('group1')
 			->Ftest( array(), true )
 			->Fadd_aes_decrypt('aa', true)
+
+				->cacheFilter('group1')
 			  ->required()
+			  
 			  ->maxlength(30)
 		->endstoreConstraintTo();
 
@@ -1038,10 +1042,11 @@ try
 		// ->Ftest( array(), true )
 		  ->required()
 		  ->minlength(2)
+		  
 	->endstoreConstraintTo();
 
 
-	$v->useContraintStorage('group1')->check('storage1', ['storage1' => ['ss', 'bb']]);
+	$v->useContraintStorage('group1')->check('storage1', ['storage1' => ['s', 'exx']]);
 
 	$v->useContraintStorage('group2')->alpha()->check('storage2', '')
 	;
