@@ -136,6 +136,8 @@ $v->Ffilter_sanitize([FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES], fal
 
 /*
 	To get the pre_filter values and filtered_values after validation
+		- pre_filter values means filtered values before validation.
+		- filter_value means filtered values after validation.
 */
 
 $pre_filter = $v->pre_filter_value();
