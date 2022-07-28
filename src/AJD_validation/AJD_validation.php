@@ -795,6 +795,11 @@ class AJD_validation extends Base_validator
 		return $ajd_ins;
 	}
 
+	public static function useConstraintStorage( $constraintGroup, $clientField = NULL  )
+	{
+		return static::useContraintStorage($constraintGroup, $clientField);
+	}
+
 	public static function storeConstraintTo( $constraintGroup )
 	{
 		static::$constraintStorageName 	= $constraintGroup;

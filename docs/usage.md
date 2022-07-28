@@ -399,10 +399,10 @@ $v->storeConstraintTo('group2')
   	->minlength(2)
 ->endstoreConstraintTo();
 
-$v->useContraintStorage('group1')->check('field1', 'e');
-$v->useContraintStorage('group2')->check('field2', '');
+$v->useConstraintStorage('group1')->check('field1', 'e');
+$v->useConstraintStorage('group2')->check('field2', '');
 
-$v->useContraintStorage('group1')->digit()->check('field3', '');
+$v->useConstraintStorage('group1')->digit()->check('field3', '');
 ```
 - We store rule definition `required`, `minlength`, `maxlength` in storage `group1` and we could reuse the rule definition by using `$v->useContraintStorage('group1')`
 - We could define another rule definition not in the storage for a specific field like in 'field3'.

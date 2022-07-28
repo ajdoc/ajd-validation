@@ -1046,12 +1046,12 @@ try
 	->endstoreConstraintTo();
 
 
-	$v->useContraintStorage('group1')->check('storage1', ['storage1' => ['s', 'exx']]);
+	$v->useConstraintStorage('group1')->check('storage1', ['storage1' => ['s', 'exx']]);
 
-	$v->useContraintStorage('group2')->alpha()->check('storage2', '')
+	$v->useConstraintStorage('group2')->alpha()->check('storage2', '')
 	;
 
-	$v->useContraintStorage('group1')->digit()->check('storage3', '')
+	$v->useConstraintStorage('group1')->digit()->check('storage3', '')
 	;
 
 	var_dump($v->pre_filter_value());
