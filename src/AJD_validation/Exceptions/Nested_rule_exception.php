@@ -209,7 +209,7 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
     /**
      * @return string
      */
-    public function getFullMessage($callable = NULL)
+    public function getFullMessage($callable = NULL, $exceptionPass = null, $clean_field = null, ...$args)
     {
         $marker     = '-';
         $messages   = array();
@@ -230,7 +230,18 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
 
         if( !EMPTY( $callable ) AND is_callable( $callable ) )
         {
-            return call_user_func_array($callable, array($messages));
+            $pass_args = [
+                $messages,
+                $exceptionPass,
+                $clean_field
+            ];
+
+            if(!empty($args))
+            {
+                $pass_args = array_merge($pass_args, $args);
+            }
+            
+            return call_user_func_array($callable, $pass_args);
         }
         else
         {

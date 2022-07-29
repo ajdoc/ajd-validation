@@ -105,4 +105,31 @@ abstract class Abstract_all extends Abstract_rule
 
         return $exceptions;
     }
+
+
+    protected function assertSequenceRules($value, $clean_field = null, $override = FALSE)
+    {
+        $validators     = $this->getRules();
+        $exceptions     = array();
+        
+        foreach( $validators as $v )
+        {
+            try
+            {
+                if(!empty($clean_field))
+                {
+                    $v->setName($clean_field);
+                }
+                $v->assertErr( $value, $override );
+            }
+            catch( Abstract_exceptions $e )
+            {
+                $exceptions[] = $e;
+
+                return $exceptions;
+            }
+        }
+
+        return $exceptions;
+    }
 }

@@ -17,6 +17,7 @@ class Folder_custom_rule extends Abstract_rule
 
 		try
 		{
+			var_dump($value);
 			$check = (strtolower($value) == 'folder_custom');
 		}
 		catch(PDOException $e)

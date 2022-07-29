@@ -248,7 +248,8 @@ try
 
 	$v
 	->anontest(3, 'a')
-	->check('anontest1', '3');
+	->anontest(4, 'a')
+	->check('anontest1', '1');
 
 	$v->anontest(5)
 	->check('anontest2', '3');
@@ -259,13 +260,37 @@ try
 		->folder_custom()
 		
 		->validate('folder_custom'));*/
+
+	$v 
+		->sequential(
+			$v->getValidator()
+				->required()
+				->minlength(2)
+				->alpha('')
+		)
+		->check('sequential_check', 'a*');
+
+	var_dump(
+	$v 
+		->getValidator()
+		->sequential($v->getValidator()->invokable_required()->minlength(2))
+		->validate('aa'));
 	
+	$v 
+		->password()
+		->check('compound_password', 'a123');
+
+	var_dump($v 
+		->getValidator()
+		->password()
+		->validate('a123'));
+
 
 	$v
 		->folder_custom()
 		->folder_custom2()
-
-		->check('folder_custom', 'b');
+		
+		->check('folder_cussstom', 'b');
 
 	
 

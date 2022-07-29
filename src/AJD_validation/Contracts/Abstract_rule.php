@@ -30,7 +30,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
     {
     	$currentClass	= $this;
     	$currentObj 	= $this;
-
+        
     	if( !EMPTY( $rule ) )
     	{
     		$currentClass 	= $rule;

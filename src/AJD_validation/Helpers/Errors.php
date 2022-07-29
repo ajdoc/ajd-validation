@@ -653,12 +653,12 @@ class Errors extends InvalidArgumentException
 				$requiredFiles 	= get_required_files();
 
 				$search 		= array_search($exceptionPath, $requiredFiles);
-
-				if( file_exists($exceptionPath) AND EMPTY( $search ) )
+				
+				if( file_exists($exceptionPath) )
 				{
 					$exception_class = $namespace.$called_class.'_exception';
-
-					if( !class_exists($exception_class) )
+					
+					if( !class_exists($exception_class) AND EMPTY( $search ) )
 					{
 						require $exceptionPath;
 					}

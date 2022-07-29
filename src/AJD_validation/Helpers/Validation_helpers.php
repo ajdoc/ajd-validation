@@ -116,4 +116,45 @@ class Validation_helpers
 
     	return implode('.', $fields);
     }
+
+    public static function formatAppendedError($messages, $exception = null, $clean_field = null, ...$args)
+    {
+        $firstMessage   = str_replace('-', '', $messages[0]);
+        $realMessage    = array();
+        $messages[0]    = $firstMessage;
+        $checkforMesage = 'Data validation failed for';
+
+        $cnt = 0;
+        foreach( $messages as $key => $message )
+        {
+            $origMessage = $message;
+
+            if( preg_match('/'.$checkforMesage.'/', $message) )
+            {
+                $message        = preg_replace('/Data validation failed for [\"]'.$clean_field.'[\"]/', '', $message );
+                
+                unset($messages[$key]);
+            }
+
+            if( $key != 0 )
+            {
+
+                $message        = '<br/>&nbsp;&nbsp;'.$message;
+            }
+            else
+            {
+                $message        = '<br/>&nbsp;&nbsp;&nbsp;-'.$message;
+            }
+
+            if( !preg_match('/'.$checkforMesage.'/', $origMessage) )
+            {
+                $realMessage[$cnt]  = $message;
+
+                $cnt++;
+            }
+            
+        }
+
+        return rtrim(implode('', $realMessage), '.');
+    }
 }

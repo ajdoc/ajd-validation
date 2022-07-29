@@ -36,7 +36,7 @@ class Invokable_required_rule extends Abstract_invokable
             ]);
             
         }
-        var_dump($check);
+        
         return $check;
 
 
