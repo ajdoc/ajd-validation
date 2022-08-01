@@ -59,7 +59,7 @@ abstract class Base_validator extends Abstract_common
 		return Vefja::singleton('AJD_validation\Helpers\Metadata');
 	}
 
-	protected static function get_scene_ins( $rule, $logic, $not_once = FALSE, When $when = NULL )
+	protected static function get_scene_ins( $rule, $logic, $not_once = FALSE, When $when = null, $currentRuleKey = null )
 	{
 		/*if( IS_NULL( static::$scen_ins ) OR $not_once ) 
 		{
@@ -68,7 +68,7 @@ abstract class Base_validator extends Abstract_common
 
 		// return static::$scen_ins;
 
-		return new \AJD_validation\Helpers\Rule_scenario($rule, $logic, $when);
+		return new \AJD_validation\Helpers\Rule_scenario($rule, $logic, $when, $currentRuleKey);
 	}
 
 	protected static function get_field_scene_ins( $field, $not_once = FALSE, $singleton = true )

@@ -261,6 +261,43 @@ try
 		
 		->validate('folder_custom'));*/
 
+		// new \AJD_validation\Helpers\Group_sequence(['t3', 't1', 't2'])
+
+
+	// ['check_or1' => ['', '']
+
+
+	/*$v 
+		->Srequired(NULL, AJD_validation::LOG_OR, '@custom_error_TestGr1')->groups('t2')
+			->field('check_or1')
+				->required(null, '@custom_error_Tetsma1')->groups('t1')
+
+			->field('check_or2')
+
+		->eSrequired()
+		->useGroupings($v->createGroupSequence(['t1', 't2']))
+	->checkGroup([
+		'check_or1' => '',
+		'check_or2' => ''
+
+	]);*/
+
+
+	$v 
+		->required(null, '@custom_error_Field is required.')->groups(['t1'])
+		->minlength(3)->groups(['t1'])
+
+		
+		->maxlength(5)->groups('t2')
+		->alnum(['*', '&'])->groups('t2')
+
+		->uncompromised()->groups('t3')
+
+		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+		->check('grouping_field', ['grouping_field' => ['aas&*', 'aae*a']]);
+
+	// ['check_or1' => ['', ''] ]
+
 	$v 
 		->sequential(
 			$v->getValidator()
@@ -832,7 +869,8 @@ try
 		->eSrequired()
 		->checkGroup($_POST);*/
 
-	$v->oRis_bool()
+	$v->oRis_bool(null, '@custom_error_isbooltest')
+	->oRis_bool(null, '@custom_error_isbooltest2')
 		->digit()
 		->check('or_rule', '');
 

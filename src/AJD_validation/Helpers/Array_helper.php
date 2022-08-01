@@ -288,4 +288,37 @@ class Array_helper
     {
     	return array_filter($array, $callback, ARRAY_FILTER_USE_BOTH);
     }
+
+    /**
+     * Flatten a multi-dimensional array into a single level.
+     *
+     * @param  iterable  $array
+     * @param  int  $depth
+     * @return array
+     */
+    public static function flatten($array, $depth = INF)
+    {
+        $result = [];
+
+        foreach($array as $item) 
+        {   
+            if( !is_array($item)) 
+            {
+                $result[] = $item;
+            } 
+            else 
+            {
+                $values = $depth === 1
+                    ? array_values($item)
+                    : static::flatten($item, $depth - 1);
+
+                foreach ($values as $value) 
+                {
+                    $result[] = $value;
+                }
+            }
+        }
+
+        return $result;
+    }
 }

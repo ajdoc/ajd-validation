@@ -27,6 +27,7 @@ class When extends AJD_validation
 	protected $currLogic;
 	protected $currRule;
 	protected $whenRuleName;
+	protected $currentRuleKey;
  
 	public function __construct( AJD_validation $ajd, $obs = null )
 	{
@@ -344,7 +345,9 @@ class When extends AJD_validation
 		$this->currRule 	= $rule;
 		$this->currLogic 	= $logic;
 
-		$this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
+		$addRule = $this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
+
+		$this->currentRuleKey = $addRule->getCurrentRuleKey();
 
 		if($this->obs)
 		{
@@ -669,7 +672,9 @@ class When extends AJD_validation
 
 		if( $this->_check_given() ) 
 		{
-			$this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
+			$addRule = $this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
+
+			$this->currentRuleKey = $addRule->getCurrentRuleKey();
 
 			$clean_rule 			= $this->ajd->clean_rule_name( $rule );
 
@@ -697,7 +702,9 @@ class When extends AJD_validation
 
 		if( !$this->_check_given() ) 
 		{
-			$this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
+			$addRule = $this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
+
+			$this->currentRuleKey = $addRule->getCurrentRuleKey();
 
 			$clean_rule 			= $this->ajd->clean_rule_name( $rule );
 
@@ -743,14 +750,14 @@ class When extends AJD_validation
 	{
 		$clean_rule 	= $this->ajd->clean_rule_name( $this->currRule );
 
-		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this )->on( $scenario );
+		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this, $this->currentRuleKey )->on( $scenario );
 	}
 
 	public function sometimes( $sometimes = Abstract_common::SOMETIMES )
 	{
 		$clean_rule 	= $this->ajd->clean_rule_name( $this->currRule );
 
-		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this )->sometimes( $sometimes );
+		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this, $this->currentRuleKey )->sometimes( $sometimes );
 	}	
 
 	/*public static function bail()
