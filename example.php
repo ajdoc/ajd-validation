@@ -276,15 +276,15 @@ try
 			->field('check_or3')
 
 		->eSrequired()
-		// ->useGroupings($v->createGroupSequence(['t2', 't1']))
+		->useGroupings($v->createGroupSequence(['t1', 't2']))
 	->checkGroup([
-		'check_or1' => 'a',
-		/*'check_or1' => ['check_or1' => ['aa', 'ss'] ],
-		'check_or2' => ['check_or2' => ['a', 'a'] ]*/
+		// 'check_or1' => 'a',
+		'check_or1' => ['check_or1' => ['a', ''] ],
+		'check_or2' => ['check_or2' => ['', ''] ]
 
 
-		'check_or2' => '',
-		'check_or3' => ''
+		/*'check_or2' => '',
+		'check_or3' => ''*/
 
 	]);
 

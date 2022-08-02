@@ -1716,8 +1716,10 @@ class AJD_validation extends Base_validator
 					
 					if( !EMPTY( $or_pass_arr['pass_arr'] ) )  
 					{
+
 						foreach( $or_pass_arr['pass_arr'] as $key_res_m => $val_res_m )
 						{
+							
 							foreach($val_res_m as $key_res => $val_res)
 							{	
 
@@ -1730,41 +1732,42 @@ class AJD_validation extends Base_validator
 										
 										foreach( $val_res as $k => $v )
 										{
-											
+											$useKey = $key_res_m;
+
 											if(!empty(static::$ajd_prop['grouping_queue']))
 											{
 												$useKey = $cnt_seq_single;
 											}
 
 
-											$or_success[$key_res_m][ $key_res ][$k]['passed'][] 		= $orResultArr[Abstract_common::LOG_AND]['passed_field_or'][$field_key][ $key_res_m ][$key_res];
+											$or_success[$useKey][ $key_res ][$k]['passed'][] 		= $orResultArr[Abstract_common::LOG_AND]['passed_field_or'][$field_key][ $key_res_m ][$key_res];
 
 											if( !EMPTY( $v ) AND ISSET( $v[0] ) )
 											{
 												if(!empty(static::$ajd_prop['grouping_queue']))
 												{
-													$or_success[$key_res_m][ $key_res ][$k]['sequence_check'][] = $or_pass_arr['sequence_check'][$k][static::$ajd_prop['grouping_queue']][$field_key][$key_res][0];						
+													$or_success[$useKey][ $key_res ][$k]['sequence_check'][] = $or_pass_arr['sequence_check'][$k][static::$ajd_prop['grouping_queue']][$field_key][$key_res][0];						
 												}
 												else
 												{
-													$or_success[$key_res_m][ $key_res ][$k]['sequence_check'][] = null;
+													$or_success[$useKey][ $key_res ][$k]['sequence_check'][] = null;
 												}
 
-												$or_success[$key_res_m][ $key_res ][ $k ]['rules'][] 		= $v[0];
-												$or_success[$key_res_m][ $key_res ][ $k ]['satisfier'][] 	= $v[1];
+												$or_success[$useKey][ $key_res ][ $k ]['rules'][] 		= $v[0];
+												$or_success[$useKey][ $key_res ][ $k ]['satisfier'][] 	= $v[1];
 
-												$or_success[$key_res_m][ $key_res ][ $k ]['key_multi'][] 		= $key_res_m;
+												$or_success[$useKey][ $key_res ][ $k ]['key_multi'][] 		= $key_res_m;
 
-												$or_success[$key_res_m][ $key_res ][ $k ]['cus_err'][] 		= $v[2][0][ $v[0] ][ $v[5]['rule_key'] ];
-												$or_success[$key_res_m][ $key_res ][ $k ]['values'][] 		= $v['values'][$v[0]];
+												$or_success[$useKey][ $key_res ][ $k ]['cus_err'][] 		= $v[2][0][ $v[0] ][ $v[5]['rule_key'] ];
+												$or_success[$useKey][ $key_res ][ $k ]['values'][] 		= $v['values'][$v[0]];
 
-												$or_success[$key_res_m][ $key_res ][ $k ]['append_error'][] = $v[3][0][$v[0]][ $v[5]['rule_key'] ];
+												$or_success[$useKey][ $key_res ][ $k ]['append_error'][] = $v[3][0][$v[0]][ $v[5]['rule_key'] ];
 												
-												$or_success[$key_res_m][ $key_res ][ $k ]['rule_key'][] = $v[5]['rule_key'];
+												$or_success[$useKey][ $key_res ][ $k ]['rule_key'][] = $v[5]['rule_key'];
 
-												$or_success[$key_res_m][ $key_res ][ $k ]['rule_obj'][] 	= $v[4];
+												$or_success[$useKey][ $key_res ][ $k ]['rule_obj'][] 	= $v[4];
 
-												$or_success[$key_res_m][ $key_res ][$k]['field'][] = $field_key;
+												$or_success[$useKey][ $key_res ][$k]['field'][] = $field_key;
 
 												if(!empty(static::$ajd_prop['grouping_queue']))
 												{
@@ -2148,11 +2151,10 @@ class AJD_validation extends Base_validator
 					foreach($vv as $r => $v)
 					{
 						$check_rule 					= array_search($rr, $or_field_details['rules']);
-					
 						
 						if( !in_array( 1, $v['passed'][0] ) AND $check_rule !== FALSE )
 						{
-							$field_arr_ch = $or_success[$r][$rr][0]['field'];
+							$field_arr_ch = $v['field'];
 							if(!in_array($or_f_arr['orig'], $field_arr_ch, true))
 							{
 								break;
@@ -2231,8 +2233,7 @@ class AJD_validation extends Base_validator
 									$real_det['orig_field'] 	= $or_f_arr['orig'];
 									$real_det['rule'] 			= $rr;
 									$real_det['satisfier'] 		= $v['satisfier'][0];
-									$real_det['value'] 			= $v['values'][0];	
-									
+									$real_det['value'] 			= $v['values'][0];						
 									$real_det['cus_err'] 		= $v['cus_err'][0];
 									$real_det['append_error']	= $v['append_error'][0];
 
@@ -3140,7 +3141,7 @@ class AJD_validation extends Base_validator
 						
 					}
 				}
-				
+
 				foreach( $check_logic[ Abstract_common::LOG_AND ] as $k_and => $and )
 				{
 					if( !EMPTY( $and['passed'] ) )
@@ -3899,7 +3900,6 @@ class AJD_validation extends Base_validator
 		$check_arr['rulesInSeq'] = $check['rulesInSeq'];
 
 		$check_arr['passed_or'][$rule_value][$rule_key] = $check['passed'][0];
-
 		$check_arr['passed'][] = $check['passed'][0];
 
 		
@@ -4736,6 +4736,7 @@ class AJD_validation extends Base_validator
 
 			$args 					= array($value, $field);
 
+			// print_r($args);
 			if( !EMPTY( $events ) )
 			{
 				foreach( $events as $event )
