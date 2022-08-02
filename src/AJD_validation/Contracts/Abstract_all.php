@@ -106,26 +106,95 @@ abstract class Abstract_all extends Abstract_rule
         return $exceptions;
     }
 
-
-    protected function assertSequenceRules($value, $clean_field = null, $override = FALSE)
+    protected function assertSequenceRules($sequentialRules, $value, $clean_field = null, $override = FALSE, $compound = false)
     {
-        $validators     = $this->getRules();
-        $exceptions     = array();
+        $collections    = $sequentialRules;
+        $exceptions     = [];
+
+        $countCollections = count($collections);
         
-        foreach( $validators as $v )
+        foreach($collections as $key => $collection)
         {
+            if(!$collection instanceof Abstract_all)
+            {
+                throw new \InvalidArgumentException('Invalid Rule.');
+            }
+
+            $validators = $collection->getRules(); 
+
+            foreach( $validators as $v )
+            {
+                try
+                {
+                    if(!empty($clean_field))
+                    {
+                        $v->setName($clean_field);
+                    }
+                    $v->assertErr( $value, $override );
+                }
+                catch( Abstract_exceptions $e )
+                {
+                    $exceptions[$key]['exception'][] = $e;
+                    $exceptions[$key]['rule'][] = $v;
+
+                    if($countCollections == 1 && !$compound)
+                    {
+                        return $exceptions;
+                    }
+                }
+            }
+
+            if(!empty($exceptions) && 
+                ( 
+                    $countCollections > 1
+                    || $compound
+                )
+            )
+            {
+                return $exceptions;
+            }
+        }
+
+        return $exceptions;
+    }
+
+     protected function assertCompoundRules($compoundRules, $value, $clean_field = null, $override = FALSE)
+    {
+        $collections    = $compoundRules;
+        $exceptions     = [];
+
+        $countCollections = count($collections);
+        
+        foreach($collections as $key => $collection)
+        {
+            if(!$collection instanceof Abstract_all)
+            {
+                throw new \InvalidArgumentException('Invalid Rule.');
+            }
+
+            $validators = $collection; 
+
             try
             {
                 if(!empty($clean_field))
                 {
-                    $v->setName($clean_field);
+                    /*foreach($validators->getRules() as $rule)
+                    {*/
+                        $validators->setName($clean_field);    
+                    // }
+                    
                 }
-                $v->assertErr( $value, $override );
+                $validators->assertErr( $value, true );
             }
             catch( Abstract_exceptions $e )
             {
-                $exceptions[] = $e;
+                $exceptions[$key]['exception'][] = $e;
+                $exceptions[$key]['rule'][] = $validators;
 
+            }
+
+            if(!empty($exceptions))
+            {
                 return $exceptions;
             }
         }

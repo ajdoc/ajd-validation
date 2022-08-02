@@ -267,26 +267,26 @@ try
 	// ['check_or1' => ['', '']
 
 
-	$v 
-		->Srequired(NULL, AJD_validation::LOG_OR, '@custom_error_TestGr1')->groups('t2')
-			->field('check_or1')
-				->required(null, '@custom_error_Tetsma1')->groups('t1')
+	// $v 
+	// 	->Srequired(NULL, AJD_validation::LOG_OR, '@custom_error_TestGr1')->groups('t2')
+	// 		->field('check_or1')
+	// 			->required(null, '@custom_error_Tetsma1')->groups('t1')
 
-			->field('check_or2')
-			->field('check_or3')
+	// 		->field('check_or2')
+	// 		->field('check_or3')
 
-		->eSrequired()
-		->useGroupings($v->createGroupSequence(['t1', 't2']))
-	->checkGroup([
-		// 'check_or1' => 'a',
-		'check_or1' => ['check_or1' => ['a', ''] ],
-		'check_or2' => ['check_or2' => ['', ''] ]
+	// 	->eSrequired()
+	// 	->useGroupings($v->createGroupSequence(['t1', 't2']))
+	// ->checkGroup([
+	// 	// 'check_or1' => 'a',
+	// 	'check_or1' => ['check_or1' => ['a', ''] ],
+	// 	'check_or2' => ['check_or2' => ['', ''] ]
 
 
-		/*'check_or2' => '',
-		'check_or3' => ''*/
+	// 	/*'check_or2' => '',
+	// 	'check_or3' => ''*/
 
-	]);
+	// ]);
 
 
 	/*$v 
@@ -304,14 +304,25 @@ try
 
 	// ['check_or1' => ['', ''] ]
 
+	// $validatorGroup = $v->getValidator();
+
 	$v 
 		->sequential(
-			$v->getValidator()
-				->required()
-				->minlength(2)
-				->alpha('')
+			$v
+				->getValidator()
+				->invokable_required()
+				->minlength(2),
+				
+			$v
+				->getValidator()
+				->maxlength(5)
+				->alpha(''),
+
+			$v
+				->getValidator()
+				->uncompromised(),			
 		)
-		->check('sequential_check', 'a*');
+		->check('sequential_field', '');
 
 	var_dump(
 	$v 
@@ -321,12 +332,12 @@ try
 	
 	$v 
 		->password()
-		->check('compound_password', 'a123');
+		->check('compound_password', 'a');
 
 	var_dump($v 
 		->getValidator()
 		->password()
-		->validate('a123'));
+		->validate('ames'));
 
 
 	$v

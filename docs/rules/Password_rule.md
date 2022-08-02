@@ -1,16 +1,20 @@
 # Password
 
 - `password()`
-- `Password_rule()`
+- `Password_rule(Rule_interface ...$rules)`
 
 An example of compounding a set of rules into a rule class.
 - Current rules are 
 ```php
-$validator = $this->getValidator()
+$validator1 = $this->getValidator()
             ->required()
             ->minlength(5, true, true)
             ->alnum();
+
+$validator2 = $this->getValidator()
+				->uncompromised();
 ```
+- This means that $validator2 will only run if all the rules in $validator1 passes.
 
 
 ```php

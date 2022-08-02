@@ -22,7 +22,7 @@ class Abstract_compound extends Abstract_all
 	/**
 	* Initializes the rule adding other rules to the stack.
 	*/
-	public function __construct(Abstract_all $rules = null)
+	public function __construct(Abstract_all ...$rules)
 	{
 		$this->rules = $rules;
 	}
@@ -34,27 +34,34 @@ class Abstract_compound extends Abstract_all
     {
     	$check 			= false;
 		$append_error 	= "";
-    	
-    	$details = $this->processRules( $value, $field, $clean_field );
-    	
-    	if( !EMPTY( $details['check'] ) AND !in_array( false, $details['check'] ) )
-		{
-			$check = true;
-		}
-    	else
-    	{
-			try
-			{
-				$rules = $this->rules;
 
-				$rules->setName($clean_field)->assertErr( $value, true );
-			}
-			catch( Abstract_exceptions $e )
-			{
-				$append_error   = $e->getFullMessage(Validation_helpers::class.'::formatAppendedError', null, $clean_field);
+		$collectionExceptions = $this->assertCompoundRules($this->rules, $value, $clean_field, true, true);
+        $check = true;
 
-			}
-    	}
+        $return = [
+            'check' => $check
+        ];
+
+        $field_arr = $this->format_field_name($field);
+
+        if(!empty($collectionExceptions))
+        {
+            $check = false;
+
+            $return['check'] = $check;
+            
+            $countCollections = count($this->rules);
+
+            $msg = [];
+
+            foreach($collectionExceptions as $parKey => $exceptions)
+            {
+            	foreach($exceptions['exception'] as $kEx => $exception)
+                {
+            		$append_error .= $exception->getFullMessage(Validation_helpers::class.'::formatAppendedError', null, $clean_field).'<br/>';
+            	}
+            }
+        }
 
     	$return = [
     		'check' => $check
@@ -83,84 +90,6 @@ class Abstract_compound extends Abstract_all
         }
 
         return $check;
-    }
-
-	/**
-	* Returns all the rules in the stack.
-	*
-	* @return Rule_interface[]
-	*/
-    public function getRules(): array
-    {
-        return $this->rules->getRules();
-    }
-
-
-    /**
-     * Process all the rules.
-     *
-     *
-     *
-     * @return array[]
-     */
-    protected function processRules( $value, $field = NULL, $clean_field = NULL )
-    {
-        $retArr         = array();
-        $checkRule      = array();
-        $exceptions     = array();
-        $errorMessage   = array();
-
-        $rules = $this->getRules();
-
-        if( !EMPTY( $rules ) )
-        {
-            if( is_array( $rules ) )
-            {
-                foreach( $rules as $rule )
-                {
-                    if($rule instanceof Abstract_invokable)
-                    {
-                        $check  = $rule( $value, NULL, $field );
-                    }
-                    else
-                    {
-                        $check  = $rule->run( $value, NULL, $field );
-                    }
-
-                    if(is_array($check))
-                    {
-                        if($check['check'])
-                        {
-                            $checkRule[]    = true;
-                        }
-                        else
-                        {
-                        	$checkRule[] 	= false;
-                        }
-                    }
-                    else
-                    {
-                        if( $check )
-                        {
-                            $checkRule[]    = true;
-                        }
-                        else
-                        {
-                        	$checkRule[] 	= false;
-                        }
-                    }
-                    
-                }
-            }
-        }
-
-        $retArr     = array(
-            'check'         => $checkRule,
-            'exceptions'    => $exceptions,
-            'errorMessage'  => $errorMessage
-        );
-
-        return $retArr;
     }
     
 }

@@ -8,7 +8,6 @@ use AJD_validation\Contracts\Abstract_rule;
 use AJD_validation\Contracts\Abstract_exceptions;
 use AJD_validation\Helpers\Validation_helpers;
 
-
 /**
 * Abstract class for sequentially validated rules.
 *
@@ -23,7 +22,7 @@ class Abstract_sequential extends Abstract_all
 	/**
 	* Initializes the rule adding other rules to the stack.
 	*/
-	public function __construct(Abstract_all $rules = null)
+	public function __construct(Abstract_all ...$rules)
 	{
 		$this->sequentialRules = $rules;
 	}
@@ -37,26 +36,64 @@ class Abstract_sequential extends Abstract_all
 		$append_error 	= "";
         $msg            = "";
 
-        $exceptions = $this->assertSequenceRules($value, $clean_field, true);
+        $collectionExceptions = $this->assertSequenceRules($this->sequentialRules, $value, $clean_field, true);
         $check = true;
 
         $return = [
             'check' => $check
         ];
 
-        if(!empty($exceptions))
+        $field_arr = $this->format_field_name($field);
+        $errors = static::get_errors_instance();
+
+        if(!empty($collectionExceptions))
         {
             $check = false;
 
             $return['check'] = $check;
             
-            foreach($exceptions as $key => $exception)
+            $countCollections = count($this->sequentialRules);
+            
+            foreach($collectionExceptions as $parKey => $exceptions)
             {
-                $msg = $exception->getExceptionMessage();
+                $msg = [];
 
-                if(!empty($msg))
+                if($countCollections > 1)
                 {
-                    $return['msg'] = $msg;
+
+                    foreach($exceptions['exception'] as $kEx => $exception)
+                    {
+                        $rule = $exceptions['rule'][$kEx];
+
+                        $ruleName = $rule::class;
+                        $ruleName = explode('\\', $ruleName);
+                        $ruleName = end($ruleName);
+                        $ruleName = str_replace('_'.static::$rules_suffix, '', $ruleName);
+                        $ruleName = strtolower($ruleName);
+                        
+                        $msg[$parKey][$kEx] = [
+                            'errors' => $exception->getExceptionMessage(),
+                            'clean_field' => $clean_field
+                        ];    
+                    }
+
+                    if(!empty($msg))
+                    {
+                        $msgStr = $errors->toStringErr($msg, true);
+
+                        $msgStr = explode('-', $msgStr);
+
+                        unset($msgStr[0]);
+
+                        $msgStr = implode('-', $msgStr);
+                        $msgStr = str_replace(["\r", "\n"], '', $msgStr);
+                        
+                        $return['msg'] = $msgStr;
+                    }
+                }
+                else
+                {
+                    $return['msg'] = $exceptions['exception'][0]->getExceptionMessage();
                 }
 
                 return $return;
@@ -90,7 +127,7 @@ class Abstract_sequential extends Abstract_all
 	*/
     public function getRules()
     {
-        return $this->sequentialRules->getRules();
+        return $this->sequentialRules;
     }
     
 }

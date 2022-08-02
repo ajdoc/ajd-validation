@@ -9,10 +9,13 @@ class Password_rule extends Abstract_compound
 	public function __construct()
     {
         $validator = $this->getValidator()
-                        ->required()
+                        ->invokable_required()
                         ->minlength(5, true, true)
                         ->alnum();
 
-        parent::__construct($validator);
+        $validator2 = $this->getValidator()
+                        ->uncompromised();
+
+        parent::__construct($validator, $validator2);
     }
 }

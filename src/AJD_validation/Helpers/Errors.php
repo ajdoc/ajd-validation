@@ -364,7 +364,7 @@ class Errors extends InvalidArgumentException
 	public function toStringErr( $msg = array(), $addParent = FALSE )
 	{	
 		$err_msg 		= !EMPTY( $msg ) ? $msg : static::$validation_err_msg;
-
+		
 		if( !is_array( $msg ) )
 		{
 			$err_msg 	= $this->start_delimiter.$err_msg.$this->end_delimiter;
@@ -457,6 +457,15 @@ class Errors extends InvalidArgumentException
 
 		return $err_msg;
 
+	}
+
+	public static function getDelimiters()
+	{
+		$self = new static;
+		return [
+			'start_delimiter' => $self->start_delimiter,
+			'end_delimiter' 	=> $self->end_delimiter
+		];
 	}
 
 	public function processRuleStrArr( array $ruleErrors )
