@@ -330,14 +330,14 @@ try
 		->sequential($v->getValidator()->invokable_required()->minlength(2))
 		->validate('aa'));
 	
-	$v 
+	/*$v 
 		->password()
-		->check('compound_password', 'a');
+		->check('compound_password', 'ameac');*/
 
-	var_dump($v 
+	/*var_dump($v 
 		->getValidator()
 		->password()
-		->validate('ames'));
+		->validate('ameac'));*/
 
 
 	$v

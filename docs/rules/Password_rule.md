@@ -36,8 +36,8 @@ $v->password()->check('compound_password', ''); // validation fails
 $v->getValidator()->password()->validate(''); // false
 
 
-$v->password()->check('compound_password', 'a1235'); // validation passes
-$v->getValidator()->password()->validate('a1235'); // true
+$v->password()->check('compound_password', 'ameac'); // validation passes
+$v->getValidator()->password()->validate('ameac'); // true
 
 
 ```
