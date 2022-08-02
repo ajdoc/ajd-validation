@@ -267,23 +267,29 @@ try
 	// ['check_or1' => ['', '']
 
 
-	/*$v 
+	$v 
 		->Srequired(NULL, AJD_validation::LOG_OR, '@custom_error_TestGr1')->groups('t2')
 			->field('check_or1')
 				->required(null, '@custom_error_Tetsma1')->groups('t1')
 
 			->field('check_or2')
+			->field('check_or3')
 
 		->eSrequired()
-		->useGroupings($v->createGroupSequence(['t1', 't2']))
+		// ->useGroupings($v->createGroupSequence(['t2', 't1']))
 	->checkGroup([
-		'check_or1' => '',
-		'check_or2' => ''
+		'check_or1' => 'a',
+		/*'check_or1' => ['check_or1' => ['aa', 'ss'] ],
+		'check_or2' => ['check_or2' => ['a', 'a'] ]*/
 
-	]);*/
+
+		'check_or2' => '',
+		'check_or3' => ''
+
+	]);
 
 
-	$v 
+	/*$v 
 		->required(null, '@custom_error_Field is required.')->groups(['t1'])
 		->minlength(3)->groups(['t1'])
 
@@ -294,7 +300,7 @@ try
 		->uncompromised()->groups('t3')
 
 		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
-		->check('grouping_field', ['grouping_field' => ['aas&*', 'aae*a']]);
+		->check('grouping_field', ['grouping_field' => ['aas&*', 'aae*a']]);*/
 
 	// ['check_or1' => ['', ''] ]
 

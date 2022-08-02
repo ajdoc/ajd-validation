@@ -1659,6 +1659,11 @@ class AJD_validation extends Base_validator
  					$or_pass_arr = [];
  					$orResultArr = [];
 
+ 					if(!empty(static::$ajd_prop['groupings']))
+					{
+						static::$ajd_prop['cache_groupings'] = static::$ajd_prop['groupings'];
+					}
+
 					$or 					 = $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_OR, $field_value,  
 						function($ajd, $checkResult) use (&$or_pass_arr, &$orResultArr)
 						{
@@ -1677,6 +1682,11 @@ class AJD_validation extends Base_validator
 							
 						}
 					);
+
+					if(is_array($value))
+					{
+						$this->processFieldRulesSequence();
+					}
 
 					$or_field_ch 			= $this->validation_fails( $field_key, null, true );
 					$or_field_ch_orig 		= $this->validation_fails( $field_key );
@@ -1708,9 +1718,8 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $or_pass_arr['pass_arr'] as $key_res_m => $val_res_m )
 						{
-							
 							foreach($val_res_m as $key_res => $val_res)
-							{
+							{	
 
 								if( !EMPTY( $val_res ) )
 								{
@@ -1718,14 +1727,33 @@ class AJD_validation extends Base_validator
 										!is_numeric($key_res)
 									)
 									{
+										
 										foreach( $val_res as $k => $v )
 										{
-											$or_success[$key_res_m][ $key_res ][$k]['passed'][] 		= $orResultArr[Abstract_common::LOG_AND]['passed_or'][ $key_res_m ][$key_res];
+											
+											if(!empty(static::$ajd_prop['grouping_queue']))
+											{
+												$useKey = $cnt_seq_single;
+											}
+
+
+											$or_success[$key_res_m][ $key_res ][$k]['passed'][] 		= $orResultArr[Abstract_common::LOG_AND]['passed_field_or'][$field_key][ $key_res_m ][$key_res];
 
 											if( !EMPTY( $v ) AND ISSET( $v[0] ) )
 											{
+												if(!empty(static::$ajd_prop['grouping_queue']))
+												{
+													$or_success[$key_res_m][ $key_res ][$k]['sequence_check'][] = $or_pass_arr['sequence_check'][$k][static::$ajd_prop['grouping_queue']][$field_key][$key_res][0];						
+												}
+												else
+												{
+													$or_success[$key_res_m][ $key_res ][$k]['sequence_check'][] = null;
+												}
+
 												$or_success[$key_res_m][ $key_res ][ $k ]['rules'][] 		= $v[0];
 												$or_success[$key_res_m][ $key_res ][ $k ]['satisfier'][] 	= $v[1];
+
+												$or_success[$key_res_m][ $key_res ][ $k ]['key_multi'][] 		= $key_res_m;
 
 												$or_success[$key_res_m][ $key_res ][ $k ]['cus_err'][] 		= $v[2][0][ $v[0] ][ $v[5]['rule_key'] ];
 												$or_success[$key_res_m][ $key_res ][ $k ]['values'][] 		= $v['values'][$v[0]];
@@ -1736,6 +1764,12 @@ class AJD_validation extends Base_validator
 
 												$or_success[$key_res_m][ $key_res ][ $k ]['rule_obj'][] 	= $v[4];
 
+												$or_success[$key_res_m][ $key_res ][$k]['field'][] = $field_key;
+
+												if(!empty(static::$ajd_prop['grouping_queue']))
+												{
+													$cnt_seq_single++;
+												}
 
 											}
 
@@ -1745,7 +1779,6 @@ class AJD_validation extends Base_validator
 									}
 									else 
 									{
-										// print_r()
 										/*if( ISSET( $val_res[0] ) )
 										{*/
 											
@@ -1946,7 +1979,14 @@ class AJD_validation extends Base_validator
 							$this->_runEvents($eventLoad, $value, $field_key);
 						}
 
+						if(!empty(static::$ajd_prop['groupings']))
+						{
+							static::$ajd_prop['cache_groupings'] = static::$ajd_prop['groupings'];
+						}
+
 						$andPromise 		= $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value );
+
+						$this->processFieldRulesSequence();
 
 						$andPromises[] 		= $andPromise;
 
@@ -2093,23 +2133,30 @@ class AJD_validation extends Base_validator
 		return $check;
 	}
 
-	private function _processMultiOrRule( array $or_success, array $or_field_details, array $or_f_arr, $dataValue = null, $current_key )
+	private function _processMultiOrRule( array $or_success, array $or_field_details, array $or_f_arr, $dataValue = null, $current_key, $validateGroupings = null )
 	{
-		
 		foreach( $or_success as $rule => $value_ar )
 		{
+			
 			if( is_numeric( $rule ) )
 			{
 				$r_cnt 								= 0;
 
 				foreach ( $value_ar as $rr => $vv ) 
 				{
+					
 					foreach($vv as $r => $v)
 					{
 						$check_rule 					= array_search($rr, $or_field_details['rules']);
-
+					
+						
 						if( !in_array( 1, $v['passed'][0] ) AND $check_rule !== FALSE )
 						{
+							$field_arr_ch = $or_success[$r][$rr][0]['field'];
+							if(!in_array($or_f_arr['orig'], $field_arr_ch, true))
+							{
+								break;
+							}
 							
 							$sometimes_and = null;
 							$sometime_and_result = true;
@@ -2150,26 +2197,63 @@ class AJD_validation extends Base_validator
 
 							if($sometime_and_result)
 							{
-								$real_det 					= array();
-						
-								$real_det['clean_field'] 	= $or_f_arr['clean'];
-								$real_det['orig_field'] 	= $or_f_arr['orig'];
-								$real_det['rule'] 			= $rr;
-								$real_det['satisfier'] 		= $v['satisfier'][0];
-								$real_det['value'] 			= $v['values'][0];						
-								$real_det['cus_err'] 		= $v['cus_err'][0];
-								$real_det['append_error']	= $v['append_error'][0];
+								$printOr = false;
+								$checkPr = [];
 
-								$det_key = array_search($r, $or_field_details['rules']);
-								 
-							 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+								foreach($v['sequence_check'] as $sequences)
+								{
+									if(!is_null($sequences) && $sequences === false)
+									{
+										$checkPr[] = true;
+									}
+								}
 
-							 	$real_det['rule_obj'] = (isset($v['rule_obj'][0][$rr])) ? $v['rule_obj'][0][$rr] : null;
-							 	
-								$this->handle_errors( $real_det, TRUE, $r, true, true );
+								if(in_array(1, $checkPr))
+								{
+									$printOr = true;
+								}
+								
+								if(empty($validateGroupings))
+								{
+									$printOr = true;
+								}
+								
+								if(empty(static::$ajd_prop['grouping_queue']))
+								{
+									$printOr = true;
+								}
+
+								if($printOr)
+								{
+									$real_det 					= array();
+									
+									$real_det['clean_field'] 	= $or_f_arr['clean'];
+									$real_det['orig_field'] 	= $or_f_arr['orig'];
+									$real_det['rule'] 			= $rr;
+									$real_det['satisfier'] 		= $v['satisfier'][0];
+									$real_det['value'] 			= $v['values'][0];	
+									
+									$real_det['cus_err'] 		= $v['cus_err'][0];
+									$real_det['append_error']	= $v['append_error'][0];
+
+									$det_key = array_search($r, $or_field_details['rules']);
+									 
+								 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+
+								 	$real_det['rule_obj'] = (isset($v['rule_obj'][0][$rr])) ? $v['rule_obj'][0][$rr] : null;
+
+								 	$kk_r = $r;
+
+								 	if(isset($v['key_multi'][0]))
+								 	{
+								 		$kk_r = $v['key_multi'][0];
+								 	}
+								 	
+									$this->handle_errors( $real_det, TRUE, $kk_r, true, true );
+								}
 							}
 						}
-						
+
 						$r_cnt++;
 					}
 				}
@@ -2728,7 +2812,7 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	public static function useGroupings($group = null)
+	public static function useGroupings($group = null, $queueSequence = null)
 	{
 		if(!empty($group))
 		{
@@ -2752,10 +2836,15 @@ class AJD_validation extends Base_validator
 			if($group instanceof Grouping_sequence_interface)
 			{
 				$firstInQueue = reset($groupVal);
-				if(!empty($firstInQueue))
+				if(!empty($firstInQueue) && empty($queueSequence))
 				{
 					static::$ajd_prop['grouping_queue'] = $firstInQueue;
 				}
+			}
+
+			if(!empty($queueSequence))
+			{
+				static::$ajd_prop['grouping_queue'] = $queueSequence;
 			}
 		}
 
@@ -3035,21 +3124,23 @@ class AJD_validation extends Base_validator
 					{
 						$prop = $this->processValidateGroupings($validateGroupings, $prop);
 
-						if(!empty(static::$ajd_prop['groupings']))
+						if(!empty(static::$ajd_prop['groupings'])
+							&& empty($group)
+						)
 						{
 							static::$ajd_prop['cache_groupings'] = static::$ajd_prop['groupings'];
 						}
 
 						$check_logic[ Abstract_common::LOG_AND ][] =  $this->_process_and_or_check( $prop, $field, $field_arr, $v_value, $auto_arr, $extra_args, $group, $logic, $k_value, $origValue, $promise );
 
-						if(static::$ajd_prop['cache_groupings'] instanceof Grouping_sequence_interface)
+						if(static::$ajd_prop['cache_groupings'] instanceof Grouping_sequence_interface && empty($group))
 						{
 							$this->useGroupings($this->createGroupSequence(static::$ajd_prop['cache_groupings']->sequence()));	
 						}
 						
 					}
 				}
-
+				
 				foreach( $check_logic[ Abstract_common::LOG_AND ] as $k_and => $and )
 				{
 					if( !EMPTY( $and['passed'] ) )
@@ -3057,6 +3148,8 @@ class AJD_validation extends Base_validator
 						foreach( $and['passed'] as $pass )
 						{
 							$check_logic[ Abstract_common::LOG_AND ][ 'passed' ][] 	= $pass;
+
+							$check_logic[ Abstract_common::LOG_AND ][ 'passed_field' ][$field_arr['orig']][] 	= $pass;
 						}
 					}
 					
@@ -3073,6 +3166,8 @@ class AJD_validation extends Base_validator
 						foreach( $and['passed_or'] as $rule => $pass_arr )
 						{  
 							$check_logic[ Abstract_common::LOG_AND ][ 'passed_or' ][ $k_and ][ $rule ] 	= $pass_arr;
+
+							$check_logic[ Abstract_common::LOG_AND ][ 'passed_field_or' ][$field_arr['orig']][ $k_and ][ $rule ] 	= $pass_arr;
 						}
 					}
 
@@ -3171,14 +3266,20 @@ class AJD_validation extends Base_validator
 				{
 					$prop_or = $this->processValidateGroupings($validateGroupings, $prop_or);
 
-					if(!empty(static::$ajd_prop['groupings']))
+					if(
+						!empty(static::$ajd_prop['groupings'])
+						&& empty($group)
+					)
 					{
 						static::$ajd_prop['cache_groupings'] = static::$ajd_prop['groupings'];
 					}
 
 					$check_logic[ Abstract_common::LOG_OR ][] 	= $this->_process_and_or_check( $prop_or, $field, $field_arr, $v_value, $auto_arr, $extra_args, $group, $logic, $k_value, $origValue, $promise );
 
-					if(static::$ajd_prop['cache_groupings'] instanceof Grouping_sequence_interface)
+					if(
+						static::$ajd_prop['cache_groupings'] instanceof Grouping_sequence_interface
+						&& empty($group)
+					)
 					{
 						$this->useGroupings($this->createGroupSequence(static::$ajd_prop['cache_groupings']->sequence()));	
 					}				
@@ -3448,7 +3549,7 @@ class AJD_validation extends Base_validator
 					if(isset($prop['groups'][$rule_value][$rule_key]))
 					{
 						$groupings_per = $prop['groups'][$rule_value][$rule_key];
-
+						
 						if(!in_array($firstSeq, $groupings_per))
 						{
 							break;
@@ -3459,7 +3560,7 @@ class AJD_validation extends Base_validator
 			}
 			
 			$newSeqCh = ( !empty($firstSeq) && isset($newSeq[$firstSeq])) ? $newSeq[$firstSeq] : [];
-
+			
 			$paramaters = [
 				$rule_key,
 				$rule_value,
@@ -3798,6 +3899,7 @@ class AJD_validation extends Base_validator
 		$check_arr['rulesInSeq'] = $check['rulesInSeq'];
 
 		$check_arr['passed_or'][$rule_value][$rule_key] = $check['passed'][0];
+
 		$check_arr['passed'][] = $check['passed'][0];
 
 		
@@ -4358,6 +4460,32 @@ class AJD_validation extends Base_validator
 		return parent::get_errors_instance( static::$lang, $singleton );
 	}
 
+	public function processFieldRulesSequence()
+	{
+		if(
+			static::$ajd_prop['cache_groupings'] instanceof Grouping_sequence_interface 
+			&& 
+			!empty(static::$ajd_prop['grouping_queue']))
+		{
+			$grouping_queue = static::$ajd_prop['grouping_queue'];
+			$seqArr 	= static::$ajd_prop['cache_groupings']->sequence();
+
+			$queueKey = array_search($grouping_queue, $seqArr);
+
+			$getNextArr = Array_helper::where($seqArr, function($value, $key) use ($queueKey)
+			{
+				return $key >= $queueKey;
+			});
+
+			if(!empty($getNextArr))
+			{
+				$this->useGroupings($this->createGroupSequence($getNextArr), static::$ajd_prop['grouping_queue']);		
+			}
+
+			
+		}
+	}
+
 	public function processValidateGroupings($validateGroupings, array $prop = [], $rearrangeGroup = true)
 	{
 		$cacheCheckRules = [];
@@ -4608,7 +4736,6 @@ class AJD_validation extends Base_validator
 
 			$args 					= array($value, $field);
 
-			// print_r($args);
 			if( !EMPTY( $events ) )
 			{
 				foreach( $events as $event )
