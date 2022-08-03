@@ -296,25 +296,39 @@ class Array_helper
      * @param  int  $depth
      * @return array
      */
-    public static function flatten($array, $depth = INF)
+    public static function flatten($array, $depth = INF, $retainKey = false)
     {
         $result = [];
 
-        foreach($array as $item) 
+        foreach($array as $k => $item) 
         {   
             if( !is_array($item)) 
             {
-                $result[] = $item;
+                if($retainKey)
+                {
+                    $result[$k] = $item;    
+                }
+                else
+                {
+                    $result[] = $item;
+                }
             } 
             else 
             {
                 $values = $depth === 1
-                    ? array_values($item)
+                    ? ($retainKey) ? $item : array_values($item)
                     : static::flatten($item, $depth - 1);
 
-                foreach ($values as $value) 
+                foreach ($values as $kv => $value) 
                 {
-                    $result[] = $value;
+                    if($retainKey)
+                    {
+                        $result[$kv] = $value;
+                    }
+                    else
+                    {
+                        $result[] = $value;   
+                    }
                 }
             }
         }
