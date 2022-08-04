@@ -19,6 +19,8 @@ class Promise implements Promise_interface
 
     protected $errors;
 
+    protected $promiseHelper;
+
 	public function __construct(callable $resolver, callable $cancel = null)
     {
         $this->cancel = $cancel;
@@ -34,11 +36,11 @@ class Promise implements Promise_interface
         
     }
 
-    public function setHasErrors(array $errors)
+    public function setHasErrors(array $errors, $field = null)
     {
         if(!empty($errors))
         {
-            PromiseHelpers::setHasErrors($errors);
+            PromiseHelpers::setHasErrors($errors, $field);
         }
     }
 

@@ -14,12 +14,16 @@ class PromiseValidator extends Promise
 	use Events_dispatcher_trait;
 
 	protected $currentFiber;
+	protected $field;
+	protected $fields = [];
 	private $value;
 
-	public function __construct(callable $resolver = null, callable $cancel = null, array $errors = [], $fiber = null, $value = null)
+	public function __construct(callable $resolver = null, callable $cancel = null, array $errors = [], $fiber = null, $value = null, $field = null)
     {
     	$this->errors = $errors;
     	$this->value = $value;
+
+    	$this->field = $field;
 
     	if($resolver)
     	{
@@ -31,6 +35,26 @@ class PromiseValidator extends Promise
     	{
     		$this->currentFiber = $fiber;
     	}
+    }
+
+	public function setField($field)
+    {
+    	$this->field = $field;
+    }
+
+    public function getField()
+    {
+    	return $this->field;
+    }
+
+    public function setFields(array $fields)
+    {
+    	$this->fields = $fields;
+    }
+
+    public function getFields()
+    {
+    	return $this->fields;
     }
 
     public function setFiber($fiber)

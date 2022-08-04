@@ -254,6 +254,17 @@ try
 	$v->anontest(5)
 	->check('anontest2', '3');
 
+	/*Async::when(
+		$v->required()->groups('g1')
+			->minlength(2)->groups('g2')
+			->useGroupings($v->createGroupSequence(['g1', 'g2']))
+		->check('async_grouping', 'a'),
+
+		$v->maxlength(3)->groups('gg1')
+			->minlength(2)->groups('gg2')
+			->useGroupings($v->createGroupSequence(['gg2', 'gg1']))
+		->check('async_grouping2', 'aaaa')
+	)->promise();*/
 
 	/*var_dump($v
 		->getValidator()
@@ -266,31 +277,68 @@ try
 
 	// ['check_or1' => ['', '']
 
+	$v 
+		->Srequired()->groups('t1')
+			->Sminlength(2)->groups('t2')
+				->field('field_group1')
+				->field('field_group2')
+			->eSminlength()
+		->eSrequired()
+		->useGroupings(['t2', 't'])
+		->checkGroup([
+			'field_group1' => 'aa',
+			'field_group2' => 'aa',
+		]);
+
+	$v->any(
+		$v->required()->check('group_and_single1', ''),
+
+		$v 
+			->Srequired(null, AJD_validation::LOG_OR)
+				->field('group_and_single2')
+
+				->field('group_and_single3')
+					->minlength(2)
+			->eSrequired()
+			->checkGroup(
+				[
+					'group_and_single2' => '',
+					'group_and_single3' => 'aa',
+				]
+			)
+	);
+
+	$v->any(
+		$v->required()->minlength(2)->check('or_field1',['or_field1' => ['', '']]), 
+		$v->required()->check('or_field2',['or_field2' => ['']]),
+		$v->required()->check('or_field3','a'),
+	);
+
 
 	$v 
-		->Srequired(NULL, AJD_validation::LOG_AND, '@custom_error_TestGr1')->groups('t1')
-		->Sminlength(2)->groups('t2')
+		->Srequired(null, AJD_validation::LOG_OR, '@custom_error_TestGr1')->groups('t1')
+		
+		
 			->field('check_or1')
-				->minlength(3, '@custom_error_Tetsma1')->groups('t3')
+				// ->minlength(2, '@custom_error_Tetsma2')->groups('t4')				
 
 			->field('check_or2')
-			// ->field('check_or3')
-		->eSminlength()
+				// ->minlength(3, '@custom_error_Tetsma1')->groups('t3')				
+
 		->eSrequired()
-		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+		->useGroupings($v->createGroupSequence(['t1', 't4', 't3']))
 	->checkGroup([
-		// 'check_or1' => 'a',
-		'check_or1' => ['check_or1' => ['aa', 'aa'] ],
+		'check_or1' => '',
+		// 'check_or1' => ['check_or1' => ['aaa', 'a'] ],
 		// 'check_or2' => ['check_or2' => ['', ''] ]
 
-		'check_or2' => 'aa'
-		/*'check_or2' => '',
-		'check_or3' => ''*/
+		'check_or2' => ''
+		
 
 	]);
 
 
-	/*$v 
+	$v 
 		->required(null, '@custom_error_Field is required.')->groups(['t1'])
 		->minlength(3)->groups(['t1'])
 
@@ -301,7 +349,9 @@ try
 		->uncompromised()->groups('t3')
 
 		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
-		->check('grouping_field', ['grouping_field' => ['aas&*', 'aae*a']]);*/
+		->check('grouping_field', 'aaaaaa');
+
+		// ['grouping_field' => ['aaa', 'aaaa']]
 
 	// ['check_or1' => ['', ''] ]
 

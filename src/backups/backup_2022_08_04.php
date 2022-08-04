@@ -1580,28 +1580,12 @@ class AJD_validation extends Base_validator
 		foreach($promises as $promise)
 		{
 			$field = $promise->getField();
-			$fields = $promise->getFields();
-		
-
-			if(!empty($field) && isset($ajdMessage[$field]))
+			var_dump($field);
+			if(isset($ajdMessage[$field]))
 			{
 				$messages[$field] = $ajdMessage[$field];
 
 				unset($ajdMessage[$field]);
-			}
-
-			if(!empty($fields))
-			{
-				foreach($fields as $f)
-				{
-					
-					if(!empty($f) && isset($ajdMessage[$f]))
-					{
-						$messages[$f] = $ajdMessage[$f];
-
-						unset($ajdMessage[$f]);
-					}
-				}
 			}
 
 			$ajd->setPropMessage($ajdMessage);
@@ -1650,10 +1634,6 @@ class AJD_validation extends Base_validator
 		$orPromises = [];
 		$orPromisesRaw = [];
 		$andPromises = [];
-		$andPromisesRaw = [];
-
-		$or_fields_key = [];
-		$and_fields_key = [];
 
 		if( ISSET( static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ] ) )
 		{
@@ -1674,8 +1654,6 @@ class AJD_validation extends Base_validator
 				{
 
 					$fieldValueOr 	= array();
-
-					$or_fields_key[] = $field_key;
 
 					$realFieldKey 	= Validation_helpers::getParentPath($field_key);
 					
@@ -1736,6 +1714,34 @@ class AJD_validation extends Base_validator
 					$or 					 = $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value,  
 						function($ajd, $checkResult) use (&$or_pass_arr, &$orResultArr, &$or_passed_per)
 						{
+							if(!empty($checkResult))
+							{
+								$orResultArr = $checkResult;
+
+								if(isset($checkResult[Abstract_common::LOG_AND]['passed_per']))
+								{
+									$or_passed_per['passed_per'] = $checkResult[Abstract_common::LOG_AND]['passed_per'];
+								}
+
+								if(isset($checkResult[Abstract_common::LOG_AND]['auto_arr_result']))
+								{
+									$or_passed_per['auto_arr_result'] = $checkResult[Abstract_common::LOG_AND]['auto_arr_result'];
+								}
+								
+								if(!empty($checkResult[ Abstract_common::LOG_AND ]))
+								{
+									if(isset($checkResult[Abstract_common::LOG_AND]['pass_arr']))
+									{
+										$or_pass_arr['pass_arr'] = $checkResult[ Abstract_common::LOG_AND ]['pass_arr'];
+									}
+
+									if(isset($checkResult[Abstract_common::LOG_AND]['sequence_check']))
+									{
+										$or_pass_arr['sequence_check'] = $checkResult[ Abstract_common::LOG_AND ]['sequence_check'];
+									}
+
+								}
+							}
 							
 						},
 						false
@@ -1770,6 +1776,58 @@ class AJD_validation extends Base_validator
 
 					$or_check[] 			= $or_field_ch_orig;
 
+					if(
+						isset($or_passed_per['auto_arr_result'])
+						&& 
+						!empty($or_passed_per['auto_arr_result'])
+					)
+					{
+						if(!empty($or_passed_per['passed_per']))
+						{
+							foreach($or_passed_per['passed_per'] as $valuesKey => $valuesDetails)
+							{
+								foreach($valuesDetails as $rulesKey => $resultDetails)
+								{
+									
+									$mainDetails = $resultDetails['details'];
+									$or_passed_per_pass[$fk]['field_name'] = $mainDetails['field'];
+
+									$or_passed_per_pass[$fk]['details'][$valuesKey][$rulesKey] = [
+										'rule' => $resultDetails['rule_name'],
+										'details' => $mainDetails
+									];
+									
+
+								}
+							}
+						}
+						
+
+						// print_r($or_passed_per);
+					}
+					else
+					{
+						if(!empty($or_passed_per['passed_per']))
+						{
+							foreach($or_passed_per['passed_per'] as $rulesKey => $resultDetails)
+
+							{
+								
+								$mainDetails = $resultDetails['details'];
+
+								$or_passed_per_pass[$fk]['field_name'] = $mainDetails['field'];
+
+								$or_passed_per_pass[$fk]['field_name'] = $mainDetails['field'];
+
+								$or_passed_per_pass[$fk]['details'][0][$rulesKey] = [
+									'rule' => $resultDetails['rule_name'],
+									'details' => $mainDetails
+								];
+								
+							}
+						}
+					}
+
 					$fk++;
 				}
 
@@ -1790,7 +1848,7 @@ class AJD_validation extends Base_validator
 				$details 					= $or_field[ $or_field_name ][ Abstract_common::LOG_AND ];
 				$field_arr 					= $this->format_field_name( $or_field_name );
 				
-				$subCheck 					= $this->_processOrCollection( $orPromisesRaw );
+				$subCheck 					= $this->_processOrCollection( $or_field_arr, $or_success, $or_field, $data, $or_passed_per_pass, $orPromisesRaw );
 
 				$value_or = (isset($data[$field_arr['orig']])) ? $data[$field_arr['orig']] : null;
 
@@ -1853,8 +1911,6 @@ class AJD_validation extends Base_validator
 				foreach( $and_field as $field_key => $field_value )
 				{
 					$realFieldKey 	= Validation_helpers::getParentPath($field_key);
-
-					$and_fields_key[] = $field_key;
 
 					$fieldValueOr 	= array();
 
@@ -1929,7 +1985,6 @@ class AJD_validation extends Base_validator
 						$this->processFieldRulesSequence();
 
 						$andPromises[] 		= $andPromise;
-						$andPromisesRaw[]   = $andPromise;
 
 						$val_and_fails 		= $this->validation_fails( $field_key );
 
@@ -1970,8 +2025,6 @@ class AJD_validation extends Base_validator
 		if(!empty($orPromises))
 		{
 			$orAllPromises = PromiseHelpers::any($orPromises);
-
-			
 		}
 
 		if(!empty($andPromises))
@@ -1991,14 +2044,7 @@ class AJD_validation extends Base_validator
 
 		if(!empty($allPromises))
 		{
-			$allPromise = PromiseHelpers::all($allPromises);
-
-			$mergeFieldsKey = array_merge($and_fields_key, $or_fields_key);
-
-			if(!empty($mergeFieldsKey))
-			{
-				$allPromise->setFields($mergeFieldsKey);
-			}	
+			$allPromise = PromiseHelpers::all($allPromises);	
 		}
 
 		$realEv = $ev;
@@ -2037,25 +2083,485 @@ class AJD_validation extends Base_validator
 		return $ajds;
 	}
 
-	private function _processOrCollection( array $orPromisesRaw = [] )
+	private function _processOrCollection( array $or_field_arr, array $or_success, array $or_field, array $data, array $or_passed_per_pass = [], array $orPromisesRaw = [] )
 	{
-		$check = [];
-		if(!empty($orPromisesRaw))
+		$check 						= array();
+		$cachedResult = [];
+		if( !EMPTY( $or_field_arr ) )
 		{
-			call_user_func_array([$this, 'any'], $orPromisesRaw);
-
-			foreach($orPromisesRaw as $promise)
+			if(!empty($orPromisesRaw))
 			{
-				$field = $promise->getField();
+				call_user_func_array([$this, 'any'], $orPromisesRaw);
+			}
 
-				if(!empty($field))
+			$or_cnt = 0;
+			foreach( $or_field_arr as $f_arr => $f_arr_v )
+			{
+				$or_field_details 	= $or_field[ $f_arr ][ Abstract_common::LOG_AND ];
+				$or_f_arr 			= $this->format_field_name( $f_arr );
+
+				$validateGroupings = static::$ajd_prop['groupings'];
+
+				$or_field_details  = static::processValidateGroupings($validateGroupings, $or_field_details, true);
+
+
+				/*if(!empty($validateGroupings))
 				{
-					$check[] = $this->validation_fails($field);
-				}
+					if($validateGroupings instanceof Grouping_sequence_interface)
+					{
+						$validateGroupings = $validateGroupings->sequence();
+					}
+				}*/
+				/*if(isset($data[ $f_arr ]))
+				{
+					if( is_array( $data[ $f_arr ] ) )
+					{
+						
+						$cachedResult = $this->_processMultiOrRule( $or_success, $or_field_details, $or_f_arr, [], $or_cnt, $validateGroupings, $or_passed_per_pass, $cachedResult );
+						
+					}
+					else
+					{
+						$cachedResult = $this->_processMultiOrRule( $or_success, $or_field_details, $or_f_arr, $data[ $f_arr ], $or_cnt, $validateGroupings, $or_passed_per_pass, $cachedResult );
+					}
+
+					$or_cnt++;
+				}*/
+
+				$check[] 			= $this->validation_fails($or_f_arr['orig']);
 			}
 		}
 
 		return $check;
+	}
+
+	private function _processMultiOrRule( array $or_success, array $or_field_details, array $or_f_arr, $dataValue = null, $current_key, $validateGroupings = null, array $or_passed_per_pass = [], array $cachedResult )
+	{
+		
+		$passed_per_rule = [];
+		
+
+		foreach($or_passed_per_pass as $fieldKey => $fieldDetails )
+		{
+			foreach($fieldDetails['details'] as $valuesKey => $valuesDetails )
+			{
+				foreach($valuesDetails as $rulesKey => $mainDetails)
+				{
+					$passed_per_rule[$fieldKey][$valuesKey][$rulesKey] = $mainDetails['details']['passed'][0];
+				}
+			}
+		}
+
+		$passed_per_rule_new = Array_helper::dot($passed_per_rule);
+		/*echo '<pre>';
+
+		print_r($passed_per_rule_new);*/
+		foreach($or_passed_per_pass as $fieldKey => $fieldDetails )
+		{
+			foreach($fieldDetails['details'] as $valuesKey => $valuesDetails )
+			{
+				
+				foreach($valuesDetails as $rulesKey => $mainDetails)
+				{
+
+
+					if(isset($cachedResult[$fieldKey][$valuesKey][$rulesKey]))
+					{
+						continue; 
+					}
+					
+					$details = $mainDetails['details'];
+
+					$compareKey = $valuesKey.'.'.$rulesKey;
+					$passed_ch_arr = [];
+					foreach($passed_per_rule_new as $keys => $values)
+					{
+						$keysArr = explode('.', $keys);
+						$mainFieldKey = $keysArr[0];
+						unset($keysArr[0]);
+
+						$keyStr = implode('.', $keysArr);
+						
+						if($mainFieldKey != $fieldKey && $compareKey == $valuesKey)
+						{
+							$passed_ch_arr[] = $values;
+						}
+					}
+					
+					if( 
+						isset($or_passed_per_pass[$fieldKey]['details'][$valuesKey][$rulesKey])
+						&&
+						!in_array(1, $mainDetails['details']['passed'] )
+
+						&& !in_array(1, $passed_ch_arr)
+					)
+					{
+						$sometimes_and = null;
+						$sometime_and_result = true;
+						
+						if(isset($or_field_details['sometimes'][$or_f_arr['orig']]))
+						{
+							$sometimes_and = $or_field_details['sometimes'][$or_f_arr['orig']];
+						}
+
+						if(!empty($sometimes_and))
+						{
+							if($sometimes_and instanceof Validator)
+							{
+								$sometime_and_result = $sometimes_and->validate($vvv);	
+							}
+							else if( $sometimes_and instanceof Logics_map )
+							{
+								$sometime_and_result = $sometimes_and->deferToWhen()->runLogics($vvv, [], false);
+							}
+							else if( is_callable( $sometimes_and ) )
+							{
+								$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $vvv, $or_f_arr['orig'], $or_field_details, $dataValue ) );
+
+							}
+							else if( $sometimes_and == Abstract_common::SOMETIMES 
+								OR $sometimes_and === TRUE
+							)
+							{
+								$sometime_and_result 				= !EMPTY( $vv );
+							}
+							else
+							{
+								$sometime_and_result 				= true;	
+							}
+						}
+						
+						if($sometime_and_result
+							&& isset($or_field_details['details'][$rulesKey])
+						)	
+						{
+							$printOr = false;
+							$checkPr = [];
+
+							if(!is_null($details['sequence_check']['sequence_check']) && $details['sequence_check']['sequence_check'] === false)
+							{
+								$checkPr[] = true;
+							}
+
+							if(in_array(1, $checkPr))
+							{
+								$printOr = true;
+							}
+
+							if(
+								!empty(static::$ajd_prop['grouping_queue'])
+								&&
+								isset($or_field_details['groups'])
+								&&
+								!empty($or_field_details['groups'])
+							)
+							{
+								if(isset($or_field_details['groups'][$details['rule_name']][$rulesKey]))
+								{
+									$groupings = $or_field_details['groups'][$details['rule_name']][$rulesKey];
+
+									if( !in_array($details['sequence_check']['firstSeq'], $groupings)  )
+									{
+										$printOr = false;
+									}
+								}
+							}
+							
+							if(empty($validateGroupings))
+							{
+								$printOr = true;
+							}
+							
+							if(empty(static::$ajd_prop['grouping_queue']))
+							{
+								$printOr = true;
+							}
+							
+							if($printOr)
+							{
+								$real_det 					= [];
+										
+								$real_det['clean_field'] 	= $details['field'];
+								$real_det['orig_field'] 	= $details['clean_field'];
+								$real_det['rule'] 			= $details['rule_name'];
+								$real_det['satisfier'] 		= $details['satisfier'];
+								$real_det['value'] 			= $details['value'];						
+								$real_det['cus_err'] 		= $details['cus_err'][$details['rule_name']][$rulesKey];
+								$real_det['append_error']	= $details['append_error'][$details['rule_name']][$rulesKey];
+								 
+							 	$real_det['details'] 		= $or_field_details['details'][$rulesKey];
+
+							 	$real_det['rule_obj'] = $details['rule_obj'];
+							 	
+							 	$this->handle_errors( $real_det, TRUE, $valuesKey, true, true );
+							 }
+						 	
+						}
+					}
+					
+					$cachedResult[$fieldKey][$valuesKey][$rulesKey] = true;
+
+					
+				}
+			}
+		}
+
+		return $cachedResult;
+		
+		/*foreach( $or_success as $rule => $value_ar )
+		{
+			
+			if( is_numeric( $rule ) )
+			{
+				$r_cnt 								= 0;
+
+				foreach ( $value_ar as $rr => $vv ) 
+				{
+					
+					foreach($vv as $r => $v)
+					{
+						$check_rule 					= array_search($rr, $or_field_details['rules']);
+						
+						if( !in_array( 1, $v['passed'][0] ) AND $check_rule !== FALSE )
+						{
+							$field_arr_ch = $v['field'];
+							if(!in_array($or_f_arr['orig'], $field_arr_ch, true))
+							{
+								break;
+							}
+							
+							$sometimes_and = null;
+							$sometime_and_result = true;
+							
+							if(isset($or_field_details['sometimes'][$or_f_arr['orig']]))
+							{
+								$sometimes_and = $or_field_details['sometimes'][$or_f_arr['orig']];
+							}
+							
+							$vvv = $v['values'][0];
+							
+							if(!empty($sometimes_and))
+							{
+								if($sometimes_and instanceof Validator)
+								{
+									$sometime_and_result = $sometimes_and->validate($vvv);	
+								}
+								else if( $sometimes_and instanceof Logics_map )
+								{
+									$sometime_and_result = $sometimes_and->deferToWhen()->runLogics($vvv, [], false);
+								}
+								else if( is_callable( $sometimes_and ) )
+								{
+									$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $vvv, $or_f_arr['orig'], $or_field_details, $dataValue ) );
+
+								}
+								else if( $sometimes_and == Abstract_common::SOMETIMES 
+									OR $sometimes_and === TRUE
+								)
+								{
+									$sometime_and_result 				= !EMPTY( $vv );
+								}
+								else
+								{
+									$sometime_and_result 				= true;	
+								}
+							}
+
+							if($sometime_and_result)
+							{
+								$printOr = false;
+								$checkPr = [];
+
+								foreach($v['sequence_check'] as $sequences)
+								{
+									if(!is_null($sequences) && $sequences === false)
+									{
+										$checkPr[] = true;
+									}
+								}
+
+								if(in_array(1, $checkPr))
+								{
+									$printOr = true;
+								}
+								
+								if(empty($validateGroupings))
+								{
+									$printOr = true;
+								}
+								
+								if(empty(static::$ajd_prop['grouping_queue']))
+								{
+									$printOr = true;
+								}
+
+								if($printOr)
+								{
+									$real_det 					= array();
+									
+									$real_det['clean_field'] 	= $or_f_arr['clean'];
+									$real_det['orig_field'] 	= $or_f_arr['orig'];
+									$real_det['rule'] 			= $rr;
+									$real_det['satisfier'] 		= $v['satisfier'][0];
+									$real_det['value'] 			= $v['values'][0];						
+									$real_det['cus_err'] 		= $v['cus_err'][0];
+									$real_det['append_error']	= $v['append_error'][0];
+
+									$det_key = array_search($r, $or_field_details['rules']);
+									 
+								 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+
+								 	$real_det['rule_obj'] = (isset($v['rule_obj'][0][$rr])) ? $v['rule_obj'][0][$rr] : null;
+
+								 	$kk_r = $r;
+
+								 	if(isset($v['key_multi'][0]))
+								 	{
+								 		$kk_r = $v['key_multi'][0];
+								 	}
+								 	
+									$this->handle_errors( $real_det, TRUE, $kk_r, true, true );
+								}
+							}
+						}
+
+						$r_cnt++;
+					}
+				}
+			}
+		}*/
+	}
+
+	private function _processSingleOrRule( array $or_success, array $or_field_details, array $or_f_arr, $dataValue, $current_key, $validateGroupings = null, array $or_passed_per_pass = [] )
+	{
+		foreach( $or_field_details['rules'] as $rule_key => $rule_per )
+	 	{
+
+	 		if( ISSET( $or_success[$rule_per][$rule_key]['passed'] ) AND !in_array( 1, $or_success[$rule_per][$rule_key]['passed'] ) )
+			{
+				if(!in_array($or_f_arr['orig'], $or_success[$rule_per][$rule_key]['field'], true))
+				{
+					break;
+				}
+
+	 			$check_rule 					= array_search($rule_per, $or_field_details['rules']);
+
+
+		 		if( $check_rule !== FALSE )
+		 		{
+		 			$sometimes_and = null;
+					$sometime_and_result = true;
+					
+					if(isset($or_field_details['sometimes'][$or_f_arr['orig']]))
+					{
+						$sometimes_and = $or_field_details['sometimes'][$or_f_arr['orig']];
+					}
+
+					$vvv = $dataValue;
+
+					if(!empty($sometimes_and))
+					{
+						if($sometimes_and instanceof Validator)
+						{
+							$sometime_and_result = $sometimes_and->validate($vvv);	
+						}
+						else if( $sometimes_and instanceof Logics_map )
+						{
+							$sometime_and_result = $sometimes_and->deferToWhen()->runLogics($vvv, [], false);
+						}
+						else if( is_callable( $sometimes_and ) )
+						{
+							$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $vvv, $or_f_arr['orig'], $or_field_details, $dataValue ) );
+
+						}
+						else if( $sometimes_and == Abstract_common::SOMETIMES 
+							OR $sometimes_and === TRUE
+						)
+						{
+							$sometime_and_result 				= !EMPTY( $vv );
+						}
+						else
+						{
+							$sometime_and_result 				= true;	
+						}
+					}
+
+					if($sometime_and_result)
+					{
+						$printOr = false;
+						$checkPr = [];
+						
+						foreach($or_success[$rule_per][$rule_key]['sequence_check'] as $sequences)
+						{
+							if(!is_null($sequences) && $sequences === false)
+							{
+								$checkPr[] = true;
+							}
+						}
+						
+						if(in_array(1, $checkPr))
+						{
+							$printOr = true;
+						}
+						
+						if(empty($validateGroupings))
+						{
+							$printOr = true;
+						}
+						
+						if(empty(static::$ajd_prop['grouping_queue']))
+						{
+							$printOr = true;
+						}
+
+						if($printOr)
+						{
+						
+					 		$real_det 					= array();
+					 		$real_det['clean_field'] 	= $or_f_arr['clean'];
+							$real_det['orig_field'] 	= $or_f_arr['orig'];
+							$real_det['rule'] 			= $rule_per;
+							$real_det['satisfier'] 		= ( ISSET( $or_success[$rule_per][$rule_key]['satisfier'][$current_key] ) ) ? $or_success[$rule_per][$rule_key]	['satisfier'][$current_key] : NULL;
+							$real_det['value'] 			= $dataValue;					
+
+							$real_det['cus_err'] 	= array();
+
+							if( ISSET( $or_success[$rule_per][$rule_key]['cus_err'][$current_key] ) )
+							{
+								$real_det['cus_err'] 	= $or_success[$rule_per][$rule_key]['cus_err'][$current_key];
+							}
+
+							if( ISSET( $or_success[$rule_per][$rule_key]['cus_err'][$rule_key] ) )
+							{
+								$real_det['cus_err'] 	= $or_success[$rule_per][$rule_key]['cus_err'][$rule_key];
+							}
+							
+							
+							if( ISSET( $or_success[$rule_per][$rule_key]['append_error'][$rule_per][$rule_key]  ) )
+							{
+
+								$real_det['append_error']	= $or_success[$rule_per][$rule_key]['append_error'][$rule_per][$rule_key];
+							}
+							
+							$det_key = array_search($rule_per, $or_field_details['rules']);
+							
+						 	$real_det['details'] 		= $or_field_details['details'][$det_key];
+
+						 	$real_det['rule_obj'] = (isset($or_success[$rule_per][$rule_key]['rule_obj'][$current_key][$rule_per])) ? $or_success[$rule_per][$rule_key]['rule_obj'][$current_key][$rule_per] : null;
+
+						 	if(empty($real_det['rule_obj']))
+						 	{
+						 		$real_det['rule_obj'] = (isset($or_success[$rule_per][$rule_key]['rule_obj'][$rule_key][$rule_per])) ? $or_success[$rule_per][$rule_key]['rule_obj'][$rule_key][$rule_per] : null;
+						 	}
+						 
+						 	
+							$this->handle_errors( $real_det, FALSE, null, true, true );
+						}
+					}
+				
+				}
+			}
+		}
 	}
 
 	public function checkGroup( array $data )

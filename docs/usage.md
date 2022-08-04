@@ -407,6 +407,94 @@ $v->useConstraintStorage('group1')->digit()->check('field3', '');
 - We store rule definition `required`, `minlength`, `maxlength` in storage `group1` and we could reuse the rule definition by using `$v->useContraintStorage('group1')`
 - We could define another rule definition not in the storage for a specific field like in 'field3'.
 
+## Any 
+- use this to simulate an `or` logic between two or more validation defintion.
+- validation will pass if `any` of the validation passes.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v->any(
+	$v->required()->minlength(2)->check('or_field1',['or_field1' => ['', '']]), 
+	$v->required()->check('or_field2',['or_field2' => ['']]),
+	$v->required()->check('or_field3',''),
+); // validation fails 
+/*
+	Outputs error 
+	All of the required rules must pass for "Or field1".
+	  - The Or field1 field is required at row 1.
+	  - The Or field1 field is required at row 2.
+	  - Or field1 must be greater than or equal to 2. character(s).  at row 1.
+	  - Or field1 must be greater than or equal to 2. character(s).  at row 2.
+	All of the required rules must pass for "Or field2".
+	  - The Or field2 field is required at row 1.
+	All of the required rules must pass for "Or field3".
+	  - The Or field3 field is required
+*/
+
+$v->any(
+	$v->required()->minlength(2)->check('or_field1',['or_field1' => ['', '']]), 
+	$v->required()->check('or_field2',['or_field2' => ['']]),
+	$v->required()->check('or_field3','a'),
+); // validation passes 
+/*
+	Note: in first validation even if one item in or_field1 passes it will still fail and print error, to make this validation pass both item in or_field1 must pass
+*/
+
+/*
+	Example 2
+*/
+$v->any(
+	$v->required()->check('group_and_single1', ''),
+
+	$v 
+		->Srequired(null, AJD_validation::LOG_OR)
+			->field('group_and_single2')
+
+			->field('group_and_single3')
+				->minlength(2)
+		->eSrequired()
+		->checkGroup(
+			[
+				'group_and_single2' => '',
+				'group_and_single3' => '',
+			]
+		)
+); // validation fails 
+/*
+	Outputs error
+	All of the required rules must pass for "Group and single1".
+	  - The Group and single1 field is required
+	All of the required rules must pass for "Group and single2".
+	  - The Group and single2 field is required
+	All of the required rules must pass for "Group and single3".
+	  - The Group and single3 field is required
+	  - Group and single3 must be greater than or equal to 2. character(s). 
+*/
+
+$v->any(
+	$v->required()->check('group_and_single1', ''),
+
+	$v 
+		->Srequired(null, AJD_validation::LOG_OR)
+			->field('group_and_single2')
+
+			->field('group_and_single3')
+				->minlength(2)
+		->eSrequired()
+		->checkGroup(
+			[
+				'group_and_single2' => '',
+				'group_and_single3' => 'aa',
+			]
+		)
+); // validation passes
+/*
+	Note: since we define in `->Srequired(null, AJD_validation::LOG_OR)` that `group_and_single2` or `group_and_single3` passes required and field `group_and_single3` passes minlength(2) this any validation passes.
+*/ 
+```
+
 ## The Validator Object
 - To get the validator object use:
 ```php

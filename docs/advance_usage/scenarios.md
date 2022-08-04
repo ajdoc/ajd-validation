@@ -254,7 +254,157 @@ $v = new AJD_validation;
 
 * Example 2's field middlename2 minlength rule will only run if value is required but allows zero meaning if value zero required_allowed_zero is true and if value is digit, in this case since the value is `aa` minlength rule will not run
 
+### Groupings
+- We can also group set of rules and tell the validator to run a specific group only
+```php
+use AJD_validation\AJD_validation;
 
+$v = new AJD_validation;
+
+$v 
+	->required(null, '@custom_error_Field is required.')->groups(['t1'])
+	->minlength(3)->groups(['t1'])
+
+
+	->maxlength(5)->groups('t2')
+	->alnum(['*', '&'])->groups('t2')
+
+	->uncompromised()->groups('t3')
+
+	->useGroupings(['t2'])
+	->check('grouping_field', ''); // validation fails
+/*
+	Outputs error
+	All of the required rules must pass for "Grouping field".
+  		- Grouping field must contain only letters (a-z), digits (0-9) and ""*&"".
+
+*/
+```
+- In the above example alnum and maxlength validation only run since we told that only use groups `t2`.
+
+Example using alternative syntax
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v 
+->Srequired()->groups('t1')
+	->Sminlength(2)->groups('t2')
+		->field('field_group1')
+		->field('field_group2')
+	->eSminlength()
+->eSrequired()
+->useGroupings(['t2'])
+->checkGroup([
+	'field_group1' => '',
+	'field_group2' => '',
+]); // validation fails
+
+/*
+	Outputs error
+	All of the required rules must pass for "Field group1".
+	  - Field group1 must be greater than or equal to 2. character(s). 
+	All of the required rules must pass for "Field group2".
+	  - Field group2 must be greater than or equal to 2. character(s). 
+
+*/
+```
+### Grouping Sequence
+- you could also define the sequence of how the grouping will run.
+- this mean that the validator will run the group sequentially and if one grouping fails validation will stop there.
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+/*
+	example 1
+*/
+$v 
+		->required(null, '@custom_error_Field is required.')->groups(['t1'])
+		->minlength(3)->groups(['t1'])
+
+		
+		->maxlength(5)->groups('t2')
+		->alnum(['*', '&'])->groups('t2')
+
+		->uncompromised()->groups('t3')
+
+		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+		->check('grouping_field', ''); // validation fails 
+/*
+	Outputs error 
+	All of the required rules must pass for "Grouping field".
+	  - Field is required.
+	  - Grouping field must be greater than or equal to 3. character(s). 
+*/
+
+/*
+	example 2
+*/
+$v 
+		->required(null, '@custom_error_Field is required.')->groups(['t1'])
+		->minlength(3)->groups(['t1'])
+
+		
+		->maxlength(5)->groups('t2')
+		->alnum(['*', '&'])->groups('t2')
+
+		->uncompromised()->groups('t3')
+
+		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+		->check('grouping_field', 'aa***--'); // validation fails 
+/*
+	Outputs error 
+	All of the required rules must pass for "Grouping field".
+	  - Grouping field must be less than or equal to 5. character(s). 
+	  - Grouping field must contain only letters (a-z), digits (0-9) and ""*&"".
+*/
+
+/*
+	example 3
+*/
+$v 
+		->required(null, '@custom_error_Field is required.')->groups(['t1'])
+		->minlength(3)->groups(['t1'])
+
+		
+		->maxlength(5)->groups('t2')
+		->alnum(['*', '&'])->groups('t2')
+
+		->uncompromised()->groups('t3')
+
+		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+		->check('grouping_field', 'aaaaa'); // validation fails 
+/*
+	Outputs error 
+	All of the required rules must pass for "Grouping field".
+  		- The Grouping field field has appeared in a data leak.
+*/
+
+/*
+	example 4
+*/
+$v 
+		->required(null, '@custom_error_Field is required.')->groups(['t1'])
+		->minlength(3)->groups(['t1'])
+
+		
+		->maxlength(5)->groups('t2')
+		->alnum(['*', '&'])->groups('t2')
+
+		->uncompromised()->groups('t3')
+
+		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+		->check('grouping_field', 'ame*&'); // validation passes 
+
+```
+
+## Using alternative syntax in Group Sequence
+**Note: Currently using Group Sequence in alternative syntax does not work. Will update the documentation if it is fixed. So it is recommended to avoid the alternative syntax and use the basic/normal syntax.**
 
 See also:
 - [Async](async.md)
