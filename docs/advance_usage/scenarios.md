@@ -404,7 +404,7 @@ $v
 ```
 
 ## Using alternative syntax in Group Sequence
-**Note: Currently using Group Sequence in alternative syntax does not work well. You can't mix and match field. So it is recommended to use the normal/basic syntax for group sequencing.**
+**Note: Currently using Group Sequence in alternative syntax does not work well. Per field sub rule group sequence is not working well please refer to example 4. So it is recommended to use the normal/basic syntax for group sequencing.**
 
 ```php
 use AJD_validation\AJD_validation;
@@ -476,7 +476,6 @@ use AJD_validation\AJD_validation;
 $v = new AJD_validation;
 /*
 	Example 3
-	this will not output the desired result does not output anything
 */
 $v 
 ->Srequired(null,  AJD_validation::LOG_OR)->groups('t1')
@@ -491,10 +490,49 @@ $v
 ->checkGroup([
 	'field_group1' => ['field_group1' => ['a', 'a']],
 	'field_group2' => ['field_group2' => ['', '']],
-]); 
+]); // validation fails
+
+/*
+	Outputs error 
+	All of the required rules must pass for "Field group1".
+	  - Field group1 must be greater than or equal to 2. character(s).  at row 1.
+	  - Field group1 must be greater than or equal to 2. character(s).  at row 2.
+*/
 ```
-- Example 3 is an example where group sequence will not work with alternative syntax because of different rule logics in the parent rules `required` and `minlength`.
-- But if both rule `required` and `minlength` are `AJD_validation::LOG_OR` or `AJD_validation::LOG_AND` group sequencing works.
+- Example 3 since we define that `required` will pass if field `field_group1` or `field_group2` is not empty that is why it printed `minlength` rule for `field_group1` but if you put a value for `field_group2` that is not `length >= 2` `field_group2` will also output error.
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+/*
+	Example 4
+		This is kind of grouping does not work as intended
+*/
+$v 
+->Srequired(null,  AJD_validation::LOG_OR)->groups('t1')
+	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
+		->field('field_group1')
+			->alpha()->groups('t3')
+		->field('field_group2')
+			->digit()->groups('t4')
+	->eSminlength()
+->eSrequired()
+
+->useGroupings($v->createGroupSequence(['t1', 't2', 't3', 't4']))
+->checkGroup([
+	'field_group1' => ['field_group1' => ['a-a', 'a-a']],
+	'field_group2' => ['field_group2' => ['1a1', '1a']],
+	
+]);
+```
+- In example 4 you can't create a sequence like this `['t3', 't4', 't2', 't1']` where the sub rule group is the first one to be validated as this will not print the error for the parent rules `required`  and `minlength`
+
+- In example 4 everything runs correctly up to group `t3` but after that it does not pring the error of group `t4` but if you switch `t3` with `t4` `['t1', 't2', 't4', 't3']` `t4` will run and `t3` will not 
+
+- So in short parent rule group sequencing works for the most part but sub field rule group sequence does not work well
+
+- So again it is recommended to use normal/basic syntax for group sequencing.
 
 See also:
 - [Async](async.md)

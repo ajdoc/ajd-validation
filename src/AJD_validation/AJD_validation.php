@@ -1654,6 +1654,7 @@ class AJD_validation extends Base_validator
 
 		$or_fields_key = [];
 		$and_fields_key = [];
+		$or_field_merge = [];
 
 		if( ISSET( static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ] ) )
 		{
@@ -1672,7 +1673,6 @@ class AJD_validation extends Base_validator
 				$fk = 0;
 				foreach( $or_field as $field_key => $field_value )
 				{
-
 					$fieldValueOr 	= array();
 
 					$or_fields_key[] = $field_key;
@@ -1727,6 +1727,25 @@ class AJD_validation extends Base_validator
  					$or_pass_arr = [];
  					$orResultArr = [];
  					$or_passed_per = [];
+
+ 					$ffield_value = $field_value;
+
+ 					foreach($ffield_value as $vlogic => $vv)
+ 					{
+ 						$ffield_value[$vlogic]['no_error_message'] = [];
+
+ 						if(isset($vv['rules']))
+ 						{
+	 						foreach($vv['rules'] as $kvv => $vvv)
+	 						{
+	 							$ffield_value[$vlogic]['no_error_message'][$vvv][$kvv] = true;
+	 						}
+	 					}
+ 					}
+
+ 					$or_field_merge[$field_key]['field_value'] = $ffield_value;
+ 					$or_field_merge[$field_key]['value'] = $value;
+ 					$or_field_merge[$field_key]['no_error_message'] = true;
 
  					/*$validateGroupings = static::$ajd_prop['groupings'];
 
@@ -1936,6 +1955,7 @@ class AJD_validation extends Base_validator
 							$this->_runEvents($eventLoad, $value, $field_key);
 						}
 
+						$validateGroupings = static::$ajd_prop['groupings'];
 						/*$validateGroupings = static::$ajd_prop['groupings'];
 
 						if(
@@ -1959,6 +1979,100 @@ class AJD_validation extends Base_validator
 							}
 						
 						}*/
+
+						if(
+							isset($or_field_merge[$field_key])
+							&& !empty($validateGroupings)
+							&& 
+							(
+								isset(static::$ajd_prop['cache_groupings'][$field_key])
+								&&
+								static::$ajd_prop['cache_groupings'][$field_key] instanceof Grouping_sequence_interface
+							)
+						)
+						{
+							$field_value_merge = $or_field_merge[$field_key]['field_value'];
+							$field_value[Abstract_common::LOG_AND]['rules'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['rules'], $field_value[Abstract_common::LOG_AND]['rules']);
+
+							$field_value[Abstract_common::LOG_AND]['details'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['details'], $field_value[Abstract_common::LOG_AND]['details']);
+
+							$field_value[Abstract_common::LOG_AND]['satisfier'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['satisfier'], $field_value[Abstract_common::LOG_AND]['satisfier']);
+
+							$field_value[Abstract_common::LOG_AND]['cus_err'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['cus_err'], $field_value[Abstract_common::LOG_AND]['cus_err']);
+
+							
+							$field_value[Abstract_common::LOG_AND]['filters'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['filters'], $field_value[Abstract_common::LOG_AND]['filters']);
+							
+
+							$field_value[Abstract_common::LOG_AND]['filter_satis'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['filter_satis'], $field_value[Abstract_common::LOG_AND]['filter_satis']);
+
+							$field_value[Abstract_common::LOG_AND]['pre_filters'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['pre_filters'], $field_value[Abstract_common::LOG_AND]['pre_filters']);
+
+							$field_value[Abstract_common::LOG_AND]['scenarios'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['scenarios'], $field_value[Abstract_common::LOG_AND]['scenarios']);
+
+							$field_value[Abstract_common::LOG_AND]['sometimes'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['sometimes'], $field_value[Abstract_common::LOG_AND]['sometimes']);
+
+							$field_value[Abstract_common::LOG_AND]['groups'] = array_merge($field_value_merge[Abstract_common::LOG_AND]['groups'], $field_value[Abstract_common::LOG_AND]['groups']);
+
+
+							$field_value[Abstract_common::LOG_AND]['no_error_message'] = $field_value_merge[Abstract_common::LOG_AND]['no_error_message'];
+
+							
+							$groupingsMerge = $field_value[Abstract_common::LOG_AND]['groups'];
+							$sometimesMerge = $field_value[Abstract_common::LOG_AND]['sometimes'];
+
+							$newGroups = [];
+							$newSometimes = [];
+
+							if(isset($field_value[Abstract_common::LOG_AND]['rules']))
+							{
+								foreach($field_value[Abstract_common::LOG_AND]['rules'] as $rk => $rr)
+								{	
+									if(isset($groupingsMerge[$rr]))
+									{
+										$newGroups[$rr][$rk] = $groupingsMerge[$rr];
+									}
+
+									if(isset($sometimesMerge[$rr]))
+									{
+										if(isset($sometimesMerge[$rr][$rk]))
+										{
+											$newSometimes[$rr][$rk] = $sometimesMerge[$rr][$rk];
+										}
+										else
+										{
+											$newSometimes[$rr][$rk] = null;	
+
+										}
+									}
+								}
+
+								$newGroups = Array_helper::flatten($newGroups, 2);	
+								
+								foreach($field_value[Abstract_common::LOG_AND]['rules'] as $rk => $rr)
+								{
+
+									if(isset($newGroups[$rk]))
+									{
+										unset($field_value[Abstract_common::LOG_AND]['groups'][$rr]);
+										$field_value[Abstract_common::LOG_AND]['groups'][$rr][$rk] = $newGroups[$rk];
+									}
+
+									if(isset($newSometimes[$rr]))
+									{
+										unset($field_value[Abstract_common::LOG_AND]['sometimes'][$rr]);
+										$field_value[Abstract_common::LOG_AND]['sometimes'][$rr][$rk] = $newSometimes[$rr][$rk];
+									}
+								}
+								
+
+								
+							}
+
+								
+							
+						}
+
 							
 						$andPromise 		= $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value, null, false );
 
@@ -3655,6 +3769,7 @@ class AJD_validation extends Base_validator
 		
 		$pass_arr['rule'] 			= $rule_value;
 		$pass_arr['satisfier'] 		= $satisfier;
+		$pass_arr['no_error_message'] = (isset($prop['no_error_message'])) ? $prop['no_error_message'] : null;
 		$pass_arr['field'] 			= $field;
 		$pass_arr['details'] 		= $details;
 		$pass_arr['value'] 			= $value;
@@ -4113,6 +4228,11 @@ class AJD_validation extends Base_validator
 				{
 					$ret_args[ $prop ]	= $group[ $logic ][ $prop ];
 				}
+			}
+
+			if(isset($group[ $logic ]['no_error_message']))
+			{
+				$ret_args['no_error_message'] = $group[ $logic ]['no_error_message'];
 			}
 
 			if( !EMPTY( $ret_args ) )
@@ -4923,7 +5043,22 @@ class AJD_validation extends Base_validator
 			{
 				if( $this->check_cond ) 
 				{
-					$this->handle_errors( $details, $check_arr, $key );
+					$showError = true;
+
+					if(
+						isset($details['no_error_message'][$details['rule']][$rule_key])
+						&&
+						!empty($details['no_error_message'][$details['rule']][$rule_key])
+					)
+					{
+						$showError = false;
+					}
+					
+					if($showError)
+					{
+						$this->handle_errors( $details, $check_arr, $key );	
+					}
+					
 
 					if( ISSET( static::$cache_instance[ $details['details'][1] ] ) )
 					{

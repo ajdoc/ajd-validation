@@ -279,17 +279,18 @@ try
 
 	$v 
 		->Srequired(null,  AJD_validation::LOG_OR)->groups('t1')
-			->Sminlength(2, AJD_validation::LOG_OR)->groups('t2')
+			->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
 				->field('field_group1')
 					->alpha()->groups('t3')
 				->field('field_group2')
+					->digit()->groups('t4')
 			->eSminlength()
 		->eSrequired()
 
-		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+		->useGroupings($v->createGroupSequence(['t2', 't1', 't', 't4']))
 		->checkGroup([
-			'field_group1' => ['field_group1' => ['a-', 'a']],
-			'field_group2' => ['field_group2' => ['', '']],
+			'field_group1' => ['field_group1' => ['aa', 'aa']],
+			'field_group2' => ['field_group2' => ['a', '']],
 			/*'field_group1' => '',
 			'field_group2' => ''*/
 		]);
