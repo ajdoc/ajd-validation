@@ -278,16 +278,20 @@ try
 	// ['check_or1' => ['', '']
 
 	$v 
-		->Srequired()->groups('t1')
-			->Sminlength(2)->groups('t2')
+		->Srequired(null,  AJD_validation::LOG_OR)->groups('t1')
+			->Sminlength(2, AJD_validation::LOG_OR)->groups('t2')
 				->field('field_group1')
+					->alpha()->groups('t3')
 				->field('field_group2')
 			->eSminlength()
 		->eSrequired()
-		->useGroupings(['t2', 't'])
+
+		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
 		->checkGroup([
-			'field_group1' => 'aa',
-			'field_group2' => 'aa',
+			'field_group1' => ['field_group1' => ['a-', 'a']],
+			'field_group2' => ['field_group2' => ['', '']],
+			/*'field_group1' => '',
+			'field_group2' => ''*/
 		]);
 
 	$v->any(
@@ -349,9 +353,8 @@ try
 		->uncompromised()->groups('t3')
 
 		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
-		->check('grouping_field', 'aaaaaa');
-
-		// ['grouping_field' => ['aaa', 'aaaa']]
+		// ->check('grouping_field', 'aaaaaa');
+		->check('grouping_field', ['grouping_field' => ['aaaa**-', '']]);
 
 	// ['check_or1' => ['', ''] ]
 

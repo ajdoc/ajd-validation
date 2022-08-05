@@ -404,7 +404,97 @@ $v
 ```
 
 ## Using alternative syntax in Group Sequence
-**Note: Currently using Group Sequence in alternative syntax does not work. Will update the documentation if it is fixed. So it is recommended to avoid the alternative syntax and use the basic/normal syntax.**
+**Note: Currently using Group Sequence in alternative syntax does not work well. You can't mix and match field. So it is recommended to use the normal/basic syntax for group sequencing.**
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+/*
+	Example 1
+*/
+$v 
+->Srequired(null,  AJD_validation::LOG_AND)->groups('t1')
+	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
+		->field('field_group1')
+			->alpha()->groups('t3')
+		->field('field_group2')
+	->eSminlength()
+->eSrequired()
+
+->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+->checkGroup([
+	'field_group1' => ['field_group1' => ['a', 'a']],
+	'field_group2' => ['field_group2' => ['', '']],
+]); // validation fails
+/*
+	Outputs error
+	All of the required rules must pass for "Field group1".
+	  - The Field group1 field is required at row 1.
+	  - The Field group1 field is required at row 2.
+	All of the required rules must pass for "Field group2".
+	  - The Field group2 field is required at row 1.
+	  - The Field group2 field is required at row 2.
+*/
+
+/*
+	Example 2
+*/
+$v 
+->Srequired(null,  AJD_validation::LOG_AND)->groups('t1')
+	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
+		->field('field_group1')
+			->alpha()->groups('t3')
+		->field('field_group2')
+	->eSminlength()
+->eSrequired()
+
+->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+->checkGroup([
+	'field_group1' => ['field_group1' => ['a', 'a-']],
+	'field_group2' => ['field_group2' => ['', 'a-']],
+	
+]); // validation fails
+/*
+	Outputs error 
+	All of the required rules must pass for "Field group1".
+	  - Field group1 must be greater than or equal to 2. character(s).  at row 1.
+	  - Field group1 must contain only letters (a-z). at row 2.
+	All of the required rules must pass for "Field group2".
+	  - The Field group2 field is required at row 1.
+*/
+
+```
+- In example 1 only `required`error prints because we told that sequence will group `t1` will be first.
+
+- In example 2 `field group 1 row 1` triggers `minlength` error, `field group 1 row 2` triggers `alpha error`, `field group 2 row 1` trigger `required` error because of the sequence and `field group 2 row 2` passes because there is no `alpha` rule for `field group 2`.
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+/*
+	Example 3
+	this will not output the desired result does not output anything
+*/
+$v 
+->Srequired(null,  AJD_validation::LOG_OR)->groups('t1')
+	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
+		->field('field_group1')
+			->alpha()->groups('t3')
+		->field('field_group2')
+	->eSminlength()
+->eSrequired()
+
+->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
+->checkGroup([
+	'field_group1' => ['field_group1' => ['a', 'a']],
+	'field_group2' => ['field_group2' => ['', '']],
+]); 
+```
+- Example 3 is an example where group sequence will not work with alternative syntax because of different rule logics in the parent rules `required` and `minlength`.
+- But if both rule `required` and `minlength` are `AJD_validation::LOG_OR` or `AJD_validation::LOG_AND` group sequencing works.
 
 See also:
 - [Async](async.md)

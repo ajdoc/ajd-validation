@@ -1655,6 +1655,8 @@ class AJD_validation extends Base_validator
 		$or_fields_key = [];
 		$and_fields_key = [];
 
+		$or_field_merge = [];
+
 		if( ISSET( static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ] ) )
 		{
 
@@ -2520,7 +2522,6 @@ class AJD_validation extends Base_validator
 
 	public static function useGroupings($group = null, $queueSequence = null, $field = null)
 	{
-
 		if(!empty($group))
 		{	
 			$realGroup = $group;
@@ -2546,7 +2547,8 @@ class AJD_validation extends Base_validator
 				$groupVal = $realGroup->sequence();
 			}
 
-			static::$ajd_prop['groupings'] = $group;
+			static::$ajd_prop['groupings'] = $group;	
+			
 
 			if($realGroup instanceof Grouping_sequence_interface)
 			{
@@ -2558,12 +2560,11 @@ class AJD_validation extends Base_validator
 						$firstInQueueArr = [
 							$field => $firstInQueue
 						];
-						
+
 						static::$ajd_prop['grouping_queue'] = $firstInQueueArr;
 					}
 					else
 					{
-
 						static::$ajd_prop['grouping_queue'] = $firstInQueue;	
 					}
 					
@@ -2587,7 +2588,7 @@ class AJD_validation extends Base_validator
 				
 			}
 		}
-		
+
 		return static::get_ajd_instance();
 	}
 
@@ -2699,7 +2700,7 @@ class AJD_validation extends Base_validator
 		$prop_or 		= $propScene['prop_or'];
 
 		$validateGroupings = static::$ajd_prop['groupings'];
-		
+
 		if(
 			!is_array($validateGroupings)
 			||
@@ -2853,7 +2854,7 @@ class AJD_validation extends Base_validator
 			if( $auto_arr )
 			{
 				$check_logic[ Abstract_common::LOG_AND ]['auto_arr_result'] = true;
-				
+
 				foreach( $value as $k_value => $v_value ) 
 				{
 					if(!empty($sometimes_and))
@@ -2942,15 +2943,13 @@ class AJD_validation extends Base_validator
 						
 					}
 				}
-
+				
 				foreach( $check_logic[ Abstract_common::LOG_AND ] as $k_and => $and )
 				{
 					if( !EMPTY( $and['passed'] ) )
 					{
 						foreach( $and['passed'] as $pass )
 						{
-							$cp_pass[] = $pass;
-
 							$check_logic[ Abstract_common::LOG_AND ][ 'passed' ][] 	= $pass;
 
 							$check_logic[ Abstract_common::LOG_AND ][ 'passed_field' ][$field_arr['orig']][] 	= $pass;
@@ -2999,7 +2998,7 @@ class AJD_validation extends Base_validator
 					unset( $check_logic[ Abstract_common::LOG_AND ][ $k_and ] );
 
 				}
-
+				
 				$check_logic[ Abstract_common::LOG_AND ]['auto_arr_result'] = true;
 			}
 			else 
@@ -4311,7 +4310,7 @@ class AJD_validation extends Base_validator
 		return parent::get_errors_instance( static::$lang, $singleton );
 	}
 
-	public function processFieldRulesSequence($field_key, $next = false)
+	public function processFieldRulesSequence($field_key)
 	{
 		if(
 			isset(static::$ajd_prop['cache_groupings'][$field_key])
@@ -4327,17 +4326,9 @@ class AJD_validation extends Base_validator
 
 			$queueKey = array_search($grouping_queue, $seqArr);
 
-			$getNextArr = Array_helper::where($seqArr, function($value, $key) use ($queueKey, $next)
+			$getNextArr = Array_helper::where($seqArr, function($value, $key) use ($queueKey)
 			{
-				if(!$next)
-				{
-					return $key >= $queueKey;
-				}
-				else
-				{
-					return $key > $queueKey;	
-				}
-				
+				return $key >= $queueKey;
 			});
 			
 			if(!empty($getNextArr))
@@ -4346,15 +4337,7 @@ class AJD_validation extends Base_validator
 					$field_key => $this->createGroupSequence($getNextArr)
 				];
 
-				if(!$next)
-				{
-					$this->useGroupings($getNextArrReal, static::$ajd_prop['grouping_queue'][$field_key], $field_key);			
-				}
-				else
-				{
-					$this->useGroupings($getNextArrReal, null, $field_key);	
-				}
-				
+				$this->useGroupings($getNextArrReal, static::$ajd_prop['grouping_queue'][$field_key], $field_key);		
 			}
 		}
 	}

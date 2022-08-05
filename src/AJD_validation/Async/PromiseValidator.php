@@ -14,7 +14,7 @@ class PromiseValidator extends Promise
 	use Events_dispatcher_trait;
 
 	protected $currentFiber;
-	protected $field;
+	protected $Vfield;
 	protected $fields = [];
 	private $value;
 
@@ -39,12 +39,12 @@ class PromiseValidator extends Promise
 
 	public function setField($field)
     {
-    	$this->field = $field;
+    	$this->Vfield = $field;
     }
 
     public function getField()
     {
-    	return $this->field;
+    	return $this->Vfield;
     }
 
     public function setFields(array $fields)
