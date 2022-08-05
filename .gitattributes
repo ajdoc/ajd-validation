@@ -4,3 +4,4 @@
 /bin export-ignore
 /docs export-ignore
 /tests export-ignore
+/backups export-ignore
