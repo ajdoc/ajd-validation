@@ -263,7 +263,7 @@ try
 		$v->maxlength(3)->groups('gg1')
 			->minlength(2)->groups('gg2')
 			->useGroupings($v->createGroupSequence(['gg2', 'gg1']))
-		->check('async_grouping2', 'aaaa')
+		->check('async_grouping2', 'aaaaa')
 	)->promise();*/
 
 	/*var_dump($v
@@ -278,22 +278,21 @@ try
 	// ['check_or1' => ['', '']
 
 	$v 
-		->Srequired(null,  AJD_validation::LOG_OR)->groups('t1')
-			->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
-				->field('field_group1')
-					->alpha()->groups('t3')
-				->field('field_group2')
-					->digit()->groups('t4')
-			->eSminlength()
-		->eSrequired()
-
-		->useGroupings($v->createGroupSequence(['t2', 't1', 't', 't4']))
-		->checkGroup([
-			'field_group1' => ['field_group1' => ['aa', 'aa']],
-			'field_group2' => ['field_group2' => ['a', '']],
-			/*'field_group1' => '',
-			'field_group2' => ''*/
-		]);
+->Srequired(null,  AJD_validation::LOG_OR)->groups('t1')
+	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
+		->field('field_group1')
+			->alpha()->groups('t3')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't3']))
+		->field('field_group2')
+			->digit()->groups('t4')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't4']))
+	->eSminlength()
+->eSrequired()
+->checkGroup([
+	'field_group1' => ['field_group1' => ['a', 'a']],
+	'field_group2' => ['field_group2' => ['aa', 'aa']],
+	
+]);
 
 	$v->any(
 		$v->required()->check('group_and_single1', ''),
@@ -355,7 +354,7 @@ try
 
 		->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
 		// ->check('grouping_field', 'aaaaaa');
-		->check('grouping_field', ['grouping_field' => ['aaaa**-', '']]);
+		->check('grouping_field', ['grouping_field' => ['', '']]);
 
 	// ['check_or1' => ['', ''] ]
 

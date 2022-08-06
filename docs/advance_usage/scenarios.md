@@ -256,6 +256,48 @@ $v = new AJD_validation;
 
 ### Groupings
 - We can also group set of rules and tell the validator to run a specific group only
+
+- **There is different syntax to be used when grouping in normal/basic vs alternative syntax. Please refer to the example below.** 
+
+### Normal/Basic sytanx
+- In normal/basic we use `->useGroupings()` before the `->check()` method
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$v 
+	->required()->groups(['t1'])
+	->minlength(2)->groups(['t1'])
+	->useGroupings(['t1'])
+	->check('field', '');
+```
+
+### Alternative sytanx
+- In alternative syntax we use `->useGroupingsField()` afer the `->field()` method or after the sub rule definition of the field.
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+->Srequired(null,  AJD_validation::LOG_OR)->groups('t1')
+	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
+
+		->field('field_group1')
+			->alpha()->groups('t3')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't3']))
+
+		->field('field_group2')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2']))
+
+	->eSminlength()
+->eSrequired()
+->checkGroup([
+	'field_group1' => ['field_group1' => ['a-a', 'a-a']],
+	'field_group2' => ['field_group2' => ['1', '']],
+	
+]);
+
+```
+
 ```php
 use AJD_validation\AJD_validation;
 
@@ -290,24 +332,35 @@ use AJD_validation\AJD_validation;
 $v = new AJD_validation;
 
 $v 
-->Srequired()->groups('t1')
-	->Sminlength(2)->groups('t2')
+->Srequired(null,  AJD_validation::LOG_AND)->groups('t1')
+	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
 		->field('field_group1')
+			->alpha()->groups('t3')
+		->useGroupingsField(['t2', 't3'])
 		->field('field_group2')
+			->digit()->groups('t4')
+		->useGroupingsField(['t1', 't2', 't4'])
 	->eSminlength()
 ->eSrequired()
-->useGroupings(['t2'])
 ->checkGroup([
-	'field_group1' => '',
-	'field_group2' => '',
+	'field_group1' => ['field_group1' => ['', '']],
+	'field_group2' => ['field_group2' => ['', '']],
 ]); // validation fails
 
 /*
 	Outputs error
 	All of the required rules must pass for "Field group1".
-	  - Field group1 must be greater than or equal to 2. character(s). 
+	  - Field group1 must be greater than or equal to 2. character(s).  at row 1.
+	  - Field group1 must be greater than or equal to 2. character(s).  at row 2.
+	  - Field group1 must contain only letters (a-z). at row 1.
+	  - Field group1 must contain only letters (a-z). at row 2.
 	All of the required rules must pass for "Field group2".
-	  - Field group2 must be greater than or equal to 2. character(s). 
+	  - The Field group2 field is required at row 1.
+	  - The Field group2 field is required at row 2.
+	  - Field group2 must be greater than or equal to 2. character(s).  at row 1.
+	  - Field group2 must be greater than or equal to 2. character(s).  at row 2.
+	  - Field group2 must contain only digits (0-9). at row 1.
+	  - Field group2 must contain only digits (0-9). at row 2.
 
 */
 ```
@@ -404,7 +457,7 @@ $v
 ```
 
 ## Using alternative syntax in Group Sequence
-**Note: Currently using Group Sequence in alternative syntax does not work well. Per field sub rule group sequence is not working well please refer to example 4. So it is recommended to use the normal/basic syntax for group sequencing.**
+**Note: Currently using Group Sequence in alternative syntax kinda works but there might be a scenario where the desired result won't be correct. So it is recommended to use the normal/basic syntax for group sequencing.**
 
 ```php
 use AJD_validation\AJD_validation;
@@ -419,14 +472,16 @@ $v
 	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
 		->field('field_group1')
 			->alpha()->groups('t3')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't3']))
 		->field('field_group2')
+			->digit()->groups('t4')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't4']))
 	->eSminlength()
 ->eSrequired()
-
-->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
 ->checkGroup([
-	'field_group1' => ['field_group1' => ['a', 'a']],
+	'field_group1' => ['field_group1' => ['', '']],
 	'field_group2' => ['field_group2' => ['', '']],
+	
 ]); // validation fails
 /*
 	Outputs error
@@ -446,11 +501,12 @@ $v
 	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
 		->field('field_group1')
 			->alpha()->groups('t3')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't3']))
 		->field('field_group2')
+			->digit()->groups('t4')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't4']))
 	->eSminlength()
 ->eSrequired()
-
-->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
 ->checkGroup([
 	'field_group1' => ['field_group1' => ['a', 'a-']],
 	'field_group2' => ['field_group2' => ['', 'a-']],
@@ -463,12 +519,13 @@ $v
 	  - Field group1 must contain only letters (a-z). at row 2.
 	All of the required rules must pass for "Field group2".
 	  - The Field group2 field is required at row 1.
+	  - Field group2 must contain only digits (0-9). at row 2.
 */
 
 ```
-- In example 1 only `required`error prints because we told that sequence will group `t1` will be first.
+- In example 1 only `required`error prints because we told that sequence will use group `t1` will be the first sequence.
 
-- In example 2 `field group 1 row 1` triggers `minlength` error, `field group 1 row 2` triggers `alpha error`, `field group 2 row 1` trigger `required` error because of the sequence and `field group 2 row 2` passes because there is no `alpha` rule for `field group 2`.
+- In example 2 `field group 1 row 1` triggers `minlength` error, `field group 1 row 2` triggers `alpha error`, `field group 2 row 1` trigger `required` error because of the sequence and `field group 2 row 2` prints `digit` rule error.
 
 ```php
 use AJD_validation\AJD_validation;
@@ -482,15 +539,17 @@ $v
 	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
 		->field('field_group1')
 			->alpha()->groups('t3')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't3']))
 		->field('field_group2')
+			->digit()->groups('t4')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't4']))
 	->eSminlength()
 ->eSrequired()
-
-->useGroupings($v->createGroupSequence(['t1', 't2', 't3']))
 ->checkGroup([
 	'field_group1' => ['field_group1' => ['a', 'a']],
 	'field_group2' => ['field_group2' => ['', '']],
-]); // validation fails
+	
+]) // validation fails
 
 /*
 	Outputs error 
@@ -507,32 +566,36 @@ use AJD_validation\AJD_validation;
 $v = new AJD_validation;
 /*
 	Example 4
-		This is kind of grouping does not work as intended
+		
 */
 $v 
 ->Srequired(null,  AJD_validation::LOG_OR)->groups('t1')
 	->Sminlength(2, AJD_validation::LOG_AND)->groups('t2')
 		->field('field_group1')
 			->alpha()->groups('t3')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't3']))
 		->field('field_group2')
 			->digit()->groups('t4')
+		->useGroupingsField($v->createGroupSequence(['t1', 't2', 't4']))
 	->eSminlength()
 ->eSrequired()
-
-->useGroupings($v->createGroupSequence(['t1', 't2', 't3', 't4']))
 ->checkGroup([
 	'field_group1' => ['field_group1' => ['a-a', 'a-a']],
 	'field_group2' => ['field_group2' => ['1a1', '1a']],
 	
-]);
+]); // validation fails
+
+/*
+	Outputs error
+	All of the required rules must pass for "Field group1".
+	  - Field group1 must contain only letters (a-z). at row 1.
+	  - Field group1 must contain only letters (a-z). at row 2.
+	All of the required rules must pass for "Field group2".
+	  - Field group2 must contain only digits (0-9). at row 1.
+	  - Field group2 must contain only digits (0-9). at row 2.
+*/
 ```
-- In example 4 you can't create a sequence like this `['t3', 't4', 't2', 't1']` where the sub rule group is the first one to be validated as this will not print the error for the parent rules `required`  and `minlength`
-
-- In example 4 everything runs correctly up to group `t3` but after that it does not pring the error of group `t4` but if you switch `t3` with `t4` `['t1', 't2', 't4', 't3']` `t4` will run and `t3` will not 
-
-- So in short parent rule group sequencing works for the most part but sub field rule group sequence does not work well
-
-- So again it is recommended to use normal/basic syntax for group sequencing.
+- So again it is recommended to use normal/basic syntax for group sequencing [Usage](../usage.md).
 
 See also:
 - [Async](async.md)

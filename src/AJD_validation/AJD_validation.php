@@ -719,7 +719,7 @@ class AJD_validation extends Base_validator
 		}
 
 		static::$ajd_prop[ 'current_field' ] 	= $field;
-
+		
 		return static::get_field_scene_ins( $field, true, false );
 	}
 
@@ -2632,14 +2632,47 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	public static function useGroupings($group = null, $queueSequence = null, $field = null)
+	public static function useGroupingsField($group = null, $queueSequence = null, $field = null)
 	{
+		return static::useGroupings($group, $queueSequence, $field, true);
+	}
+
+	public static function useGroupings($group = null, $queueSequence = null, $field = null, $forAlternativeSyntax = false)
+	{
+		$curr_field = null;
+		if($forAlternativeSyntax)
+		{
+			$curr_field = static::$ajd_prop[ 'current_field' ];
+
+			if(empty($field) && !empty($curr_field))
+			{
+				$field = $curr_field;
+			}
+		}
 
 		if(!empty($group))
 		{	
 			$realGroup = $group;
 			if(!empty($field))
-			{
+			{	
+				if(!is_array($group))
+				{
+					$group = [
+						$field => $group
+					];
+				}
+				else
+				{
+					if(!isset($group[$field]))
+					{
+						$group = [
+							$field => $group
+						];
+					}
+					
+
+				}
+
 				if(isset($group[$field]))
 				{
 					$realGroup = $group[$field];
@@ -2651,7 +2684,17 @@ class AJD_validation extends Base_validator
 				&& !$realGroup instanceof Grouping_sequence_interface
 			)
 			{
-				$group = [$realGroup];
+				if(!empty($field))
+				{
+					$group = [
+						$field => $realGroup
+					];
+				}
+				else
+				{
+					$group = [$realGroup];	
+				}
+				
 				$groupVal = $realGroup;
 			}
 
@@ -2660,8 +2703,45 @@ class AJD_validation extends Base_validator
 				$groupVal = $realGroup->sequence();
 			}
 
-			static::$ajd_prop['groupings'] = $group;
+			if(
+				$forAlternativeSyntax
+			)
+			{	
+				if(!empty($curr_field))
+				{
+					if(!is_array(static::$ajd_prop['groupings']))
+					{
+						static::$ajd_prop['groupings'] = [];	
+					}
 
+					if(isset($group[$field]))
+					{
+						static::$ajd_prop['groupings'][$field] = $group[$field];		
+					}
+					
+				}
+					
+			}
+			else
+			{
+				if(!empty($field))
+				{
+					if(!is_array(static::$ajd_prop['groupings']))
+					{
+						static::$ajd_prop['groupings'] = [];	
+					}
+
+					if(isset($group[$field]))
+					{
+						static::$ajd_prop['groupings'][$field] = $group[$field];	
+					}
+				}
+				else
+				{
+					static::$ajd_prop['groupings'] = $group;		
+				}	
+			}
+			
 			if($realGroup instanceof Grouping_sequence_interface)
 			{
 				$firstInQueue = reset($groupVal);
@@ -2812,51 +2892,91 @@ class AJD_validation extends Base_validator
 		$prop_and 		= $propScene['prop_and'];
 		$prop_or 		= $propScene['prop_or'];
 
-		$validateGroupings = static::$ajd_prop['groupings'];
+		$validateGroupings = [];
 		
-		if(
-			!is_array($validateGroupings)
-			||
-			!Array_helper::isAssoc($validateGroupings)
 
+		if(
+			is_array(static::$ajd_prop['groupings'])
+			&&
+			Array_helper::isAssoc(static::$ajd_prop['groupings'])
+			&& 
+			isset(static::$ajd_prop['groupings'][$orig_field])
 		)
 		{
-			if(!isset(static::$ajd_prop['cache_groupings'][$orig_field]))
-			{
-				static::$ajd_prop['cache_groupings'][$orig_field] = $validateGroupings;		
-			}
-			
+			$validateGroupings = static::$ajd_prop['groupings'][$orig_field];
 		}
 		else
 		{
-			if(!isset(static::$ajd_prop['cache_groupings'][$orig_field]))
-			{
-				static::$ajd_prop['cache_groupings'][$orig_field] = $this->processGroupingsArray(static::$ajd_prop['cache_groupings'], $orig_field);
-			}
-		
-		}
-
-		if(isset(static::$ajd_prop['cache_groupings'][$orig_field]))
-		{
-			$validateGroupings = static::$ajd_prop['cache_groupings'][$orig_field];
-		}
-		
-		$validateGroupings = $this->processGroupingsArray($validateGroupings, $orig_field);
-		
-		if(!empty($validateGroupings))
-		{
-			$validateGroupings = [
-				$orig_field => $validateGroupings
-			];
-			
-			$this->useGroupings($validateGroupings, null, $orig_field);
-
 			if(
-				isset(static::$ajd_prop['groupings'][$orig_field])
-				&& !empty(static::$ajd_prop['groupings'][$orig_field])
+				( 
+					!is_array(static::$ajd_prop['groupings'])
+					||
+					!Array_helper::isAssoc(static::$ajd_prop['groupings'])
+				)
+				&&
+				(
+					is_array(static::$ajd_prop['groupings'])
+					&&
+					!isset(static::$ajd_prop['groupings'][$orig_field])
+				)
+				
 			)
 			{
-				$validateGroupings = static::$ajd_prop['groupings'][$orig_field];
+				$validateGroupings = static::$ajd_prop['groupings'];
+			}
+			else
+			{
+				$validateGroupings = static::$ajd_prop['groupings'];
+			}
+		}
+
+		if(!empty($validateGroupings))
+		{
+			if(
+
+				!is_array($validateGroupings)
+				||
+				!Array_helper::isAssoc($validateGroupings)
+
+			)
+			{
+				if(!isset(static::$ajd_prop['cache_groupings'][$orig_field]))
+				{
+					static::$ajd_prop['cache_groupings'][$orig_field] = $validateGroupings;		
+				}
+				
+			}
+			else
+			{
+				if(!isset(static::$ajd_prop['cache_groupings'][$orig_field]))
+				{
+					static::$ajd_prop['cache_groupings'][$orig_field] = $this->processGroupingsArray(static::$ajd_prop['cache_groupings'], $orig_field);
+				}
+			
+			}
+			
+			if(isset(static::$ajd_prop['cache_groupings'][$orig_field]))
+			{
+				$validateGroupings = static::$ajd_prop['cache_groupings'][$orig_field];
+			}
+			
+			$validateGroupings = $this->processGroupingsArray($validateGroupings, $orig_field);
+			
+			if(!empty($validateGroupings))
+			{
+				$validateGroupings = [
+					$orig_field => $validateGroupings
+				];
+				
+				$this->useGroupings($validateGroupings, null, $orig_field);
+
+				if(
+					isset(static::$ajd_prop['groupings'][$orig_field])
+					&& !empty(static::$ajd_prop['groupings'][$orig_field])
+				)
+				{
+					$validateGroupings = static::$ajd_prop['groupings'][$orig_field];
+				}
 			}
 		}
 
@@ -3479,7 +3599,11 @@ class AJD_validation extends Base_validator
 		{
 			$validateGroupings = [];
 
-			if(isset(static::$ajd_prop['groupings'][$field_arr['orig']]))
+			if(
+				is_array(static::$ajd_prop['groupings'])
+				&&
+				isset(static::$ajd_prop['groupings'][$field_arr['orig']])
+			)
 			{
 				$validateGroupings = static::$ajd_prop['groupings'][$field_arr['orig']];
 			}
