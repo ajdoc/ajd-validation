@@ -111,7 +111,7 @@ class Key_value_rule extends Abstract_rule
         return $exception;
     }
 
-    public function assertErr($value, $override = FALSE)
+    public function assertErr($value, $override = FALSE, $inverseCheck = false)
     {
         $rule 	= $this->getRule($value);
 

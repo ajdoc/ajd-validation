@@ -241,6 +241,12 @@ try
 		}
 	);
 
+	$v 
+		->email(['showSubError' => false, 'useDns' => false], '#client_new_email')
+		->check('new_email', 'a@');
+
+	var_dump($v->getClientSide());
+	
 
 	$v
 	->invokable_required()

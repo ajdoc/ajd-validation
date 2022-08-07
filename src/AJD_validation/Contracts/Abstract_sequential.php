@@ -37,7 +37,7 @@ class Abstract_sequential extends Abstract_all
         $msg            = "";
 
         $collectionExceptions = $this->assertSequenceRules($this->sequentialRules, $value, $clean_field, true);
-        $check = true;
+        $check = ($this->inverseCheck) ? false : true;
 
         $return = [
             'check' => $check
@@ -48,7 +48,7 @@ class Abstract_sequential extends Abstract_all
 
         if(!empty($collectionExceptions))
         {
-            $check = false;
+            $check = ($this->inverseCheck) ? true : false;
 
             $return['check'] = $check;
             

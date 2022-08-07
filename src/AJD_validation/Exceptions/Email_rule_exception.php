@@ -5,10 +5,10 @@ class Email_rule_exception extends Abstract_exceptions
 {
 	public static $defaultMessages 	= array(
 		 self::ERR_DEFAULT 			=> array(
-		 	self::STANDARD 			=> 'The :field field must be valid email.',
+		 	self::STANDARD 			=> 'The :field field must be a valid email.',
 		 ),
 		  self::ERR_NEGATIVE 		=> array(
-            self::STANDARD 			=> 'The :field field must not be valid email.',
+            self::STANDARD 			=> 'The :field field must not be a valid email.',
         )
 	);
 

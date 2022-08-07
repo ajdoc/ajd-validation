@@ -20,6 +20,13 @@ class Abstract_compound extends Abstract_all
 	protected $rules = [];
 
 	/**
+	* @var $ruleOptions[]
+	*/
+	public $ruleOptions = [
+		'showSubError' => true,
+	];
+
+	/**
 	* Initializes the rule adding other rules to the stack.
 	*/
 	public function __construct(Abstract_all ...$rules)
@@ -36,7 +43,7 @@ class Abstract_compound extends Abstract_all
 		$append_error 	= "";
 
 		$collectionExceptions = $this->assertCompoundRules($this->rules, $value, $clean_field, true, true);
-        $check = true;
+        $check = ($this->inverseCheck) ? false : true;
 
         $return = [
             'check' => $check
@@ -46,7 +53,7 @@ class Abstract_compound extends Abstract_all
 
         if(!empty($collectionExceptions))
         {
-            $check = false;
+            $check = ($this->inverseCheck) ? true : false;
 
             $return['check'] = $check;
             
@@ -67,7 +74,10 @@ class Abstract_compound extends Abstract_all
     		'check' => $check
     	];
 
-    	if(!empty($append_error))
+    	if(
+    		!empty($append_error)
+    		&& $this->ruleOptions['showSubError']
+    	)
     	{
     		$return['append_error'] = $append_error;
     	}

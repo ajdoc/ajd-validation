@@ -6,7 +6,7 @@ interface Rule_interface
 
 	public function validate( $value );
 
-	public function assertErr( $value, $override = FALSE );
+	public function assertErr( $value, $override = FALSE, $inverseCheck = null );
 
 	public function getName();
 

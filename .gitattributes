@@ -5,3 +5,7 @@
 /docs export-ignore
 /tests export-ignore
 /backups export-ignore
+/CustomFilters export-ignore
+/CustomLogics export-ignore
+/CustomRules export-ignore
+/CustomRuless export-ignore

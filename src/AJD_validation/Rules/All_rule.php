@@ -59,9 +59,9 @@ class All_rule extends Abstract_all
 		return TRUE;
 	}
 
-	public function assertErr( $value, $override = FALSE )
+	public function assertErr( $value, $override = FALSE, $inverseCheck = null )
 	{
-		$exceptions 	= $this->assertRules( $value, $override );
+		$exceptions 	= $this->assertRules( $value, $override, $inverseCheck );
 		$numRules 		= count( $this->rules );
 		$numExceptions 	= count( $exceptions );
 		$summary 		= array(

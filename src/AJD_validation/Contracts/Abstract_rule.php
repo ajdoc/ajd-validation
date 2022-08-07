@@ -7,6 +7,8 @@ use AJD_validation\Helpers\Errors;
 
 abstract class Abstract_rule extends AJD_validation implements Rule_interface
 {
+    public $inverseCheck;
+
     protected $name;
 
 	public function __invoke($value, $satisfier = NULL, $field = NULL)
@@ -70,24 +72,90 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         return $exception;
     }
 
-    public function assertErr( $value, $override = FALSE )
+    public function assertErr( $value, $override = FALSE, $inverseCheck = null )
     {
+        if(!is_null($inverseCheck))
+        {
+            $this->inverseCheck = $inverseCheck;
+        }
+
+        $response = null;
+
         if($this instanceof Abstract_invokable)
         {
-            if( $this( $value ) )
+            $response = $this( $value );
+
+            if($this->inverseCheck)
             {
-                return TRUE;
+                if( !$response )
+                {
+                    return TRUE;
+                }
+            }
+            else
+            {
+                if( $response )
+                {
+                    return TRUE;
+                }
             }
         }
         else
         {
-            if( $this->validate( $value ) )
+            if(property_exists($this, 'makeValidateReturnArr'))
             {
-                return TRUE;
+                $this->makeValidateReturnArr = true;
+            }
+
+            $response = $this->validate( $value );
+
+            $checkResponse = $response;
+
+            if(is_array($checkResponse))
+            {
+                $checkResponse = (isset($checkResponse['check'])) ? $checkResponse['check'] : false;
+            }
+
+            if($this->inverseCheck)
+            {
+                
+                if( !$checkResponse )
+                {
+                    return TRUE;
+                }
+            }
+            else
+            {
+                if( $checkResponse )
+                {
+                    return TRUE;
+                }
             }
         }
 
-        throw $this->getExceptionError( $value, array(), NULL, $override, $this );
+        $extraParams = [];
+
+        if($this->inverseCheck)
+        {
+            $extraParams = ['inverse' => true];
+        }
+
+        if(is_array($response))
+        {
+            if(isset($response['append_error']))
+            {
+                $extraParams['append_error'] = $response['append_error'];
+            }
+        }
+
+        $exceptions = $this->getExceptionError( $value, $extraParams, NULL, $override, $this );
+
+        if($this->inverseCheck)
+        {
+            $exceptions->setMode(Abstract_exceptions::ERR_NEGATIVE);
+        }
+
+        throw $exceptions;
     }
 
  	protected function createException($rule = NULL, $ruleObj = NULL)

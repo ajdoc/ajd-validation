@@ -211,10 +211,10 @@ class One_or_rule extends Abstract_all
         return $check;
     }
 
-    public function assertErr($value, $override = FALSE)
+    public function assertErr($value, $override = FALSE, $inverseCheck = null)
     {
         $validators     = $this->getRules();
-        $exceptions     = $this->assertRules($value, $override);
+        $exceptions     = $this->assertRules($value, $override, $inverseCheck);
         $numRules       = count($validators);
         $numExceptions  = count($exceptions);
 

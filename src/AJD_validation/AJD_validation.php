@@ -22,7 +22,10 @@ use AJD_validation\Helpers\Logics_map;
 use AJD_validation\Helpers\Group_sequence;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
 use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
+use AJD_validation\Contracts\Abstract_compound;
+use AJD_validation\Contracts\Abstract_sequential;
 use AJD_validation\Contracts\Grouping_sequence_interface;
+use AJD_validation\Helpers\TriggerWhen;
 
 class AJD_validation extends Base_validator
 {
@@ -260,6 +263,13 @@ class AJD_validation extends Base_validator
 		$filter->addFilterDirectory( $directory );
 
 		return static::get_ajd_instance();
+	}
+
+	public function triggerWhen($checker)
+	{
+		$ajd = static::get_ajd_instance();
+
+		return new TriggerWhen($ajd, $checker);
 	}
 
 	public function checkAllMiddleware( $field, $value = NULL, array $customMesage = array(), $check_arr = TRUE )
@@ -5512,7 +5522,23 @@ class AJD_validation extends Base_validator
 
 		if(!$details['details'][3]['is_anon_class'])
 		{
+			$inverse = $details['details'][0];
 
+			if($inverse)
+			{
+				if(property_exists($rule_obj, 'inverseCheck'))
+				{
+					if(
+						$rule_obj instanceof Abstract_compound
+						|| $rule_obj instanceof Abstract_sequential
+					)
+					{
+						$rule_obj->inverseCheck = true;	
+					}
+					
+				}
+			}
+			
 			if($rule_obj instanceof Invokable_rule_interface)
 			{
 				$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );

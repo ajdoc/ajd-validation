@@ -165,7 +165,7 @@ class None_rule extends Abstract_all
         return $check;
     }
 
-    public function assertErr($value, $override = FALSE)
+    public function assertErr($value, $override = FALSE, $inverseCheck = null)
     {
         $exceptions     = $this->assertRules($value, $override);
         $numRules       = count($this->getRules());

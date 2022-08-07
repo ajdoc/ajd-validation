@@ -19,9 +19,9 @@ abstract class Abstract_wrapper extends Abstract_rule
 		return $this->validationRules;
 	}
 
-	public function assertErr($value, $override = FALSE)
+	public function assertErr($value, $override = FALSE, $inverseCheck = null)
 	{
-		return $this->getValidatable()->assertErr($value, $override);
+		return $this->getValidatable()->assertErr($value, $override, $inverseCheck);
 	}
 
 	public function run( $value, $satisfier = NULL, $field = NULL, $clean_field = NULL )

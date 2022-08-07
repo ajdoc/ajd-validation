@@ -495,6 +495,108 @@ $v->any(
 */ 
 ```
 
+## Trigger When
+- use this feature to trigger a validation if the condition is true.
+- use this if you don't like writing if condition.
+- when triggerWhen returns true it will run the validation if false it will not run validation.
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+/*
+	Instead of 
+*/
+if(!empty($test))
+{
+	$v 
+		->required()
+		->minlength(2)
+		->check('trigger_when', '');
+}
+
+/*
+	you can write
+*/
+$v 
+->required()
+->minlength(2)
+->triggerWhen(!empty($test))
+->check('trigger_when', '');
+
+/*
+	triggerWhen can receive the following arguments
+*/
+
+// 1. booleans
+$v 
+->required()
+->minlength(2)
+->triggerWhen(!empty($test)) // boolean
+->check('trigger_when', '');
+
+$v 
+->required()
+->minlength(2)
+->triggerWhen($v->getValidator()->validate('')) // boolean
+->check('trigger_when', '');
+
+$v 
+->required()
+->minlength(2)
+->triggerWhen($v->Lgfirst(true)->runLogics('')) // boolean
+->check('trigger_when', '');
+
+// 2. callables
+$v 
+->required()
+->minlength(2)
+->triggerWhen(function($ajdInstance)
+{
+	return true;
+}) // callable
+->check('trigger_when', '');
+
+class Test
+{
+	public function handle($ajdInstance, mixed...$ags)
+	{
+		/*
+			$ags[0] = 1
+			$ags[1] = 2
+		*/
+
+		return true;
+	}
+}
+
+$v 
+->required()
+->minlength(2)
+->triggerWhen([new Test, 'handle', 1, 2]) // callable
+->check('trigger_when', '');
+
+// 3. Validator instance 
+// will validate value
+$v 
+->required()
+->minlength(2)
+->triggerWhen($v->getValidator()->required()) // Validator instance
+->check('trigger_when', '');
+
+
+// 4. Logics_map instance 
+// will validate value
+$v 
+->required()
+->minlength(2)
+->triggerWhen($v->Lgfirst(true)->wrapLogic()) // Logics_map instance 
+->check('trigger_when', '');
+
+```
+- `$v->triggerWhen(bool|callable|\AJD_validation\Helpers\Logics_map|\AJD_validation\Contracts\Validator)` 
+
 ## The Validator Object
 - To get the validator object use:
 ```php

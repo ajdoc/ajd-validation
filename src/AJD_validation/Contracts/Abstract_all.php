@@ -86,7 +86,7 @@ abstract class Abstract_all extends Abstract_rule
         return $this->rules;
     }
 
-    protected function assertRules($value, $override = FALSE)
+    protected function assertRules($value, $override = FALSE, $inverseCheck = null)
     {
         $validators     = $this->getRules();
         $exceptions     = array();
@@ -95,7 +95,7 @@ abstract class Abstract_all extends Abstract_rule
         {
             try
             {
-                $v->assertErr( $value, $override );
+                $v->assertErr( $value, $override, $inverseCheck );
             }
             catch( Abstract_exceptions $e )
             {
@@ -130,7 +130,7 @@ abstract class Abstract_all extends Abstract_rule
                     {
                         $v->setName($clean_field);
                     }
-                    $v->assertErr( $value, $override );
+                    $v->assertErr( $value, $override, $this->inverseCheck );
                 }
                 catch( Abstract_exceptions $e )
                 {
@@ -182,9 +182,9 @@ abstract class Abstract_all extends Abstract_rule
                     {*/
                         $validators->setName($clean_field);    
                     // }
-                    
                 }
-                $validators->assertErr( $value, true );
+
+                $validators->assertErr( $value, true, $this->inverseCheck );
             }
             catch( Abstract_exceptions $e )
             {

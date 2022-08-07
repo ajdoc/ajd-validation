@@ -133,7 +133,7 @@ abstract class Abstract_related extends Abstract_rule
         return $check;
     }
 
-    public function assertErr($value, $override = FALSE)
+    public function assertErr($value, $override = FALSE, $inverseCheck = null)
     {
         $hasRelation    = $this->hasReference($value);
 

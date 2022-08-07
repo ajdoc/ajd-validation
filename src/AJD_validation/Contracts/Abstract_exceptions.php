@@ -197,10 +197,17 @@ abstract class Abstract_exceptions extends Errors
         $message_str 	= static::$defaultMessages[$this->mode][$messageKey];
 
         $message 		= $this->replaceErrorPlaceholder( $this->getParams(), $message_str );
+
+        $append_error   = $this->getParam('append_error');
         
         if( EMPTY( $message ) )
         {
         	$message 	= $message_str;
+        }
+
+        if(!empty($append_error))
+        {
+            $message    .= ' '.$append_error;
         }
 
         return $message;
