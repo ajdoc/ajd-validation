@@ -11,6 +11,7 @@ abstract class Base_validator extends Abstract_common
 	protected static $scen_ins;	
 	protected static $field_scene_ins;
 	protected static $lang;
+	protected static $addLangDir 			= [];
 
 	protected static $rules_suffix 			= 'rule';
 
@@ -127,10 +128,19 @@ abstract class Base_validator extends Abstract_common
 
 		if($error)
 		{
+			if(!empty(static::$addLangDir))
+			{
+				foreach(static::$addLangDir as $lang => $path)
+				{
+					$error::addLangDir($lang, $path);
+				}
+			}
+			
 			if(static::$lang)
 			{
 				$error::setLang(static::$lang);
 			}
+
 		}
 		
 		return $error;

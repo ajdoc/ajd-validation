@@ -116,6 +116,7 @@ class AJD_validation extends Base_validator
 	protected static $useContraintGroup;
 
 	protected static $lang;
+	protected static $addLangDir 			= [];
 	protected static $ajd_ins;
 
 	protected $rules_path;
@@ -4142,7 +4143,6 @@ class AJD_validation extends Base_validator
 	public static function setLang( $lang )
 	{
 		static::$lang 	= $lang;
-		Errors::setLang($lang);
 	}
 
 	public static function validation_fails( $key = NULL, $err_key = NULL, $when = FALSE )
@@ -5538,7 +5538,7 @@ class AJD_validation extends Base_validator
 					
 				}
 			}
-			
+
 			if($rule_obj instanceof Invokable_rule_interface)
 			{
 				$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
@@ -5931,6 +5931,12 @@ class AJD_validation extends Base_validator
 	public static function getFiberEvents()
 	{
 		return static::$ajd_prop['fiber_events'];	
+	}
+
+	public static function addLangDir($lang, $path)
+	{
+		Errors::addLangDir($lang, $path);
+		static::$addLangDir[$lang] = $path;
 	}
 
 	public static function addFiberEvents( \Closure $func, $ajd = null, $fiber, $paramaters = [], $fiber_suspend_val = [], $rule = null, $field = null )

@@ -1,0 +1,208 @@
+<?php 
+
+use AJD_validation\Contracts\Abstract_exceptions as ex;
+
+use AJD_validation\Exceptions as Assert;
+
+$lang 				= array();
+
+$lang['error_msg']  = array(
+
+	'is_array'		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be a php array.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be a php array.'
+		)
+	),
+	'is_numeric'	=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be numeric.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be numeric.'
+		)
+	),	
+	'is_int' 		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be of the type integer.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be of the type integer.'
+		)
+	),
+	'is_float' 		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be of the type float.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be of the type float.'
+		)
+	),
+	'is_string' 		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be a string.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be a string.'
+		)
+	),
+	'is_object' 		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be an object.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be an object.'
+		)
+	),
+	'is_callable' 		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be a callable.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be a callable.'
+		)
+	),
+	'is_bool' 			=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be a boolean.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be a boolean.'
+		)
+	),
+	'is_null' 			=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be null.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be null.'
+		)
+	),
+	'is_resource' 		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be a resource.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be a resource.'
+		)
+	),
+	'is_scalar' 		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be a scalar value.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be a scalar value.'
+		)
+	),
+	'is_finite' 		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be a finite number.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be a finite number.'
+		)
+	),
+	'is_infinite'		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be an infinite number.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be an infinite number.'
+		)
+	),
+	'in_array' 			=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be in :*.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be in :*.'
+		)
+	),
+	'preg_match'		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must validate against ":0".'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not validate against ":0".'
+		)
+	),
+	'filter_var' 		=> array(
+		ex::ERR_DEFAULT 	=> array(
+			ex::STANDARD 	=> ':field must be valid.'
+		),
+		ex::ERR_NEGATIVE 	=> array(
+			ex::STANDARD 	=> ':field must not be valid.'
+		)
+	),
+
+	/*
+		Here you may loog at the following Exception class file copy the array and edit the array to your liking.
+		Note: It is recommended to not edit the message in Exception the classes
+	*/
+	/*
+		example go to require rule exception class
+	*/
+
+	/*uncomment this if you want to edit*/
+	// 'required' => array(
+	// 	ex::ERR_DEFAULT 			=> array(
+	// 	 	ex::STANDARD 			=> 'The :field field is required',
+	// 	 ),
+	// 	  ex::ERR_NEGATIVE 		=> array(
+ //            ex::STANDARD 			=> 'The :field field is not required.',
+ //        )
+	// ),
+
+	'required' => Assert\Required_rule_exception::$defaultMessages,
+	'alpha' => Assert\Alpha_rule_exception::$defaultMessages,
+	'age' => Assert\Age_rule_exception::$defaultMessages,
+	'alnum' => Assert\Alnum_rule_exception::$defaultMessages,
+	'amount' =>  Assert\Amount_rule_exception::$defaultMessages,
+	'attribute' => Assert\Attribute_rule_exception::$defaultMessages,
+	'base_email' => Assert\Base_email_rule_exception::$defaultMessages,
+	'between' => Assert\Between_rule_exception::$defaultMessages,
+	'callback' => Assert\Callback_rule_exception::$defaultMessages,
+	'compare' => Assert\Compare_rule_exception::$defaultMessages,
+	'consonant' => Assert\Consonant_rule_exception::$defaultMessages,
+	'contains' => Assert\Contains_rule_exception::$defaultMessages,
+	'country_code' => Assert\Country_code_rule_exception::$defaultMessages,
+	'date_after' => Assert\Date_after_rule_exception::$defaultMessages,
+	'date_before' => Assert\Date_before_rule_exception::$defaultMessages,
+	'date_equals' => Assert\Date_equals_rule_exception::$defaultMessages,
+	'date' => Assert\Date_rule_exception::$defaultMessages,
+	'dependent_all' => Assert\Dependent_all_rule_exception::$defaultMessages,
+	'dependent' => Assert\Dependent_rule_exception::$defaultMessages,
+	'different' => Assert\Different_rule_exception::$defaultMessages,
+	'digit_count' => Assert\Digit_count_rule_exception::$defaultMessages,
+	'digit' => Assert\Digit_rule_exception::$defaultMessages,
+	'dimensions' => Assert\Dimensions_rule_exception::$defaultMessages,
+	'distinct' => Assert\Distinct_rule_exception::$defaultMessages,
+	'dns_email' => Assert\Dns_email_rule_exception::$defaultMessages,
+	'domain' => Assert\Domain_rule_exception::$defaultMessages,
+	'email_available' => Assert\Email_available_rule_exception::$defaultMessages,
+	'email' => Assert\Email_rule_exception::$defaultMessages,
+	'ends_with' => Assert\Ends_with_rule_exception::$defaultMessages,
+	'enum' => Assert\Enum_rule_exception::$defaultMessages,
+	'equals' => Assert\Equals_rule_exception::$defaultMessages,
+	'even' => Assert\Even_rule_exception::$defaultMessages,
+	'exists' => Assert\Exists_rule_exception::$defaultMessages,
+	'file_exists' => Assert\File_exists_rule_exception::$defaultMessages,
+	'file' => Assert\File_rule_exception::$defaultMessages,
+	'filtervar' => Assert\Filtervar_rule_exception::$defaultMessages,
+	'grouped' => Assert\Grouped_rule_exception::$defaultMessages,
+	'identical' => Assert\Identical_rule_exception::$defaultMessages,
+	'image' => Assert\Image_rule_exception::$defaultMessages,
+	'in' => Assert\In_rule_exception::$defaultMessages,
+	'inverse' => Assert\Inverse_rule_exception::$defaultMessages,
+	'json' => Assert\Json_rule_exception::$defaultMessages,
+	'key_nested' => Assert\Key_nested_rule_exception::$defaultMessages,
+	'key' => Assert\Key_rule_exception::$defaultMessages,
+	'key_value' => Assert\Key_value_rule_exception::$defaultMessages,
+	'leap_date' => Assert\Leap_date_rule_exception::$defaultMessages,
+	
+);
+
+
+return $lang;

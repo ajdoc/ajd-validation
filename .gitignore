@@ -8,3 +8,5 @@ phpstan.neon
 phpunit.xml
 vendor/
 CustomRuless/
+custom_lang/
+example2.php

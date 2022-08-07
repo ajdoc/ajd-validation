@@ -37,6 +37,8 @@ class Errors extends InvalidArgumentException
 
     protected static $anonymousObj 	= [];
 
+    protected static $addLangDir 	= [];
+
 	public function __construct( $lang = NULL )
 	{
 		if( !IS_NULL( $lang ) ) 
@@ -53,6 +55,11 @@ class Errors extends InvalidArgumentException
 	public static function addAnonExceptions($rule, $exception)
 	{
 		static::$anonymousObj[$rule] = $exception;
+	}
+
+	public static function addLangDir($lang, $path)
+	{
+		static::$addLangDir[$lang] = $path;
 	}
 
 	public static function setLang($lang)
@@ -228,6 +235,20 @@ class Errors extends InvalidArgumentException
 			$file_name 			= $realLang.'_lang.php';
 			
 			static::$config_ins = new Config( $file_name, $dir );
+
+			if(!empty(static::$addLangDir))
+			{
+				foreach(static::$addLangDir as $lang => $path)
+				{
+					if(file_exists($path))
+					{
+						if(file_exists($path.DIRECTORY_SEPARATOR.$file_name))
+						{
+							static::$config_ins = new Config( $file_name, $path );
+						}
+					}
+				}
+			}
 		}
 
 		return static::$config_ins;

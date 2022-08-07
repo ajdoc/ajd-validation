@@ -114,9 +114,48 @@ abstract class Abstract_exceptions extends Errors
             static::$defaultMessages = static::$localizeMessage[static::$lang];
         }
 
-        if( !EMPTY( $file_data ) && !$hasLocale )
+        $hasAddedLang = false;
+
+        if(!empty(static::$addLangDir))
         {
-            static::$defaultMessages = $file_data;
+            foreach(static::$addLangDir as $lang => $path)
+            {
+                if(file_exists($path))
+                {
+                    $customFile = static::$lang.'_lang.php';
+
+                    if(file_exists($path.DIRECTORY_SEPARATOR.$customFile))
+                    {
+                        $file_data                  = static::$config->getConfigFile( $customFile, $path.DIRECTORY_SEPARATOR );
+
+                        if(!empty($file_data))
+                        {
+                            $hasAddedLang = true;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if($hasAddedLang && !empty($file_data))
+        {
+            if(!empty($this->id))
+            {
+                $ruleName = strtolower(str_replace('_rule_exception', '', $this->id));
+                
+
+                if(isset($file_data['error_msg'][$ruleName]))
+                {
+                    static::$defaultMessages = $file_data['error_msg'][$ruleName];
+                }
+            }
+        }
+        else
+        {
+            if( !EMPTY( $file_data ) && !$hasLocale )
+            {
+                static::$defaultMessages = $file_data;
+            }
         }
     }
 
@@ -124,7 +163,8 @@ abstract class Abstract_exceptions extends Errors
     {       
         $idPass = (isset($params['id_pass']) && !empty($params['id_pass'])) ? $params['id_pass'] : null;
         
-        $this->setId($this->guessId($idPass));
+        $guessId = $this->guessId($idPass);
+        $this->setId($guessId);
     	$this->setParams( $params );        
         
     	$this->localize();
