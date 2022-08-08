@@ -12,6 +12,7 @@ abstract class Base_validator extends Abstract_common
 	protected static $field_scene_ins;
 	protected static $lang;
 	protected static $addLangDir 			= [];
+	protected static $createWriteLangDir 	= [];
 
 	protected static $rules_suffix 			= 'rule';
 
@@ -125,14 +126,22 @@ abstract class Base_validator extends Abstract_common
 		{
 			$error = Vefja::instance('AJD_validation\Helpers\Errors');
 		}
-
+		
 		if($error)
 		{
+
 			if(!empty(static::$addLangDir))
 			{
 				foreach(static::$addLangDir as $lang => $path)
 				{
-					$error::addLangDir($lang, $path);
+					$create_write = false;
+
+					if(isset(static::$createWriteLangDir[$lang]))
+					{
+						$create_write = static::$createWriteLangDir[$lang];
+					}
+
+					$error::addLangDir($lang, $path, $create_write);
 				}
 			}
 			

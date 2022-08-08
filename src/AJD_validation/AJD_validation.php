@@ -117,6 +117,8 @@ class AJD_validation extends Base_validator
 
 	protected static $lang;
 	protected static $addLangDir 			= [];
+	protected static $createWriteLangDir 	= [];
+	
 	protected static $ajd_ins;
 
 	protected $rules_path;
@@ -5933,10 +5935,11 @@ class AJD_validation extends Base_validator
 		return static::$ajd_prop['fiber_events'];	
 	}
 
-	public static function addLangDir($lang, $path)
+	public static function addLangDir($lang, $path, $create_write = false)
 	{
-		Errors::addLangDir($lang, $path);
+		Errors::addLangDir($lang, $path, $create_write);
 		static::$addLangDir[$lang] = $path;
+		static::$createWriteLangDir[$lang] = $create_write;
 	}
 
 	public static function addFiberEvents( \Closure $func, $ajd = null, $fiber, $paramaters = [], $fiber_suspend_val = [], $rule = null, $field = null )

@@ -5,6 +5,7 @@ use AJD_validation\Vefja\Vefja;
 use AJD_validation\Contracts\Nested_rule_exception;
 use AJD_validation\Contracts\Invokable_rule_interface;
 use AJD_validation\Constants\Lang;
+use AJD_validation\Helpers\VarExport;
 
 use InvalidArgumentException;
 
@@ -57,9 +58,52 @@ class Errors extends InvalidArgumentException
 		static::$anonymousObj[$rule] = $exception;
 	}
 
-	public static function addLangDir($lang, $path)
+	public static function addLangDir($lang, $path, $create_write = false)
 	{
 		static::$addLangDir[$lang] = $path;
+
+		if($create_write)
+		{
+			if(!is_dir($path))
+			{
+				mkdir($path,0777,TRUE);
+			}
+
+			if(file_exists($path))
+			{
+				$file_lang = $lang.'_lang.php';
+
+				if(!file_exists($path.DIRECTORY_SEPARATOR.$file_lang))
+				{
+					$lang_dir   = dirname(__DIR__).DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR;
+					$lang_stubs = $lang_dir.'lang.stubs';
+
+					$lang_stubs_result = require $lang_stubs;
+
+					$lang_arr = VarExport::export($lang_stubs_result, VarExport::FORCED_SHOW_ARRAY_KEY);
+
+					$lang_stubs_result_str = <<<EOS
+<?php 
+
+use AJD_validation\Contracts\Abstract_exceptions as ex;
+
+use AJD_validation\Exceptions as Assert;
+
+// 1 parent key means Abstract_exceptions::ERR_DEFAULT
+// 2 parent key means Abstract_exceptions::ERR_NEGATIVE when you inverse the result
+// 0 child key usually means Abstract_exceptions::STANDARD
+// if there child keys greater than 0 you may refer to that rule's exception class to see what it means.
+
+return $lang_arr;
+EOS;
+				
+
+					$file_lang = file_put_contents($path.DIRECTORY_SEPARATOR.$file_lang, $lang_stubs_result_str);
+
+
+				}
+			}
+		}
 	}
 
 	public static function setLang($lang)

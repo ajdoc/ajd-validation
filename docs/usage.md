@@ -262,6 +262,24 @@ $v
 - Check src\AJD_validation\Constants\Lang.php on what language are currently supported 
 - **Note not yet all rules has localization, will gradually add localization support :))**
 
+## Adding custom Lang file
+- You may choose to add your own custom lang file
+```php
+use AJD_validation\AJD_validation;
+use AJD_validation\Constants\Lang;
+
+$v = new AJD_validation;
+
+$v->addLangDir('example', __DIR__.DIRECTORY_SEPARATOR.'custom_lang/', true);
+
+$v->setLang('example');
+
+```
+- `$v->addLangDir(string $lang, string $fullPath, bool $createWrite = false)`
+	- first argument is the language name which is also the lang file name appended with `_lang`. So in the above example the lang file name must be `example_lang.php`
+	- second argument is the full path / directory where the lang file is located.
+	- third argument is $createWrite defaults to false, if set to true ajd validation will create the $fullPath if not existing, will create the lang file if not existing and will generate currently used error messages for all the rules available, so that you may edit the file as to your requirements.
+
 ## checkArr method
 - `->checkArr(string $field, array $value)` - method that allows array traversing validation by using dot notation
 ```php
