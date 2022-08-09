@@ -4,7 +4,7 @@
 /bin export-ignore
 /docs export-ignore
 /tests export-ignore
-/backups export-ignore
+/src/backups export-ignore
 /CustomFilters export-ignore
 /CustomLogics export-ignore
 /CustomRules export-ignore
