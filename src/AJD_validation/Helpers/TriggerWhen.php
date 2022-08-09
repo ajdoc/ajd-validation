@@ -34,7 +34,7 @@ class TriggerWhen implements Validation_interface, Trigger_when_interface
 	{
 		if(!$this->checker($value, $checker))
 		{
-			$this->ajd->reset_all_validation_prop();	
+			$this->ajd->resetTriggerWhen();	
 			return false;
 		}
 
@@ -118,7 +118,6 @@ class TriggerWhen implements Validation_interface, Trigger_when_interface
 		{
 			return $this->ajd->check($field, $value, $check_arr);
 		}
-
 	}
 
 	public function checkAsync($field, $value = null, $function = null, $check_arr = true)

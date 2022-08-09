@@ -272,7 +272,14 @@ class AJD_validation extends Base_validator
 	{
 		$ajd = static::get_ajd_instance();
 
-		return new TriggerWhen($ajd, $checker);
+		$triggerWhen = new TriggerWhen($ajd, $checker);
+
+		return $triggerWhen;
+	}
+
+	public function resetTriggerWhen()
+	{
+		$this->reset_all_validation_prop();
 	}
 
 	public function checkAllMiddleware( $field, $value = NULL, array $customMesage = array(), $check_arr = TRUE )
