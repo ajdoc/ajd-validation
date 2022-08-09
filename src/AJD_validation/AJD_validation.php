@@ -3115,7 +3115,7 @@ class AJD_validation extends Base_validator
 						}
 						else if( is_callable( $sometimes_and ) )
 						{
-							$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $v_value, $field_arr['orig'], $group, $origValue ) );
+							$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $v_value, $field_arr['orig'], $k_value, $group, $origValue ) );
 
 						}
 						else if( $sometimes_and == Abstract_common::SOMETIMES 
@@ -3142,7 +3142,7 @@ class AJD_validation extends Base_validator
 						}
 						else if( is_callable( $sometimes_or ) )
 						{
-							$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $v_value, $field_arr['orig'], $group, $origValue ) );
+							$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $v_value, $field_arr['orig'], $k_value, $group, $origValue ) );
 
 						}
 						else if( $sometimes_or == Abstract_common::SOMETIMES 
@@ -3263,7 +3263,7 @@ class AJD_validation extends Base_validator
 					}
 					else if( is_callable( $sometimes_and ) )
 					{
-						$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $value, $field_arr['orig'], $group, $origValue ) );
+						$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $value, $field_arr['orig'], null, $group, $origValue ) );
 
 					}
 					else if( $sometimes_and == Abstract_common::SOMETIMES 
@@ -3291,7 +3291,7 @@ class AJD_validation extends Base_validator
 					}
 					else if( is_callable( $sometimes_or ) )
 					{
-						$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $value, $field_arr['orig'], $group, $origValue ) );
+						$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $value, $field_arr['orig'], null, $group, $origValue ) );
 
 					}
 					else if( $sometimes_or == Abstract_common::SOMETIMES 
@@ -3942,7 +3942,7 @@ class AJD_validation extends Base_validator
 		}
 		else if( is_callable( $sometimes ) )
 		{
-			$sometimes 				= $this->invoke_func( $sometimes, array( $pass_arr['value'], $pass_arr['satisfier'], $pass_arr['orig_field'], $pass_arr['origValue'] ) );
+			$sometimes 				= $this->invoke_func( $sometimes, array( $pass_arr['value'], $pass_arr['satisfier'], $pass_arr['orig_field'], $key, $pass_arr['origValue'] ) );
 
 		}
 		else if( $sometimes == Abstract_common::SOMETIMES 
