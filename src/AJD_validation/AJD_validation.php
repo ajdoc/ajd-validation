@@ -20,12 +20,15 @@ use AJD_validation\Async\FailedPromise;
 use AJD_validation\Helpers\Db_instance;
 use AJD_validation\Helpers\Logics_map;
 use AJD_validation\Helpers\Group_sequence;
+use AJD_validation\Helpers\Rules_map;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
 use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 use AJD_validation\Contracts\Abstract_compound;
 use AJD_validation\Contracts\Abstract_sequential;
 use AJD_validation\Contracts\Grouping_sequence_interface;
+use AJD_validation\Contracts\ValidationProviderInterface;
 use AJD_validation\Helpers\TriggerWhen;
+use AJD_validation\Factory\Class_factory;
 
 class AJD_validation extends Base_validator
 {
@@ -128,6 +131,9 @@ class AJD_validation extends Base_validator
 	protected static $addRuleNamespace 		= array();
 	protected static $addRuleDirectory 		= array();
 
+	protected static $addRulesMappings 		= [];
+	protected static $registeredPackaged 	= [];
+
 	protected static $dbConnections			= array();
 
 	protected static $fiberRule = 'fiberize';
@@ -159,6 +165,25 @@ class AJD_validation extends Base_validator
 	public static function __callStatic( $name, array $args )
 	{
 		return static::get_ajd_instance()->__call( $name, $args );
+	}
+
+	public static function registerPackage(ValidationProviderInterface $package)
+	{
+		if( !isset(static::$registeredPackaged[\spl_object_id($package)]) )
+		{
+			$package->register();
+			$mappings = Rules_map::getMappings();
+
+			if($mappings)
+			{
+				static::$addRulesMappings = array_merge(static::$addRulesMappings, $mappings);
+
+				Class_factory::addRulesMappings($mappings);
+				Errors::addRulesMappings($mappings);
+			}
+
+			static::$registeredPackaged[\spl_object_id($package)] = true;
+		}
 	}
 
 	public static function boot() 
@@ -5703,6 +5728,18 @@ class AJD_validation extends Base_validator
 		else
 		{
 			$is_class 		= (!is_string($options['rules_path']) && is_object($options['rules_path']));
+		}
+
+		if(!$is_class)
+		{
+			if(!empty(static::$addRulesMappings))
+			{
+				if(isset(static::$addRulesMappings[$lower_rule]))
+				{
+					$is_class = true;
+				}
+			}
+			
 		}
 
 		$is_method 		= method_exists( $options['obj_ins'], $append_rule );

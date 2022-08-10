@@ -15,6 +15,16 @@ class Class_factory implements Factory_interface
 		'Filtervar_rule', 'Numeric_filter', 'Email_filter'
 	);
 
+	protected static $addRulesMappings = [];
+
+	public static function addRulesMappings(array $mappings)
+	{
+		if($mappings)
+		{
+			static::$addRulesMappings = array_merge(static::$addRulesMappings, $mappings);
+		}
+	}
+
 	public function get_rules_namespace()
 	{
 		return $this->rules_namespace;
@@ -59,39 +69,52 @@ class Class_factory implements Factory_interface
 	{
 		$namespaces 			= ( $filter ) ? $this->get_filter_namespace() : $this->get_rules_namespace();
 
+		$lower_rule_name = strtolower($rule_name);
+		
 		foreach( $namespaces as $namespace ) 
 		{
-			if(is_string($rules_path) && !is_object($rules_path))
+			if(
+				!empty(static::$addRulesMappings)
+				&&
+				isset(static::$addRulesMappings[$lower_rule_name])
+			)
 			{
-				$class_name 		= $rule_name;
+				$class_prefix = key(static::$addRulesMappings[$lower_rule_name]);
 			}
 			else
-			{
-				$class_name 		= get_class($rules_path);
-			}
-
-			if(is_string($rules_path) && !is_object($rules_path))
-			{
-				$class_prefix 		= ( !EMPTY( $namespace ) ) ? $namespace.$class_name : $class_name;
-			}
-			else
-			{
-				$class_prefix 		= $class_name;
-			}
-			
-			if( !EMPTY( $rules_path ) AND !class_exists( $class_prefix ) )
 			{
 				if(is_string($rules_path) && !is_object($rules_path))
 				{
-					$requiredFiles 	= get_included_files();
+					$class_name 		= $rule_name;
+				}
+				else
+				{
+					$class_name 		= get_class($rules_path);
+				}
 
-					$rules_path 	= str_replace(array('\\\\', '//'), array(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR), $rules_path);
-					
-					$search 		= array_search($rules_path, $requiredFiles);
-					
-					if( EMPTY( $search ) )
+				if(is_string($rules_path) && !is_object($rules_path))
+				{
+					$class_prefix 		= ( !EMPTY( $namespace ) ) ? $namespace.$class_name : $class_name;
+				}
+				else
+				{
+					$class_prefix 		= $class_name;
+				}
+				
+				if( !EMPTY( $rules_path ) AND !class_exists( $class_prefix ) )
+				{
+					if(is_string($rules_path) && !is_object($rules_path))
 					{
-						$rules_req 		= require $rules_path;	
+						$requiredFiles 	= get_included_files();
+
+						$rules_path 	= str_replace(array('\\\\', '//'), array(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR), $rules_path);
+						
+						$search 		= array_search($rules_path, $requiredFiles);
+						
+						if( EMPTY( $search ) )
+						{
+							$rules_req 		= require $rules_path;	
+						}
 					}
 				}
 			}

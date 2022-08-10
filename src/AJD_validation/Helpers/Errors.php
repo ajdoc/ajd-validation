@@ -6,6 +6,7 @@ use AJD_validation\Contracts\Nested_rule_exception;
 use AJD_validation\Contracts\Invokable_rule_interface;
 use AJD_validation\Constants\Lang;
 use AJD_validation\Helpers\VarExport;
+use AJD_validation\AJD_validation as v;
 
 use InvalidArgumentException;
 
@@ -35,6 +36,7 @@ class Errors extends InvalidArgumentException
 
     protected static $addExceptionNamespace 	= array();
     protected static $addExceptionDirectory 	= array();
+    protected static $addRulesMappings = [];
 
     protected static $anonymousObj 	= [];
 
@@ -51,6 +53,14 @@ class Errors extends InvalidArgumentException
 
 		static::$error_msg 			= $config::get( 'error_msg' );
 		
+	}
+
+	public static function addRulesMappings(array $mappings)
+	{
+		if($mappings)
+		{
+			static::$addRulesMappings = array_merge(static::$addRulesMappings, $mappings);
+		}
 	}
 
 	public static function addAnonExceptions($rule, $exception)
@@ -699,6 +709,7 @@ EOS;
 		$qualified_exception_class = $exception_class;
 
 		$is_annon_class = false;
+		$lower_rule_name = strtolower($rule_name.'_'.v::$rules_suffix);
 
 		if( isset($rule_instance[$called_class]) 
 			&& $rule_instance[$called_class] instanceof Invokable_rule_interface 
@@ -743,6 +754,21 @@ EOS;
 		if( isset(static::$anonymousObj[$called_class]) )
 		{
 			$is_annon_class = true;
+		}
+
+		if(!class_exists($exception_class) && !$is_annon_class)
+		{
+			if(
+				!empty(static::$addRulesMappings)
+				&&
+				isset(static::$addRulesMappings[$lower_rule_name])
+			)
+			{
+
+				$ruleMapKey 	= key(static::$addRulesMappings[$lower_rule_name]);
+				
+				$exception_class = static::$addRulesMappings[$lower_rule_name][$ruleMapKey];
+			}
 		}
 
 		if( class_exists( $exception_class ) || $is_annon_class ) 

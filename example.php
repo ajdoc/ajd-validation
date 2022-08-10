@@ -2,9 +2,9 @@
 
 <?php
 
-ini_set('display_errors', 1);
+/*ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+error_reporting(E_ALL);*/
 
 require 'vendor/autoload.php';
 
@@ -197,6 +197,8 @@ try
 	/*
 		Make anonymous class register function and extension anonymous class
 	*/
+
+	// $v->registerPackage(new PackageAjd\PackageAjd\PackageAjdValidatorServiceProvider);
 
 	// $v->setLang(LANG::FIL);
 
@@ -454,7 +456,10 @@ try
 		
 		->check('folder_cussstom', 'b');
 
-	
+	$v 
+		->required()
+		->package_test()
+		->check('package_test_field');
 
 	$v->addDbConnection(
 		'test', 

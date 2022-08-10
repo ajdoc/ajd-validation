@@ -4,7 +4,9 @@ use AJD_validation\Helpers\Errors;
 use AJD_validation\Config\Config;
 use AJD_validation\Vefja\Vefja;
 
-abstract class Abstract_exceptions extends Errors
+use AJD_validation\Contracts\Exception_interface;
+
+abstract class Abstract_exceptions extends Errors implements Exception_interface
 {
 	protected $params 	= array();
 	protected static $config;

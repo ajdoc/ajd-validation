@@ -14,7 +14,7 @@ abstract class Base_validator extends Abstract_common
 	protected static $addLangDir 			= [];
 	protected static $createWriteLangDir 	= [];
 
-	protected static $rules_suffix 			= 'rule';
+	public static $rules_suffix 			= 'rule';
 
 	protected static function get_factory_instance()
 	{
