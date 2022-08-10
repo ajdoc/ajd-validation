@@ -464,7 +464,7 @@ abstract class Abstract_database extends Abstract_rule
 				}
 			}
 			
-			$result 	= $qb->fetchColumn();
+			$result 	= (isset($qb)) ? $qb->fetchColumn() : null;
 
 			/*$result 	= $qb->debug();
 			var_dump($result);*/
