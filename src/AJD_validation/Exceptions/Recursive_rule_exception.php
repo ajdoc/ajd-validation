@@ -12,12 +12,12 @@ class Recursive_rule_exception implements RecursiveIterator, Countable
         $this->exceptions = $parent->getRelated();
     }
 
-    public function count() : int
+    public function count()
     {
         return $this->exceptions->count();
     }
 
-    public function hasChildren() : bool
+    public function hasChildren()
     {
         if (!$this->valid()) {
             return false;
@@ -31,27 +31,27 @@ class Recursive_rule_exception implements RecursiveIterator, Countable
         return new static($this->current());
     }
 
-    public function current() : mixed
+    public function current()
     {
         return $this->exceptions->current();
     }
 
-    public function key() : mixed
+    public function key()
     {
         return $this->exceptions->key();
     }
 
-    public function next() : void
+    public function next()
     {
         $this->exceptions->next();
     }
 
-    public function rewind() : void
+    public function rewind()
     {
         $this->exceptions->rewind();
     }
 
-    public function valid() : bool
+    public function valid()
     {
         return $this->exceptions->valid();
     }
