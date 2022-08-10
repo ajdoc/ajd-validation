@@ -125,7 +125,7 @@ class Database
 
     }
 
-    protected function process_connection( $connection = null, $dbuser = null, $dbpass, $options = array(), ...$extra )
+    protected function process_connection( $connection = null, $dbuser = null, $dbpass = null, $options = array(), ...$extra )
     {
 
 

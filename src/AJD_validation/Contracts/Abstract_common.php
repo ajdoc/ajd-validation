@@ -62,6 +62,8 @@ abstract class Abstract_common
 
 		} 
 
+		$clean_field = (!empty($clean_field)) ? $clean_field : '';
+
 		$clean_field 				= preg_replace( '/\_/', ' ', $clean_field );
 
 		$clean_field 				= ucfirst( strtolower( $clean_field ) );
@@ -83,7 +85,7 @@ abstract class Abstract_common
 
 	protected function check_has_pipe( $value )
 	{
-		$check 						= ( bool ) preg_match( '/\|/' , $value );
+		$check 						= (!empty($value)) ? ( bool ) preg_match( '/\|/' , $value ) : false;
 
 		return $check;
 	}
@@ -178,7 +180,7 @@ abstract class Abstract_common
 		return $check;
 	}
 
-	protected function format_errors( $rules_name, $append_rules, $field, $value, $satisfier, $errors, $cus_err = array(), $check_arr = TRUE, $error_instance, $arr_key = NULL, array $append_errors = array(), $inverse = FALSE )
+	protected function format_errors( $rules_name, $append_rules, $field, $value, $satisfier, $errors, $cus_err = array(), $check_arr = TRUE, $error_instance = null, $arr_key = NULL, array $append_errors = array(), $inverse = FALSE )
 	{
 		// $cus_err 			= static::$cus_err;
 
@@ -275,7 +277,7 @@ abstract class Abstract_common
 		return $errMsg;
 	}
 
-	protected function process_format_errors( $field = NULL, $satisfier = NULL, $errors, $rules_name, $value, $inverse = FALSE )
+	protected function process_format_errors( $field = NULL, $satisfier = NULL, $errors = null, $rules_name = null, $value = null, $inverse = FALSE )
 	{
 
 		if(function_exists('enum_exists')) 

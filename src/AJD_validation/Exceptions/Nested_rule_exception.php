@@ -128,7 +128,7 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
     /**
      * @return SplObjectStorage
      */
-    public function getIterator()
+    public function getIterator() : \Traversable
     {
         $childrenExceptions         = new SplObjectStorage();
 

@@ -6,7 +6,7 @@ use AJD_validation\Contracts\Abstract_filter_callback;
 abstract class Abstract_filter_sanitize extends Abstract_filter_callback
 {
 	protected $validFilters 	= array(
-	 	FILTER_SANITIZE_STRING,
+	 	FILTER_SANITIZE_FULL_SPECIAL_CHARS,
 	 	FILTER_SANITIZE_NUMBER_INT,
         FILTER_SANITIZE_NUMBER_FLOAT,
         FILTER_SANITIZE_EMAIL,

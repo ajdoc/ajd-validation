@@ -5,7 +5,7 @@ use AJD_validation\Contracts\Abstract_logic;
 class First_logic extends Abstract_logic
 {
 	protected $test = false;
-	public function __construct( $test = false, $validator )
+	public function __construct( $test = false, $validator = null )
 	{
 		$this->test = $test;
 	}

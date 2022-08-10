@@ -5,6 +5,6 @@ class String_filter extends Abstract_filter_sanitize
 {
 	public function __construct()
 	{
-		parent::__construct(FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES);
+		parent::__construct(FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES);
 	}
 }

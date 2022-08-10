@@ -184,7 +184,7 @@ class AJD_filter extends Base_validator
 
 		$is_class 			= file_exists( $filter_path );
 
-		$is_function 		= function_exists( $filter );
+		$is_function 		= (!empty($filter)) ? function_exists( $filter ) : false;
 
 		$is_method 			= method_exists( $this , $append_filter );
 

@@ -22,7 +22,7 @@ class Method_factory implements Factory_interface
 		return $method;
 	}
 
-	public function process_method( $args = array(), $object, $accessible = FALSE, $inverse = FALSE, array $globalVar = array() )
+	public function process_method( $args = array(), $object = null, $accessible = FALSE, $inverse = FALSE, array $globalVar = array() )
 	{
 		$ref_meth 			= static::$ref_meth;
 

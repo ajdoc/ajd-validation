@@ -109,7 +109,7 @@ JS;
 		}
 	}	
 
-	protected function js_errors( $rule_name, $append_rules, $field, $value = NULL, $satisfier, $cus_err, $ucFirstRule )
+	protected function js_errors( $rule_name, $append_rules, $field, $value = NULL, $satisfier = null, $cus_err = null, $ucFirstRule = null )
 	{
 		$field 					= $this->remove_number_sign( $field );
 

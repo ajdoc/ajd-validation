@@ -223,7 +223,7 @@ class Async
 		return $self->async($resolver, $self->errorMessages, $self, $childFibers, $self->errorMessages, static::$passes, static::$fails, ...$args);
 	}
 
-	public static function async(callable $function, array $errorMessages = [], $self, mixed ...$args)
+	public static function async(callable $function, array $errorMessages = [], $self = null, mixed ...$args)
 	{
 
 		return (static function (mixed ...$args) use ($function, $errorMessages, $self) 

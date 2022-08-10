@@ -2,6 +2,10 @@
 
 <?php
 
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 require 'vendor/autoload.php';
 
 use AJD_validation\Contracts\Base_extension;
@@ -182,7 +186,7 @@ class Custom_extension extends Base_extension
 	*/
 	public function custom_string_filter( $value, $satisfier, $field )
 	{
-		$value 	= filter_var( $value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES ).'_from_extension';
+		$value 	= filter_var( $value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES ).'_from_extension';
 
 		return $value;
 	}
@@ -1058,7 +1062,7 @@ try
 	];
 
 	$filteredValues = $v
-		->Ffilter_sanitize([FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES])
+		->Ffilter_sanitize([FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES])
 		->Fextract_length()
 		->Fadd_aes_decrypt('test')
 		
@@ -1073,7 +1077,7 @@ try
 
 
 	$filteredSingle = $v 
-							->Ffilter_sanitize([FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES])
+							->Ffilter_sanitize([FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES])
 							->Fwhite_space_option()
 							->Fadd_aes_decrypt('test')
 
@@ -1105,7 +1109,7 @@ try
 		->digit()
 		->check('test_digit', 'aa');
 
-	$v->Ffilter_sanitize([FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES])
+	$v->Ffilter_sanitize([FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES])
 		->required()
 		->alpha()
 		->check('test_string', '<<aa>>');

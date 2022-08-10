@@ -55,7 +55,7 @@ class Class_factory implements Factory_interface
 		array_unshift( $this->filter_namespace, $filter_namespace );
 	}
 
-	public function rules( $rules_path = NULL, $rule_name, $args = array(), $filter = FALSE, array $globalVar = array() )
+	public function rules( $rules_path = NULL, $rule_name = null, $args = array(), $filter = FALSE, array $globalVar = array() )
 	{
 		$namespaces 			= ( $filter ) ? $this->get_filter_namespace() : $this->get_rules_namespace();
 

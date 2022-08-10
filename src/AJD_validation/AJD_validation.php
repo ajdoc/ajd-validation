@@ -4913,7 +4913,7 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	private function _process_validate( $details, $check_arr, $extra_args, $key = NULL, $countErr = 0, $rule_key = null, $firstSeq = null, $rulesInSeq, $seqValidateGroupings )
+	private function _process_validate( $details, $check_arr, $extra_args, $key = NULL, $countErr = 0, $rule_key = null, $firstSeq = null, $rulesInSeq = null, $seqValidateGroupings = null )
 	{
 		$ob 					= static::get_observable_instance();
 
@@ -5949,7 +5949,7 @@ class AJD_validation extends Base_validator
 		static::$createWriteLangDir[$lang] = $create_write;
 	}
 
-	public static function addFiberEvents( \Closure $func, $ajd = null, $fiber, $paramaters = [], $fiber_suspend_val = [], $rule = null, $field = null )
+	public static function addFiberEvents( \Closure $func, $ajd = null, $fiber = null, $paramaters = [], $fiber_suspend_val = [], $rule = null, $field = null )
 	{
 		if(!empty($rule) && !empty($field))
 		{
