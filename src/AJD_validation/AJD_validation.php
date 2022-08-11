@@ -133,6 +133,7 @@ class AJD_validation extends Base_validator
 
 	protected static $addRulesMappings 		= [];
 	protected static $registeredPackaged 	= [];
+	protected static $packagesToRegister 	= [];
 
 	protected static $dbConnections			= array();
 
@@ -167,27 +168,74 @@ class AJD_validation extends Base_validator
 		return static::get_ajd_instance()->__call( $name, $args );
 	}
 
+	public static function registerRulesMappings(array $mappings)
+	{
+		foreach($mappings as $rule => $exception)
+        {
+            Rules_map::register($rule);
+            Rules_map::setException($rule, $exception);
+        }
+
+        static::processMappings();
+
+        return static::get_ajd_instance();
+	}
+
+	public static function addPackages(array $packages)
+	{
+		foreach($packages as $package)
+		{
+			if(class_exists($package)
+				&& !isset(static::$packagesToRegister[$package])
+			)
+			{
+				static::$packagesToRegister[$package] = $package;	
+			}
+		}
+
+		static::boot();
+	}
+
 	public static function registerPackage(ValidationProviderInterface $package)
 	{
 		if( !isset(static::$registeredPackaged[\spl_object_id($package)]) )
 		{
 			$package->register();
-			$mappings = Rules_map::getMappings();
-
-			if($mappings)
-			{
-				static::$addRulesMappings = array_merge(static::$addRulesMappings, $mappings);
-
-				Class_factory::addRulesMappings($mappings);
-				Errors::addRulesMappings($mappings);
-			}
+			static::processMappings();
 
 			static::$registeredPackaged[\spl_object_id($package)] = true;
 		}
 	}
 
+	protected static function processMappings()
+	{
+		$mappings = Rules_map::getMappings();
+		
+		if($mappings)
+		{
+			static::$addRulesMappings = array_merge(static::$addRulesMappings, $mappings);
+
+			Class_factory::addRulesMappings($mappings);
+			Errors::addRulesMappings($mappings);
+		}
+	}
+
 	public static function boot() 
 	{
+		if(!empty(static::$packagesToRegister))
+		{
+			foreach(static::$packagesToRegister as $package)
+			{
+				$packageInstance = new $package;
+
+				static::registerPackage($packageInstance);
+
+				if(isset(static::$registeredPackaged[\spl_object_id($packageInstance)]))
+				{
+					unset(static::$packagesToRegister[$package]);
+				}
+			}
+		}
 	}
 
 	public function getValidator()
@@ -3709,18 +3757,19 @@ class AJD_validation extends Base_validator
 				$fiber = new \Fiber([$this, '_refactor_fiber_process_and_or_check']);
 
 				if(
-					isset(static::$ajd_prop['fiber_suspend'][$rule_value])
+					isset(static::$ajd_prop['fiber_suspend'][$rule_value][$rule_key])
 					&&
-					!empty(static::$ajd_prop['fiber_suspend'][$rule_value])
+					!empty(static::$ajd_prop['fiber_suspend'][$rule_value][$rule_key])
 				)
 				{
-
-					$fiber_ajd_prop['fibers'][$field][$rule_value] = [
+					$fiber_ajd_prop['fibers'][$field][$rule_value][$rule_key] = [
 						'fiber' => $fiber,
 						'paramaters' => $paramaters,
 						'rule' => $rule_value,
-						'field' => $field
+						'field' => $field,
+						'rule_key' => $rule_key
 					];
+					
 				}
 
 				$val = [];
@@ -3731,16 +3780,17 @@ class AJD_validation extends Base_validator
 				}
 
 				if(
-					isset(static::$ajd_prop['fiber_suspend'][$rule_value])
+					isset(static::$ajd_prop['fiber_suspend'][$rule_value][$rule_key])
 					&&
-					!empty(static::$ajd_prop['fiber_suspend'][$rule_value])
+					!empty(static::$ajd_prop['fiber_suspend'][$rule_value][$rule_key])
 				)
 				{
 
-					$fiber_ajd_prop['fibers'][$field][$rule_value]['fiber_suspend_val'] = $val;
+					$fiber_ajd_prop['fibers'][$field][$rule_value][$rule_key]['fiber_suspend_val'] = $val;
 
-					$obs->attach_observer( $rule_value.'_'.$field.'-|fiber', $ev, array( $this, $fiber_ajd_prop['fibers'], $rule_value, $field ) );
-					$obs->notify_observer( $rule_value.'_'.$field.'-|fiber' );
+					
+					$obs->attach_observer( $rule_value.'_'.$rule_key.'_'.$field.'-|fiber', $ev, array( $this, $fiber_ajd_prop['fibers'], $rule_value, $field ) );
+					$obs->notify_observer( $rule_value.'_'.$rule_key.'_'.$field.'-|fiber' );
 				}
 				
 				/*if(!empty(static::$ajd_prop['fiber_events']))
@@ -5423,6 +5473,11 @@ class AJD_validation extends Base_validator
 	public static function get_values()
 	{
 		return static::$ajd_prop['result_values'];
+	}
+
+	public static function whenInstance()
+	{
+		return static::get_ajd_instance()->when(true);
 	}
 
 	public function when($justInstance = false)

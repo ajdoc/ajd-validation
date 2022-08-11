@@ -21,7 +21,7 @@ class AJD_filter extends Base_validator
 	protected static $filter_value	 	= array();
 	protected static $pre_filter_value 	= array();
 
-	protected static $filter_suffix 	= 'filter';
+	public static $filter_suffix 	= 'filter';
 
 	protected static $cache_instance 	= array();
 

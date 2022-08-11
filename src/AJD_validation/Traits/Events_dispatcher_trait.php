@@ -93,23 +93,26 @@ Trait Events_dispatcher_trait
 		if( isset(static::$fibers[static::$FIBER]) && !empty(static::$fibers[static::$FIBER]) ) 
 		{
 
-			foreach(static::$fibers[static::$FIBER] as $field => $rules)
+			foreach(static::$fibers[static::$FIBER] as $field => $rulesk)
 			{
-				foreach($rules as $rule => $value)
+				foreach($rulesk as $ruleKey => $rules)
 				{
-					$paramaters_sub = [];
+					foreach($rules as $rule => $value)
+					{
+						$paramaters_sub = [];
 
-					$fiber = $value;
+						$fiber = $value;
+						
+						$paramaters_sub[] = $this->ajd;
+						$paramaters_sub[] = $fiber['fiber'];
+						$paramaters_sub[] = $field;
+						$paramaters_sub[] = $ruleKey;
+						$paramaters_sub[] = $fiber['fiber_suspend_val'];
+						
+						/*$this->ajd->addFiberEvents($func, $this->ajd, $fiber['fiber'], $fiber['paramaters'], $fiber['fiber_suspend_val'], $rule, $field);*/
+						call_user_func_array($func, $paramaters_sub);
 
-					$paramaters_sub[] = $this->ajd;
-					$paramaters_sub[] = $fiber['fiber'];
-					$paramaters_sub[] = $field;
-					$paramaters_sub[] = $rule;
-					$paramaters_sub[] = $fiber['fiber_suspend_val'];
-					
-					/*$this->ajd->addFiberEvents($func, $this->ajd, $fiber['fiber'], $fiber['paramaters'], $fiber['fiber_suspend_val'], $rule, $field);*/
-					call_user_func_array($func, $paramaters_sub);
-
+					}
 				}
 			}
 

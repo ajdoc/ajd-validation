@@ -16,75 +16,116 @@ abstract class Validation_provider implements ValidationProviderInterface
 	protected static $defaultRulesNamespace = '\\Rules';
     protected static $defaultExceptionNamespace = '\\Exceptions';
 
-	protected static function processRulesDir($rulesDir = null)
-	{
-		$rulesDir = !empty($rulesDir) ? $rulesDir : static::$defaultRulesDir;
+    protected static $defaultFiltersDir = '/Filters';
+    protected static $defaultFiltersNamespace = '\\Filters';
 
-		$rulesDir = rtrim($rulesDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
+    protected static $defaultLogicsDir = '/Logics';
+    protected static $defaultLogicsNamespace = '\\Logics';
 
-		return $rulesDir;
-	}
+    protected static $defaults = [
+        'baseDir' => '',
+        'baseNamespace' => ''
+    ];
 
-    protected static function processExceptionsDir($exceptionsDir = null)
+    public function setDefaults(array $defaults)
     {
-        $exceptionsDir = !empty($exceptionsDir) ? $exceptionsDir : static::$defaultExceptionDir;
+        static::$defaults = array_merge(static::$defaults, $defaults);
 
-        $exceptionsDir = rtrim($exceptionsDir, DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR;
-
-        return $exceptionsDir;
+        return $this;
     }
 
-	protected static function processRulesNamespace($rulesNamespace = null)
-	{
-		$rulesNamespace = !empty($rulesNamespace) ? $rulesNamespace : static::$defaultRulesNamespace;
-
-		$rulesNamespace = rtrim($rulesNamespace, '\\').'\\';
-
-		return $rulesNamespace;
-	}
-
-    protected static function processExceptionsNamespace($defaultExceptionNamespace = null)
+    public function getDefault($key)
     {
-        $exceptionsNamespace = !empty($exceptionsNamespace) ? $rulesNamespace : static::$defaultExceptionNamespace;
-
-        $exceptionsNamespace = rtrim($exceptionsNamespace, '\\').'\\';
-
-        return $exceptionsNamespace;
-    }
-
-	public static function getRuleShortnames($dir, $rulesDir = null)
-    {
-    	$rulesDir = static::processRulesDir($rulesDir);
-
-        return array_map(function ($filename) 
+        if(
+            !isset(static::$defaults[$key])
+            ||
+            empty(static::$defaults[$key])
+        )
         {
-            return mb_strtolower(substr(str_replace('_'.v::$rules_suffix, '', $filename), 0, -4));
-        }, array_diff(scandir($dir . $rulesDir), ['.', '..']));
+            throw new \InvalidArgumentException('Invalid Argument [baseDir or baseNamespace is not yet set].');
+        }
+
+        return static::$defaults[$key];
     }
 
-    public function registerRules($dir, $baseNamespace )
+    protected static function processDefaults($default, $cleanSuffix, $arg = null)
     {
-    	$rulesDir = static::processRulesDir();
-    	$rulesNamespace = static::processRulesNamespace();
-    	
+        $arg = !empty($arg) ? $arg : $default;
+
+        $arg = rtrim($arg, $cleanSuffix).$cleanSuffix;
+
+        return $arg;
+    }
+
+    public function registerRules()
+    {
+        $dir                    = $this->getDefault('baseDir');
+        $baseNamespace          = $this->getDefault('baseNamespace');
+
+    	$rulesDir = static::processDefaults(static::$defaultRulesDir, DIRECTORY_SEPARATOR);
+
+    	$rulesNamespace = static::processDefaults(static::$defaultRulesNamespace, '\\');
+
     	v::addRuleDirectory($dir.$rulesDir)
     		->addRuleNamespace($baseNamespace.$rulesNamespace);
+
+        return $this;
     }
 
-    public function registerRulesDir($dir, $rulesDir = null )
+    public function registerFilters()
     {
-    	$rulesDir = static::processRulesDir($rulesDir);
+        $dir                    = $this->getDefault('baseDir');
+        $baseNamespace          = $this->getDefault('baseNamespace');
+
+        $filtersDir = static::processDefaults(static::$defaultFiltersDir, DIRECTORY_SEPARATOR);
+        
+
+        $filtersNamespace = static::processDefaults(static::$defaultFiltersNamespace, '\\');
+        
+        v::addFilterDirectory($dir.$filtersDir)
+            ->addFilterNamespace($baseNamespace.$filtersNamespace);
+
+        return $this;
+    }
+
+    public function registerLogics()
+    {
+        $dir                    = $this->getDefault('baseDir');
+        $baseNamespace          = $this->getDefault('baseNamespace');
+
+        $logicsDir = static::processDefaults(static::$defaultLogicsDir, DIRECTORY_SEPARATOR);
+
+        $logicsNamespace = static::processDefaults(static::$defaultLogicsNamespace, '\\');
+
+        
+        v::whenInstance()
+            ->addLogicClassPath($dir.$logicsDir)
+            ->addLogicNamespace($baseNamespace.$logicsNamespace)
+        ->endwhen();
+
+        return $this;
+    }
+
+    public function registerRulesDir($rulesDir = null )
+    {
+        $dir      = $this->getDefault('baseDir');
+
+    	$rulesDir = static::processDefaults(static::$defaultRulesDir, DIRECTORY_SEPARATOR, $rulesDir);
     	
     	v::addRuleDirectory($dir . $rulesDir);
 
     	return $this;
     }
 
-    public function registerRulesNamespace($namespace, $rulesNamespace = null )
+    public function registerRulesNamespace($rulesNamespace = null )
     {
-    	$rulesNamespace = static::processRulesNamespace($rulesNamespace);
+        $namespace          = $this->getDefault('baseNamespace');
+
+    	$rulesNamespace = static::processDefaults(static::$defaultRulesNamespace, '\\', $rulesNamespace);
 
     	v::addRuleNamespace($namespace.$rulesNamespace);
+
+        return $this;
     }
 
     public function registerRulesMapping(array $mappings)
@@ -95,16 +136,18 @@ abstract class Validation_provider implements ValidationProviderInterface
             Rules_map::setException($rule, $exception);
         }
 
-        return Rules_map::getMappings();
+        return $this;
     }
 
-    public function tryRuleMappingDirectory($dir, $rulesDir = null, $exceptionsDir = null)
+    public function tryRuleMappingDirectory($rulesDir = null, $exceptionsDir = null)
     {
         $relateMappping = [];
         $mappings = [];
 
         try
         {
+            $dir      = $this->getDefault('baseDir');
+
             $dir    = rtrim($dir, DIRECTORY_SEPARATOR);
 
             $baseDir  = dirname($dir);
@@ -115,11 +158,12 @@ abstract class Validation_provider implements ValidationProviderInterface
             $psr4Config = (array) $composerConfig->autoload->{'psr-4'};
             $baseNamespace = key($psr4Config);
 
+
             $rulesDir = null;
-            $rulesDir = static::processRulesDir($rulesDir);
+            $rulesDir = static::processDefaults(static::$defaultRulesDir, DIRECTORY_SEPARATOR, $rulesDir);
 
             $exceptionsDir = null;
-            $exceptionsDir = static::processExceptionsDir($exceptionsDir);
+            $exceptionsDir = static::processDefaults(static::$defaultExceptionDir, DIRECTORY_SEPARATOR, $exceptionsDir);
 
             $allFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
             $phpFiles = new \RegexIterator($allFiles, '/\.php$/');
