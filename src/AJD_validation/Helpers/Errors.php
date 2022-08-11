@@ -125,7 +125,10 @@ EOS;
 
 		if(!empty(static::$error_msg))
 		{
-			static::$error_msg 			= array_merge(static::$error_msg, $newError);
+			if(!empty($newError))
+			{
+				static::$error_msg 			= array_merge(static::$error_msg, $newError);
+			}
 		}
 		else
 		{
