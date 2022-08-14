@@ -149,7 +149,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 				Filters\Package_test_filter::class
 			])
 
-			// use this if you want the provider to try and get all the filters under filter directory 
+			// use this if you want the provider to try and get all the filters under filters directory 
 
 			->registerFiltersMapping($this->getFiltersMappingDirectory());
 	}
@@ -189,7 +189,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 				Logics\Package_test_logic::class
 			])
 
-			// use this if you want the provider to try and get all the logics under logic directory 
+			// use this if you want the provider to try and get all the logics under logics directory 
 
 			->registerLogicsMapping($this->getLogicsMappingDirectory());
 	}

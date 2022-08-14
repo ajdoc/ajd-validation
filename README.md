@@ -35,6 +35,7 @@ Aj Doc (thedoctorisin17@gmail.com)
 	- [Advance Usage](docs/advance_usage/)
 	- [Rules](docs/rules/)
 	- [Filters](docs/filters/)
+	- [Package Development](docs/package_development.md)
 
 ## Acknowledgments
 
