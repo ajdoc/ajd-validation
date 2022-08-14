@@ -22,7 +22,7 @@ In this document we'll see how to create package for ajd-validation
 +-- Rules
 |   +-- Custom_rule.php
 |	+-- Exceptions
-|   |	+-- Custom_rule_exception.php
+|   	+-- Custom_rule_exception.php
 +-- Filters
 |   +-- Custom_filter.php
 +-- Logics
