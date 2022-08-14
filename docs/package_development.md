@@ -84,7 +84,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 	])` 
 
 - There are two ways to register rules and exceptions 
-	1. use `->registerRules()` if you are using folder structure `2` and is not using any autoloading. This will automatically register Rules Directory and Exceptions Directory
+	- use `->registerRules()` if you are using folder structure `2` and is not using any autoloading. This will automatically register Rules Directory and Exceptions Directory
 ```php
 	public function register()
 	{
@@ -96,7 +96,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 			->registerRules();
 	}
 ```
-	2. use `->registerRulesMapping([Rule::class => ExceptionClass])` if you want to register a key value pair of rules and exceptions and is using autloading.
+	- use `->registerRulesMapping([Rule::class => ExceptionClass])` if you want to register a key value pair of rules and exceptions and is using autloading.
 ```php
 	public function register()
 	{
@@ -125,7 +125,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 	])` 
 
 - There are two ways to register Filters 
-	1. use `->registerFilters()` if you are using folder structure `2` and is not using any autoloading. This will automatically register Filters under Filters Directory
+	- use `->registerFilters()` if you are using folder structure `2` and is not using any autoloading. This will automatically register Filters under Filters Directory
 ```php
 	public function register()
 	{
@@ -137,7 +137,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 			->registerFilters();
 	}
 ```
-	2. use `->registerFiltersMapping([Filter::class])` if you want to register an array of filter classes and is using autloading.
+	- use `->registerFiltersMapping([Filter::class])` if you want to register an array of filter classes and is using autloading.
 ```php
 	public function register()
 	{
@@ -165,7 +165,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 	])` 
 
 - There are two ways to register Logics 
-	1. use `->registerLogics()` if you are using folder structure `2` and is not using any autoloading. This will automatically register Logics under Logics Directory
+	- use `->registerLogics()` if you are using folder structure `2` and is not using any autoloading. This will automatically register Logics under Logics Directory
 ```php
 	public function register()
 	{
@@ -177,7 +177,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 			->registerLogics();
 	}
 ```
-	2. use `->registerLogicsMapping([Logic::class])` if you want to register an array of logic classes and is using autloading.
+	- use `->registerLogicsMapping([Logic::class])` if you want to register an array of logic classes and is using autloading.
 ```php
 	public function register()
 	{
@@ -199,7 +199,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 
 ### Adding package/s to ajd-validation
 1. `composer require` the package to your project.
-2. To add package/s use AJD_validation::addPackages([Package::class])
+2. To add package/s use `AJD_validation::addPackages([Package::class])`
 3. After adding you can now use all the rules -> exceptions/filters/logics in that package
 
 ```php
