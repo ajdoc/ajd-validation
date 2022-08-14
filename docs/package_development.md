@@ -196,8 +196,9 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 ```
 
 ### Adding package/s to ajd-validation
-- To add package/s use AJD_validation::addPackages([Package::class])
-- After adding you can now use all the rules -> exceptions/filters/logics in that package
+1. `composer require` the package to your project.
+2. To add package/s use AJD_validation::addPackages([Package::class])
+3. After adding you can now use all the rules -> exceptions/filters/logics in that package
 
 ```php
 use AJD_validation\AJD_validation;
