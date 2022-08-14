@@ -4,7 +4,8 @@ In this document we'll see how to create package for ajd-validation
 
 ## Package Folder structure
 - These are the recommended folder structure:
-1. ```
+1. 
+```
 +-- Rules
 |   +-- Custom_rule.php
 +-- Exceptions
@@ -16,7 +17,8 @@ In this document we'll see how to create package for ajd-validation
 +-- ValidatorProvider.php
 ```
 
-2. ```
+2. 
+```
 +-- Rules
 |   +-- Custom_rule.php
 |	+-- Exceptions
