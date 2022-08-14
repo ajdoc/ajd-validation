@@ -5,9 +5,11 @@ namespace AJD_validation\Helpers;
 use AJD_validation\Contracts\Rule_interface;
 use AJD_validation\Contracts\Exception_interface;
 
+use AJD_validation\Contracts\RulesMappingInterface;
+
 use AJD_validation\AJD_validation as v;
 
-final class Rules_map
+final class Rules_map implements RulesMappingInterface
 {
 	private static $map   	= [];
 	private static $status 	= [];

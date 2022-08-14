@@ -227,6 +227,24 @@ $filteredValues = $v
 	}
 */
 ```
+
+### Registering filters collection 
+	- If your app is already using some sort of autoloading you can use this to register a collection/array of filters.
+	- Use this if you dont want to register the whole filters directory and just want to register specific filters.
+
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$v ->registerFiltersMappings([
+	\CustomNamespace\Filters\Custom_test_filter::class
+]);
+
+$v->Fcustom_test()->check('custom', 'a');
+
+```
+
+
 ### Registering custom filter using `$v->registerExtension()`
 	- registering extension not only registers custom rule but can also register custom filtering, custom logics, custom middlewares, custom anonymous class rule.
 ```php

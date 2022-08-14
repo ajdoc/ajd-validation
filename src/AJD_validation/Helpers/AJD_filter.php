@@ -2,6 +2,8 @@
 
 use AJD_validation\Factory\Factory_strategy;
 use AJD_validation\Contracts\Base_validator;
+use AJD_validation\Helpers\Filters_map;
+use AJD_validation\Factory\Class_factory;
 
 class AJD_filter extends Base_validator 
 {
@@ -27,6 +29,31 @@ class AJD_filter extends Base_validator
 
 	protected static $addFilterNamespace	= array();
 	protected static $addFilterDirectory 	= array();
+
+	protected static $addFiltersMappings 		= [];
+
+	public static function registerFiltersMappings(array $mappings)
+	{
+		foreach($mappings as $filterKey => $filter)
+        {
+            Filters_map::register($filter);
+            Filters_map::setFilter($filter);
+        }
+
+        static::processMappings();
+	}
+
+	public static function processMappings()
+	{
+		$mappings = Filters_map::getMappings();
+		
+		if($mappings)
+		{
+			static::$addFiltersMappings = array_merge(static::$addFiltersMappings, $mappings);
+
+			Class_factory::addFiltersMappings($mappings);
+		}
+	}
 
 	public function get_filter_path()
 	{
@@ -162,7 +189,7 @@ class AJD_filter extends Base_validator
 	{
 
 		$class_filt 		= ucfirst( strtolower( $append_filter ) );	
-
+		$lower_filter 		= strtolower($class_filt);
 		$filter_path 		= $this->get_filter_path().$class_filt.'.php';
 
 		if( !EMPTY( static::$addFilterDirectory ) )
@@ -183,6 +210,18 @@ class AJD_filter extends Base_validator
 		}
 
 		$is_class 			= file_exists( $filter_path );
+
+		if(!$is_class)
+		{
+			if(!empty(static::$addFiltersMappings))
+			{
+				if(isset(static::$addFiltersMappings[$lower_filter]))
+				{
+					$is_class = true;
+				}
+			}
+			
+		}
 
 		$is_function 		= (!empty($filter)) ? function_exists( $filter ) : false;
 

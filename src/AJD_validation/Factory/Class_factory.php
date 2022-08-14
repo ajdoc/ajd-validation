@@ -16,12 +16,30 @@ class Class_factory implements Factory_interface
 	);
 
 	protected static $addRulesMappings = [];
+	protected static $addFiltersMappings = [];
+	protected static $addLogicsMappings = [];
 
 	public static function addRulesMappings(array $mappings)
 	{
 		if($mappings)
 		{
 			static::$addRulesMappings = array_merge(static::$addRulesMappings, $mappings);
+		}
+	}
+
+	public static function addFiltersMappings(array $mappings)
+	{
+		if($mappings)
+		{
+			static::$addFiltersMappings = array_merge(static::$addFiltersMappings, $mappings);
+		}
+	}
+
+	public static function addLogicsMappings(array $mappings)
+	{
+		if($mappings)
+		{
+			static::$addLogicsMappings = array_merge(static::$addLogicsMappings, $mappings);
 		}
 	}
 
@@ -80,6 +98,22 @@ class Class_factory implements Factory_interface
 			)
 			{
 				$class_prefix = key(static::$addRulesMappings[$lower_rule_name]);
+			}
+			else if(
+				!empty(static::$addFiltersMappings)
+				&&
+				isset(static::$addFiltersMappings[$lower_rule_name])
+			)
+			{
+				$class_prefix = key(static::$addFiltersMappings[$lower_rule_name]);
+			}
+			else if(
+				!empty(static::$addLogicsMappings)
+				&&
+				isset(static::$addLogicsMappings[$lower_rule_name])
+			)
+			{
+				$class_prefix = key(static::$addLogicsMappings[$lower_rule_name]);
 			}
 			else
 			{

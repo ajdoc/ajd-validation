@@ -54,7 +54,19 @@ class Validator extends All_rule
             }
         }
 
-      $is_class           = file_exists( $rulesPath );
+        $is_class           = file_exists( $rulesPath );
+
+        if(!$is_class)
+        {
+            if(!empty(static::$addRulesMappings))
+            {
+                if(isset(static::$addRulesMappings[$lower_rule]))
+                {
+                    $is_class = true;
+                }
+            }
+            
+        }
 
    		$is_function 		    = function_exists( $rule );
 

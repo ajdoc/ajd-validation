@@ -5,9 +5,13 @@ namespace AJD_validation\Contracts;
 use AJD_validation\Contracts\ValidationProviderInterface;
 use AJD_validation\AJD_validation as v;
 use AJD_validation\Helpers\Rules_map;
+use AJD_validation\Helpers\Filters_map;
+use AJD_validation\Helpers\LogicsAddMap;
 
 use AJD_validation\Contracts\Rule_interface;
 use AJD_validation\Contracts\Exception_interface;
+use AJD_validation\Contracts\Filter_interface;
+use AJD_validation\Contracts\Logic_interface;
 
 abstract class Validation_provider implements ValidationProviderInterface
 {
@@ -139,10 +143,72 @@ abstract class Validation_provider implements ValidationProviderInterface
         return $this;
     }
 
-    public function tryRuleMappingDirectory($rulesDir = null, $exceptionsDir = null)
+    public function registerFiltersMapping(array $mappings)
+    {
+        foreach($mappings as $signature => $filters)
+        {
+            if(is_array($filters))
+            {
+                foreach($filters as $filter)
+                {
+                    Filters_map::register($filter);
+                    Filters_map::setFilter($filter);
+                }    
+            }
+            else
+            {
+                Filters_map::register($filters);
+                Filters_map::setFilter($filters);
+            }
+        }
+
+        return $this;
+    }
+
+    public function registerLogicsMapping(array $mappings)
+    {
+        foreach($mappings as $signature => $logics)
+        {
+            if(is_array($logics))
+            {
+                foreach($logics as $logic)
+                {
+                    LogicsAddMap::register($logic);
+                    LogicsAddMap::setLogic($logic);
+                }
+            }
+            else
+            {
+                LogicsAddMap::register($logics);
+                LogicsAddMap::setLogic($logics);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getRulesMappingDirectory($rulesDir = null, $exceptionsDir = null)
+    {
+        return $this->tryMappingDirectory($rulesDir, $exceptionsDir)['rules_exceptions'];
+    }
+
+    public function getFiltersMappingDirectory($filtersDir = null)
+    {
+        return $this->tryMappingDirectory(null, null, $filtersDir)['filters'];
+    }
+
+    public function getLogicsMappingDirectory($logicsDir = null)
+    {
+        return $this->tryMappingDirectory(null, null, null, $logicsDir)['logics'];
+    }
+
+    public function tryMappingDirectory($rulesDir = null, $exceptionsDir = null, $filtersDir = null, $logicsDir = null)
     {
         $relateMappping = [];
         $mappings = [];
+
+        $filtersMapping = [];
+        $logicsMapping = [];
 
         try
         {
@@ -158,18 +224,21 @@ abstract class Validation_provider implements ValidationProviderInterface
             $psr4Config = (array) $composerConfig->autoload->{'psr-4'};
             $baseNamespace = key($psr4Config);
 
-
-            $rulesDir = null;
             $rulesDir = static::processDefaults(static::$defaultRulesDir, DIRECTORY_SEPARATOR, $rulesDir);
 
-            $exceptionsDir = null;
             $exceptionsDir = static::processDefaults(static::$defaultExceptionDir, DIRECTORY_SEPARATOR, $exceptionsDir);
+
+            $filtersDir     = static::processDefaults(static::$defaultFiltersDir, DIRECTORY_SEPARATOR, $filtersDir);
+
+            $logicsDir     = static::processDefaults(static::$defaultLogicsDir, DIRECTORY_SEPARATOR, $logicsDir);
 
             $allFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
             $phpFiles = new \RegexIterator($allFiles, '/\.php$/');
 
             $exceptionsDirClean = str_replace(['/', '\\'], '', $exceptionsDir);
             $rulesDirClean = str_replace(['/', '\\'], '', $rulesDir);
+            $filtersDirClean = str_replace(['/', '\\'], '', $filtersDir);
+            $logicsDirClean = str_replace(['/', '\\'], '', $logicsDir);
 
             foreach ($phpFiles as $phpFile) 
             {
@@ -177,6 +246,8 @@ abstract class Validation_provider implements ValidationProviderInterface
                 $parentRealPath = $parentInfo->getRealPath();
                 $segments = explode(DIRECTORY_SEPARATOR, $parentRealPath);
                 $lastSegment = end($segments);
+
+                $classExists = null;
 
                 if(
                     $lastSegment == $rulesDirClean
@@ -190,8 +261,6 @@ abstract class Validation_provider implements ValidationProviderInterface
                     $qualifiedExceptionClass = $baseNamespace.$exceptionsDirClean.'\\'.$qualifiedClass;
 
                     $qualifiedRuleExceptionClass = $baseNamespace.$rulesDirClean.'\\'.$exceptionsDirClean.'\\'.$qualifiedClass;
-
-                    $signature   = Rules_map::createRuleSignature($qualifiedClass);
 
                     if(class_exists($qualifiedRuleClass))
                     {
@@ -208,19 +277,76 @@ abstract class Validation_provider implements ValidationProviderInterface
                         $classExists = $qualifiedRuleExceptionClass;
                     }
 
-                    $reflection = new \ReflectionClass($classExists);
-
-                    $interfaces  = array_keys($reflection->getInterfaces());
-
-                    if(in_array(Rule_interface::class, $interfaces, true))
+                    if(!empty($classExists))
                     {
-                        $mappings[$signature]['rule'] = $classExists;
+                        $signature   = Rules_map::createRuleSignature($qualifiedClass);
+
+                        $reflection = new \ReflectionClass($classExists);
+
+                        $interfaces  = array_keys($reflection->getInterfaces());
+
+                        if(in_array(Rule_interface::class, $interfaces, true))
+                        {
+                            $mappings[$signature]['rule'] = $classExists;
+                        }
+
+                        if(in_array(Exception_interface::class, $interfaces, true))
+                        {
+                            $mappings[$signature]['exception'] = $classExists;
+                        }
+                    }
+                }
+                else if($lastSegment == $filtersDirClean)
+                {
+                    $qualifiedClass = substr($phpFile->getFileName(), 0, -4);
+
+                    $qualifiedFilterClass = $baseNamespace.$filtersDirClean.'\\'.$qualifiedClass;
+
+                    if(class_exists($qualifiedFilterClass))
+                    {
+                        $classExists = $qualifiedFilterClass;
                     }
 
-                    if(in_array(Exception_interface::class, $interfaces, true))
+                    if(!empty($classExists))
                     {
-                        $mappings[$signature]['exception'] = $classExists;
+                        $signature   = Filters_map::createFilterSignature($qualifiedClass);
+
+                        $reflection = new \ReflectionClass($classExists);
+
+                        $interfaces  = array_keys($reflection->getInterfaces());
+
+                        if(in_array(Filter_interface::class, $interfaces, true))
+                        {
+                            $filtersMapping[$signature][$classExists] = $classExists;
+                        }
                     }
+                    
+                }
+                else if($lastSegment == $logicsDirClean)
+                {
+                    $qualifiedClass = substr($phpFile->getFileName(), 0, -4);
+
+                    $qualifiedLogicsClass = $baseNamespace.$logicsDirClean.'\\'.$qualifiedClass;
+
+                    if(class_exists($qualifiedLogicsClass))
+                    {
+                        $classExists = $qualifiedLogicsClass;
+                    }
+
+                    if(!empty($classExists))
+                    {
+                        $signature   = LogicsAddMap::createLogicSignature($qualifiedClass);
+                        
+                        $reflection = new \ReflectionClass($classExists);
+
+                        $interfaces  = array_keys($reflection->getInterfaces());
+
+                        if(in_array(Logic_interface::class, $interfaces, true))
+                        {
+                            $logicsMapping[$signature][$classExists] = $classExists;
+                        }
+                    }
+                    
                 }
             }
             
@@ -240,7 +366,11 @@ abstract class Validation_provider implements ValidationProviderInterface
             throw $e;
         }
 
-        return $relateMappping;
+        return [
+            'rules_exceptions' => $relateMappping,
+            'filters' => $filtersMapping,
+            'logics' => $logicsMapping
+        ];
 
     }
 

@@ -21,6 +21,7 @@ use AJD_validation\Helpers\Db_instance;
 use AJD_validation\Helpers\Logics_map;
 use AJD_validation\Helpers\Group_sequence;
 use AJD_validation\Helpers\Rules_map;
+use AJD_validation\Helpers\AJD_filter;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
 use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 use AJD_validation\Contracts\Abstract_compound;
@@ -181,6 +182,20 @@ class AJD_validation extends Base_validator
         return static::get_ajd_instance();
 	}
 
+	public static function registerFiltersMappings(array $mappings)
+	{
+		AJD_filter::registerFiltersMappings($mappings);
+
+        return static::get_ajd_instance();
+	}
+
+	public static function registerLogicsMappings(array $mappings)
+	{
+		When::registerLogicsMappings($mappings);
+
+        return static::get_ajd_instance();
+	}
+
 	public static function addPackages(array $packages)
 	{
 		foreach($packages as $package)
@@ -202,6 +217,8 @@ class AJD_validation extends Base_validator
 		{
 			$package->register();
 			static::processMappings();
+			AJD_filter::processMappings();
+			When::processMappings();
 
 			static::$registeredPackaged[\spl_object_id($package)] = true;
 		}

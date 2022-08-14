@@ -197,6 +197,23 @@ $v
 	->validate('invokable_custom_rule'); // true
 ```
 
+#### Registering Rules Mapping 
+	- If your app is already using some sort of autoloading you can use this to register rules and exceptions key value pair.
+	- Use this if you dont want to register the whole rules directory and just want to register specific rules/exceptions.
+
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$v ->registerRulesMappings([
+	\CustomNamespace\Rules\Custom_rule::class => \CustomNamespace\Exceptions\Custom_rule_exception::class
+]);
+
+$v->custom()->check('custom', '');
+$v->getValidator()->custom()->validate('');
+
+```
+
 ## Registering custom rules using Anonymous class
 
 ```php

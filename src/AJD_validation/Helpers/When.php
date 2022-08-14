@@ -4,6 +4,8 @@ use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\Base_validator;
 use AJD_validation\Contracts\Abstract_common;
 use AJD_validation\Helpers\Logics_map;
+use AJD_validation\Helpers\LogicsAddMap;
+use AJD_validation\Factory\Class_factory;
 // use AJD_validation\Traits\Events_dispatcher_trait;
 
 class When extends AJD_validation
@@ -19,10 +21,12 @@ class When extends AJD_validation
 	protected static $testNamespace 			= array( 'AJD_validation\\Logics\\' );
 
 	protected static $cacheTestInstance 		= array();
-	protected static $testSuffix 				= 'logic';
+	public static $testSuffix 				= 'logic';
 
 	protected $classArgs 						= array();
 	protected static $addTestClassPath 			= array();
+
+	protected static $addLogicsMappings 		= [];
 
 	protected $currLogic;
 	protected $currRule;
@@ -56,6 +60,29 @@ class When extends AJD_validation
 		array_unshift( $args, $method['name'] );
 		
 		return $factory->process_method( $args, $this );
+	}
+
+	public static function registerLogicsMappings(array $mappings)
+	{
+		foreach($mappings as $logicKey => $logic)
+        {
+            LogicsAddMap::register($logic);
+            LogicsAddMap::setLogic($logic);
+        }
+
+        static::processMappings();
+	}
+
+	public static function processMappings()
+	{
+		$mappings = LogicsAddMap::getMappings();
+		
+		if($mappings)
+		{
+			static::$addLogicsMappings = array_merge(static::$addLogicsMappings, $mappings);
+
+			Class_factory::addLogicsMappings($mappings);
+		}
 	}
 
 	protected function processMethodName( $name )
@@ -211,6 +238,17 @@ class When extends AJD_validation
 		$isClass 	= file_exists( $options['testPath'] );
 
 		$isMethod 	= method_exists( $options['objIns'], $appendTest );
+
+		if(!$isClass)
+		{
+			if(!empty(static::$addLogicsMappings))
+			{
+				if(isset(static::$addLogicsMappings[$lowerTest]))
+				{
+					$isClass = true;
+				}
+			}
+		}
 
 		$options['lowerTest'] 	= $lowerTest;
 		$options['testKind'] 	= NULL;
