@@ -32,7 +32,7 @@ In this document we'll see how to create package for ajd-validation
 
 - Inside a package you can create your Custom Rules -> Exceptions, Filters and Logics.
 	- You can read creating a custom rule class here:
-		[Adding Custom Rule](advance_usage/adding_custom_rule.md)
+		[Adding Custom Rule](advance_usage/adding_custom_rules.md)
 	- You can read creating a custom filter class here:
 		[Filters](filters.md)
 	- You can read creating a custom logics class here:
