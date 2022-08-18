@@ -28,6 +28,7 @@ use AJD_validation\Contracts\Abstract_compound;
 use AJD_validation\Contracts\Abstract_sequential;
 use AJD_validation\Contracts\Grouping_sequence_interface;
 use AJD_validation\Contracts\ValidationProviderInterface;
+use AJD_validation\Contracts\Validation_interface;
 use AJD_validation\Helpers\TriggerWhen;
 use AJD_validation\Factory\Class_factory;
 
@@ -365,6 +366,22 @@ class AJD_validation extends Base_validator
 		$triggerWhen = new TriggerWhen($ajd, $checker);
 
 		return $triggerWhen;
+	}
+
+	public function useValidator($validator)
+	{
+		$ajd = static::get_ajd_instance();
+
+		$reflectValidator = new \ReflectionClass($validator);
+
+		$interfaces  = array_keys($reflectValidator->getInterfaces());
+
+		if(in_array(Validation_interface::class, $interfaces, true))
+        {
+			return new $validator($ajd);
+		}
+
+		return $ajd;
 	}
 
 	public function resetTriggerWhen()

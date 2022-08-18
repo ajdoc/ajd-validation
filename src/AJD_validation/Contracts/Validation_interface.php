@@ -1,6 +1,7 @@
 <?php 
 
 namespace AJD_validation\Contracts;
+use AJD_validation\Async\PromiseValidator;
 
 interface Validation_interface 
 {
@@ -17,6 +18,7 @@ interface Validation_interface
 
 	public function checkAllMiddleware($field, $value = null, array $customMesage = [], $check_arr = true);
 
-	
+	public function setPromise(PromiseValidator $promise);
+	public function getPromise() : PromiseValidator;
 	
 }

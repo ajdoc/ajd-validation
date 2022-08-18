@@ -8,16 +8,21 @@ use AJD_validation\Contracts\Trigger_when_interface;
 use AJD_validation\Contracts\Validator;
 use AJD_validation\Helpers\Logics_map;
 use AJD_validation\Helpers\Array_helper;
+use AJD_validation\Async\PromiseValidator;
+use AJD_validation\Async\PromiseNull;
 
 class TriggerWhen implements Validation_interface, Trigger_when_interface
 {
 	protected $ajd;
 	protected $checker;
+	protected $currentPromise;
+	protected $promiseNull;
 
 	public function __construct(AJD_validation $ajd, $checker)
 	{
 		$this->ajd = $ajd;
 		$this->checker = $checker;
+		$this->promiseNull = new PromiseNull;
 	}
 
 	public function checker($value = null, $checker = null)
@@ -116,55 +121,86 @@ class TriggerWhen implements Validation_interface, Trigger_when_interface
 	{
 		if($this->runChecker($value))
 		{
-			return $this->ajd->check($field, $value, $check_arr);
+			return $this->setPromise($this->ajd->check($field, $value, $check_arr))->getPromise();
 		}
+
+		return $this->getPromiseNul();
 	}
 
 	public function checkAsync($field, $value = null, $function = null, $check_arr = true)
 	{
 		if($this->runChecker($value))
 		{
-			return $this->ajd->checkAsync($field, $value, $function, $check_arr);
+			return  $this->setPromise($this->ajd->checkAsync($field, $value, $function, $check_arr))->getPromise();
 		}
+
+		return $this->getPromiseNul();
 	}
 
 	public function checkDependent($field, $value = null, $origValue = null, array $customMessage = [], $check_arr = true)
 	{
 		if($this->runChecker($value))
 		{
-			return $this->ajd->checkDependent($field, $value, $origValue, $customMesage, $check_arr);
+			return $this->setPromise($this->ajd->checkDependent($field, $value, $origValue, $customMesage, $check_arr))->getPromise();
 		}
+
+		return $this->getPromiseNul();
 	}
 
 	public function checkArr($field, $value, array $customMesage = [], $check_arr = true)
 	{
 		if($this->runChecker($value))
 		{
-			return $this->ajd->checkArr($field, $value, $customMesage, $check_arr);
+			return $this->setPromise($this->ajd->checkArr($field, $value, $customMesage, $check_arr))->getPromise();
 		}
+
+		return $this->getPromiseNul();
 	}
 
 	public function checkGroup(array $data)
 	{
 		if($this->runChecker($data))
 		{
-			return $this->ajd->checkGroup($data);
+			return $this->setPromise($this->ajd->checkGroup($data))->getPromise();
 		}
+
+		return $this->getPromiseNul();
 	}
 
 	public function middleware($name, $field, $value = null, $check_arr = true)
 	{
 		if($this->runChecker($value))
 		{
-			return $this->ajd->middleware($name, $field, $value, $check_arr);
+			return $this->setPromise($this->ajd->middleware($name, $field, $value, $check_arr))->getPromise();
 		}
+
+		return $this->getPromiseNul();
 	}
 
 	public function checkAllMiddleware($field, $value = null, array $customMesage = [], $check_arr = true)
 	{
 		if($this->runChecker($value))
 		{
-			return $this->ajd->checkAllMiddleware($field, $value, $customMesage, $check_arr);
+			return $this->setPromise($this->ajd->checkAllMiddleware($field, $value, $customMesage, $check_arr))->getPromise();
 		}
+
+		return $this->getPromiseNul();
+	}
+
+	public function setPromise(PromiseValidator $promise)
+	{
+		$this->currentPromise = $promise;
+
+		return $this;
+	}
+
+	public function getPromise() : PromiseValidator
+	{
+		return $this->currentPromise;
+	}
+
+	public function getPromiseNul() : PromiseNull
+	{
+		return $this->promiseNull;
 	}
 }
