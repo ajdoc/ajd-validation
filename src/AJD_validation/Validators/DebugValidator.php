@@ -31,29 +31,47 @@ class DebugValidator implements Validation_interface
         return $this;
     }
 
-	public function debug()
+	public function debug($field = null, $value = null)
 	{
 		$trace = debug_backtrace(\DEBUG_BACKTRACE_IGNORE_ARGS, 7);
-
+		$callers = [];
+		
         $file = $trace[0]['file'];
         $line = $trace[0]['line'];
+        $class = $trace[0]['class'];
 
-        for ($i = 1; $i < 7; ++$i) {
-            if (isset($trace[$i]['class'], $trace[$i]['function'])
-                && 'validate' === $trace[$i]['function']
-                && is_a($trace[$i]['class'], ValidatorInterface::class, true)
-            ) {
+        $name = str_replace('\\', '/', $file);
+        $name = substr($name, strrpos($name, '/') + 1);
+
+        $callers[] = compact('name', 'file', 'line', 'class');
+        
+        for ($i = 1; $i < 7; ++$i) 
+        {
+            if (
+            	isset($trace[$i]['class'], $trace[$i]['function'])
+                && is_a($trace[$i]['class'], Validation_interface::class, true)
+            ) 
+            {
                 $file = $trace[$i]['file'];
                 $line = $trace[$i]['line'];
-
-                while (++$i < 7) {
-                    if (isset($trace[$i]['function'], $trace[$i]['file']) && empty($trace[$i]['class']) && !str_starts_with($trace[$i]['function'], 'call_user_func')) {
+                $class = $trace[$i]['class'];
+                
+                while (++$i < 7) 
+                {
+                    if (
+                    	isset($trace[$i]['function'], $trace[$i]['file']) 
+                    	&& empty($trace[$i]['class']) 
+                    	&& !str_starts_with($trace[$i]['function'], 'call_user_func')
+                    ) 
+                    {
                         $file = $trace[$i]['file'];
                         $line = $trace[$i]['line'];
+                        $class = $trace[$i]['class'];
 
                         break;
                     }
                 }
+
                 break;
             }
         }
@@ -61,9 +79,11 @@ class DebugValidator implements Validation_interface
         $name = str_replace('\\', '/', $file);
         $name = substr($name, strrpos($name, '/') + 1);
 
+        $callers[] = compact('name', 'file', 'line', 'class');
+
         $this->collectedData[] = [
-            'caller' => compact('name', 'file', 'line'),
-            // 'context' => compact('value', 'constraints'),
+            'caller' => $callers,
+            'context' => compact('value', 'field'),
         ];
 
 	}
@@ -78,41 +98,67 @@ class DebugValidator implements Validation_interface
 
 	public function check($field, $value = null, $check_arr = true)
 	{
-		$this->debug();
+		$this->debug($field, $value);
+
+		$this->ajd->resetGlobalValidator();
 
 		return $this->setPromise($this->ajd->check($field, $value, $check_arr));
 	}
 
 	public function checkAsync($field, $value = null, $function = null, $check_arr = true)
 	{
-		return  $this->setPromise($this->ajd->checkAsync($field, $value, $function, $check_arr))->getPromise();
+		$this->debug($field, $value);
+
+		$this->ajd->resetGlobalValidator();
+
+		return $this->setPromise($this->ajd->checkAsync($field, $value, $function, $check_arr));
 	}
 
 	public function checkDependent($field, $value = null, $origValue = null, array $customMessage = [], $check_arr = true)
 	{
-		return $this->setPromise($this->ajd->checkDependent($field, $value, $origValue, $customMesage, $check_arr))->getPromise();
+		$this->debug($field, $value);
+
+		$this->ajd->resetGlobalValidator();
+
+		return $this->setPromise($this->ajd->checkDependent($field, $value, $origValue, $customMessage, $check_arr));
 	}
 
 	public function checkArr($field, $value, array $customMesage = [], $check_arr = true)
 	{
-		return $this->setPromise($this->ajd->checkArr($field, $value, $customMesage, $check_arr))->getPromise();
+		$this->debug($field, $value);
+
+		$this->ajd->resetGlobalValidator();
+
+		return $this->setPromise($this->ajd->checkArr($field, $value, $customMesage, $check_arr));
 	}
 
 	public function checkGroup(array $data)
 	{
-		return $this->setPromise($this->ajd->checkGroup($data))->getPromise();
+		$this->debug($data);
+
+		$this->ajd->resetGlobalValidator();
+
+		return $this->setPromise($this->ajd->checkGroup($data));
 		
 	}
 
 	public function middleware($name, $field, $value = null, $check_arr = true)
 	{
-		return $this->setPromise($this->ajd->middleware($name, $field, $value, $check_arr))->getPromise();
+		$this->debug($field, $value);
+
+		$this->ajd->resetGlobalValidator();
+
+		return $this->setPromise($this->ajd->middleware($name, $field, $value, $check_arr));
 		
 	}
 
 	public function checkAllMiddleware($field, $value = null, array $customMesage = [], $check_arr = true)
 	{
-		return $this->setPromise($this->ajd->checkAllMiddleware($field, $value, $customMesage, $check_arr))->getPromise();
+		$this->debug($field, $value);
+
+		$this->ajd->resetGlobalValidator();
+
+		return $this->setPromise($this->ajd->checkAllMiddleware($field, $value, $customMesage, $check_arr));
 
 	}
 

@@ -5,6 +5,8 @@ namespace AJD_validation\Async;
 use \Fiber;
 use AJD_validation\Async\PromiseValidator;
 use AJD_validation\AJD_validation;
+use AJD_validation\Contracts\Validation_interface;
+use AJD_validation\Async\Promise_interface;
 	
 class Async
 {
@@ -16,8 +18,28 @@ class Async
 	protected $errorMessages = [];
 	protected $whenFibers = [];
 
-	public static function await(PromiseValidator $childFiber)
+	protected static function promiseOrValidator($childFiber)
 	{
+		$reflection = new \ReflectionClass($childFiber);
+
+		$interfaces =  array_keys($reflection->getInterfaces());
+
+		if(
+			!in_array(Promise_interface::class, $interfaces, true)
+			&&
+			in_array(Validation_interface::class, $interfaces, true)
+		)
+		{
+			$childFiber = $childFiber->getPromise();
+		}
+
+		return $childFiber;
+	}
+
+	public static function await($childFiber)
+	{
+		$childFiber = static::promiseOrValidator($childFiber);
+
 		self::$activeAwaits[] = [
 			null, $childFiber->getFiber()
 		];
@@ -40,8 +62,8 @@ class Async
 		{
 			foreach($args as $childFiber)
 			{
-				static::await($childFiber);
-
+				$childFiber = static::await($childFiber);
+				
 				$childFibers[] = $childFiber;
 			}
 		}
@@ -155,7 +177,6 @@ class Async
 
 						$returnValue->fails(function($ajd, $field) use(&$self)
 						{
-
 							static::$fails[] = 1;
 
 							if( $ajd->validation_fails($field) )
@@ -225,7 +246,6 @@ class Async
 
 	public static function async(callable $function, array $errorMessages = [], $self = null, mixed ...$args)
 	{
-
 		return (static function (mixed ...$args) use ($function, $errorMessages, $self) 
 		{
 			

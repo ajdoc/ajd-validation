@@ -31,6 +31,7 @@ use AJD_validation\Contracts\ValidationProviderInterface;
 use AJD_validation\Contracts\Validation_interface;
 use AJD_validation\Helpers\TriggerWhen;
 use AJD_validation\Factory\Class_factory;
+use AJD_validation\Async\Promise_interface;
 
 class AJD_validation extends Base_validator
 {
@@ -140,6 +141,8 @@ class AJD_validation extends Base_validator
 	protected static $dbConnections			= array();
 
 	protected static $fiberRule = 'fiberize';
+
+	protected static $globalUseValidator = null;
 
 	public static function get_ajd_instance()
 	{
@@ -368,6 +371,18 @@ class AJD_validation extends Base_validator
 		return $triggerWhen;
 	}
 
+	public static function setValidator($validator)
+	{
+		$ajd = static::get_ajd_instance();
+
+		$newValidator = $ajd->useValidator($validator);
+
+		if($newValidator != $ajd)
+		{
+			static::$globalUseValidator = $newValidator;
+		}
+	}
+
 	public function useValidator($validator)
 	{
 		$ajd = static::get_ajd_instance();
@@ -384,6 +399,11 @@ class AJD_validation extends Base_validator
 		return $ajd;
 	}
 
+	public function resetGlobalValidator()
+	{
+		static::$globalUseValidator = null;
+	}
+
 	public function resetTriggerWhen()
 	{
 		$this->reset_all_validation_prop();
@@ -391,6 +411,13 @@ class AJD_validation extends Base_validator
 
 	public function checkAllMiddleware( $field, $value = NULL, array $customMesage = array(), $check_arr = TRUE )
 	{
+		$validator = $this->processGlobalValidator('checkAllMiddleware', $field, $value, $customMesage, $check_arr);
+		
+		if($validator)
+		{
+			return $validator;
+		}
+
 		if( !EMPTY( static::$middleware ) )
 		{
 			$current_name 	= key(static::$middleware);
@@ -405,6 +432,13 @@ class AJD_validation extends Base_validator
 
 	public function middleware( $name, $field, $value = NULL, $check_arr = TRUE, $all = false )
 	{
+		$validator = $this->processGlobalValidator('middleware', $name, $field, $value, $check_arr);
+		
+		if($validator)
+		{
+			return $validator;
+		}
+
 		$ajd 			= static::get_ajd_instance();
 		$args 			= array( $field, $value, $check_arr );
 		$curr_field 	= static::$ajd_prop[ 'current_field' ];
@@ -1696,19 +1730,24 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	public static function any(PromiseValidator ...$promises)
+	public static function any(...$promises)
 	{
 		$ajd = static::get_ajd_instance();
 
 		$ajdMessage = $ajd->getPropMessage();
 
 		$messages = [];
+
+		$newPromises = [];
 		
 		foreach($promises as $promise)
 		{
+			$promise = $ajd->promiseOrValidator($promise);
+
+			$newPromises[] = $promise;
+			
 			$field = $promise->getField();
 			$fields = $promise->getFields();
-			
 
 			if(!empty($field) && isset($ajdMessage[$field]))
 			{
@@ -1735,7 +1774,7 @@ class AJD_validation extends Base_validator
 			
 		}
 
-		$orPromise = PromiseHelpers::any($promises);
+		$orPromise = PromiseHelpers::any($newPromises);
 
 		$orPromise->then(
 			function()
@@ -1756,6 +1795,7 @@ class AJD_validation extends Base_validator
 
 	private function _checkGroup( array $data, $middleware = FALSE )
 	{
+		
 		static::$ajd_prop['check_group'] 	= TRUE;
 		
 		$value 								= NULL;
@@ -1905,7 +1945,9 @@ class AJD_validation extends Base_validator
 						},
 						false
 					);
-					
+
+					$or = $this->promiseOrValidator($or);
+										
 					// $this->processFieldRulesSequence($field_key);
 
 					$orPromisesRaw[] = $or;
@@ -2203,7 +2245,7 @@ class AJD_validation extends Base_validator
 							
 						$andPromise 		= $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value, null, false );
 
-						
+						$andPromise = $this->promiseOrValidator($andPromise);
 						// $this->processFieldRulesSequence($field_key);
 
 						$andPromises[] 		= $andPromise;
@@ -2338,6 +2380,13 @@ class AJD_validation extends Base_validator
 
 	public function checkGroup( array $data )
 	{	
+		$validator = $this->processGlobalValidator('checkGroup', $data);
+		
+		if($validator)
+		{
+			return $validator;
+		}
+
 		return $this->_checkGroup( $data );
 	}
 
@@ -2432,6 +2481,13 @@ class AJD_validation extends Base_validator
 
 	public function checkArr( $field, $value, $customMesage = array(), $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $func = null, $dontResetGrouping = false )
 	{
+		$validator = $this->processGlobalValidator('checkArr', $field, $value, $customMesage, $check_arr);
+		
+		if($validator)
+		{
+			return $validator;
+		}
+
 		$obs            = static::get_observable_instance();
 		$ev				= static::get_promise_validator_instance();
 
@@ -2584,6 +2640,13 @@ class AJD_validation extends Base_validator
 
 	public function checkDependent( $field, $value = NULL, $origValue = NULL, array $customMessage = array(), $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE )
 	{
+		$validator = $this->processGlobalValidator('checkDependent', $field, $value, $origValue, $customMessage, $check_arr);
+		
+		if($validator)
+		{
+			return $validator;
+		}
+
 		$validator 			= $this->getValidator();
 		$paramValidator 	= $validator->one_or( Validator::contains('.'), Validator::contains('*') );
 
@@ -2599,11 +2662,39 @@ class AJD_validation extends Base_validator
 
 	public function checkAsync($field, $value = NULL, $function = null, $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE, $origValue = NULL)
 	{
+		$validator = $this->processGlobalValidator('checkAsync', $field, $value, $function, $check_arr);
+		
+		if($validator)
+		{
+			return $validator;
+		}
+
 		return $this->check($field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $function);
+	}
+
+	protected function processGlobalValidator($method, ...$args)
+	{
+		$globalUseValidator = null;
+
+		if(static::$globalUseValidator)
+		{
+			$globalUseValidator = static::$globalUseValidator->{$method}(...$args);
+
+			static::$globalUseValidator = $globalUseValidator;
+
+			return $globalUseValidator;
+		}
 	}
 
 	public function check( $field, $value = NULL, $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE, $origValue = NULL, $function = null, $dontResetGrouping = false )
 	{
+		$validator = $this->processGlobalValidator('check', $field, $value, $check_arr);
+
+		if($validator)
+		{
+			return $validator;
+		}
+		
 		$that = $this;
 		$checkFiber = class_exists('Fiber');
 		$formatField = $this->format_field_name($field);
@@ -2910,6 +3001,24 @@ class AJD_validation extends Base_validator
 		}
 		
 		return static::get_ajd_instance();
+	}
+
+	protected function promiseOrValidator($object)
+	{
+		$reflection = new \ReflectionClass($object);
+
+		$interfaces =  array_keys($reflection->getInterfaces());
+
+		if(
+			!in_array(Promise_interface::class, $interfaces, true)
+			&&
+			in_array(Validation_interface::class, $interfaces, true)
+		)
+		{
+			return $object->getPromise();
+		}
+
+		return $object;
 	}
 
 	private function _fiberize_check($field, $value = NULL, $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE, $origValue = NULL, $fiberize = false, $promise = null, $dontResetGrouping = false)
