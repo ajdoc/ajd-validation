@@ -10,8 +10,6 @@ class DebugValidator implements Validation_interface
 {
 	protected $ajd;
 	protected $currentPromise;
-	protected $promiseNull;
-
 	private $collectedData = [];
 
 	public function __construct(AJD_validation $ajd)
@@ -39,7 +37,7 @@ class DebugValidator implements Validation_interface
         $file = $trace[0]['file'];
         $line = $trace[0]['line'];
         $class = $trace[0]['class'];
-
+        
         $name = str_replace('\\', '/', $file);
         $name = substr($name, strrpos($name, '/') + 1);
 
@@ -85,7 +83,6 @@ class DebugValidator implements Validation_interface
             'caller' => $callers,
             'context' => compact('value', 'field'),
         ];
-
 	}
 
 	public function printCollectedData()

@@ -135,6 +135,7 @@ class AJD_validation extends Base_validator
 	protected static $addRuleDirectory 		= array();
 
 	protected static $addRulesMappings 		= [];
+	protected static $addValidatorsMappings = [];
 	protected static $registeredPackaged 	= [];
 	protected static $packagesToRegister 	= [];
 
@@ -220,9 +221,17 @@ class AJD_validation extends Base_validator
 		if( !isset(static::$registeredPackaged[\spl_object_id($package)]) )
 		{
 			$package->register();
+
 			static::processMappings();
 			AJD_filter::processMappings();
 			When::processMappings();
+
+			$validators = $package::getValidatorsCollection();
+
+			if(!empty($validators))
+			{
+				static::$addValidatorsMappings = array_merge(static::$addValidatorsMappings, $validators);
+			}
 
 			static::$registeredPackaged[\spl_object_id($package)] = true;
 		}
@@ -387,13 +396,44 @@ class AJD_validation extends Base_validator
 	{
 		$ajd = static::get_ajd_instance();
 
-		$reflectValidator = new \ReflectionClass($validator);
+		if(
+			isset(static::$addValidatorsMappings[$validator])
+			&& 
+			!empty(static::$addValidatorsMappings[$validator])
+		)
+		{
+			$validator = key(static::$addValidatorsMappings[$validator]);
+		}
+		else
+		{
+			if(!empty(static::$addValidatorsMappings))
+			{
+				foreach(static::$addValidatorsMappings as $signature => $mappings)
+				{
+					foreach ($mappings as $map) 
+					{
+						if($map === $validator)
+						{
+							$validator = $map;
 
-		$interfaces  = array_keys($reflectValidator->getInterfaces());
+							break;
+						}
+					}
+				}
+			}
+		}
 
-		if(in_array(Validation_interface::class, $interfaces, true))
-        {
-			return new $validator($ajd);
+		if(class_exists($validator))
+		{
+
+			$reflectValidator = new \ReflectionClass($validator);
+
+			$interfaces  = array_keys($reflectValidator->getInterfaces());
+
+			if(in_array(Validation_interface::class, $interfaces, true))
+	        {
+				return new $validator($ajd);
+			}
 		}
 
 		return $ajd;
