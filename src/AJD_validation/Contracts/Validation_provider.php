@@ -27,19 +27,19 @@ abstract class Validation_provider implements ValidationProviderInterface
     protected static $defaultLogicsDir = '/Logics';
     protected static $defaultLogicsNamespace = '\\Logics';
 
-    protected static $defaultValidatorsDir = '/Validations';
-    protected static $defaultValidatorsNamespace = '\\Validations';
+    protected static $defaultValidationsDir = '/Validations';
+    protected static $defaultValidationsNamespace = '\\Validations';
 
     protected static $defaults = [
         'baseDir' => '',
         'baseNamespace' => ''
     ];
 
-    protected static $validatorsCollection = [];
+    protected static $validationsCollection = [];
 
-    public static function getValidatorsCollection()
+    public static function getValidationsCollection()
     {
-        return static::$validatorsCollection;
+        return static::$validationsCollection;
     }
 
     public function setDefaults(array $defaults)
@@ -213,20 +213,20 @@ abstract class Validation_provider implements ValidationProviderInterface
         return $this->tryMappingDirectory(null, null, null, $logicsDir)['logics'];
     }
 
-    public function registerValidators(array $mappings)
+    public function registerValidations(array $mappings)
     {
-        foreach($mappings as $signature => $validators)
+        foreach($mappings as $signature => $validations)
         {
-            if(is_array($validators))
+            if(is_array($validations))
             {
-                foreach($validators as $validator)
+                foreach($validations as $validation)
                 {
-                    static::$validatorsCollection[$signature][$validator] = $validator;
+                    static::$validationsCollection[$signature][$validation] = $validation;
                 }
             }
             else
             {
-                static::$validatorsCollection[$signature][$validators] = $validators;
+                static::$validationsCollection[$signature][$validations] = $validations;
             }
         }
         
@@ -234,20 +234,20 @@ abstract class Validation_provider implements ValidationProviderInterface
     }
 
 
-    public function getValidatorsMappingDirectory($validatorsDir = null)
+    public function getValidationsMappingDirectory($validationsDir = null)
     {
-        return $this->tryMappingDirectory(null, null, null, null, $validatorsDir)['validators'];
+        return $this->tryMappingDirectory(null, null, null, null, $validationsDir)['validations'];
     }
 
 
-    public function tryMappingDirectory($rulesDir = null, $exceptionsDir = null, $filtersDir = null, $logicsDir = null, $validatorsDir = null)
+    public function tryMappingDirectory($rulesDir = null, $exceptionsDir = null, $filtersDir = null, $logicsDir = null, $validationsDir = null)
     {
         $relateMappping = [];
         $mappings = [];
 
         $filtersMapping = [];
         $logicsMapping = [];
-        $validatorsMapping = [];
+        $validationsMapping = [];
 
         try
         {
@@ -271,7 +271,7 @@ abstract class Validation_provider implements ValidationProviderInterface
 
             $logicsDir     = static::processDefaults(static::$defaultLogicsDir, DIRECTORY_SEPARATOR, $logicsDir);
 
-            $validatorsDir     = static::processDefaults(static::$defaultValidatorsDir, DIRECTORY_SEPARATOR, $validatorsDir);
+            $validationsDir     = static::processDefaults(static::$defaultValidationsDir, DIRECTORY_SEPARATOR, $validationsDir);
 
             $allFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
             $phpFiles = new \RegexIterator($allFiles, '/\.php$/');
@@ -280,7 +280,7 @@ abstract class Validation_provider implements ValidationProviderInterface
             $rulesDirClean = str_replace(['/', '\\'], '', $rulesDir);
             $filtersDirClean = str_replace(['/', '\\'], '', $filtersDir);
             $logicsDirClean = str_replace(['/', '\\'], '', $logicsDir);
-            $validatorsDirClean = str_replace(['/', '\\'], '', $validatorsDir);
+            $validationsDirClean = str_replace(['/', '\\'], '', $validationsDir);
 
             foreach ($phpFiles as $phpFile) 
             {
@@ -340,90 +340,15 @@ abstract class Validation_provider implements ValidationProviderInterface
                 }
                 else if($lastSegment == $filtersDirClean)
                 {
-                    $qualifiedClass = substr($phpFile->getFileName(), 0, -4);
-
-                    $qualifiedFilterClass = $baseNamespace.$filtersDirClean.'\\'.$qualifiedClass;
-
-                    if(class_exists($qualifiedFilterClass))
-                    {
-                        $classExists = $qualifiedFilterClass;
-                    }
-
-                    if(!empty($classExists))
-                    {
-                        $signature   = Filters_map::createFilterSignature($qualifiedClass);
-
-                        $reflection = new \ReflectionClass($classExists);
-
-                        $interfaces  = array_keys($reflection->getInterfaces());
-
-                        if(in_array(Filter_interface::class, $interfaces, true))
-                        {
-                            $filtersMapping[$signature][$classExists] = $classExists;
-                        }
-                    }
-                    
+                    $filtersMapping = $this->processClassMapping($phpFile, $baseNamespace, $filtersDirClean, Filters_map::class.'::createLogicSignature', Filter_interface::class, $filtersMapping);
                 }
                 else if($lastSegment == $logicsDirClean)
                 {
-                    $qualifiedClass = substr($phpFile->getFileName(), 0, -4);
-
-                    $qualifiedLogicsClass = $baseNamespace.$logicsDirClean.'\\'.$qualifiedClass;
-
-                    if(class_exists($qualifiedLogicsClass))
-                    {
-                        $classExists = $qualifiedLogicsClass;
-                    }
-
-                    if(!empty($classExists))
-                    {
-                        $signature   = LogicsAddMap::createLogicSignature($qualifiedClass);
-                        
-                        $reflection = new \ReflectionClass($classExists);
-
-                        $interfaces  = array_keys($reflection->getInterfaces());
-
-                        if(in_array(Logic_interface::class, $interfaces, true))
-                        {
-                            $logicsMapping[$signature][$classExists] = $classExists;
-                        }
-                    }
-                    
+                    $logicsMapping = $this->processClassMapping($phpFile, $baseNamespace, $logicsDirClean, LogicsAddMap::class.'::createLogicSignature', Logic_interface::class, $logicsMapping);
                 }
-                else if($lastSegment == $validatorsDirClean)
+                else if($lastSegment == $validationsDirClean)
                 {
-                    $qualifiedClass = substr($phpFile->getFileName(), 0, -4);
-
-                    $qualifiedValidatorsClass = $baseNamespace.$validatorsDirClean.'\\'.$qualifiedClass;
-
-                    if(class_exists($qualifiedValidatorsClass))
-                    {
-                        $classExists = $qualifiedValidatorsClass;
-                    }
-                    else
-                    {
-                        require $phpFile->getRealPath();
-
-                           
-                        if(class_exists($qualifiedValidatorsClass))
-                        {
-                            $classExists = $qualifiedValidatorsClass;
-                        }
-                    }
-
-                    if(!empty($classExists))
-                    {
-                        $signature   = $this->createSignature($qualifiedClass);
-                        
-                        $reflection = new \ReflectionClass($classExists);
-
-                        $interfaces  = array_keys($reflection->getInterfaces());
-
-                        if(in_array(Validation_interface::class, $interfaces, true))
-                        {
-                            $validatorsMapping[$signature][$classExists] = $classExists;
-                        }
-                    }
+                    $validationsMapping = $this->processClassMapping($phpFile, $baseNamespace, $validationsDirClean, [$this, 'createSignature'], Validation_interface::class, $validationsMapping);
                 }
             }
             
@@ -447,9 +372,51 @@ abstract class Validation_provider implements ValidationProviderInterface
             'rules_exceptions' => $relateMappping,
             'filters' => $filtersMapping,
             'logics' => $logicsMapping,
-            'validators' => $validatorsMapping
+            'validations' => $validationsMapping
         ];
 
+    }
+
+    protected function processClassMapping($phpFile, $baseNamespace, $dirClean, $signatureObjectMethod, $interfaceCheck, array $arrayMapping)
+    {
+        $qualifiedClass = substr($phpFile->getFileName(), 0, -4);
+
+        $qualifiedRealClass = $baseNamespace.$dirClean.'\\'.$qualifiedClass;
+
+        if(class_exists($qualifiedRealClass))
+        {
+            $classExists = $qualifiedRealClass;
+        }
+        else
+        {
+           /* require $phpFile->getRealPath();
+
+            if(class_exists($qualifiedRealClass))
+            {
+                $classExists = $qualifiedRealClass;
+            }*/
+        }
+
+        if(!empty($classExists))
+        {
+            $signature = null;
+
+            if(is_callable($signatureObjectMethod))
+            {
+                $signature = call_user_func_array($signatureObjectMethod, [$qualifiedClass]);
+            }
+
+            $reflection = new \ReflectionClass($classExists);
+
+            $interfaces  = array_keys($reflection->getInterfaces());
+
+            if(in_array($interfaceCheck, $interfaces, true))
+            {
+                 $arrayMapping[$signature][$classExists] = $classExists;
+            }
+        }
+
+        return $arrayMapping;
     }
 
     protected function createSignature($qualifiedClass)

@@ -135,7 +135,7 @@ class AJD_validation extends Base_validator
 	protected static $addRuleDirectory 		= array();
 
 	protected static $addRulesMappings 		= [];
-	protected static $addValidatorsMappings = [];
+	protected static $addValidationsMappings = [];
 	protected static $registeredPackaged 	= [];
 	protected static $packagesToRegister 	= [];
 
@@ -143,7 +143,7 @@ class AJD_validation extends Base_validator
 
 	protected static $fiberRule = 'fiberize';
 
-	protected static $globalUseValidator = null;
+	protected static $globalUseValidation = null;
 
 	public static function get_ajd_instance()
 	{
@@ -226,11 +226,11 @@ class AJD_validation extends Base_validator
 			AJD_filter::processMappings();
 			When::processMappings();
 
-			$validators = $package::getValidatorsCollection();
+			$validations = $package::getValidationsCollection();
 
-			if(!empty($validators))
+			if(!empty($validations))
 			{
-				static::$addValidatorsMappings = array_merge(static::$addValidatorsMappings, $validators);
+				static::$addValidationsMappings = array_merge(static::$addValidationsMappings, $validations);
 			}
 
 			static::$registeredPackaged[\spl_object_id($package)] = true;
@@ -380,41 +380,41 @@ class AJD_validation extends Base_validator
 		return $triggerWhen;
 	}
 
-	public static function setValidator($validator)
+	public static function setValidation($validation)
 	{
 		$ajd = static::get_ajd_instance();
 
-		$newValidator = $ajd->useValidator($validator);
+		$newValidation = $ajd->useValidation($validation);
 
-		if($newValidator != $ajd)
+		if($newValidation != $ajd)
 		{
-			static::$globalUseValidator = $newValidator;
+			static::$globalUseValidation = $newValidation;
 		}
 	}
 
-	public function useValidator($validator)
+	public function useValidation($validation)
 	{
 		$ajd = static::get_ajd_instance();
 
 		if(
-			isset(static::$addValidatorsMappings[$validator])
+			isset(static::$addValidationsMappings[$validation])
 			&& 
-			!empty(static::$addValidatorsMappings[$validator])
+			!empty(static::$addValidationsMappings[$validation])
 		)
 		{
-			$validator = key(static::$addValidatorsMappings[$validator]);
+			$validation = key(static::$addValidationsMappings[$validation]);
 		}
 		else
 		{
-			if(!empty(static::$addValidatorsMappings))
+			if(!empty(static::$addValidationsMappings))
 			{
-				foreach(static::$addValidatorsMappings as $signature => $mappings)
+				foreach(static::$addValidationsMappings as $signature => $mappings)
 				{
 					foreach ($mappings as $map) 
 					{
-						if($map === $validator)
+						if($map === $validation)
 						{
-							$validator = $map;
+							$validation = $map;
 
 							break;
 						}
@@ -423,25 +423,25 @@ class AJD_validation extends Base_validator
 			}
 		}
 
-		if(class_exists($validator))
+		if(class_exists($validation))
 		{
 
-			$reflectValidator = new \ReflectionClass($validator);
+			$reflectValidation = new \ReflectionClass($validation);
 
-			$interfaces  = array_keys($reflectValidator->getInterfaces());
+			$interfaces  = array_keys($reflectValidation->getInterfaces());
 
 			if(in_array(Validation_interface::class, $interfaces, true))
 	        {
-				return new $validator($ajd);
+				return new $validation($ajd);
 			}
 		}
 
 		return $ajd;
 	}
 
-	public function resetGlobalValidator()
+	public function resetGlobalValidation()
 	{
-		static::$globalUseValidator = null;
+		static::$globalUseValidation = null;
 	}
 
 	public function resetTriggerWhen()
@@ -451,11 +451,11 @@ class AJD_validation extends Base_validator
 
 	public function checkAllMiddleware( $field, $value = NULL, array $customMesage = array(), $check_arr = TRUE )
 	{
-		$validator = $this->processGlobalValidator('checkAllMiddleware', $field, $value, $customMesage, $check_arr);
+		$validation = $this->processGlobalValidation('checkAllMiddleware', $field, $value, $customMesage, $check_arr);
 		
-		if($validator)
+		if($validation)
 		{
-			return $validator;
+			return $validation;
 		}
 
 		if( !EMPTY( static::$middleware ) )
@@ -472,11 +472,11 @@ class AJD_validation extends Base_validator
 
 	public function middleware( $name, $field, $value = NULL, $check_arr = TRUE, $all = false )
 	{
-		$validator = $this->processGlobalValidator('middleware', $name, $field, $value, $check_arr);
+		$validation = $this->processGlobalValidation('middleware', $name, $field, $value, $check_arr);
 		
-		if($validator)
+		if($validation)
 		{
-			return $validator;
+			return $validation;
 		}
 
 		$ajd 			= static::get_ajd_instance();
@@ -1782,7 +1782,7 @@ class AJD_validation extends Base_validator
 		
 		foreach($promises as $promise)
 		{
-			$promise = $ajd->promiseOrValidator($promise);
+			$promise = $ajd->promiseOrValidation($promise);
 
 			$newPromises[] = $promise;
 			
@@ -1986,7 +1986,7 @@ class AJD_validation extends Base_validator
 						false
 					);
 
-					$or = $this->promiseOrValidator($or);
+					$or = $this->promiseOrValidation($or);
 										
 					// $this->processFieldRulesSequence($field_key);
 
@@ -2285,7 +2285,7 @@ class AJD_validation extends Base_validator
 							
 						$andPromise 		= $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value, null, false );
 
-						$andPromise = $this->promiseOrValidator($andPromise);
+						$andPromise = $this->promiseOrValidation($andPromise);
 						// $this->processFieldRulesSequence($field_key);
 
 						$andPromises[] 		= $andPromise;
@@ -2420,11 +2420,11 @@ class AJD_validation extends Base_validator
 
 	public function checkGroup( array $data )
 	{	
-		$validator = $this->processGlobalValidator('checkGroup', $data);
+		$validation = $this->processGlobalValidation('checkGroup', $data);
 		
-		if($validator)
+		if($validation)
 		{
-			return $validator;
+			return $validation;
 		}
 
 		return $this->_checkGroup( $data );
@@ -2521,11 +2521,11 @@ class AJD_validation extends Base_validator
 
 	public function checkArr( $field, $value, $customMesage = array(), $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $func = null, $dontResetGrouping = false )
 	{
-		$validator = $this->processGlobalValidator('checkArr', $field, $value, $customMesage, $check_arr);
+		$validation = $this->processGlobalValidation('checkArr', $field, $value, $customMesage, $check_arr);
 		
-		if($validator)
+		if($validation)
 		{
-			return $validator;
+			return $validation;
 		}
 
 		$obs            = static::get_observable_instance();
@@ -2680,11 +2680,11 @@ class AJD_validation extends Base_validator
 
 	public function checkDependent( $field, $value = NULL, $origValue = NULL, array $customMessage = array(), $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE )
 	{
-		$validator = $this->processGlobalValidator('checkDependent', $field, $value, $origValue, $customMessage, $check_arr);
+		$validation = $this->processGlobalValidation('checkDependent', $field, $value, $origValue, $customMessage, $check_arr);
 		
-		if($validator)
+		if($validation)
 		{
-			return $validator;
+			return $validation;
 		}
 
 		$validator 			= $this->getValidator();
@@ -2702,37 +2702,37 @@ class AJD_validation extends Base_validator
 
 	public function checkAsync($field, $value = NULL, $function = null, $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE, $origValue = NULL)
 	{
-		$validator = $this->processGlobalValidator('checkAsync', $field, $value, $function, $check_arr);
+		$validation = $this->processGlobalValidation('checkAsync', $field, $value, $function, $check_arr);
 		
-		if($validator)
+		if($validation)
 		{
-			return $validator;
+			return $validation;
 		}
 
 		return $this->check($field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $function);
 	}
 
-	protected function processGlobalValidator($method, ...$args)
+	protected function processGlobalValidation($method, ...$args)
 	{
-		$globalUseValidator = null;
+		$globalUseValidation = null;
 
-		if(static::$globalUseValidator)
+		if(static::$globalUseValidation)
 		{
-			$globalUseValidator = static::$globalUseValidator->{$method}(...$args);
+			$globalUseValidation = static::$globalUseValidation->{$method}(...$args);
 
-			static::$globalUseValidator = $globalUseValidator;
+			static::$globalUseValidation = $globalUseValidation;
 
-			return $globalUseValidator;
+			return $globalUseValidation;
 		}
 	}
 
 	public function check( $field, $value = NULL, $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE, $origValue = NULL, $function = null, $dontResetGrouping = false )
 	{
-		$validator = $this->processGlobalValidator('check', $field, $value, $check_arr);
+		$validation = $this->processGlobalValidation('check', $field, $value, $check_arr);
 
-		if($validator)
+		if($validation)
 		{
-			return $validator;
+			return $validation;
 		}
 		
 		$that = $this;
@@ -3043,7 +3043,7 @@ class AJD_validation extends Base_validator
 		return static::get_ajd_instance();
 	}
 
-	protected function promiseOrValidator($object)
+	protected function promiseOrValidation($object)
 	{
 		$reflection = new \ReflectionClass($object);
 

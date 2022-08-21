@@ -97,7 +97,7 @@ class DebugValidation implements Validation_interface
 	{
 		$this->debug($field, $value);
 
-		$this->ajd->resetGlobalValidator();
+		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->check($field, $value, $check_arr));
 	}
@@ -106,7 +106,7 @@ class DebugValidation implements Validation_interface
 	{
 		$this->debug($field, $value);
 
-		$this->ajd->resetGlobalValidator();
+		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkAsync($field, $value, $function, $check_arr));
 	}
@@ -115,7 +115,7 @@ class DebugValidation implements Validation_interface
 	{
 		$this->debug($field, $value);
 
-		$this->ajd->resetGlobalValidator();
+		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkDependent($field, $value, $origValue, $customMessage, $check_arr));
 	}
@@ -124,7 +124,7 @@ class DebugValidation implements Validation_interface
 	{
 		$this->debug($field, $value);
 
-		$this->ajd->resetGlobalValidator();
+		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkArr($field, $value, $customMesage, $check_arr));
 	}
@@ -133,7 +133,7 @@ class DebugValidation implements Validation_interface
 	{
 		$this->debug($data);
 
-		$this->ajd->resetGlobalValidator();
+		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkGroup($data));
 		
@@ -143,7 +143,7 @@ class DebugValidation implements Validation_interface
 	{
 		$this->debug($field, $value);
 
-		$this->ajd->resetGlobalValidator();
+		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->middleware($name, $field, $value, $check_arr));
 		
@@ -153,7 +153,7 @@ class DebugValidation implements Validation_interface
 	{
 		$this->debug($field, $value);
 
-		$this->ajd->resetGlobalValidator();
+		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkAllMiddleware($field, $value, $customMesage, $check_arr));
 

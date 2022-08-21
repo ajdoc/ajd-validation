@@ -18,7 +18,7 @@ class Async
 	protected $errorMessages = [];
 	protected $whenFibers = [];
 
-	protected static function promiseOrValidator($childFiber)
+	protected static function promiseOrValidation($childFiber)
 	{
 		$reflection = new \ReflectionClass($childFiber);
 
@@ -38,7 +38,7 @@ class Async
 
 	public static function await($childFiber)
 	{
-		$childFiber = static::promiseOrValidator($childFiber);
+		$childFiber = static::promiseOrValidation($childFiber);
 
 		self::$activeAwaits[] = [
 			null, $childFiber->getFiber()
