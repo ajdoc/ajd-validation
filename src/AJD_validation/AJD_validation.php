@@ -932,11 +932,19 @@ class AJD_validation extends Base_validator
 
 			$key_arr 							= static::get_ajd_and_or_prop();
 
+			$passArgs = [];
+			$passArgs[] = $ajd;
+
 			$ajd->invoke_func( $func, array( $ajd ) );
 
 			foreach( $key_arr as $prop )
 			{
 				static::$macros[ $macro_name ][ $prop ] 	= static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ];
+			}
+
+			if(isset(static::$ajd_prop['fiber_suspend']) && !empty(static::$ajd_prop['fiber_suspend']))
+			{
+				static::$macros[ $macro_name ]['fiber_suspend'] = static::$ajd_prop['fiber_suspend'];
 			}
 
 			$ajd->reset_all_validation_prop();
@@ -978,6 +986,12 @@ class AJD_validation extends Base_validator
 				{
 					static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ] 	= static::$macros[ $macro_name ][ $prop ];
 				}
+			}
+
+			if(isset(static::$macros[$macro_name]['fiber_suspend']) && !empty(static::$macros[$macro_name]['fiber_suspend']))
+			{
+
+				static::$ajd_prop['fiber_suspend'] = static::$macros[ $macro_name ]['fiber_suspend'];
 			}
 		}
 
@@ -5252,6 +5266,52 @@ class AJD_validation extends Base_validator
 
 			if( $details['sometimes'] && $runValidate )
 			{
+				if(!empty(static::$ajd_prop['fiber_suspend']) 
+					&&
+					(
+						isset($details['fibered'])
+						&&
+						!empty($details['fibered'])
+						&&
+						class_exists('Fiber')
+						
+					)
+				)
+				{
+
+					if(
+						isset(static::$ajd_prop['fiber_suspend'][$details['rule']][$rule_key])
+						&&
+						!empty(static::$ajd_prop['fiber_suspend'][$details['rule']][$rule_key])
+					)
+					{
+						$fiberRule = \Fiber::getCurrent();
+
+						if($fiberRule)
+						{
+							$suspend_val = $fiberRule::suspend($details);	
+						}
+						
+						
+						if(!empty($suspend_val))
+						{
+							if($suspend_val instanceof \Closure)
+							{
+								$suspend_val($extra_args);	
+							}
+							else
+							{
+								if($suspend_val)
+								{
+									$details = $suspend_val;
+								}
+							}
+						}
+
+						unset(static::$ajd_prop['fiber_suspend'][$details['rule']]);
+					}
+				}	
+
 				if( ISSET( $details['satisfier'][0] ) AND !EMPTY( $details['satisfier'][0] ) 
 					AND is_callable( $details['satisfier'][0] )
 					AND !$details['satisfier'][0] instanceof Validator
@@ -5599,57 +5659,12 @@ class AJD_validation extends Base_validator
 
 		$extra_args['pass_arr']['values'][$details['rule']] 	= $details['value'];
 
-
-		if(!empty(static::$ajd_prop['fiber_suspend']) 
-			&&
-			(
-				isset($details['fibered'])
-				&&
-				!empty($details['fibered'])
-				&&
-				class_exists('Fiber')
-				
-			)
-		)
-		{
-
-			if(
-				isset(static::$ajd_prop['fiber_suspend'][$details['rule']][$rule_key])
-				&&
-				!empty(static::$ajd_prop['fiber_suspend'][$details['rule']][$rule_key])
-			)
-			{
-				$fiberRule = \Fiber::getCurrent();
-
-				if($fiberRule)
-				{
-					$suspend_val = $fiberRule::suspend($details);	
-				}
-				
-				
-				if(!empty($suspend_val))
-				{
-					if($suspend_val instanceof \Closure)
-					{
-						$suspend_val($extra_args);	
-					}
-					else
-					{
-						var_dump($suspend_val);
-					}
-				}
-
-
-				unset(static::$ajd_prop['fiber_suspend'][$details['rule']]);
-			}
-		}	
-
 		$extra_args['orig_field'] = $orig_field;
 		$extra_args['firstSeq'] = $firstSeq;
 		$extra_args['sequence_check'] = $sequence_check;
 		$extra_args['rulesInSeq'] = $rulesInSeq;
 		$extra_args['seqValidateGroupings'] = $seqValidateGroupings;
-
+		
 		return $extra_args;
 	}
 

@@ -389,12 +389,12 @@ abstract class Validation_provider implements ValidationProviderInterface
         }
         else
         {
-           /* require $phpFile->getRealPath();
+            require $phpFile->getRealPath();
 
             if(class_exists($qualifiedRealClass))
             {
                 $classExists = $qualifiedRealClass;
-            }*/
+            }
         }
 
         if(!empty($classExists))
