@@ -6,7 +6,7 @@ use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\Validation_interface;
 use AJD_validation\Async\PromiseValidator;
 
-class DebugValidations implements Validation_interface
+class DebugValidation implements Validation_interface
 {
 	protected $ajd;
 	protected $currentPromise;
