@@ -142,8 +142,8 @@ $v
 				$v
 					->makeAsync()
 					->required()
-					->check('field1', ''),
-					->getPromise()
+					->check('field1', '')
+					->getPromise(),
 
 				$v
 					->makeAsync()
