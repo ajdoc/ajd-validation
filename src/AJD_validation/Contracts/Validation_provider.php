@@ -27,8 +27,8 @@ abstract class Validation_provider implements ValidationProviderInterface
     protected static $defaultLogicsDir = '/Logics';
     protected static $defaultLogicsNamespace = '\\Logics';
 
-    protected static $defaultValidatorsDir = '/Validators';
-    protected static $defaultValidatorsNamespace = '\\Validators';
+    protected static $defaultValidatorsDir = '/Validations';
+    protected static $defaultValidatorsNamespace = '\\Validations';
 
     protected static $defaults = [
         'baseDir' => '',

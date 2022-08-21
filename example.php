@@ -461,22 +461,22 @@ try
 		->package_test()
 		->check('package_test_field');
 
-	$v->addDbConnection(
+	/*$v->addDbConnection(
 		'test', 
 		[
 			'mysql:host=127.0.0.1;port=3306;dbname=dti_1bps',
 			'root',
 			'default'
 		]
-	);
+	);*/
 
-	$ch_db = $v->exists('test|table=requests', $v->LgDb_example()->Lgfirst(true)->wrapLogic()
+	/*$ch_db = $v->exists('test|table=requests', $v->LgDb_example()->Lgfirst(true)->wrapLogic()
 	)
 
 	// ->validate(5);
 
 	->check('db_ch', 4)
-	;
+	;*/
 
 	/*$v
 	->when()
@@ -563,9 +563,9 @@ try
 		->check('none_field', 'a@test.coma');
 
 		
-	$v 
+	/*$v 
 		->mime_type('image/png')
-		->check('mime_type_field', '/home/asiagate/Pictures/decision.png');
+		->check('mime_type_field', '/home/asiagate/Pictures/decision.png');*/
 
 	/*var_dump(
 		$v 

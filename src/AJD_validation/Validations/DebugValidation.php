@@ -1,12 +1,12 @@
 <?php 
 
-namespace AJD_validation\Validators;
+namespace AJD_validation\Validations;
 
 use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\Validation_interface;
 use AJD_validation\Async\PromiseValidator;
 
-class DebugValidator implements Validation_interface
+class DebugValidations implements Validation_interface
 {
 	protected $ajd;
 	protected $currentPromise;
