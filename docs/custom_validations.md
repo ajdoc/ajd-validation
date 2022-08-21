@@ -156,7 +156,8 @@ $v
 				echo 'then';
 			}); // needs to call `->getPromise()` to work properly
 		```
-## example of a custom validation
+## Example of a custom validation
+- You could also see src\Ajd_validation\Validations\DebugValidation.php for another example.
 ```php
 namespace Validations;
 
@@ -181,8 +182,6 @@ class CustomValidation implements Validation_interface
 
 	public function check($field, $value = null, $check_arr = true)
 	{
-		$this->debug($field, $value);
-
 		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->check($field, $value, $check_arr));
@@ -190,8 +189,6 @@ class CustomValidation implements Validation_interface
 
 	public function checkAsync($field, $value = null, $function = null, $check_arr = true)
 	{
-		$this->debug($field, $value);
-
 		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkAsync($field, $value, $function, $check_arr));
@@ -199,8 +196,6 @@ class CustomValidation implements Validation_interface
 
 	public function checkDependent($field, $value = null, $origValue = null, array $customMessage = [], $check_arr = true)
 	{
-		$this->debug($field, $value);
-
 		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkDependent($field, $value, $origValue, $customMessage, $check_arr));
@@ -208,8 +203,6 @@ class CustomValidation implements Validation_interface
 
 	public function checkArr($field, $value, array $customMesage = [], $check_arr = true)
 	{
-		$this->debug($field, $value);
-
 		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkArr($field, $value, $customMesage, $check_arr));
@@ -217,8 +210,6 @@ class CustomValidation implements Validation_interface
 
 	public function checkGroup(array $data)
 	{
-		$this->debug($data);
-
 		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkGroup($data));
@@ -227,8 +218,6 @@ class CustomValidation implements Validation_interface
 
 	public function middleware($name, $field, $value = null, $check_arr = true)
 	{
-		$this->debug($field, $value);
-
 		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->middleware($name, $field, $value, $check_arr));
@@ -236,9 +225,7 @@ class CustomValidation implements Validation_interface
 	}
 
 	public function checkAllMiddleware($field, $value = null, array $customMesage = [], $check_arr = true)
-	{
-		$this->debug($field, $value);
-
+	{		
 		$this->ajd->resetGlobalValidation();
 
 		return $this->setPromise($this->ajd->checkAllMiddleware($field, $value, $customMesage, $check_arr));
