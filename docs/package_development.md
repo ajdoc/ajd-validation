@@ -14,6 +14,8 @@ In this document we'll see how to create package for ajd-validation
 |   +-- Custom_filter.php
 +-- Logics
 |   +-- Custom_logic.php
++-- Validations
+|   +-- Custom_validation.php
 +-- ValidatorProvider.php
 ```
 
@@ -27,6 +29,8 @@ In this document we'll see how to create package for ajd-validation
 |   +-- Custom_filter.php
 +-- Logics
 |   +-- Custom_logic.php
++-- Validations
+|   +-- Custom_validation.php
 +-- ValidatorProvider.php
 ```
 
@@ -196,6 +200,36 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 			->registerLogicsMapping($this->getLogicsMappingDirectory());
 	}
 ```
+
+### Registering Custom Validations
+- Before registering any Validations one must 
+	`->setDefaults([
+		'baseDir' => __DIR__,
+		'baseNamespace' => __NAMESPACE__
+	])` 
+
+- There is only one way to register custom validation
+	- use `->registerValidationsMapping([Validation_interface::class])` if you want to register an array of custom validation classes and is using autloading.
+```php
+	public function register()
+	{
+		$this
+			->setDefaults([
+				'baseDir' => __DIR__,
+				'baseNamespace' => __NAMESPACE__
+			])
+			// manual registering of custom validations
+			->registerValidationsMapping([
+				Validations\PackageValidation::class
+			])
+
+			// use this if you want the provider to try and get all the custom validations under validations directory 
+
+			->registerValidationsMapping($this->getValidationsMappingDirectory());
+	}
+```
+- You can read more about custom validations here:
+	- [Custom validation](custom_validations.md)
 
 ### Adding package/s to ajd-validation
 1. `composer require` the package to your project.

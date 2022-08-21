@@ -213,7 +213,7 @@ abstract class Validation_provider implements ValidationProviderInterface
         return $this->tryMappingDirectory(null, null, null, $logicsDir)['logics'];
     }
 
-    public function registerValidations(array $mappings)
+    public function registerValidationsMapping(array $mappings)
     {
         foreach($mappings as $signature => $validations)
         {

@@ -20,11 +20,13 @@ $v = new v;
 		
 		Async::when(
 			$v
+				->makeAsync()
 				->required()
 				->minlength(5)
 				->check('firstname', 'value-of-firstname'),
 				
 			$v
+				->makeAsync()
 				->required()
 				->minlength(5)
 				->check('lastname', 'value-of-lastname')
