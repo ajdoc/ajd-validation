@@ -157,7 +157,7 @@ $v
 			}); // needs to call `->getPromise()` to work properly
 		```
 ## Example of a custom validation
-- You could also see src\Ajd_validation\Validations\DebugValidation.php for another example.
+- You could also see src\AJD_validation\Validations\DebugValidation.php for another example.
 ```php
 namespace Validations;
 
