@@ -464,6 +464,16 @@ class Package_extension extends Base_extension
 	}
 
 	/*
+		filter method must always have _filter suffix
+	*/
+	public function custom_string_filter( $value, $satisfier, $field )
+	{
+		$value 	= filter_var( $value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES ).'_from_extension';
+
+		return $value;
+	}
+
+	/*
 		Adding custom macros
 	*/
 	public function getMacros()
@@ -472,16 +482,6 @@ class Package_extension extends Base_extension
 			'extension_macro',
 			'extension_macro2'
 		];
-	}
-
-	/*
-		filter method must always have _filter suffix
-	*/
-	public function custom_string_filter( $value, $satisfier, $field )
-	{
-		$value 	= filter_var( $value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES ).'_from_extension';
-
-		return $value;
 	}
 
 
