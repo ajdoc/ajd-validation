@@ -254,7 +254,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 	])` 
 
 - Two way of registering/creating macros:
-	- You can read more about macros here: [Macros]((advance_usage/macros.md)
+	- You can read more about macros here: [Macros](advance_usage/macros.md)
 	- inline registration/creation use `->macro(string $name, Closure $macro)`.
 	- class based registration/creation `->mixin(\PackageAjd\Macros\Package_macro::class, $replace = true, ...$args)`.
 ```php
