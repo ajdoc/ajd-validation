@@ -133,7 +133,7 @@ $v->mymacro_class(3)->check('macrofield', '');
 
 ```
 
-### Creating macro an registering rule/rules
+### Creating macro and registering rule/rules
 - In this example we will create a custom rule validation if the input is positive.
 - To create a rule inside a macro use `->registerAsRule(\Closure $validator, array $errorMessages);`
 	1. \Closure $validator - contains the validation logic and must return a `bool`.
