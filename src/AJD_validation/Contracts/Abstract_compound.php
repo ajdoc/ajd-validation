@@ -50,7 +50,7 @@ class Abstract_compound extends Abstract_all
         ];
 
         $field_arr = $this->format_field_name($field);
-
+        
         if(!empty($collectionExceptions))
         {
             $check = ($this->inverseCheck) ? true : false;

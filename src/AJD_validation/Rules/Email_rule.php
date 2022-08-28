@@ -18,8 +18,7 @@ class Email_rule extends Abstract_compound
     {
     	if(!empty($ruleOptions))
     	{
-    		$this->ruleOptions = array_merge($this->ruleOptions, $ruleOptions
-    		);
+    		$this->ruleOptions = array_merge($this->ruleOptions, $ruleOptions);
     	}
 
     	$this->baseEmailValidator = $this->getValidator()
@@ -30,8 +29,13 @@ class Email_rule extends Abstract_compound
     	if(class_exists('Egulias\\EmailValidator\\EmailValidator'))
     	{
     		$this->emailValidator
-    			->rfc_email()
-    			->spoof_email();
+    			->rfc_email();
+
+    		if (extension_loaded('intl'))
+			{
+				$this->emailValidator
+    				->spoof_email();
+    		}
     	}
 
     	$this->emailValidators[] = $this->emailValidator;

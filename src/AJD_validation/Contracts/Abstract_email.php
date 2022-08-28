@@ -115,7 +115,7 @@ class Abstract_email extends Abstract_rule
 	 	else
 	 	{
 	 		$multipleArr 	= array();
-
+	 		
 	 		if( class_exists('Egulias\\EmailValidator\\Validation\\MultipleValidationWithAnd') )
 	 		{
 	 			foreach( $this->eguilasValidations as $emailValidation )

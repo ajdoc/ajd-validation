@@ -3540,15 +3540,16 @@ class AJD_validation extends Base_validator
 			}
 			
 		}
-		
-		if( ( ISSET( $prop_or['rules'] ) AND !EMPTY( $prop_or['rules'] ) ) AND
-			( EMPTY( $check_logic[ Abstract_common::LOG_AND ]['passed'] ) OR in_array( 0, $check_logic[ Abstract_common::LOG_AND ]['passed'] ) )
+
+		if( ( ISSET( $prop_or['rules'] ) AND !EMPTY( $prop_or['rules'] ) ) 
+			/*AND
+			( EMPTY( $check_logic[ Abstract_common::LOG_AND ]['passed'] ) OR in_array( 0, $check_logic[ Abstract_common::LOG_AND ]['passed'] ) )*/
 		  )
 		{
 			if( $auto_arr )
 			{
 				$check_logic[ Abstract_common::LOG_OR ]['auto_arr_result'] = true;
-
+				
 				foreach( $value as $k_value => $v_value )
 				{
 					$prop_or = $this->processValidateGroupings($validateGroupings, $prop_or);
@@ -3659,7 +3660,7 @@ class AJD_validation extends Base_validator
 			else 
 			{
 				$prop_or = $this->processValidateGroupings($validateGroupings, $prop_or);
-
+				
 				$check_logic[ Abstract_common::LOG_OR ] 		= $this->_process_and_or_check( $prop_or, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, NULL, $origValue, $promise );		
 			}
 		}
@@ -4070,7 +4071,7 @@ class AJD_validation extends Base_validator
 				$pass_arr['cus_err'] = $check_arr['pass_arr'][$rule_value][2][0][$rule_value];
 				$prop['cus_err'] 	 = $check_arr['pass_arr'][$rule_value][2][0][$rule_value];
 			}
-			
+
 			if( !in_array( 1, $check_arr['passed'] ) )
 			{
 				// $pass_arr['rule'] 		= current( $prop['rules'] );

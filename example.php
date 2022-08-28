@@ -508,6 +508,13 @@ try
 
 		$v->macro('positive', $testmacroPositive);
 
+		$v 
+			->required()
+			->oRmobileno()
+			->oRemail()
+			->check('email_or_mobile', '9255995921');
+
+
 		$v->macro('negative', function()
 		{
 			return $this->registerAsRule(function($value)

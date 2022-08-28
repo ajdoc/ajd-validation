@@ -12,6 +12,10 @@ class Spoof_email_rule extends Abstract_email
 
 	public function __construct()
 	{
-		parent::__construct(null, 'spoof');
+		if (extension_loaded('intl'))
+		{
+			parent::__construct(null, 'spoof');
+		}
+
 	}
 }
