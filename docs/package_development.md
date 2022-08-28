@@ -51,7 +51,7 @@ In this document we'll see how to create package for ajd-validation
 	- You can read creating a custom validator class here:
 		[Custom validation](custom_validations.md)
 	- You can read creating a custom macro class here:
-		[Macros]((advance_usage/macros.md)
+		[Macros](advance_usage/macros.md)
 	- You can read creating a custom filter class here:
 		[Filters](filters.md)
 	- You can read creating a custom logics class here:
