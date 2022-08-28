@@ -46,7 +46,7 @@ In this document we'll see how to create package for ajd-validation
 	- You can read creating a custom rule class here:
 		[Adding Custom Rule](advance_usage/adding_custom_rules.md)
 	- You can read creating a custom extension class here:
-		[Adding Custom Rule](advance_usage/adding_custom_rules.md)
+		[Adding Custom Rule](advance_usage/adding_custom_rules.md), 
 		[Filters](filters.md)
 	- You can read creating a custom validator class here:
 		[Custom validation](custom_validations.md)
