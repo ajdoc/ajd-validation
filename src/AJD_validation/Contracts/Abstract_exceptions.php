@@ -27,6 +27,7 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
     protected $mode 	      = self::ERR_DEFAULT;
     protected $id             = 'validation';
     protected $name           = '';
+    protected static $fromRuleName   = '';
 
     public static $localizeFile;
 
@@ -230,6 +231,16 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
     public function setName($name)
     {
         $this->name     = $name;
+    }
+
+    public static function setFromRuleName($name)
+    {
+        static::$fromRuleName = $name;
+    }
+
+    public static function getFromRuleName()
+    {
+        return static::$fromRuleName;
     }
 
     protected function buildMessageErr()

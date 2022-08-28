@@ -792,6 +792,8 @@ EOS;
 			{
 				$exception_class_obj 	= static::$anonymousObj[$called_class];
 
+				$exception_class_obj::setFromRuleName(strtolower($rule_name));
+
 				$rule::getAnonExceptionMessage($exception_class_obj);
 			}
 			else

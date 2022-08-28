@@ -36,9 +36,10 @@ use AJD_validation\Traits;
 
 class AJD_validation extends Base_validator
 {
-	use Traits\AjdValidationMacro {
+	use Traits\CanMacro {
 		__call as canMacroCall;
 		__callStatic as canMacroCallStatic;
+		macro as macroable;
 	}
 
 	protected static $raw_rule 				= array(
@@ -115,6 +116,7 @@ class AJD_validation extends Base_validator
 	);
 
 	protected static $bail 					= FALSE;
+	protected static $macros 				= array();
 	protected static $cache_instance 		= array();
 
 	protected static $cacheByFieldInstance 	= array();
@@ -739,13 +741,6 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	public static function hasAnonymousClass($name)
-	{
-		$ruleNames = static::createRulesName($name);
-
-		return isset(static::$ajd_prop['anonymous_class_override'][$ruleNames['append_rule']]);
-	}
-
 	public static function registerAnonClass( $anons )
 	{
 		if(!is_array($anons))
@@ -872,8 +867,6 @@ class AJD_validation extends Base_validator
 		{
 			static::$ajd_prop['extensions'][ $name ] = $extension;
 		}
-
-		static::init_extensions(true);
 	}
 
 	public static function field( $field )
@@ -946,6 +939,80 @@ class AJD_validation extends Base_validator
 		static::$ajd_prop[ 'current_field' ] 	= $field;
 		
 		return static::get_field_scene_ins( $field, true, false );
+	}
+
+	public static function setMacro( $macro_name, \Closure $func )
+	{
+		if( !EMPTY( $macro_name ) )
+		{
+			$ajd 								= static::get_ajd_instance();
+
+			$key_arr 							= static::get_ajd_and_or_prop();
+
+			$passArgs = [];
+			$passArgs[] = $ajd;
+
+			$ajd->invoke_func( $func, array( $ajd ) );
+
+			foreach( $key_arr as $prop )
+			{
+				static::$macros[ $macro_name ][ $prop ] 	= static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ];
+			}
+
+			if(isset(static::$ajd_prop['fiber_suspend']) && !empty(static::$ajd_prop['fiber_suspend']))
+			{
+				static::$macros[ $macro_name ]['fiber_suspend'] = static::$ajd_prop['fiber_suspend'];
+			}
+
+			$ajd->reset_all_validation_prop();
+		}
+	}
+
+	public static function setMacroGroup( $macro_name, \Closure $func )
+	{
+		if( !EMPTY( $macro_name ) )
+		{
+			$ajd 			= static::get_ajd_instance();
+
+			$ajd->invoke_func( $func, array( $ajd ) );
+
+			$curr_field 	= static::$ajd_prop[ 'current_field' ];
+
+			if( !EMPTY( $curr_field ) )
+			{
+				static::$macros[ $macro_name ][ 'fields' ] 		= static::$ajd_prop[ 'fields' ];
+			}
+
+			$ajd->reset_all_validation_prop();
+		}
+	}
+
+	public static function macro( $macro_name )
+	{
+		$key_arr 					= static::get_ajd_and_or_prop();
+
+		if( ISSET( static::$macros[ $macro_name ] ) )
+		{
+			if( ISSET( static::$macros[ $macro_name ][ 'fields' ] ) )
+			{
+				static::$ajd_prop[ 'fields' ] 						= static::$macros[ $macro_name ][ 'fields' ];
+			}
+			else
+			{
+				foreach( $key_arr as $prop )
+				{
+					static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ] 	= static::$macros[ $macro_name ][ $prop ];
+				}
+			}
+
+			if(isset(static::$macros[$macro_name]['fiber_suspend']) && !empty(static::$macros[$macro_name]['fiber_suspend']))
+			{
+
+				static::$ajd_prop['fiber_suspend'] = static::$macros[ $macro_name ]['fiber_suspend'];
+			}
+		}
+
+		return static::get_ajd_instance();
 	}
 
 	public static function useContraintStorage( $constraintGroup, $clientField = NULL  )
@@ -4439,7 +4506,7 @@ class AJD_validation extends Base_validator
 		return static::$ajd_prop['extension_test'];
 	}
 
-	protected static function init_extensions($onlyMacro = false)
+	protected static function init_extensions()
 	{ 
 		if( static::$ajd_prop['extensions_initialize'] 
 			OR EMPTY( static::$ajd_prop['extensions'] ) 
@@ -4448,72 +4515,50 @@ class AJD_validation extends Base_validator
 			return;
 		}
 
-		if(!$onlyMacro)
-		{
-			static::$ajd_prop['extensions_initialize'] 	= TRUE;
-			static::$ajd_prop['extension_rule'] 		= array();
-			static::$ajd_prop['extension_filter'] 		= array();
-			static::$ajd_prop['extension_test'] 		= array();
-			static::$ajd_prop['extension_anonymous_class'] = [];
-		}
+		static::$ajd_prop['extensions_initialize'] 	= TRUE;
+		static::$ajd_prop['extension_rule'] 		= array();
+		static::$ajd_prop['extension_filter'] 		= array();
+		static::$ajd_prop['extension_test'] 		= array();
+		static::$ajd_prop['extension_anonymous_class'] = [];
 
 		foreach( static::$ajd_prop['extensions'] as $name => $extension )
 		{
-			static::init_extension( $extension, $name, $onlyMacro );
+			static::init_extension( $extension, $name );
 		}
 	}
 
-
-	protected static function init_extension( $extension, $name, $onlyMacro = false )
+	protected static function init_extension( $extension, $name )
 	{
-		if(!$onlyMacro)
+		foreach( $extension->getRules() as $rule )
 		{
-			foreach( $extension->getRules() as $rule )
-			{
-				static::$ajd_prop['extension_rule'][ $rule ] 		= array( 'rule' => $rule, 'extension_name' => $name );
-			}
-
-			foreach( $extension->getRuleMessages() as $rule => $message )
-			{
-				static::add_rule_msg( $rule, $message );
-			}
-
-			foreach( $extension->getFilters() as $filter )
-			{
-				static::$ajd_prop['extension_filter'][ $filter ] 	= array( 'filter' => $filter, 'extension_name' => $name, 'extension_obj' => $extension );
-			}
-
-			foreach( $extension->getLogics() as $test )
-			{
-				static::$ajd_prop['extension_test'][ $test ] 	= array( 'test' => $test, 'extension_name' => $name, 'extension_obj' => $extension );
-			}
-
-			foreach( $extension->getMiddleWares() as $name => $func )
-			{	
-				static::$middleware[ $name ][ 'func' ] 				= $func;
-			}
-
-			$anons = $extension->getAnonClass();
-
-			if(!empty($anons))
-			{
-				static::registerAnonClass($anons);
-			}
+			static::$ajd_prop['extension_rule'][ $rule ] 		= array( 'rule' => $rule, 'extension_name' => $name );
 		}
 
-		foreach( $extension->getMacros() as $macro )
-		{	
-			if (!static::hasMacro($macro)
-				&& method_exists($extension, $macro)
-			) 
-			{
-				$macroValue = $extension->{$macro}();
+		foreach( $extension->getRuleMessages() as $rule => $message )
+		{
+			static::add_rule_msg( $rule, $message );
+		}
 
-				if(is_callable($macroValue))
-				{
-					static::macro($macro, $macroValue);
-				}
-			}
+		foreach( $extension->getFilters() as $filter )
+		{
+			static::$ajd_prop['extension_filter'][ $filter ] 	= array( 'filter' => $filter, 'extension_name' => $name, 'extension_obj' => $extension );
+		}
+
+		foreach( $extension->getLogics() as $test )
+		{
+			static::$ajd_prop['extension_test'][ $test ] 	= array( 'test' => $test, 'extension_name' => $name, 'extension_obj' => $extension );
+		}
+
+		foreach( $extension->getMiddleWares() as $name => $func )
+		{	
+			static::$middleware[ $name ][ 'func' ] 				= $func;
+		}
+
+		$anons = $extension->getAnonClass();
+
+		if(!empty($anons))
+		{
+			static::registerAnonClass($anons);
 		}
 	}
 

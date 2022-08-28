@@ -15,6 +15,7 @@ use AJD_validation\Constants\Lang;
 use AJD_validation\Contracts\Abstract_exceptions;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
 use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
+use AJD_validation\Contracts\CanMacroInterface;
 
 enum Status : string
 {
@@ -182,6 +183,17 @@ class Custom_extension extends Base_extension
 	}
 
 	/*
+		Adding custom macros
+	*/
+	public function getMacros()
+	{
+		return [
+			'extension_macro',
+			'extension_macro2'
+		];
+	}
+
+	/*
 		filter method must always have _filter suffix
 	*/
 	public function custom_string_filter( $value, $satisfier, $field )
@@ -190,10 +202,202 @@ class Custom_extension extends Base_extension
 
 		return $value;
 	}
+
+
+	public function extension_macro()
+	{
+		return function()
+		{
+			$this->required()
+				->minlength(7);
+
+			return $this;
+		};
+	}
+
+	public function extension_macro2($args = null)
+	{
+		return function($args = null)
+		{
+			if($args)
+			{
+				$this->setArguments([$args]);
+			}
+
+
+			$this->registerAsRule(function($value, $satisfier = null)
+			{
+				if (!is_numeric($value)) 
+		        {
+		            return false;
+		        }
+
+		        return $value > 0;
+
+				
+			}, ['default' => 'Value :field must be positive ext :*', 'inverse' => 'Value :field must not be positive ext :*']);
+
+			return $this;
+		};
+	}
 }
+
+$testmacroPositive = function($args = null)
+{
+	$rules = [
+		'required',
+		'minlength'
+	];
+
+	foreach($rules as $rule)
+	{
+		$ruleName = $rule;
+
+		if($this::getInverse())
+		{
+			$ruleName = 'Not'.$rule;
+		}
+
+		if($rule == 'minlength')
+		{
+			$this->{$ruleName}(2);	
+		}
+		else
+		{
+			$this->{$ruleName}();
+		}
+		
+	}
+
+	if($args)
+	{
+		$this->setArguments([$args]);
+	}
+
+
+	$this->registerAsRule(function($value, $satisfier = null)
+	{
+		if (!is_numeric($value)) 
+        {
+            return false;
+        }
+
+        return $value > 0;
+
+		
+	}, ['default' => 'Value :field must be positive', 'inverse' => 'Value :field must not be positive']);
+
+	/*$this->registerAsRule(function($value, $satisfier = null)
+	{
+		// echo '<pre>';
+		// var_dump($satisfier);
+
+		if (!is_numeric($value)) 
+        {
+            return false;
+        }
+
+        return $value > 0;
+
+		
+	}, ['default' => 'Value :field must be positive', 'inverse' => 'Value :field must not be positive'], 'positive1');
+
+	$this->registerAsRule(function($value, $satisfier = null)
+	{
+		// echo '<pre>';
+		// var_dump($satisfier);
+
+		if (!is_numeric($value)) 
+        {
+            return false;
+        }
+
+        return $value > 0;
+
+		
+	}, ['default' => 'Value :field must be positive2', 'inverse' => 'Value :field must not be positive2'], 'positive2');*/
+
+
+	return $this;
+};
+
+class Custom_macro implements CanMacroInterface
+{
+	protected $testmacroPositive;
+	public $testarg;
+
+	public function __construct($testmacroPositive = null, $testarg = null)
+	{		
+		$this->testmacroPositive = $testmacroPositive;
+		$this->testarg = $testarg;
+	}
+
+	public function getMacros() 
+	{
+		return [
+			'positive3',
+			'mymacro_class'
+		];
+	}
+
+	public function positive3()
+	{
+		return $this->testmacroPositive;
+	}
+
+	public function mymacro_class()
+	{
+		$that = $this;
+		return function($minlength = 2) use ($that)
+		{
+			echo $that->testarg;
+
+			$this
+				->required()
+				->minlength($minlength)
+				;
+
+			return $this;
+		};
+	}
+}
+
+/*try
+{
+	$v->addPackages([
+		PackageAjd\PackageValidationServiceProvider::class
+	]);
+
+	$v->setValidation('packagevalidation');
+
+	$v 
+		->required()
+		->minlength(2)
+		// ->useValidation(\PackageAjd\Validations\PackageValidation::class)
+		// ->useValidation('packagevalidation')
+		// ->customAction()
+		->check('packagevalidation')
+		->customAction()
+		->getPromise()
+		->otherwise(function()
+		{
+			echo 'failed';
+		})
+		;
+
+	$v->assert();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}
+die;*/
 
 try
 {
+	/*$v->addPackages([
+		PackageAjd\PackageValidationServiceProvider::class
+	]);*/
 	/*
 		Make anonymous class register function and extension anonymous class
 	*/
@@ -246,6 +450,122 @@ try
 			}
 		}
 	);
+
+	// var_dump($v->Lgpackage(true)->runLogics(''));
+
+	/*$v 
+		// ->Fpackage(null, true)
+		->required()
+		->minlength(2)
+		// ->useValidation(\PackageAjd\Validations\PackageValidation::class)
+		->useValidation('packagevalidation')
+		->customAction()
+		->check('packagevalidation');*/
+
+	// var_dump($v->pre_filter_value());
+
+
+		$v->mixin(Custom_macro::class, true, $testmacroPositive, '1' );
+
+
+		$v->macro('mymacro', function($minlength = 2)
+		{
+			$this
+				->required()
+				->minlength($minlength)
+					// ->sometimes('sometimes')
+				;
+
+			return $this;
+			
+		});
+
+		// $v->Notpositive3()->check('macrofield', '2');
+
+		$v->macro('mymacro2', function($minlength, array $data)
+		{
+			$obj = $this->Srequired()
+					->Sminlength($minlength);
+
+			if(!empty($data))
+			{
+				foreach($data as $field => $val)
+				{
+					$obj->field($field);
+				}
+
+			}
+						
+			$obj->eSminlength()
+				->eSrequired()
+				->checkGroup($data)
+				;
+
+			return $obj;
+			
+		});
+
+
+		$v->macro('positive', $testmacroPositive);
+
+		$v->macro('negative', function()
+		{
+			return $this->registerAsRule(function($value)
+			{
+
+				if (!is_numeric($value)) 
+                {
+                    return false;
+                }
+
+                return $value < 0;
+
+			}, ['default' => 'Value :field must be negative']);
+		});
+
+		/*$v
+			->extension_macro()
+			->extension_macro2(2)
+			
+			->check('extension_macro1', '');*/
+
+		$v->positive3(2)
+		->check('register_as_rule', '')
+		;
+
+		$v->negative()
+		->check('register_as_rule2', '-1')
+		;
+
+
+
+		/*$v->mymacro(2)->mymacro(7)->check('fieldmacro', '');
+
+		$v->mymacro(3)->check('fieldmacro2', '');*/
+
+		/*$macr1 = [
+			'fieldmacrogroup1' => '',
+			'fieldmacrogroup2' => '',
+		];
+
+		$macr2 = [
+			'fieldmacrogroup3' => '',
+		];
+
+		$v->mymacro2(7, $macr1)->mymacro2(2, $macr1);
+
+		$v->mymacro2(3, $macr2);*/
+		
+
+		$v 
+	->required()
+	->minlength(5)
+	// ->uncompromised()
+	// ->useValidation(\AJD_validation\Validations\DebugValidation::class)
+	->check('custom_validation', '')
+	// ->printCollectedData()
+	;
+
 
 	$v 
 		->email(['showSubError' => false, 'useDns' => false], '#client_new_email')
@@ -1209,7 +1529,7 @@ try
 	->check('ext2_anontest', '1');
 
 	// Adding macros for reusable set of rules
-	$v->setMacro('test_macro', function( $ajd )
+	/*$v->setMacro('test_macro', function( $ajd )
 	{
 		$ajd
 			->required()
@@ -1217,7 +1537,7 @@ try
 			->maxlength(30);
 	});
 
-	$v->macro('test_macro')->check('macro', '');
+	$v->macro('test_macro')->check('macro', '');*/
 
 	// Or you can use this syntax
 

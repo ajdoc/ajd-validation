@@ -10,6 +10,7 @@ use AJD_validation\Helpers\LogicsAddMap;
 
 use AJD_validation\Contracts\Rule_interface;
 use AJD_validation\Contracts\Exception_interface;
+use AJD_validation\Contracts\Extension_interface;
 use AJD_validation\Contracts\Filter_interface;
 use AJD_validation\Contracts\Logic_interface;
 use AJD_validation\Contracts\Validation_interface;
@@ -36,6 +37,11 @@ abstract class Validation_provider implements ValidationProviderInterface
     ];
 
     protected static $validationsCollection = [];
+
+    private function getAjdInstance()
+    {
+        return v::get_ajd_instance();
+    }
 
     public static function getValidationsCollection()
     {
@@ -428,6 +434,28 @@ abstract class Validation_provider implements ValidationProviderInterface
 
         return $signature;
     }
+
+    public function registerExtension(Extension_interface $extension)
+    {
+        v::registerExtension($extension);
+
+        return $this;
+    }
+
+    public function macro($name, $macro)
+    {
+        v::macro($name, $macro);
+
+        return $this;
+    }
+
+    public function mixin($mixin, $replace = true, ...$args)
+    {
+        v::mixin($mixin, $replace, ...$args);
+
+        return $this;
+    }
+
 
     abstract public function register();
 }

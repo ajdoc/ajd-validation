@@ -67,4 +67,9 @@ abstract class Base_extension implements Extension_interface
 	{
 		return [];
 	}
+
+	public function getMacros()
+	{
+		return [];
+	}
 }

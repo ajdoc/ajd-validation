@@ -14,6 +14,10 @@ In this document we'll see how to create package for ajd-validation
 |   +-- Custom_filter.php
 +-- Logics
 |   +-- Custom_logic.php
++-- Macros
+|   +-- Custom_macro.php
++-- Extensions
+|   +-- Custom_extension.php
 +-- Validations
 |   +-- Custom_validation.php
 +-- ValidatorProvider.php
@@ -29,14 +33,25 @@ In this document we'll see how to create package for ajd-validation
 |   +-- Custom_filter.php
 +-- Logics
 |   +-- Custom_logic.php
++-- Macros
+|   +-- Custom_macro.php
++-- Extensions
+|   +-- Custom_extension.php
 +-- Validations
 |   +-- Custom_validation.php
 +-- ValidatorProvider.php
 ```
 
-- Inside a package you can create your Custom Rules -> Exceptions, Filters and Logics.
+- Inside a package you can create your Custom Rules -> Exceptions, Filters, Validators, Macros, Extensions and Logics.
 	- You can read creating a custom rule class here:
 		[Adding Custom Rule](advance_usage/adding_custom_rules.md)
+	- You can read creating a custom extension class here:
+		[Adding Custom Rule](advance_usage/adding_custom_rules.md)
+		[Filters](filters.md)
+	- You can read creating a custom validator class here:
+		[Custom validation](custom_validations.md)
+	- You can read creating a custom macro class here:
+		[Macros]((advance_usage/macros.md)
 	- You can read creating a custom filter class here:
 		[Filters](filters.md)
 	- You can read creating a custom logics class here:
@@ -230,6 +245,289 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 ```
 - You can read more about custom validations here:
 	- [Custom validation](custom_validations.md)
+
+### Registering Custom Macros
+- Before registering any Validations one must 
+	`->setDefaults([
+		'baseDir' => __DIR__,
+		'baseNamespace' => __NAMESPACE__
+	])` 
+
+- Two way of registering/creating macros:
+	- You can read more about macros here: [Macros]((advance_usage/macros.md)
+	- inline registration/creation use `->macro(string $name, Closure $macro)`.
+	- class based registration/creation `->mixin(\PackageAjd\Macros\Package_macro::class, $replace = true, ...$args)`.
+```php
+// Example of a macro class
+namespace PackageAjd\Macros;
+
+use AJD_validation\Contracts\CanMacroInterface;
+
+class Package_macro implements CanMacroInterface
+{
+	public function getMacros()
+	{
+		return [
+			'package_macro_class',
+			'package_macro_class2'
+		];
+	}	
+
+	public function package_macro_class()
+	{
+		return function()
+		{
+			echo 'package_macro_class';
+
+			return $this;
+		};
+	}
+
+	public function package_macro_class2()
+	{
+		return function()
+		{
+			echo 'package_macro_class2';
+
+			return $this;
+		};
+	}
+}
+
+	public function register()
+	{
+		$this
+			->setDefaults([
+				'baseDir' => __DIR__,
+				'baseNamespace' => __NAMESPACE__
+			])
+			// inline registration/creation
+			->macro('package_macro', function()
+			{
+				echo 'package_macro';
+
+				return $this;
+			})
+			// class based registration/creation
+			->mixin(\PackageAjd\Macros\Package_macro::class);
+	}
+```
+
+### Registering Custom Extensions
+- Custom Extension is a way to add Rules,Exceptions,Filters,Logics and Macros in one class.
+- It is recommended to add Rules,Exceptions,Filters,Logics and Macros by clasess.
+- To register an extension use `->registerExtension(new \AJD_validation\Contracts\Base_extension $extension)`.
+- You can read more about extension class here:
+	[Adding Custom Rule](advance_usage/adding_custom_rules.md)
+	[Filters](filters.md)
+- You could also check out `\src\AJD_validation\Contracts\Extension_interface.php`
+
+```php
+// Example of a extension class
+namespace PackageAjd\Extensions;
+
+use AJD_validation\Contracts\Base_extension;
+
+class Package_extension extends Base_extension
+{
+	public function getName()
+	{
+		return self::class;
+	}
+
+	public function getRules()
+	{
+		return array(
+			'custom_validation_rule',
+			'custom_validation2_rule'
+		);
+	}
+
+	public function getRuleMessages()
+	{
+		return array(
+			'custom_validation' 	=> 'The :field field is not a a.',
+			'custom_validation2' 	=> 'The :field field is not a a 2.',
+		);
+	}
+
+	public function custom_validation_rule( $value, $satisfier, $field )
+	{
+		if( $value == 'a' )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
+	public function custom_validation2_rule( $value, $satisfier, $field )
+	{
+
+		return false;
+		
+	}
+
+	public function getAnonClass()
+	{
+		return [
+			new class() extends Abstract_anonymous_rule
+			{
+				public function __invoke($value, $satisfier = NULL, $field = NULL)
+				{
+					return in_array($value, $satisfier);
+				}
+
+				public static function getAnonName() : string
+				{
+					return 'ext1_anontest';
+				}
+
+				public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj)
+				{
+					$exceptionObj::$defaultMessages 	= array(
+						 $exceptionObj::ERR_DEFAULT 			=> array(
+						 	$exceptionObj::STANDARD 			=> 'The :field field is ext1_anontest',
+						 ),
+						  $exceptionObj::ERR_NEGATIVE 		=> array(
+				            $exceptionObj::STANDARD 			=> 'The :field field is not ext1_anontest.',
+				        )
+					);
+				}
+			},
+			new class() extends Abstract_anonymous_rule
+			{
+				public function __invoke($value, $satisfier = NULL, $field = NULL)
+				{
+					return in_array($value, $satisfier);
+				}
+
+				public static function getAnonName() : string
+				{
+					return 'ext2_anontest';
+				}
+
+				public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj)
+				{
+					$exceptionObj::$defaultMessages 	= array(
+						 $exceptionObj::ERR_DEFAULT 			=> array(
+						 	$exceptionObj::STANDARD 			=> 'The :field field is ext2_anontest',
+						 ),
+						  $exceptionObj::ERR_NEGATIVE 		=> array(
+				            $exceptionObj::STANDARD 			=> 'The :field field is not ext2_anontest.',
+				        )
+					);
+
+					$exceptionObj::$localizeMessage 	= [
+						Lang::FIL => [
+							$exceptionObj::ERR_DEFAULT 			=> array(
+							 	$exceptionObj::STANDARD 			=> 'The :field field ay ext2_anontest',
+							 ),
+							  $exceptionObj::ERR_NEGATIVE 		=> array(
+					            $exceptionObj::STANDARD 			=> 'The :field field ay hindi ext2_anontest.',
+					        ),
+						]
+					];
+				}
+			}
+		];
+	}
+
+	public function getLogics()
+	{
+		return [
+			'custom_logics_logic'
+		];
+	}
+
+	public function custom_logics_logic($value = null, ...$satisfier) : bool
+	{
+		
+		return $value == $satisfier[0];
+	}
+
+	/*
+		Adding custom filters
+	*/
+	public function getFilters()
+	{
+		return [
+			'custom_string_filter',
+		];
+	}
+
+	/*
+		Adding custom macros
+	*/
+	public function getMacros()
+	{
+		return [
+			'extension_macro',
+			'extension_macro2'
+		];
+	}
+
+	/*
+		filter method must always have _filter suffix
+	*/
+	public function custom_string_filter( $value, $satisfier, $field )
+	{
+		$value 	= filter_var( $value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES ).'_from_extension';
+
+		return $value;
+	}
+
+
+	public function extension_macro()
+	{
+		return function()
+		{
+			$this->required()
+				->minlength(7);
+
+			return $this;
+		};
+	}
+
+	public function extension_macro2($args = null)
+	{
+		return function($args = null)
+		{
+			if($args)
+			{
+				$this->setArguments([$args]);
+			}
+
+
+			$this->registerAsRule(function($value, $satisfier = null)
+			{
+				if (!is_numeric($value)) 
+		        {
+		            return false;
+		        }
+
+		        return $value > 0;
+
+				
+			}, ['default' => 'Value :field must be positive ext :*', 'inverse' => 'Value :field must not be positive ext :*']);
+
+			return $this;
+		};
+	}
+}
+
+	public function register()
+	{
+		$this
+			->setDefaults([
+				'baseDir' => __DIR__,
+				'baseNamespace' => __NAMESPACE__
+			])
+			->registerExtension(new \PackageAjd\Extensions\Package_extension);
+	}
+```
 
 ### Adding package/s to ajd-validation
 1. `composer require` the package to your project.

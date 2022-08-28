@@ -257,40 +257,27 @@ $v = new AJD_validation;
 
 class Custom_extension extends Base_extension
 {
-	/*
-		Desired name of the extension
-	*/
 	public function getName()
 	{
 		return 'Custom_extension';
 	}
 
-	/*
-		Adding custom rule method
-	*/
 	public function getRules()
 	{
-		return [
+		return array(
 			'custom_validation_rule',
 			'custom_validation2_rule'
-		];
+		);
 	}
 
-	/*
-		Adding custom rule method error message
-		When adding custom rule method error message remove _rule suffix for the key
-	*/
 	public function getRuleMessages()
 	{
-		return [
+		return array(
 			'custom_validation' 	=> 'The :field field is not a a.',
 			'custom_validation2' 	=> 'The :field field is not a a 2.',
-		];
+		);
 	}
 
-	/*
-		rule method must always have _rule suffix
-	*/
 	public function custom_validation_rule( $value, $satisfier, $field )
 	{
 		if( $value == 'a' )
@@ -303,17 +290,13 @@ class Custom_extension extends Base_extension
 		}
 	}
 
-	/*
-		rule method must always have _rule suffix
-	*/
 	public function custom_validation2_rule( $value, $satisfier, $field )
 	{
+
 		return false;
+		
 	}
 
-	/*
-		Adding custom rule using anonymous class
-	*/
 	public function getAnonClass()
 	{
 		return [
@@ -379,6 +362,19 @@ class Custom_extension extends Base_extension
 		];
 	}
 
+	public function getLogics()
+	{
+		return [
+			'custom_logics_logic'
+		];
+	}
+
+	public function custom_logics_logic($value = null, ...$satisfier) : bool
+	{
+		
+		return $value == $satisfier[0];
+	}
+
 	/*
 		Adding custom filters
 	*/
@@ -390,39 +386,62 @@ class Custom_extension extends Base_extension
 	}
 
 	/*
-		filter method must always have _filter suffix
+		Adding custom macros
 	*/
-	public function custom_string_filter( $value, $satisfier, $field )
-	{
-		$value 	= filter_var( $value, FILTER_SANITIZE_STRING, FILTER_FLAG_NO_ENCODE_QUOTES ).'_from_extension';
-
-		return $value;
-	}
-
-	/*
-		Adding custom middlewares
-	*/
-	public function getMiddleWares()
-	{
-		return [];
-	}
-
-	/*
-		Adding custom logics
-	*/
-	public function getLogics()
+	public function getMacros()
 	{
 		return [
-			'custom_logics_logic'
+			'extension_macro',
+			'extension_macro2'
 		];
 	}
 
 	/*
-		logics method must alwasy have _logic suffix
+		filter method must always have _filter suffix
 	*/
-	public function custom_logics_logic($value = null, ...$satisfier) : bool
+	public function custom_string_filter( $value, $satisfier, $field )
 	{
-		return $value == $satisfier[0];
+		$value 	= filter_var( $value, FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES ).'_from_extension';
+
+		return $value;
+	}
+
+
+	public function extension_macro()
+	{
+		return function()
+		{
+			$this->required()
+				->minlength(7);
+
+			return $this;
+		};
+	}
+
+	public function extension_macro2($args = null)
+	{
+		return function($args = null)
+		{
+			if($args)
+			{
+				$this->setArguments([$args]);
+			}
+
+
+			$this->registerAsRule(function($value, $satisfier = null)
+			{
+				if (!is_numeric($value)) 
+		        {
+		            return false;
+		        }
+
+		        return $value > 0;
+
+				
+			}, ['default' => 'Value :field must be positive ext :*', 'inverse' => 'Value :field must not be positive ext :*']);
+
+			return $this;
+		};
 	}
 }
 
