@@ -247,7 +247,7 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 	- [Custom validation](custom_validations.md)
 
 ### Registering Custom Macros
-- Before registering any Validations one must 
+- Before registering any Macros one must 
 	`->setDefaults([
 		'baseDir' => __DIR__,
 		'baseNamespace' => __NAMESPACE__
@@ -314,6 +314,11 @@ class Package_macro implements CanMacroInterface
 ```
 
 ### Registering Custom Extensions
+- Before registering any Extensions one must 
+	`->setDefaults([
+		'baseDir' => __DIR__,
+		'baseNamespace' => __NAMESPACE__
+	])` 
 - Custom Extension is a way to add Rules,Exceptions,Filters,Logics and Macros in one class.
 - It is recommended to add Rules,Exceptions,Filters,Logics and Macros by clasess.
 - To register an extension use `->registerExtension(new \AJD_validation\Contracts\Base_extension $extension)`.
