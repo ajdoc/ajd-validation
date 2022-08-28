@@ -514,6 +514,7 @@ try
 			->oRemail()
 			->check('email_or_mobile', '9255995921');
 
+			// $v->required()->is_bool()->check('is_bool_1', true);
 
 		$v->macro('negative', function()
 		{

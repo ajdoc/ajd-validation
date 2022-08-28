@@ -189,7 +189,7 @@ class Custom_macro implements CanMacroInterface
 		];
 	}
 
-	public function positive3()
+	public function positive()
 	{
 		return $this->testmacroPositive;
 	}
@@ -279,7 +279,7 @@ class Custom_macro implements CanMacroInterface
 		];
 	}
 
-	public function positive3()
+	public function positive()
 	{
 		return $this->testmacroPositive;
 	}
@@ -383,7 +383,7 @@ class Custom_macro implements CanMacroInterface
 		];
 	}
 
-	public function positive3()
+	public function positive()
 	{
 		return $this->testmacroPositive;
 	}
