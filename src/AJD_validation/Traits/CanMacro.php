@@ -13,6 +13,7 @@ trait CanMacro
 {
     protected static $currentMacroName;
     protected static $inverse = false;
+    protected static $mixins = [];
 
     /**
      * The registered string macros.
@@ -51,31 +52,41 @@ trait CanMacro
         if(is_string($mixin) && !is_object($mixin))
         {
             $className = $mixin;
-
-            if(class_exists($mixin))
-            {
-                $reflection = new \ReflectionClass($mixin);
-
-                $interfaces =  array_keys($reflection->getInterfaces());
-                
-
-                if(
-                    in_array(CanMacroInterface::class, $interfaces, true)
-                )
-                {
-                    $object = new $mixin(...$args);
-                }
-            }
         }
-        else if($mixin instanceof CanMacroInterface)
-        {
-            $object = $mixin;
-        }
-        
-        if(is_object($mixin))
+        else
         {
             $className = $mixin::class;
         }
+
+        if(!isset(static::$mixins[$className]))
+        {
+            if(is_string($mixin) && !is_object($mixin))
+            {
+                if(class_exists($mixin))
+                {
+                    $reflection = new \ReflectionClass($mixin);
+
+                    $interfaces =  array_keys($reflection->getInterfaces());
+                    
+
+                    if(
+                        in_array(CanMacroInterface::class, $interfaces, true)
+                    )
+                    {
+                        $object = new $mixin(...$args);
+                    }
+                }
+            }
+            else if($mixin instanceof CanMacroInterface)
+            {
+                $object = $mixin;
+            }
+        }
+        else
+        {
+            $object = static::$mixins[$className];
+        }
+        
 
         if(!$object)
         {
@@ -87,6 +98,8 @@ trait CanMacro
 
             return;
         }
+
+        static::$mixins[$className] = $object;
 
         $methods = $object->getMacros();
 
