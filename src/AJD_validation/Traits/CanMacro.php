@@ -55,7 +55,7 @@ trait CanMacro
         }
         else
         {
-            $className = $mixin::class;
+            $className = get_class($mixin);
         }
 
         if(!isset(static::$mixins[$className]))
