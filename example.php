@@ -249,7 +249,7 @@ $testmacroPositive = function($args = null)
 		'minlength'
 	];
 
-	foreach($rules as $rule)
+	/*foreach($rules as $rule)
 	{
 		$ruleName = $rule;
 
@@ -267,7 +267,7 @@ $testmacroPositive = function($args = null)
 			$this->{$ruleName}();
 		}
 		
-	}
+	}*/
 
 	if($args)
 	{
@@ -467,12 +467,27 @@ try
 
 		$v->mixin(Custom_macro::class, true, $testmacroPositive, '1' );
 
+		$v->macro('positive', $testmacroPositive);
+
 
 		$v->macro('mymacro', function($minlength = 2)
 		{
+			$required = 'required';
+			$minlengthstr = 'minlength';
+			$positive = 'positive';
+			$not = 'Not';
+
+			if($this->getInverse())
+			{
+				$required = $not.$required;
+				$minlengthstr = $not.$minlengthstr;
+				$positive = $not.$positive;
+			}
+
 			$this
-				->required()
-				->minlength($minlength)
+				->{$required}()
+				->{$minlengthstr}($minlength)
+				->{$positive}()
 					// ->sometimes('sometimes')
 				;
 
@@ -504,9 +519,6 @@ try
 			return $obj;
 			
 		});
-
-
-		$v->macro('positive', $testmacroPositive);
 
 		$v 
 			->required()
@@ -542,10 +554,10 @@ try
 		;
 
 		$v->negative()
-		->check('register_as_rule2', '-1')
+		->check('register_as_rule2', '')
 		;
 
-
+		$v->mymacro(2)->check('fieldmacro', '');
 
 		/*$v->mymacro(2)->mymacro(7)->check('fieldmacro', '');
 
