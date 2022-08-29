@@ -21,11 +21,19 @@ trait AjdValidationMacro
      * Set the Rules arguments.
      *
      * @param  array $args
+     * @param  string $name
      * @return self
      */
-	public function setArguments(array $arguments)
+	public function setArguments(array $arguments, $name = null)
     {
-    	$this->arguments = $arguments;
+    	$macroName = $this->getCurrentMacroName();
+
+    	if(!empty($name))
+    	{
+    		$macroName = $name;
+    	}
+
+    	$this->arguments[$macroName] = $arguments;
 
     	return $this;
     }
@@ -109,7 +117,7 @@ trait AjdValidationMacro
 
         if($autoRun)
         {
-        	$this->callRule(static::getInverse(), $anonName, true);
+        	$this->callRule(static::getInverse(), $anonName, true, $name);
         }
 
         return $that;
@@ -122,7 +130,7 @@ trait AjdValidationMacro
      * @param  string $passRulename
      * @return AJD_validation
      */
-    public function callRule($inverse = false, $passRulename = null, $fromRegister = false)
+    public function callRule($inverse = false, $passRulename = null, $fromRegister = false, $normalName = null)
     {
     	$ruleName = $this->ruleName;
 
@@ -142,9 +150,16 @@ trait AjdValidationMacro
     		$ruleName = 'Not'.$ruleName;
     	}
 
-    	if(!empty($this->arguments))
+    	$arguments = [];
+
+    	if(!empty($normalName))
     	{
-    		$this->{$ruleName}(...$this->arguments);
+    		$arguments = $this->arguments[$normalName] ?? [];
+    	}
+
+    	if(!empty($arguments))
+    	{
+    		$this->{$ruleName}(...$arguments);
     	}
     	else
     	{

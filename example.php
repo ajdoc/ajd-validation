@@ -272,6 +272,9 @@ $testmacroPositive = function($args = null)
 	if($args)
 	{
 		$this->setArguments([$args]);
+
+		/*$this->setArguments([$args], 'positive1');
+		$this->setArguments([$args], 'positive2');*/
 	}
 
 
@@ -285,7 +288,7 @@ $testmacroPositive = function($args = null)
         return $value > 0;
 
 		
-	}, ['default' => 'Value :field must be positive', 'inverse' => 'Value :field must not be positive']);
+	}, ['default' => 'Value :field must be positive :*', 'inverse' => 'Value :field must not be positive :*']);
 
 	/*$this->registerAsRule(function($value, $satisfier = null)
 	{
@@ -300,7 +303,7 @@ $testmacroPositive = function($args = null)
         return $value > 0;
 
 		
-	}, ['default' => 'Value :field must be positive', 'inverse' => 'Value :field must not be positive'], 'positive1');
+	}, ['default' => 'Value :field must be positive :*', 'inverse' => 'Value :field must not be positive :*'], 'positive1');
 
 	$this->registerAsRule(function($value, $satisfier = null)
 	{
@@ -315,7 +318,7 @@ $testmacroPositive = function($args = null)
         return $value > 0;
 
 		
-	}, ['default' => 'Value :field must be positive2', 'inverse' => 'Value :field must not be positive2'], 'positive2');*/
+	}, ['default' => 'Value :field must be positive2 :*', 'inverse' => 'Value :field must not be positive2 :*'], 'positive2');*/
 
 
 	return $this;

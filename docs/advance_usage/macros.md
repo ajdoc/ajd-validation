@@ -216,7 +216,7 @@ $v->Notpositive()
 
 ```
 ### Multiple rules creation example.
-- The only difference is that on `registerAsRule(\Closure $validator, array $errorMessages, $ruleName)` we must define a unique rule name.
+- The only difference is that on `registerAsRule(\Closure $validator, array $errorMessages, $ruleName)` we must define a unique rule name and setting arguments also needs the unique rule name.
 
 ```php
 use AJD_validation\AJD_validation;
@@ -226,7 +226,8 @@ $testmacroPositive = function($args = null)
 {
 	if($args)
 	{
-		$this->setArguments([$args]);
+		$this->setArguments([$args], 'positive1');
+		$this->setArguments([$args], 'positive2');
 	}
 
 
