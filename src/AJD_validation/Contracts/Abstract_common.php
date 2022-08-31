@@ -7,7 +7,6 @@ use AJD_validation\Contracts\Abstract_exceptions;
 abstract class Abstract_common
 {
 	const DS 			= DIRECTORY_SEPARATOR;
-
 	const LOG_AND 		= 'and',
 		  LOG_OR 		= 'or',
 		  LOG_XOR 		= 'xor',
@@ -47,30 +46,29 @@ abstract class Abstract_common
 
 	protected function format_field_name( $field )
 	{
-		$field_arr 					= array();
-		$field_return 				= array();
-		$clean_field 				= $field;
-		$orig_field 				= $field;
+		$field_arr 	= [];
+		$field_return = [];
+		$clean_field = $field;
+		$orig_field = $field;
 
 		if( $this->check_has_pipe( $field ) ) 
 		{
-			$field_arr 				= explode( '|', $field );
+			$field_arr 	= explode( '|', $field );
 
-			$orig_field 			= $field_arr[ 0 ];
+			$orig_field = $field_arr[ 0 ];
 
-			$clean_field 			= $field_arr[ 1 ];
-
+			$clean_field = $field_arr[ 1 ];
 		} 
 
 		$clean_field = (!empty($clean_field)) ? $clean_field : '';
 
-		$clean_field 				= preg_replace( '/\_/', ' ', $clean_field );
+		$clean_field = preg_replace( '/\_/', ' ', $clean_field );
 
-		$clean_field 				= ucfirst( strtolower( $clean_field ) );
+		$clean_field = ucfirst( strtolower( $clean_field ) );
 		
-		$field_return[ 'clean' ] 	= $clean_field;
+		$field_return[ 'clean' ] = $clean_field;
 
-		$field_return[ 'orig' ] 	= $orig_field;
+		$field_return[ 'orig' ] = $orig_field;
 
 		return $field_return;
 		
@@ -85,32 +83,32 @@ abstract class Abstract_common
 
 	protected function check_has_pipe( $value )
 	{
-		$check 						= (!empty($value)) ? ( bool ) preg_match( '/\|/' , $value ) : false;
+		$check = (!empty($value)) ? ( bool ) preg_match( '/\|/' , $value ) : false;
 
 		return $check;
 	}
 
 	protected function clean_rule_name( $rules )
 	{
-		$return_array 		= array();
+		$return_array = [];
 
-		$clean_rule 		= $rules;
+		$clean_rule = $rules;
 
-		$inverse 			= $this->check_inverse( $rules );
+		$inverse = $this->check_inverse( $rules );
 
-		$check 				= FALSE;
+		$check 	= FALSE;
 
 		if( $inverse[ 'check' ] ) 
 		{
-			$clean_rule 	= explode( $inverse[ 'match' ][0], $rules );
+			$clean_rule = explode( $inverse[ 'match' ][0], $rules );
 
-			$clean_rule 	= $clean_rule[ 1 ];
+			$clean_rule = $clean_rule[ 1 ];
 
-			$check 			= TRUE;
+			$check 	= TRUE;
 		}
 
-		$return_array[ 'check' ]  		= $check;
-		$return_array[ 'rule' ]			= $clean_rule;
+		$return_array[ 'check' ]  = $check;
+		$return_array[ 'rule' ]	= $clean_rule;
 
 		return $return_array;
 
@@ -118,16 +116,14 @@ abstract class Abstract_common
 
 	protected function check_inverse( $value ) 
 	{
-		$match 			= NULL;
+		$match = NULL;
 
-		$check 			= ( bool ) preg_match( '/^!|not_/' , $value, $match );
+		$check = ( bool ) preg_match( '/^!|not_/' , $value, $match );
 
-		$arr 			= array(
-
-			'match' 	=> $match,
-			'check' 	=> $check
-
-		);
+		$arr = [
+			'match' => $match,
+			'check' => $check
+		];
 
 		return $arr;
 
@@ -135,13 +131,13 @@ abstract class Abstract_common
 
 	protected function remove_appended_rule( $rule )
 	{
-		$ret_rule  		= $rule;
+		$ret_rule = $rule;
 
-		$check 			= ( bool ) preg_match( '/_rule$/', $rule );
+		$check 	= ( bool ) preg_match( '/_rule$/', $rule );
 
 		if( $check ) 
 		{
-			$ret_rule 	= preg_replace( '/_rule$/' , '', $rule );
+			$ret_rule = preg_replace( '/_rule$/' , '', $rule );
 		}
 
 	 	return $ret_rule;
@@ -156,11 +152,11 @@ abstract class Abstract_common
 	{
 		if( ISSET( $key ) ) 
 		{
-			$check 		= ( ISSET( $value[ $key ] ) AND !EMPTY( $value[ $key ] ) );
+			$check 	= ( ISSET( $value[ $key ] ) AND !EMPTY( $value[ $key ] ) );
 		} 
 		else 
 		{
-			$check 		= ( ISSET( $value ) AND !EMPTY( $value ) );
+			$check 	= ( ISSET( $value ) AND !EMPTY( $value ) );
 		}
 
 		return $check;
@@ -170,11 +166,11 @@ abstract class Abstract_common
 	{
 		if( ISSET( $key ) ) 
 		{
-			$check 		= ( ISSET( $value[ $key ] ) AND !IS_NULL( $value[ $key ] ) );
+			$check 	= ( ISSET( $value[ $key ] ) AND !IS_NULL( $value[ $key ] ) );
 		} 
 		else 
 		{
-			$check 		= ( ISSET( $value ) AND !IS_NULL( $value ) );
+			$check 	= ( ISSET( $value ) AND !IS_NULL( $value ) );
 		}
 
 		return $check;
@@ -184,18 +180,18 @@ abstract class Abstract_common
 	{
 		// $cus_err 			= static::$cus_err;
 
-		$satis 			 	= $satisfier;
+		$satis = $satisfier;
 
-		$keys 				= $cus_err;
+		$keys = $cus_err;
 
 		if( is_callable( $satisfier ) ) 
 		{
-			$satis 			= '';
+			$satis = '';
 		}
 
 		if( !EMPTY( $cus_err ) ) 
 		{
-			$keys 			= array_keys( $cus_err );
+			$keys = array_keys( $cus_err );
 		}
 		
 		if( in_array( $rules_name, $keys ) ) 

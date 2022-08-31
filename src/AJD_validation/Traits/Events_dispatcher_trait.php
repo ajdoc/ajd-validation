@@ -110,15 +110,11 @@ Trait Events_dispatcher_trait
 						$paramaters_sub[] = $fiber['fiber_suspend_val'];
 						$paramaters_sub[] = $rule;
 						
-						
-						/*$this->ajd->addFiberEvents($func, $this->ajd, $fiber['fiber'], $fiber['paramaters'], $fiber['fiber_suspend_val'], $rule, $field);*/
 						call_user_func_array($func, $paramaters_sub);
 
 					}
 				}
 			}
-
-			// $this->invoke_function( $func, self::FIBER );
 		}
 		
 		return $this;

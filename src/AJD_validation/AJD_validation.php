@@ -106,7 +106,6 @@ class AJD_validation extends Base_validator
 			'check_group' 					=> FALSE,
 			'result_values' 				=> array(),
 			'events'						=> array(),
-			// 'fiberize' 						=> [],
 			'global_fiberize' 				=> false,
 			'fibers' 						=> [],
 			'fiber_suspend' 				=> [],
@@ -1561,43 +1560,6 @@ class AJD_validation extends Base_validator
 			{
 
 				$filter_value = static::processFilters($filter_details, $field, $value, $check_arr, $val_only, $append);
-				/*if( !EMPTY( $filter_details['filters'] ) )
-				{
-					$check 	= TRUE;
-
-					if( !EMPTY( $check_arr ) )
-					{
-						if( !is_array( $value ) )
-						{
-							$check 	= FALSE;
-						}
-					}
-					else
-					{
-						$check = false;
-					}
-
-					$real_val 			= static::handle_filter( $filter_details['filters'], $value, $field, $filter_details['filter_satis'], $filter_details['pre_filters'], $check, $val_only );
-
-					$pre_filt_value 	= static::pre_filter_value( $field );
-					$filt_value 		= static::filter_value( $field );
-
-					if( $val_only )
-					{
-						$new_value		= $real_val;
-					}
-					else
-					{
-						$new_value  	= ( ISSET( $pre_filt_value ) AND !EMPTY( $pre_filt_value ) ) ? $pre_filt_value : $filt_value;
-					}
-
-					// if( EMPTY( $new_value ) )
-					// {
-					// 	$new_value 	= $value;
-					// }
-
-					$filter_value	= $new_value;
-				}*/
 			}
 		}
 
@@ -1633,12 +1595,6 @@ class AJD_validation extends Base_validator
 					$value 		= $values[ $field ];
 
 					$new_value = static::processFilters($filter_details, $field, $value, true, true, $append );
-					/*$new_value 	= $ajd_ins->filterSingleValue( $value, TRUE, $check_arr, FALSE );*/
-
-					/*if( EMPTY( $new_value ) )
-					{
-						$new_value 	= $value;
-					}*/
 
 					$filter_value[ $field ]	= $new_value;
 				}
@@ -1949,8 +1905,6 @@ class AJD_validation extends Base_validator
 					);
 
 					$or = $this->promiseOrValidation($or);
-										
-					// $this->processFieldRulesSequence($field_key);
 
 					$orPromisesRaw[] = $or;
 
@@ -2248,7 +2202,6 @@ class AJD_validation extends Base_validator
 						$andPromise 		= $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value, null, false );
 
 						$andPromise = $this->promiseOrValidation($andPromise);
-						// $this->processFieldRulesSequence($field_key);
 
 						$andPromises[] 		= $andPromise;
 						$andPromisesRaw[]   = $andPromise;
@@ -2889,8 +2842,6 @@ class AJD_validation extends Base_validator
 							$field => $group
 						];
 					}
-					
-
 				}
 
 				if(isset($group[$field]))
@@ -3938,33 +3889,6 @@ class AJD_validation extends Base_validator
 					$obs->attach_observer( $rule_value.'_'.$rule_key.'_'.$field.'-|fiber', $ev, array( $this, $fiber_ajd_prop['fibers'], $rule_value, $field ) );
 					$obs->notify_observer( $rule_value.'_'.$rule_key.'_'.$field.'-|fiber' );
 				}
-				
-				/*if(!empty(static::$ajd_prop['fiber_events']))
-				{
-					foreach(static::$ajd_prop['fiber_events'] as $field => $rules)
-					{
-						foreach($rules as $rule => $events)
-						{
-							
-							foreach($events as $event)
-							{
-								$paramaters_sub = [];
-
-								$paramaters_sub[] = $this;
-								$paramaters_sub[] = $event['fiber'];
-								$paramaters_sub[] = $field;
-								$paramaters_sub[] = $rule;
-								// $paramaters_sub[] = $event['paramaters'];
-								$paramaters_sub[] = $event['fiber_suspend_val'];
-								
-								
-								call_user_func_array($event['closure'], $paramaters_sub);
-							}
-
-							unset(static::$ajd_prop['fiber_events'][$field][$rule]);
-						}
-					}
-				}*/
 
 				if($fiber->isTerminated())
 				{
@@ -4249,72 +4173,6 @@ class AJD_validation extends Base_validator
 	private function fiberize()
 	{
 		$paramaters = func_get_args();
-
-		/*if(class_exists('Fiber'))
-		{
-			$fiber = new \Fiber([$this, '_refactored_process_and_or_check']);
-
-			$obs            = static::get_observable_instance();
-			$ev				= static::get_event_dispatcher_instance();
-			
-			$paramaters[] = true;
-
-			$val = [];
-
-			static::$ajd_prop['fibers'] = [
-				'fiber' => $fiber,
-				'paramaters' => $paramaters
-			];
-
-			$val = null;
-			$val2 = null;
-
-			if(!$fiber->isStarted())
-			{
-				$val = call_user_func_array([$fiber, 'start'], $paramaters);
-			}
-			
-			if($fiber->isSuspended())
-			{
-				$val2 = call_user_func_array([$fiber, 'resume'], []);
-			}
-			
-			static::$ajd_prop['fibers']['fiber_suspend_val'][] = $val;
-
-			if(!empty($val2))
-			{
-				static::$ajd_prop['fibers']['fiber_suspend_val'][] = $val2;
-			}
-
-			$obs->attach_observer( $field.'-|fiber', $ev, array( $this, static::$ajd_prop['fibers'] ) );
-			$obs->notify_observer($field.'-|fiber');
-
-			
-			if(!empty(static::$ajd_prop['fiber_events']))
-			{
-				foreach(static::$ajd_prop['fiber_events'] as $event)
-				{
-					$paramaters_sub = [];
-
-					$paramaters_sub[] = $this;
-					$paramaters_sub[] = $event['fiber'];
-					$paramaters_sub[] = $event['paramaters'];
-					$paramaters_sub[] = $event['fiber_suspend_val'];
-					
-					call_user_func_array($event['closure'], $paramaters_sub);
-				}
-			}
-			
-			
-			if($fiber->isTerminated())
-			{
-				return $fiber->getReturn();
-			}
-		}
-		else
-		{
-			return call_user_func_array([$this, '_refactored_process_and_or_check'], $paramaters);
-		}*/
 
 		return call_user_func_array([$this, '_refactored_process_and_or_check'], $paramaters);
 	}
@@ -4766,19 +4624,6 @@ class AJD_validation extends Base_validator
 		$filter_ins = static::get_filter_ins();
 	}
 
-	/*protected function resetFiberize($field = null)
-	{
-		if(!empty($field))
-		{
-			unset(static::$ajd_prop['fiberize'][$field]);
-		}
-		else
-		{
-			static::$ajd_prop['fiberize'] = [];	
-		}
-		
-	}*/
-
 	protected function resetConstraintGroup()
 	{
 		static::$constraintStorageName 		= NULL;
@@ -4815,54 +4660,6 @@ class AJD_validation extends Base_validator
 	protected static function get_errors_instance( $lang = NULL, $singleton = true ) 
 	{
 		return parent::get_errors_instance( static::$lang, $singleton );
-	}
-
-	public function processFieldRulesSequence($field_key, $next = false)
-	{
-		if(
-			isset(static::$ajd_prop['cache_groupings'][$field_key])
-			&&
-			static::$ajd_prop['cache_groupings'][$field_key] instanceof Grouping_sequence_interface 
-			&& 
-			isset(static::$ajd_prop['grouping_queue'][$field_key])
-			&&
-			!empty(static::$ajd_prop['grouping_queue'][$field_key]))
-		{
-			$grouping_queue = static::$ajd_prop['grouping_queue'][$field_key];
-			$seqArr 	= static::$ajd_prop['cache_groupings'][$field_key]->sequence();
-
-			$queueKey = array_search($grouping_queue, $seqArr);
-
-			$getNextArr = Array_helper::where($seqArr, function($value, $key) use ($queueKey, $next)
-			{
-				if(!$next)
-				{
-					return $key >= $queueKey;
-				}
-				else
-				{
-					return $key > $queueKey;	
-				}
-				
-			});
-			
-			if(!empty($getNextArr))
-			{
-				$getNextArrReal = [
-					$field_key => $this->createGroupSequence($getNextArr)
-				];
-
-				if(!$next)
-				{
-					$this->useGroupings($getNextArrReal, static::$ajd_prop['grouping_queue'][$field_key], $field_key);			
-				}
-				else
-				{
-					$this->useGroupings($getNextArrReal, null, $field_key);	
-				}
-				
-			}
-		}
 	}
 
 	public function processValidateGroupings($validateGroupings, array $prop = [], $rearrangeGroup = true)
@@ -5697,8 +5494,6 @@ class AJD_validation extends Base_validator
 
 	private function _process_anon_class($details)
 	{
-		
-		
 		$raw_append_rule 		= $details['details'][3]['raw_append_rule'];
 		$append_rule 			= $details['details'][3]['append_rule'];
 		$rule_details 			= $details['details'];
@@ -6198,48 +5993,12 @@ class AJD_validation extends Base_validator
 
 	}
 
-	public static function getFiberEvents()
-	{
-		return static::$ajd_prop['fiber_events'];	
-	}
-
 	public static function addLangDir($lang, $path, $create_write = false)
 	{
 		Errors::addLangDir($lang, $path, $create_write);
 		static::$addLangDir[$lang] = $path;
 		static::$createWriteLangDir[$lang] = $create_write;
 	}
-
-	public static function addFiberEvents( \Closure $func, $ajd = null, $fiber = null, $paramaters = [], $fiber_suspend_val = [], $rule = null, $field = null )
-	{
-		if(!empty($rule) && !empty($field))
-		{
-			static::$ajd_prop['fiber_events'][$field][$rule][] = [
-				'closure' => $func,
-				'ajd' => $ajd,
-				'fiber' => $fiber,
-				'paramaters' => $paramaters,
-				'fiber_suspend_val' => $fiber_suspend_val
-			];
-		}
-		else
-		{
-			static::$ajd_prop['fiber_events'][] = [
-				'closure' => $func,
-				'ajd' => $ajd,
-				'fiber' => $fiber,
-				'paramaters' => $paramaters,
-				'fiber_suspend_val' => $fiber_suspend_val
-			];
-		}
-
-		return static::$ajd_prop['fiber_events'];
-	}
-
-	/*public static function setFiberize($field, $onOff = false)
-	{
-		static::$ajd_prop['fiberize'][$field] = $onOff;
-	}*/
 
 	public static function setGlobalFiberize($onOff = false)
 	{
@@ -6256,7 +6015,6 @@ class AJD_validation extends Base_validator
 			&& !isset(static::$ajd_prop['groupings'][$field])
 		)
 		{
-
 			$groupings = Array_helper::flatten($groupings, 1);
 
 			if(!empty($groupings))
