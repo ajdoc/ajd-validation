@@ -5,6 +5,7 @@ use AJD_validation\Contracts\Abstract_exceptions;
 use AJD_validation\Rules\All_rule;
 use AJD_validation\Exceptions\Nested_rule_exception;
 use AJD_validation\Contracts\Abstract_invokable;
+use AJD_validation\Contracts\Abstract_anonymous_rule;
 
 class Inverse_rule extends Abstract_rule
 {
@@ -58,7 +59,11 @@ class Inverse_rule extends Abstract_rule
     {
     	if( !$dontCheck )
     	{
-    		if($this instanceof Abstract_invokable)
+    		if(
+    			$this instanceof Abstract_invokable
+    			||
+    			$this instanceof Abstract_anonymous_rule
+    		)
     		{
     			if( $this($value) ) 
 				{
@@ -106,7 +111,11 @@ class Inverse_rule extends Abstract_rule
 			    continue;
 			}
 
-			if( $rule instanceof Abstract_invokable )
+			if( 
+				$rule instanceof Abstract_invokable 
+				||
+    			$rule instanceof Abstract_anonymous_rule
+			)
 			{
 				if( !$rule( $value ) ) 
 			 	{

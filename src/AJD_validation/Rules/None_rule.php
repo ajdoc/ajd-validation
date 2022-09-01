@@ -5,6 +5,7 @@ use AJD_validation\Vefja\Vefja;
 use AJD_validation\Exceptions\Nested_rule_exception;
 use AJD_validation\Contracts\Abstract_exceptions;
 use AJD_validation\Contracts\Abstract_invokable;
+use AJD_validation\Contracts\Abstract_anonymous_rule;
 
 class None_rule extends Abstract_all
 {
@@ -54,7 +55,11 @@ class None_rule extends Abstract_all
                 {
                     foreach( $subRule->getRules() as $rule )
                     {
-                        if($rule instanceof Abstract_invokable)
+                        if(
+                            $rule instanceof Abstract_invokable
+                            ||
+                            $rule instanceof Abstract_anonymous_rule
+                        )
                         {
                             $check  = $rule( $value, NULL, $field );    
                         }
@@ -96,7 +101,11 @@ class None_rule extends Abstract_all
             {
                 foreach( $rules->getRules() as $rule )
                 {
-                    if($rule instanceof Abstract_invokable)
+                    if(
+                        $rule instanceof Abstract_invokable
+                        ||
+                        $rule instanceof Abstract_anonymous_rule
+                    )
                     {
                         $check  = $rule( $value, NULL, $field );
                     }
@@ -148,7 +157,11 @@ class None_rule extends Abstract_all
 
     public function validate( $value )
     {
-        if($this instanceof Abstract_invokable)
+        if(
+            $this instanceof Abstract_invokable
+            ||
+            $this instanceof Abstract_anonymous_rule
+        )
         {
             $check              = $this( $value, array( $this->getRules() ) );
         }
