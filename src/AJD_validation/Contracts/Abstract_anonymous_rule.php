@@ -15,8 +15,8 @@ abstract class Abstract_anonymous_rule extends Abstract_rule implements Invokabl
     abstract public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj);
 
     public function __invoke($value, $satisfier = NULL, $field = NULL)
-    {
-        return $this->run($value, $satisfier, $field);
+    {   
+        return $this($value, $satisfier, $field);
     }
 
     public function run($value, $satisfier = NULL, $field = NULL)

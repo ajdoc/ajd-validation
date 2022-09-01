@@ -556,6 +556,8 @@ try
 		->check('register_as_rule', '')
 		;
 
+		// var_dump($v->getValidator()->required()->positive3()->setName('test')->assertErr('a', true));
+
 		$v->negative()
 		->check('register_as_rule2', '')
 		;
@@ -1680,6 +1682,11 @@ try
 }
 catch( PDOException $e )
 {
+	echo $e->getMessage();
+}
+catch( Abstract_exceptions $e )
+{
+	var_dump($e->getFullMessage());
 	echo $e->getMessage();
 }
 catch( Exception $e )

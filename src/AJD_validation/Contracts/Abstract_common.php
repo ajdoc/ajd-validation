@@ -148,7 +148,7 @@ abstract class Abstract_common
 		return trim( preg_replace( $pattern , $replacement, $rule ) );
 	}
 
-	protected function isset_empty( $value, $key = NULL )
+	public function isset_empty( $value, $key = NULL )
 	{
 		if( ISSET( $key ) ) 
 		{

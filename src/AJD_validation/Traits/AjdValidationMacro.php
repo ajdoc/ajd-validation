@@ -12,7 +12,7 @@ trait AjdValidationMacro
 	use CanMacro;
 
 	protected $ruleName;
-	protected $signatureName = 'frommacro';
+	protected static $signatureName = 'frommacro';
 	protected static $storeErrorMessage = [];
 
 	protected $arguments = [];
@@ -57,7 +57,7 @@ trait AjdValidationMacro
         	$name = $ruleName;
         }
 
-        $anonName = $name.$this->signatureName;
+        $anonName = $name.static::$signatureName;
 
         $this->ruleName = $anonName;
 
@@ -140,7 +140,7 @@ trait AjdValidationMacro
     		
     		if(!$fromRegister)
     		{
-    			$ruleName = $passRulename.$this->signatureName;	
+    			$ruleName = $passRulename.static::$signatureName;	
     		}
     		
     	}

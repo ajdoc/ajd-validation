@@ -3,6 +3,7 @@
 use AJD_validation\Contracts\Rule_interface;
 use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\Abstract_invokable;
+use AJD_validation\Contracts\Abstract_anonymous_rule;
 use AJD_validation\Helpers\Errors;
 
 abstract class Abstract_rule extends AJD_validation implements Rule_interface
@@ -10,6 +11,8 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
     public $inverseCheck;
 
     protected $name;
+
+    protected static $anonRuleExceptions = [];
 
 	public function __invoke($value, $satisfier = NULL, $field = NULL)
     {
@@ -81,7 +84,11 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
 
         $response = null;
 
-        if($this instanceof Abstract_invokable)
+        if(
+            $this instanceof Abstract_invokable
+            ||
+            $this instanceof Abstract_anonymous_rule
+        )
         {
             $response = $this( $value );
 
@@ -154,7 +161,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         {
             $exceptions->setMode(Abstract_exceptions::ERR_NEGATIVE);
         }
-
+        
         throw $exceptions;
     }
 
@@ -180,6 +187,13 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         if($ruleObj instanceof Abstract_invokable)
         {
             $currentRule    = 'AJD_validation\\Exceptions\\Common_invokable_rule_exception';
+        }
+        else if($ruleObj instanceof Abstract_anonymous_rule)
+        {
+            if(isset( static::$anonRuleExceptions[spl_object_id($ruleObj)] ))
+            {
+                $currentRule = static::$anonRuleExceptions[spl_object_id($ruleObj)];
+            }
         }
         
         if( !EMPTY( Errors::getExceptionDirectory() ) )
@@ -212,6 +226,13 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         if(class_exists($currentRule))
         {
             return new $currentRule();
+        }
+        else if($ruleObj instanceof Abstract_anonymous_rule)
+        {
+            if($currentRule)
+            {
+                return $currentRule;
+            }
         }
     }
 

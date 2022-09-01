@@ -9,3 +9,5 @@
 /CustomLogics export-ignore
 /CustomRules export-ignore
 /CustomRuless export-ignore
+/src/AJD_validation/AJD_validation_old.php export-ignore
+/src/AJD_validation/test.php export-ignore

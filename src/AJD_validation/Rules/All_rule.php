@@ -2,6 +2,7 @@
 
 use AJD_validation\Contracts\Abstract_all;
 use AJD_validation\Contracts\Abstract_invokable;
+use AJD_validation\Contracts\Abstract_anonymous_rule;
 use AJD_validation\Vefja\Vefja;
 
 class All_rule extends Abstract_all
@@ -12,7 +13,11 @@ class All_rule extends Abstract_all
 		{
 			foreach( $this->getRules() as $rule )
 			{
-				if($rule instanceof Abstract_invokable)
+				if(
+					$rule instanceof Abstract_invokable
+					||
+					$rule instanceof Abstract_anonymous_rule
+				)
 				{
 					if( !$rule( $value, NULL, $field ) )
 					{
@@ -38,16 +43,20 @@ class All_rule extends Abstract_all
 		{
 			foreach( $this->getRules() as $rule )
 			{
-				if($rule instanceof Abstract_invokable)
+				if(
+					$rule instanceof Abstract_invokable
+					||
+					$rule instanceof Abstract_anonymous_rule
+				)
 				{
+
 					if( !$rule( $value ) )
 					{
-						return FALSE;
+						return false;
 					}
 				}
 				else
 				{
-				
 					if( !$rule->validate( $value ) )
 					{
 						return FALSE;
