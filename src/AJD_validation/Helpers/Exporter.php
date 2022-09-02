@@ -7,23 +7,19 @@ use AJD_validation\Helpers\VarExport;
 class Exporter
 {
 	public $inlineArray;
-
 	public $trailingCommaInArray;
-
 	public $inlineScalarList;
-
 	public $forcedShowArrayKey;
-
 	public $indentLevel;
 
 	public function __construct(int $options, int $indentLevel = 0)
 	{
-		$this->inlineArray              = (bool) ($options & VarExport::INLINE_ARRAY);
-	    $this->inlineScalarList         = (bool) ($options & VarExport::INLINE_SCALAR_LIST);
+		$this->inlineArray = (bool) ($options & VarExport::INLINE_ARRAY);
+	    $this->inlineScalarList = (bool) ($options & VarExport::INLINE_SCALAR_LIST);
 	    
-	    $this->trailingCommaInArray     = (bool) ($options & VarExport::TRAILING_COMMA_IN_ARRAY);
+	    $this->trailingCommaInArray = (bool) ($options & VarExport::TRAILING_COMMA_IN_ARRAY);
 
-	    $this->forcedShowArrayKey     = (bool) ($options & VarExport::FORCED_SHOW_ARRAY_KEY);
+	    $this->forcedShowArrayKey = (bool) ($options & VarExport::FORCED_SHOW_ARRAY_KEY);
 
 	    $this->indentLevel = $indentLevel;
 	}
@@ -37,17 +33,12 @@ class Exporter
             case 'double':
             case 'string':
                 return [var_export($var, true)];
-
             case 'NULL':
                 // lowercase null
                 return ['null'];
-
             case 'array':
                 /** @var array $var */
                 return $this->exportArray($var, $path, $parentIds);
-
-            
-
             default:
                 // resources
                 throw new \Exception(sprintf('Type "%s" is not supported.', $type), $path);
@@ -56,7 +47,7 @@ class Exporter
 
    	public function exportArray(array $array, array $path, array $parentIds)
     {
-        if (! $array) 
+        if(! $array) 
         {
             return ['[]'];
         }
@@ -74,7 +65,6 @@ class Exporter
         	$isList = array_keys($array) === range(0, $count - 1);	
         }
         
-
         $current = 0;
 
         $inline = $this->inlineArray || ($this->inlineScalarList && $isList && $this->isScalarList($array));

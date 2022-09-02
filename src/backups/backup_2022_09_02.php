@@ -40,107 +40,109 @@ class AJD_validation extends Base_validator
 
 	use Traits\AjdValExtender;
 
-	protected static $raw_rule = [
+	protected static $raw_rule 				= [
 		Abstract_common::LARAVEL,
 		Abstract_common::RESPECT,
 		Abstract_common::SYMFONY
 	];
 
-	protected static $method_w_args = [
+	protected static $method_w_args 		= [
 		Abstract_common::SYMFONY,
 		Abstract_common::RESPECT
 	];
 
-	protected static $ajd_prop = [
-		Abstract_common::LOG_AND => [
-			'rules' => [],
-			'details' => [],
-			'satisfier' => [],
-			'cus_err' => [],
-			'filters' => [],
-			'filter_satis' => [],
-			'pre_filters' => [],
-			'scenarios' => [],
-			'sometimes' => [],
-			'groups' => []
-		],
-		Abstract_common::LOG_OR => [
-			'rules' => [],
-			'details' => [],
-			'satisfier' => [],
-			'cus_err' => [],
-			'filters' => [],
-			'filter_satis' => [],
-			'pre_filters' => [],
-			'scenarios' => [],
-			'sometimes' => [],
-			'groups' => []
-		],
-		'groupings' => null,
-		'cache_groupings' => null,
-		'grouping_queue' => null,
-		'extensions' => [],
-		'extension_rule' => [],
-		'extension_filter' => [],
-		'extension_test' => [],
-		'extension_anonymous_class' => [],
-		'extensions_initialize' => false,
-		'fields' => [],
-		'js_rule' => [],
-		'message' => [],
-		'result' => [],
-		'given_values' => [],
-		'cache_filters' => [],
-		'cache_stored_filters' => [],
-		'and_or_stack' => [],
-		'class_override' => [],
-		'anonymous_class_override' => [],
-		'method_override' => [],
-		'function_override' => [],
-		'current_field' => null,
-		'current_rule' => null,
-		'current_logic' => Abstract_common::LOG_AND,
-		'check_group' => false,
-		'result_values' => [],
-		'events' => [],
-		'global_fiberize' => false,
-		'fibers' => [],
-		'fiber_suspend' => [],
-		'fiber_events' => [],
-		'makeAsync' => false
+	protected static $ajd_prop 				= [
+
+			Abstract_common::LOG_AND 		=> [
+				'rules' 					=> [],
+				'details' 					=> [],
+				'satisfier' 				=> [],
+				'cus_err' 					=> [],
+				'filters' 					=> [],
+				'filter_satis' 				=> [],
+				'pre_filters' 				=> [],
+				'scenarios' 				=> [],
+				'sometimes' 				=> [],
+				'groups' 					=> []
+			],
+
+			Abstract_common::LOG_OR 		=> [
+				'rules' 					=> [],
+				'details' 					=> [],
+				'satisfier' 				=> [],
+				'cus_err' 					=> [],
+				'filters' 					=> [],
+				'filter_satis' 				=> [],
+				'pre_filters' 				=> [],
+				'scenarios' 				=> [],
+				'sometimes' 				=> [],
+				'groups' 					=> []
+			],
+			'groupings' 					=> null,
+			'cache_groupings' 				=> null,
+			'grouping_queue' 				=> null,
+			'extensions' 					=> [],
+			'extension_rule' 				=> [],
+			'extension_filter' 				=> [],
+			'extension_test' 				=> [],
+			'extension_anonymous_class' 	=> [],
+			'extensions_initialize' 		=> FALSE,
+			'fields' 						=> [],
+			'js_rule' 						=> [],
+			'message' 						=> [],
+			'result' 						=> [],
+			'given_values' 					=> [],
+			'cache_filters' 				=> [],
+			'cache_stored_filters' 			=> [],
+			'and_or_stack' 					=> [],
+			'class_override' 				=> [],
+			'anonymous_class_override' 		=> [],
+			'method_override' 				=> [],
+			'function_override' 			=> [],
+			'current_field' 				=> NULL,
+			'current_rule' 					=> NULL,
+			'current_logic' 				=> Abstract_common::LOG_AND,
+			'check_group' 					=> FALSE,
+			'result_values' 				=> [],
+			'events'						=> [],
+			'global_fiberize' 				=> false,
+			'fibers' 						=> [],
+			'fiber_suspend' 				=> [],
+			'fiber_events' 					=> [],
+			'makeAsync' 					=> false
 	];
 
-	protected static $bail = false;
-	protected static $cache_instance = [];
+	protected static $bail 					= FALSE;
+	protected static $cache_instance 		= [];
 
-	protected static $cacheByFieldInstance = [];
-	protected static $middleware = [];
-	protected static $cacheMiddleware = [];
-	protected static $globalVar = [];
-	protected static $remove_scenario = [];
+	protected static $cacheByFieldInstance 	= [];
+	protected static $middleware 			= [];
+	protected static $cacheMiddleware 		= [];
+	protected static $globalVar 			= [];
+	protected static $remove_scenario 		= [];
 	
 	protected static $constraintStorageName;
 	protected static $useContraintGroup;
 
 	protected static $lang;
-	protected static $addLangDir = [];
-	protected static $createWriteLangDir = [];
+	protected static $addLangDir 			= [];
+	protected static $createWriteLangDir 	= [];
 	
 	protected static $ajd_ins;
 
 	protected $rules_path;
-	protected $check_cond = true;
-	protected $customMesage = [];
+	protected $check_cond 					= TRUE;
+	protected $customMesage 				= [];
 
-	protected static $addRuleNamespace = [];
-	protected static $addRuleDirectory = [];
+	protected static $addRuleNamespace 		= [];
+	protected static $addRuleDirectory 		= [];
 
-	protected static $addRulesMappings = [];
+	protected static $addRulesMappings 		= [];
 	protected static $addValidationsMappings = [];
-	protected static $registeredPackaged = [];
-	protected static $packagesToRegister = [];
+	protected static $registeredPackaged 	= [];
+	protected static $packagesToRegister 	= [];
 
-	protected static $dbConnections = [];
+	protected static $dbConnections			= [];
 
 	protected static $fiberRule = 'fiberize';
 
@@ -163,9 +165,10 @@ class AJD_validation extends Base_validator
             return $this->canMacroCall($name, $args);
         }
 
-		$ajd = static::get_ajd_instance();
-		$method = static::process_method_name( $name );
-		$factory = static::get_factory_instance()->get_instance( FALSE, FALSE, TRUE );
+		$ajd 		= static::get_ajd_instance();
+		$method 	= static::process_method_name( $name );
+		$factory 	= static::get_factory_instance()->get_instance( FALSE, FALSE, TRUE );
+
 		$factory->rules( get_class( $ajd ), $method['method'] );
 
 		array_unshift( $args, $method['name'] );
@@ -215,7 +218,7 @@ class AJD_validation extends Base_validator
 		}
 		else
 		{
-			static::$remove_scenario = array_merge( static::$remove_scenario, $scenario );
+			static::$remove_scenario 	= array_merge( static::$remove_scenario, $scenario );
 		}
 	}
 
@@ -223,22 +226,22 @@ class AJD_validation extends Base_validator
 	{
 		if( is_array( $globalVar ) )
 		{
-			static::$globalVar = array_merge( static::$globalVar, $globalVar );
+			static::$globalVar 		= array_merge( static::$globalVar, $globalVar );
 		}
 		else
 		{
-			static::$globalVar[] = $globalVar;
+			static::$globalVar[]	= $globalVar;
 		}
 	}
 
 	public static function setMiddleWare( $name, \Closure $func )
 	{
-		static::$middleware[ $name ]['func'] = $func;
+		static::$middleware[ $name ]['func'] 	= $func;
 	}
 
 	public static function addDbConnection( $name, $dbConn )
 	{
-		static::$dbConnections[$name] = $dbConn;
+		static::$dbConnections[$name] 	= $dbConn;
 
 		return static::get_ajd_instance();
 	}
@@ -291,6 +294,7 @@ class AJD_validation extends Base_validator
 
 		if(class_exists($validation))
 		{
+
 			$reflectValidation = new \ReflectionClass($validation);
 
 			$interfaces  = array_keys($reflectValidation->getInterfaces());
@@ -325,7 +329,7 @@ class AJD_validation extends Base_validator
 
 		if( !EMPTY( static::$middleware ) )
 		{
-			$current_name = key(static::$middleware);
+			$current_name 	= key(static::$middleware);
 
 			return $this->middleware($current_name, $field, $value, $check_arr, true);
 		}
@@ -344,9 +348,10 @@ class AJD_validation extends Base_validator
 			return $validation;
 		}
 
-		$ajd = static::get_ajd_instance();
-		$args = array( $field, $value, $check_arr );
-		$curr_field = static::$ajd_prop[ 'current_field' ];
+		$ajd 			= static::get_ajd_instance();
+		$args 			= array( $field, $value, $check_arr );
+		$curr_field 	= static::$ajd_prop[ 'current_field' ];
+		// $method = !EMPTY( static::$ajd_prop[ 'current_field' ] ) ? 'check' : 'check';
 		
 		if( ISSET( static::$middleware[ $name ] ) )
 		{
@@ -356,16 +361,16 @@ class AJD_validation extends Base_validator
 				{
 					if( ISSET( static::$ajd_prop[static::$useContraintGroup][ 'fields' ] ) )
 					{
-						static::$middleware[ $name ][ 'prop' ] = static::$ajd_prop[static::$useContraintGroup][ 'fields' ];
+						static::$middleware[ $name ][ 'prop' ] 		= static::$ajd_prop[static::$useContraintGroup][ 'fields' ];
 					}
 					else
 					{
-						static::$middleware[ $name ][ 'prop' ] = static::$ajd_prop[ 'fields' ];
+						static::$middleware[ $name ][ 'prop' ] 		= static::$ajd_prop[ 'fields' ];
 					}
 				}
 				else
 				{
-					static::$middleware[ $name ][ 'prop' ] = static::$ajd_prop[ 'fields' ];
+					static::$middleware[ $name ][ 'prop' ] 		= static::$ajd_prop[ 'fields' ];
 				}
 			}
 			else 
@@ -374,38 +379,38 @@ class AJD_validation extends Base_validator
 				{
 					if( ISSET( static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_AND ] ) )
 					{
-						static::$middleware[ $name ][ 'prop_and' ] = static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_AND ];
+						static::$middleware[ $name ][ 'prop_and' ] 	= static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_AND ];
 					}
 					else
 					{
-						static::$middleware[ $name ][ 'prop_and' ] = static::$ajd_prop[ Abstract_common::LOG_AND ];
+						static::$middleware[ $name ][ 'prop_and' ] 	= static::$ajd_prop[ Abstract_common::LOG_AND ];
 					}
 
 					if( ISSET( static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_OR ] ) )
 					{
-						static::$middleware[ $name ][ 'prop_or' ] = static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_OR ];
+						static::$middleware[ $name ][ 'prop_or' ] 	= static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_OR ];
 					}
 					else
 					{
-						static::$middleware[ $name ][ 'prop_or' ] = static::$ajd_prop[ Abstract_common::LOG_OR ];
+						static::$middleware[ $name ][ 'prop_or' ] 	= static::$ajd_prop[ Abstract_common::LOG_OR ];
 					}
 				}
 				else
 				{
-					static::$middleware[ $name ][ 'prop_and' ] = static::$ajd_prop[ Abstract_common::LOG_AND ];	
-					static::$middleware[ $name ][ 'prop_or' ] = static::$ajd_prop[ Abstract_common::LOG_OR ];
+					static::$middleware[ $name ][ 'prop_and' ] 	= static::$ajd_prop[ Abstract_common::LOG_AND ];	
+					static::$middleware[ $name ][ 'prop_or' ] 	= static::$ajd_prop[ Abstract_common::LOG_OR ];
 				}
 			}
 
 			$nextKey = false;
 
-			$allMiddlewares = static::$middleware;
+			$allMiddlewares 	= static::$middleware;
 
-			$middleWareKeys = array_keys( static::$middleware );
+			$middleWareKeys 	= array_keys( static::$middleware );
 
 			if($all)
 			{
-				$nextKey = next( $middleWareKeys );
+				$nextKey 			= next( $middleWareKeys );
 			}
 			
 			if( !EMPTY( $nextKey ) )
@@ -419,17 +424,20 @@ class AJD_validation extends Base_validator
 						static::$cacheMiddleware = static::$middleware;
 					}
 
-					$func = function( $q, $args ) use ( $name, $curr_field, $nextKey, $field, $value, $check_arr, $all ) 
-					{
+					$func 	= function( $q, $args ) use ( $name, $curr_field, $nextKey, $field, $value, $check_arr, $all ) {
+
 						unset( static::$middleware[ $name ] );
+					
 
 						$result = $q->invoke_func( array( $q, 'middleware' ), array( $nextKey, $field, $value, $check_arr, $all ) );
 
 						return static::handleFailedMiddleware($result);
+
 						// unset( static::$middleware[ $name ] );
+						
 					};
 
-					$currentKeyValue = array_search($name, $middleWareKeys);
+					$currentKeyValue 	= array_search($name, $middleWareKeys);
 
 
 					unset( $middleWareKeys[ $currentKeyValue ] ); 	
@@ -440,24 +448,24 @@ class AJD_validation extends Base_validator
 			{
 				$this->reset_all_validation_prop();
 
-				$func = function( $q, $args ) use ( $name, $curr_field ) 
-				{	
+				$func 	= function( $q, $args ) use ( $name, $curr_field ) {
+					
 					if( !EMPTY( $curr_field ) )
 					{
 						if( !EMPTY( static::$useContraintGroup ) )
 						{
 							if( ISSET( static::$ajd_prop[static::$useContraintGroup][ 'fields' ] ) )
 							{
-								static::$ajd_prop[static::$useContraintGroup][ 'fields' ] = static::$middleware[ $name ]['prop'];	
+								static::$ajd_prop[static::$useContraintGroup][ 'fields' ] 			= static::$middleware[ $name ]['prop'];	
 							}
 							else
 							{
-								static::$ajd_prop[ 'fields' ] = static::$middleware[ $name ]['prop'];	
+								static::$ajd_prop[ 'fields' ] 										= static::$middleware[ $name ]['prop'];	
 							}
 						}
 						else
 						{
-							static::$ajd_prop[ 'fields' ] = static::$middleware[ $name ]['prop'];	
+							static::$ajd_prop[ 'fields' ] 			= static::$middleware[ $name ]['prop'];	
 						}
 
 						unset( static::$middleware[ $name ]['prop'] );
@@ -468,27 +476,27 @@ class AJD_validation extends Base_validator
 						{
 							if( ISSET( static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_AND ] ) )
 							{
-								static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_AND ] = static::$middleware[ $name ][ 'prop_and' ];
+								static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_AND ] 		= static::$middleware[ $name ][ 'prop_and' ];
 							}
 							else
 							{
-								static::$ajd_prop[ Abstract_common::LOG_AND ] = static::$middleware[ $name ][ 'prop_and' ];
+								static::$ajd_prop[ Abstract_common::LOG_AND ] 		= static::$middleware[ $name ][ 'prop_and' ];
 							}
 
 							if( ISSET( static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_OR ] ) )
 							{
-								static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_OR ] = static::$middleware[ $name ][ 'prop_or' ];
+								static::$ajd_prop[static::$useContraintGroup][ Abstract_common::LOG_OR ] 		= static::$middleware[ $name ][ 'prop_or' ];
 							}
 							else
 							{
-								static::$ajd_prop[ Abstract_common::LOG_OR ] = static::$middleware[ $name ][ 'prop_or' ];
+								static::$ajd_prop[ Abstract_common::LOG_OR ] 		= static::$middleware[ $name ][ 'prop_or' ];
 							}
 							
 						}
 						else
 						{
-							static::$ajd_prop[ Abstract_common::LOG_AND ] = static::$middleware[ $name ][ 'prop_and' ];
-							static::$ajd_prop[ Abstract_common::LOG_OR ] = static::$middleware[ $name ][ 'prop_or' ];
+							static::$ajd_prop[ Abstract_common::LOG_AND ] 		= static::$middleware[ $name ][ 'prop_and' ];
+							static::$ajd_prop[ Abstract_common::LOG_OR ] 		= static::$middleware[ $name ][ 'prop_or' ];
 						}
 
 						unset( static::$middleware[ $name ]['prop_and'] );
@@ -515,13 +523,16 @@ class AJD_validation extends Base_validator
 
 					static::$cacheMiddleware = [];
 				}
+				
 			}
 
 			return static::handleFailedMiddleware($main);
+
 		}
 		else 
 		{
 			return $this->check($field, $value, $check_arr);
+
 			// $this->reset_all_validation_prop();
 		}
 
@@ -535,7 +546,7 @@ class AJD_validation extends Base_validator
 
 			$ajd->reset_all_validation_prop();
 
-			$obs = static::get_observable_instance();
+			$obs           	 					= static::get_observable_instance();
 
 			return (static function() use ($result, $ajd, $obs)
 			{
@@ -543,6 +554,7 @@ class AJD_validation extends Base_validator
 				{
 					try 
 					{
+						
 						throw new \Exception("Middleware Failed.");
 					}
 				 	catch (\Throwable $exception) 
@@ -553,13 +565,17 @@ class AJD_validation extends Base_validator
 	                {
 	                	return $target;
 	                }
+
 				},
 				function () use (&$mainFiber) 
 				{
+	        		// FiberMap::cancel($fiber);
 	        		if (\method_exists($target, 'cancel')) 
 					{
 	                	$target->cancel();
 	                }
+	            	
+	            	
         		});
 
         		$obs->attach_observer( 'fails', $promise, array( $ajd ) );
@@ -594,9 +610,10 @@ class AJD_validation extends Base_validator
 		foreach($anons as $anon)
 		{
 			$ruleNames = static::createRulesName($anon::getAnonName());
+
 			$raw_class_name = $ruleNames['raw_class_name'];
-			$class_name = $ruleNames['class_name'];
-			$append_rule = $ruleNames['append_rule'];
+			$class_name 	= $ruleNames['class_name'];
+			$append_rule 	= $ruleNames['append_rule'];
 
 			if(!isset(static::$cache_instance[$append_rule]))
 			{
@@ -604,7 +621,7 @@ class AJD_validation extends Base_validator
 				{
 					$exception = true;
 
-					static::$ajd_prop[ 'anonymous_class_override' ][ $append_rule ] = [
+					static::$ajd_prop[ 'anonymous_class_override' ][ $append_rule ] 	= [
 						'raw_class_name' => $raw_class_name,
 						'class_name' => $class_name,
 						'obj' => $anon
@@ -638,11 +655,11 @@ class AJD_validation extends Base_validator
 
 	public static function field( $field )
 	{
-		$key_arr = static::get_ajd_and_or_prop();
-		$and_arr = array();
-		$or_arr = array();
+		$key_arr 				= static::get_ajd_and_or_prop();
+		$and_arr 				= array();
+		$or_arr 				= array();
 
-		$curr_logic = static::$ajd_prop[ 'current_logic' ];
+		$curr_logic 			= static::$ajd_prop[ 'current_logic' ];
 		
 		foreach ( $key_arr as $prop ) 
 		{
@@ -650,26 +667,26 @@ class AJD_validation extends Base_validator
 			{
 				if( ISSET( static::$ajd_prop[static::$constraintStorageName][ Abstract_common::LOG_AND ][ $prop ] ) )
 				{
-					$and_arr[ $prop ] = static::$ajd_prop[static::$constraintStorageName][ Abstract_common::LOG_AND ][ $prop ];
+					$and_arr[ $prop ]	= static::$ajd_prop[static::$constraintStorageName][ Abstract_common::LOG_AND ][ $prop ];
 				}
 				else
 				{
-					$and_arr[ $prop ] = static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ];
+					$and_arr[ $prop ]	= static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ];
 				}
 
 				if( ISSET( static::$ajd_prop[static::$constraintStorageName][ Abstract_common::LOG_OR ][ $prop ] ) )
 				{
-					$or_arr[ $prop ] = static::$ajd_prop[static::$constraintStorageName][ Abstract_common::LOG_OR ][ $prop ];
+					$or_arr[ $prop ]	= static::$ajd_prop[static::$constraintStorageName][ Abstract_common::LOG_OR ][ $prop ];
 				}
 				else
 				{
-					$or_arr[ $prop ] = static::$ajd_prop[ Abstract_common::LOG_OR ][ $prop ];
+					$or_arr[ $prop ]	= static::$ajd_prop[ Abstract_common::LOG_OR ][ $prop ];
 				}
 			}
 			else
 			{
-				$and_arr[ $prop ] = static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ];
-				$or_arr[ $prop ] = static::$ajd_prop[ Abstract_common::LOG_OR ][ $prop ];
+				$and_arr[ $prop ]	= static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ];
+				$or_arr[ $prop ]	= static::$ajd_prop[ Abstract_common::LOG_OR ][ $prop ];
 			}
 		}
  		
@@ -679,11 +696,11 @@ class AJD_validation extends Base_validator
 			{
 				if( !EMPTY( static::$constraintStorageName ) )
 				{
-					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ Abstract_common::LOG_AND ][ $field ][ Abstract_common::LOG_AND ][ $key ] = $value;
+					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ Abstract_common::LOG_AND ][ $field ][ Abstract_common::LOG_AND ][ $key ]	 		= $value;
 				}
 				else
 				{
-					static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_AND ][ $field ][ Abstract_common::LOG_AND ][ $key ] = $value;
+					static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_AND ][ $field ][ Abstract_common::LOG_AND ][ $key ]	 		= $value;
 				}
 			}
 		}
@@ -694,34 +711,34 @@ class AJD_validation extends Base_validator
 			{
 				if( !EMPTY( static::$constraintStorageName ) )
 				{
-					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ Abstract_common::LOG_OR ][ $field ][ Abstract_common::LOG_AND ][ $key ] = $value;
+					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ Abstract_common::LOG_OR ][ $field ][ Abstract_common::LOG_AND ][ $key ]	 		= $value;
 				}
 				else
 				{
-					static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ][ $field ][ Abstract_common::LOG_AND ][ $key ] = $value;
+					static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ][ $field ][ Abstract_common::LOG_AND ][ $key ]	 		= $value;
 				}
 			}
 		}
 
-		static::$ajd_prop[ 'current_field' ] = $field;
+		static::$ajd_prop[ 'current_field' ] 	= $field;
 		
 		return static::get_field_scene_ins( $field, true, false );
 	}
 
 	public static function useContraintStorage( $constraintGroup, $clientField = NULL  )
 	{
-		static::$useContraintGroup = $constraintGroup;
-		static::$constraintStorageName = $constraintGroup;
+		static::$useContraintGroup 		= $constraintGroup;
+		static::$constraintStorageName 	= $constraintGroup;
 		
 		if( !EMPTY( $clientField ) AND !EMPTY( static::$ajd_prop['js_rule'] ) )
 		{
 			if( ISSET( static::$ajd_prop['js_rule'][$constraintGroup] ) )
 			{
-				static::$ajd_prop['js_rule'][$clientField] = static::$ajd_prop['js_rule'][$constraintGroup];
+				static::$ajd_prop['js_rule'][$clientField] 	= static::$ajd_prop['js_rule'][$constraintGroup];
 			}
 		}
 
-		$ajd_ins = static::get_ajd_instance();
+		$ajd_ins 	= static::get_ajd_instance();
 
 		return $ajd_ins;
 	}
@@ -761,88 +778,89 @@ class AJD_validation extends Base_validator
 			static::init_extensions();
 		}
 
-		$all_args = func_get_args();	
+		$all_args 								= func_get_args();	
 
-		$real_satis = array();
-		$real_satis[] = $satis;	
+		$real_satis 							= array();
+		$real_satis[] 							= $satis;	
 
-		$satis = !EMPTY( $satis ) ? $satis : '';	
+		$satis  								= !EMPTY( $satis ) ? $satis : '';	
 
-		$clientMessageOnly = false;	
+		$clientMessageOnly 						= FALSE;	
 
 		if( !EMPTY( $all_args ) )
 		{
-			$arg_proc = $all_args;
+			$arg_proc 			= $all_args;
 
 			unset( $arg_proc[0] );
 			unset( $arg_proc[1] );
 			
 			if( count( $all_args ) > 1 )
 			{
-				$real_satis = array_merge( $real_satis, $arg_proc );
+				$real_satis				= array_merge( $real_satis, $arg_proc );
 			
-				$funct_cuss_err = null;
-				$funct_client_side = null;
-				$funct_logic = Abstract_common::LOG_AND;
-				$funct_client_message_only = false;
+				$funct_cuss_err 					= NULL;
+				$funct_client_side 					= NULL;
+				$funct_logic 						= Abstract_common::LOG_AND;
+				$funct_client_message_only 			= FALSE;
 				
 				foreach( $arg_proc as $funct_args )
 				{
 					if( is_string( $funct_args ) 
-						AND ( bool ) preg_match('/@custom_error_/', $funct_args) != false
+						AND ( bool ) preg_match('/@custom_error_/', $funct_args) != FALSE
 						AND $funct_args !== Abstract_common::LOG_AND 
 						AND $funct_args !== Abstract_common::LOG_OR 
 					)
 					{
-						$funct_cuss_err = preg_replace('/@custom_error_/', '', $funct_args);
+						$funct_cuss_err 			= preg_replace('/@custom_error_/', '', $funct_args);
+
 					}
 					else if( is_string( $funct_args ) AND (bool) preg_match( '/#client_/', $funct_args ) != FALSE )
 					{
-						$funct_client_side = preg_replace('/#client_/', '', $funct_args);
+						$funct_client_side 			= preg_replace('/#client_/', '', $funct_args);
 					}
 					else if( is_string( $funct_args ) AND (bool) preg_match( '/#clientmessageonly/', $funct_args ) != FALSE )
 					{
-						$funct_client_message_only = preg_replace('/#clientmessageonly_/', '', $funct_args);
+						$funct_client_message_only 	= preg_replace('/#clientmessageonly_/', '', $funct_args);
 					}
 					else if( $funct_args === Abstract_common::LOG_AND OR $funct_args === Abstract_common::LOG_OR )
 					{
-						$funct_logic = $funct_args;
+						$funct_logic 					= $funct_args;
 					}
 				}
 				
-				$custom_err = $funct_cuss_err;
-				$client_side = $funct_client_side;
-				$logic = $funct_logic;
-				$clientMessageOnly = $funct_client_message_only;
+				$custom_err 		= $funct_cuss_err;
+				$client_side 		= $funct_client_side;
+				$logic 				= $funct_logic;
+				$clientMessageOnly 	= $funct_client_message_only;
 			}
 			
 		}
 		
-		$ajd = static::get_ajd_instance();
-		$raw_rule = static::removeWord( $rule, '/^!/' );
-		$rule = strtolower( $rule );
-		$curr_field = static::$ajd_prop[ 'current_field' ];
-		$logic = strtolower( $logic );
-		$clean_rule = $ajd->clean_rule_name( $rule );		
-		$append_rule = ucfirst( $clean_rule['rule'] ).'_'.static::$rules_suffix;
-		$rule_kind = $ajd->_process_rule_kind( $clean_rule['rule'], $append_rule, $raw_rule, $real_satis );
+		$ajd 									= static::get_ajd_instance();
+		$raw_rule 								= static::removeWord( $rule, '/^!/' );
+		$rule 									= strtolower( $rule );
+		$curr_field 							= static::$ajd_prop[ 'current_field' ];
+		$logic 									= strtolower( $logic );
+		$clean_rule 							= $ajd->clean_rule_name( $rule );		
+		$append_rule 							= ucfirst( $clean_rule['rule'] ).'_'.static::$rules_suffix;
+		$rule_kind 								= $ajd->_process_rule_kind( $clean_rule['rule'], $append_rule, $raw_rule, $real_satis );
 
-		$curr_logic = static::$ajd_prop['current_logic'];
+		$curr_logic 							= static::$ajd_prop['current_logic'];
 		
-		$args = [
-			'curr_field' => $curr_field,
-			'clean_rule' => $clean_rule,
-			'satis' => $real_satis,
-			'rule_kind' => $rule_kind,
-			'append_rule' => $append_rule,
-			'logic' => $logic,
-			'curr_logic' => $curr_logic,
-			'custom_err' => $custom_err,
-			'client_side' => $client_side,
-			'raw_rule' => $raw_rule,
-			'rule' => $rule,
+		$args 									= array(
+			'curr_field' 		=> $curr_field,
+			'clean_rule' 		=> $clean_rule,
+			'satis' 			=> $real_satis,
+			'rule_kind' 		=> $rule_kind,
+			'append_rule' 		=> $append_rule,
+			'logic' 			=> $logic,
+			'curr_logic' 		=> $curr_logic,
+			'custom_err' 		=> $custom_err,
+			'client_side' 		=> $client_side,
+			'raw_rule' 			=> $raw_rule,
+			'rule' 				=> $rule,
 			'client_message_only' => $clientMessageOnly
-		];
+		);
 
 
 		$currentRuleKey = static::plotValidationDetails( $args );
@@ -853,28 +871,28 @@ class AJD_validation extends Base_validator
 	protected static function plotValidationDetails( array $args )
 	{
 		$currentRuleKey = null;
-		$curr_field = $args['curr_field'];
-		$clean_rule = $args['clean_rule'];
-		$satis = $args['satis'];
-		$rule_kind = $args['rule_kind'];
-		$append_rule = $args['append_rule'];
-		$logic = $args['logic'];
-		$curr_logic = $args['curr_logic'];
-		$custom_err = $args['custom_err'];
-		$client_side = $args['client_side'];
-		$raw_rule = $args['raw_rule'];
-		$rule = $args['rule'];
+		$curr_field 	= $args['curr_field'];
+		$clean_rule 	= $args['clean_rule'];
+		$satis 			= $args['satis'];
+		$rule_kind 		= $args['rule_kind'];
+		$append_rule 	= $args['append_rule'];
+		$logic 			= $args['logic'];
+		$curr_logic 	= $args['curr_logic'];
+		$custom_err 	= $args['custom_err'];
+		$client_side 	= $args['client_side'];
+		$raw_rule 		= $args['raw_rule'];
+		$rule 			= $args['rule'];
 		$clientMessageOnly = $args['client_message_only'];
 
 		$rulesStorage = [];
 
 		if( !EMPTY( $curr_field ) )
 		{
-			$key_value = [
-				'rules' => $clean_rule['rule'],
-				'satisfier' => $satis,
-				'details' => [ $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'] ],
-			];
+			$key_value 							= array(
+				'rules' 						=> $clean_rule['rule'],
+				'satisfier' 					=> $satis,
+				'details' 						=> array( $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'] ),
+			);
 
 			$constraintName = null;
 
@@ -882,11 +900,11 @@ class AJD_validation extends Base_validator
 			{
 				if( !EMPTY( static::$constraintStorageName ) )
 				{
-					static::$ajd_prop[ static::$constraintStorageName ][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ $key ][] = $value;
+					static::$ajd_prop[ static::$constraintStorageName ][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ $key ][] 	= $value;
 				}
 				else
 				{
-					static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ $key ][] = $value;
+					static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ $key ][] 	= $value;
 				}
 			}
 
@@ -897,33 +915,35 @@ class AJD_validation extends Base_validator
 			{
 				$rulesStorage = static::$ajd_prop[ static::$constraintStorageName ][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'rules' ];
 
-				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filters' ][] = null;
-				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filter_satis' ][] = null;
-				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'pre_filters' ][] = null;
+				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filters' ][] 									= NULL;
+				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filter_satis' ][] 								= NULL;
+				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'pre_filters' ][] 								= NULL;
 				/*static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'scenarios' ] 									= array();*/
+
 				$currentRuleKeyCurrField = null;
 				if(!empty($rulesStorage))
 				{
 					$rulesKeysCurrField = array_keys($rulesStorage);
 					$currentRuleKeyCurrField = end($rulesKeysCurrField);
+
 				}
 
 				if(!is_null($currentRuleKeyCurrField))
 				{
-					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ][$currentRuleKeyCurrField] = null;
+					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ][$currentRuleKeyCurrField] 			= NULL;
 				}
 				else
 				{
-					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ] = null;
+					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ] 			= NULL;
 				}
 			}
 			else
 			{
 				$rulesStorage = static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'rules' ];
 
-				static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filters' ][] = null;
-				static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filter_satis' ][] = null;
-				static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'pre_filters' ][] = null;
+				static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filters' ][] 								= NULL;
+				static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filter_satis' ][] 							= NULL;
+				static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'pre_filters' ][] 							= NULL;
 
 				/*if( EMPTY( static::$ajd_prop[ 'check_group' ] ) )
 				{
@@ -940,11 +960,11 @@ class AJD_validation extends Base_validator
 
 				if(!is_null($currentRuleKeyCurrField))
 				{	
-					static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ][$currentRuleKeyCurrField] = null;
+					static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ][$currentRuleKeyCurrField] 		= NULL;
 				}
 				else
 				{
-					static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ] = null;
+					static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ] 		= NULL;
 				}
 			}
 
@@ -955,22 +975,22 @@ class AJD_validation extends Base_validator
 				{
 					if(!is_null($currentRuleKeyCurrField))
 					{
-						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ][$currentRuleKeyCurrField][ $clean_rule[ 'rule' ] ] = $custom_err;
+						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ][$currentRuleKeyCurrField][ $clean_rule[ 'rule' ] ] 			= $custom_err;
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ][ $clean_rule[ 'rule' ] ] = $custom_err;
+						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ][ $clean_rule[ 'rule' ] ] 			= $custom_err;
 					}
 				}
 				else
 				{
 					if(!is_null($currentRuleKeyCurrField))
 					{
-						static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ][$currentRuleKeyCurrField][ $clean_rule[ 'rule' ] ] = $custom_err;
+						static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ][$currentRuleKeyCurrField][ $clean_rule[ 'rule' ] ]			= $custom_err;
 					}
 					else
 					{
-						static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ][ $clean_rule[ 'rule' ] ] = $custom_err;	
+						static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ][ $clean_rule[ 'rule' ] ] 			= $custom_err;	
 					}
 					
 				}
@@ -981,12 +1001,12 @@ class AJD_validation extends Base_validator
 
 			if( !EMPTY( static::$constraintStorageName ) )
 			{
-				static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'rules' ][] = $clean_rule['rule'];
+				static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'rules' ][] 			= $clean_rule['rule'];
 
 				$rulesStorage = static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'rules' ];
 
-				static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'satisfier' ][] = $satis;
-				static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'details' ][] = [ $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'] ];
+				static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'satisfier' ][] 		= $satis;
+				static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'details' ][] 			= array( $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'] );
 
 				$currentRuleKeyCurr = null;
 				if(!is_null($rulesStorage))
@@ -997,35 +1017,35 @@ class AJD_validation extends Base_validator
 
 				if(!is_null($currentRuleKeyCurr))
 				{
-					static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ][$currentRuleKeyCurr] = null;
+					static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ][$currentRuleKeyCurr] = NULL;
 				}
 				else
 				{
-					static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ] = null;
+					static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'sometimes' ][ $clean_rule['rule'] ] = NULL;
 				}
 				
 				if( !EMPTY( $custom_err ) ) 
 				{
-					$rule_name = $clean_rule[ 'rule' ];
+					$rule_name 		= $clean_rule[ 'rule' ];
 
 					if(!empty($currentRuleKeyCurr))
 					{
-						static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'cus_err' ][$currentRuleKeyCurr][ $rule_name ] = $custom_err;
+						static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'cus_err' ][$currentRuleKeyCurr][ $rule_name ] 	= $custom_err;
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'cus_err' ][ $rule_name ] = $custom_err;
+						static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'cus_err' ][ $rule_name ] 	= $custom_err;
 					}
 				}
 			}
 			else
 			{
-				static::$ajd_prop[ $logic ][ 'rules' ][] = $clean_rule['rule'];
+				static::$ajd_prop[ $logic ][ 'rules' ][] 			= $clean_rule['rule'];
 
 				$rulesStorage = static::$ajd_prop[ $logic ][ 'rules' ];
 
-				static::$ajd_prop[ $logic ][ 'satisfier' ][] = $satis;
-				static::$ajd_prop[ $logic ][ 'details' ][] = [ $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'] ];
+				static::$ajd_prop[ $logic ][ 'satisfier' ][] 		= $satis;
+				static::$ajd_prop[ $logic ][ 'details' ][] 			= array( $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'] );
 
 				$currentRuleKeyCurr = null;
 				if(!empty($rulesStorage))
@@ -1036,11 +1056,11 @@ class AJD_validation extends Base_validator
 
 				if(!is_null($currentRuleKeyCurr))
 				{
-					static::$ajd_prop[ $logic ][ 'sometimes' ][ $clean_rule['rule'] ][$currentRuleKeyCurr] = null;
+					static::$ajd_prop[ $logic ][ 'sometimes' ][ $clean_rule['rule'] ][$currentRuleKeyCurr] = NULL;
 				}
 				else
 				{
-					static::$ajd_prop[ $logic ][ 'sometimes' ][ $clean_rule['rule'] ] = null;	
+					static::$ajd_prop[ $logic ][ 'sometimes' ][ $clean_rule['rule'] ] = NULL;	
 				}
 				
 				
@@ -1050,11 +1070,11 @@ class AJD_validation extends Base_validator
 					
 					if(!is_null($currentRuleKeyCurr))
 					{
-						static::$ajd_prop[ $logic ][ 'cus_err' ][$currentRuleKeyCurr][ $rule_name ] = $custom_err;
+						static::$ajd_prop[ $logic ][ 'cus_err' ][$currentRuleKeyCurr][ $rule_name ] 	= $custom_err;
 					}
 					else
 					{
-						static::$ajd_prop[ $logic ][ 'cus_err' ][ $rule_name ] = $custom_err;
+						static::$ajd_prop[ $logic ][ 'cus_err' ][ $rule_name ] 	= $custom_err;
 					}
 				}
 			}
@@ -1065,42 +1085,44 @@ class AJD_validation extends Base_validator
 			$rulesKeys = array_keys($rulesStorage);
 
 			$currentRuleKey = end($rulesKeys);
+
 		}
 
 		if( !EMPTY( $client_side ) )
 		{
-			$orig_rule = strtolower( $rule );
-			$rule = $orig_rule.'_'.static::$rules_suffix;
+			$orig_rule 		= strtolower( $rule );
+			$rule 			= $orig_rule.'_'.static::$rules_suffix;
 
-			static::$ajd_prop[ 'js_rule' ][ $client_side ][ $rule ][] = [
-				'satisfier' => $satis,
-				'curr_field' => $curr_field,
+			static::$ajd_prop[ 'js_rule' ][ $client_side ][ $rule ][] 		= array(
+				'satisfier'		=> $satis,
+				'curr_field'	=> $curr_field,
 				'client_message_only' => $clientMessageOnly
-			];
+			);
+
 
 			if( !EMPTY( $custom_err ) )
 			{
-				static::$ajd_prop[ 'js_rule' ][ $client_side ][ $rule ][] = [
-					'custom_error' => [ $orig_rule => $custom_err ]
-				];
+				static::$ajd_prop[ 'js_rule' ][ $client_side ][ $rule ][] 	= array(
+					'custom_error'	=> array( $orig_rule => $custom_err )
+				);
 			}
 		}
 
 		return $currentRuleKey;
 	}
 
-	public static function addOrRule( $rule, $satis = null, $custom_err = null, $client_side = null )
+	public static function addOrRule( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL )
 	{
 		return static::addRule( $rule, $satis, $custom_err, $client_side, Abstract_common::LOG_OR );
 	}
 
-	public static function superRule( $rule, $satis = null, $logic = Abstract_common::LOG_AND, $custom_err = null, $client_side = null )
+	public static function superRule( $rule, $satis = NULL, $logic = Abstract_common::LOG_AND, $custom_err = NULL, $client_side = NULL )
 	{
-		static::$ajd_prop[ 'current_field' ] = null;
-		static::$ajd_prop[ 'current_rule' ] = $rule;
+		static::$ajd_prop[ 'current_field' ] 				= NULL;
+		static::$ajd_prop[ 'current_rule' ] 				= $rule;
 		
-		static::$ajd_prop[ 'and_or_stack' ][] = $logic;
-		static::$ajd_prop['current_logic'] = $logic;
+		static::$ajd_prop[ 'and_or_stack' ][] 	= $logic;
+		static::$ajd_prop['current_logic'] 		= $logic;
 		
 		return static::addRule( $rule, $satis, $custom_err, $client_side, $logic );
 
@@ -1108,11 +1130,11 @@ class AJD_validation extends Base_validator
 
 	public static function endSuperRule()
 	{
-		static::$ajd_prop[ 'current_field' ] = null;
-		static::$ajd_prop[ 'current_rule' ] = null;
-		$logic = array_pop( static::$ajd_prop[ 'and_or_stack' ] );
+		static::$ajd_prop[ 'current_field' ] 				= NULL;
+		static::$ajd_prop[ 'current_rule' ] 				= NULL;
+		$logic 		= array_pop( static::$ajd_prop[ 'and_or_stack' ] );
 
-		$key_arr = static::get_ajd_and_or_prop();
+		$key_arr 	= static::get_ajd_and_or_prop();
 
 		foreach( $key_arr as $key )
 		{	
@@ -1128,9 +1150,9 @@ class AJD_validation extends Base_validator
 
 	public static function getClientSide( $perField = TRUE, $format = Client_side::PARSLEY )
 	{
-		$ajdIns = static::get_ajd_instance();
+		$ajdIns 		= static::get_ajd_instance();
 		
-		$clientSide = new Client_side( static::$ajd_prop['js_rule'], $ajdIns, $format );
+		$clientSide 	= new Client_side( static::$ajd_prop['js_rule'], $ajdIns, $format );
 		
 		return $clientSide->get_js_validations($perField);
 	}
@@ -1147,35 +1169,35 @@ class AJD_validation extends Base_validator
 
 	public static function cacheFilter( $field )
 	{
-		$logic = static::$ajd_prop[ 'current_logic' ];
-		$curr_field = static::$ajd_prop[ 'current_field' ];
-		$filters = [];
-		$filter_satis = [];
-		$pre_filters = [];
+		$logic 												= static::$ajd_prop[ 'current_logic' ];
+		$curr_field 										= static::$ajd_prop[ 'current_field' ];
+		$filters 											= array();
+		$filter_satis 										= array();
+		$pre_filters 										= array();
 
 		if( !EMPTY( $curr_field ) )
 		{
 			if( !EMPTY( static::$constraintStorageName ) )
 			{
-				$filters = static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['filters'];
-				$filter_satis = static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['filter_satis'];
-				$pre_filters = static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['pre_filters'];
+				$filters 		= static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['filters'];
+				$filter_satis 	= static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['filter_satis'];
+				$pre_filters 	= static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['pre_filters'];
 
-				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['filters'] = [];
+				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['filters'] 			= array();
 
-				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['filter_satis'] = [];
+				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['filter_satis']	= array();
 
-				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['pre_filters'] = [];
+				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ]['pre_filters']	= array();
 			}
 			else
 			{
-				$filters = static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'filters' ];
-				$filter_satis = static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'filter_satis' ];
-				$pre_filters = static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'pre_filters' ];
+				$filters 		= static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'filters' ];
+				$filter_satis 	= static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'filter_satis' ];
+				$pre_filters 	= static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'pre_filters' ];
 
-				static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'filters' ] = [];
-				static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'filter_satis' ] = [];
-				static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'pre_filters' ] = [];
+				static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'filters' ] 		= array();
+				static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'filter_satis' ] 	= array();
+				static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'pre_filters' ] 	= array();
 			}
 		}
 		else
@@ -1183,12 +1205,13 @@ class AJD_validation extends Base_validator
 			if( !EMPTY( static::$constraintStorageName ) )
 			{
 				$constraintStorageName = static::$constraintStorageName;
-				$filters = static::$ajd_prop[static::$constraintStorageName][ $logic ]['filters'];
-				$filter_satis = static::$ajd_prop[static::$constraintStorageName][ $logic ]['filter_satis'];
-				$pre_filters = static::$ajd_prop[static::$constraintStorageName][ $logic ]['pre_filters'];
+				$filters 		= static::$ajd_prop[static::$constraintStorageName][ $logic ]['filters'];
+				$filter_satis 	= static::$ajd_prop[static::$constraintStorageName][ $logic ]['filter_satis'];
+				$pre_filters 	= static::$ajd_prop[static::$constraintStorageName][ $logic ]['pre_filters'];
 
 				if($field == $constraintStorageName)
 				{
+
 					$filters_stored = $filters;
 					$filter_satis_stored = $filter_satis;
 					$pre_filters_stored = $pre_filters;
@@ -1208,35 +1231,35 @@ class AJD_validation extends Base_validator
 						$pre_filters_stored = static::$ajd_prop['cache_stored_filters'][$constraintStorageName]['pre_filters'];
 					}
 
-					static::$ajd_prop['cache_stored_filters'][ $constraintStorageName ] = [
-						'filters' => $filters_stored,
-						'filter_satis' => $filter_satis_stored,
-						'pre_filters' => $pre_filters_stored
-					];
+					static::$ajd_prop['cache_stored_filters'][ $constraintStorageName ] 	= array(
+						'filters' 			=> $filters_stored,
+						'filter_satis'		=> $filter_satis_stored,
+						'pre_filters' 		=> $pre_filters_stored
+					);
 				}
 
-				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filters'] = [];
-				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filter_satis'] = [];
-				static::$ajd_prop[static::$constraintStorageName][ $logic ]['pre_filters'] = [];
+				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filters'] 			= array();
+				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filter_satis'] 	= array();
+				static::$ajd_prop[static::$constraintStorageName][ $logic ]['pre_filters'] 		= array();
 			}
 			else
 			{
-				$filters = static::$ajd_prop[ $logic ]['filters'];
-				$filter_satis = static::$ajd_prop[ $logic ]['filter_satis'];
-				$pre_filters = static::$ajd_prop[ $logic ]['pre_filters'];
+				$filters 		= static::$ajd_prop[ $logic ]['filters'];
+				$filter_satis 	= static::$ajd_prop[ $logic ]['filter_satis'];
+				$pre_filters 	= static::$ajd_prop[ $logic ]['pre_filters'];
 
-				static::$ajd_prop[ $logic ]['filters'] = [];
-				static::$ajd_prop[ $logic ]['filter_satis'] = [];
-				static::$ajd_prop[ $logic ]['pre_filters'] = [];
+				static::$ajd_prop[ $logic ]['filters'] 			= array();
+				static::$ajd_prop[ $logic ]['filter_satis'] 	= array();
+				static::$ajd_prop[ $logic ]['pre_filters'] 		= array();
 				
 			}
 		}
 
-		static::$ajd_prop['cache_filters'][ $field ] = [
-			'filters' => $filters,
-			'filter_satis' => $filter_satis,
-			'pre_filters' => $pre_filters
-		];
+		static::$ajd_prop['cache_filters'][ $field ] 	= array(
+			'filters' 			=> $filters,
+			'filter_satis'		=> $filter_satis,
+			'pre_filters' 		=> $pre_filters
+		);
 
 		return static::get_ajd_instance();
 	}
@@ -1247,13 +1270,13 @@ class AJD_validation extends Base_validator
 
 		if( !EMPTY( $filter_details['filters'] ) )
 		{
-			$check = TRUE;
+			$check 	= TRUE;
 
 			if( !EMPTY( $check_arr ) )
 			{
 				if( !is_array( $value ) )
 				{
-					$check = FALSE;
+					$check 	= FALSE;
 				}
 			}
 			else
@@ -1261,17 +1284,18 @@ class AJD_validation extends Base_validator
 				$check = false;
 			}
 			
-			$real_val = static::handle_filter( $filter_details['filters'], $value, $field, $filter_details['filter_satis'], $filter_details['pre_filters'], $check, $val_only, $append );
-			$pre_filt_value = static::pre_filter_value( $field );
-			$filt_value = static::filter_value( $field );
+			$real_val 			= static::handle_filter( $filter_details['filters'], $value, $field, $filter_details['filter_satis'], $filter_details['pre_filters'], $check, $val_only, $append );
+
+			$pre_filt_value 	= static::pre_filter_value( $field );
+			$filt_value 		= static::filter_value( $field );
 
 			if( $val_only )
 			{
-				$new_value = $real_val;
+				$new_value		= $real_val;
 			}
 			else
 			{
-				$new_value = ( ISSET( $pre_filt_value ) AND !EMPTY( $pre_filt_value ) ) ? $pre_filt_value : $filt_value;
+				$new_value  	= ( ISSET( $pre_filt_value ) AND !EMPTY( $pre_filt_value ) ) ? $pre_filt_value : $filt_value;
 			}
 
 			/*if( EMPTY( $new_value ) )
@@ -1279,7 +1303,7 @@ class AJD_validation extends Base_validator
 				$new_value 	= $value;
 			}*/
 
-			$filter_value = $new_value;
+			$filter_value	= $new_value;
 		}
 
 		return $filter_value;
@@ -1287,19 +1311,20 @@ class AJD_validation extends Base_validator
 
 	public static function filterSingleValue( $value, $val_only = FALSE, $check_arr = TRUE, $clearCache = TRUE, $append = false )
 	{
-		$filter_value = $value;
+		$filter_value 	= $value;
 
 		if( !EMPTY( static::$ajd_prop['cache_filters'] ) )
 		{
 			foreach( static::$ajd_prop['cache_filters'] as $field => $filter_details )
 			{
+
 				$filter_value = static::processFilters($filter_details, $field, $value, $check_arr, $val_only, $append);
 			}
 		}
 
 		if( $clearCache )
 		{
-			static::$ajd_prop['cache_filters'] 	= [];
+			static::$ajd_prop['cache_filters'] 	= array();
 		}
 		
 		return $filter_value;
@@ -1317,8 +1342,8 @@ class AJD_validation extends Base_validator
 
 	public static function filterValues( array $values, $check_arr = TRUE, $append = false )
 	{
-		$filter_value = [];
-		$ajd_ins = static::get_ajd_instance();
+		$filter_value 	= array();
+		$ajd_ins 		= static::get_ajd_instance();
 
 		if( !EMPTY( static::$ajd_prop['cache_filters'] ) )
 		{
@@ -1326,7 +1351,7 @@ class AJD_validation extends Base_validator
 			{
 				if( ISSET( $values[ $field ] ) )
 				{
-					$value = $values[ $field ];
+					$value 		= $values[ $field ];
 
 					$new_value = static::processFilters($filter_details, $field, $value, true, true, $append );
 
@@ -1335,7 +1360,7 @@ class AJD_validation extends Base_validator
 			}
 		}
 
-		static::$ajd_prop['cache_filters'] 	= [];
+		static::$ajd_prop['cache_filters'] 	= array();
 
 		return $filter_value;
 	}
@@ -1347,26 +1372,26 @@ class AJD_validation extends Base_validator
 			static::init_extensions();
 		}
 		
-		$logic = static::$ajd_prop[ 'current_logic' ];
-		$curr_field = static::$ajd_prop[ 'current_field' ];
+		$logic 												= static::$ajd_prop[ 'current_logic' ];
+		$curr_field 										= static::$ajd_prop[ 'current_field' ];
 
 		if( !EMPTY( $curr_field ) )
 		{
-			$key_value = [
-				'filters' => $filter,
-				'filter_satis' => $satis,
-				'pre_filters' => $pre_filter
-			];			
+			$key_value 							= array(
+				'filters' 						=> $filter,
+				'filter_satis' 					=> $satis,
+				'pre_filters' 					=> $pre_filter
+			);			
 
 			foreach( $key_value as $key => $value )
 			{
 				if( !EMPTY( static::$constraintStorageName ) )
 				{
-					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ $key ][] = $value;
+					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ $key ][] 	= $value;
 				}
 				else
 				{
-					static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ $key ][] = $value;
+					static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ $key ][] 	= $value;
 				}
 			}			
 		}
@@ -1374,15 +1399,15 @@ class AJD_validation extends Base_validator
 		{
 			if( !EMPTY( static::$constraintStorageName ) )
 			{
-				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filters'][] = strtolower( $filter );
-				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filter_satis'][] = $satis;
-				static::$ajd_prop[static::$constraintStorageName][ $logic ]['pre_filters'][] = $pre_filter;
+				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filters'][] 		= strtolower( $filter );
+				static::$ajd_prop[static::$constraintStorageName][ $logic ]['filter_satis'][] 	= $satis;
+				static::$ajd_prop[static::$constraintStorageName][ $logic ]['pre_filters'][] 	= $pre_filter;
 			}
 			else
 			{
-				static::$ajd_prop[ $logic ]['filters'][] = strtolower( $filter );
-				static::$ajd_prop[ $logic ]['filter_satis'][] = $satis;
-				static::$ajd_prop[ $logic ]['pre_filters'][] = $pre_filter;
+				static::$ajd_prop[ $logic ]['filters'][] 		= strtolower( $filter );
+				static::$ajd_prop[ $logic ]['filter_satis'][] 	= $satis;
+				static::$ajd_prop[ $logic ]['pre_filters'][] 	= $pre_filter;
 			}
 		}
  		
@@ -1391,14 +1416,14 @@ class AJD_validation extends Base_validator
 
 	public static function add_rule_msg( $rule, $msg )
 	{
-		$err = static::get_errors_instance();
+		$err 		= static::get_errors_instance();
 
 		$err->set_errors( $rule, $msg );
 	}
 
 	public static function assert( $addParent = TRUE )
 	{
-		$ajd = static::get_ajd_instance();
+		$ajd 	= static::get_ajd_instance();
 		
 		if( $ajd->validation_fails() )
 		{
@@ -1411,7 +1436,7 @@ class AJD_validation extends Base_validator
 
 	public static function assertFirst( $addParent = TRUE )
 	{
-		$ajd = static::get_ajd_instance();
+		$ajd 	= static::get_ajd_instance();
 
 		if( $ajd->validation_fails() )
 		{
@@ -1463,6 +1488,7 @@ class AJD_validation extends Base_validator
 			}
 
 			$ajd->setPropMessage($ajdMessage);
+			
 		}
 
 		$orPromise = PromiseHelpers::any($newPromises);
@@ -1484,24 +1510,26 @@ class AJD_validation extends Base_validator
 		return $orPromise;
 	}
 
-	private function _checkGroup( array $data, $middleware = false )
+	private function _checkGroup( array $data, $middleware = FALSE )
 	{
-		static::$ajd_prop['check_group'] = true;
 		
-		$value = null;
-		$or_success = [];
-		$or_pass_arr = [];
-		$or_passed_per_pass = [];
-		$or_passed_per_single_pass = [];
+		static::$ajd_prop['check_group'] 	= TRUE;
+		
+		$value 								= NULL;
+		$or_success 						= array();
 
-		$obs = static::get_observable_instance();
-		$ev = static::get_promise_validator_instance();
+		$or_pass_arr 						= array();
+		$or_passed_per_pass 				= [];
+		$or_passed_per_single_pass 			= [];
 
-		$and_check = array();
-		$or_check = array();
+		$obs           	 					= static::get_observable_instance();
+		$ev									= static::get_promise_validator_instance();
 
-		$validator = $this->getValidator();
-		$paramValidator = $validator->one_or( Validator::contains('.'), Validator::contains('*') );
+		$and_check 							= array();
+		$or_check 							= array();
+
+		$validator 							= $this->getValidator();
+		$paramValidator 					= $validator->one_or( Validator::contains('.'), Validator::contains('*') );
 
 		$orPromises = [];
 		$orPromisesRaw = [];
@@ -1514,13 +1542,14 @@ class AJD_validation extends Base_validator
 
 		if( ISSET( static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ] ) )
 		{
+
 			if( !EMPTY( static::$useContraintGroup ) )
 			{
-				$or_field = static::$ajd_prop[static::$useContraintGroup][ 'fields' ][ Abstract_common::LOG_OR ];
+				$or_field 						= static::$ajd_prop[static::$useContraintGroup][ 'fields' ][ Abstract_common::LOG_OR ];
 			}
 			else
 			{
-				$or_field = static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ];
+				$or_field 						= static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ];
 			}
 			
 			if( !EMPTY( $or_field ) )
@@ -1528,35 +1557,35 @@ class AJD_validation extends Base_validator
 				$fk = 0;
 				foreach( $or_field as $field_key => $field_value )
 				{
-					$fieldValueOr = array();
+					$fieldValueOr 	= array();
 
 					$or_fields_key[] = $field_key;
 
-					$realFieldKey = Validation_helpers::getParentPath($field_key);
+					$realFieldKey 	= Validation_helpers::getParentPath($field_key);
 					
 					if( ISSET( $field_value[Abstract_common::LOG_OR] ) )
 					{
-						$fieldValueOr = $field_value[Abstract_common::LOG_OR];
+						$fieldValueOr 	= $field_value[Abstract_common::LOG_OR];
 					}
 
-					$propScene = $this->clearScenario( $field_value[Abstract_common::LOG_AND], $fieldValueOr );
+					$propScene 			= $this->clearScenario( $field_value[Abstract_common::LOG_AND], $fieldValueOr );
 
-					$field_value[Abstract_common::LOG_AND] = $propScene['prop_and'];
-					$field_value[Abstract_common::LOG_OR] = $propScene['prop_or'];
+					$field_value[Abstract_common::LOG_AND] 	= $propScene['prop_and'];
+					$field_value[Abstract_common::LOG_OR] 	= $propScene['prop_or'];
 
 					if( ISSET( $data[ $realFieldKey ] ) ) 
 					{
-						$value = $data[ $realFieldKey ];
+						$value 				= $data[ $realFieldKey ];
 					}
 					else 
 					{
-						$value = '';
+						$value 				= '';
 					}
 					
-					if( ISSET( $field_value[Abstract_common::LOG_AND]['scenarios'] ) || ISSET( $field_value[Abstract_common::LOG_OR]['scenarios'] ) )
+					if( ISSET( $field_value[Abstract_common::LOG_AND]['scenarios'] ) OR ISSET( $field_value[Abstract_common::LOG_OR]['scenarios'] ) )
 					{
-						$and_search = [];
-						$or_search = [];
+						$and_search = array();
+						$or_search 	= array();
 
 						if( ISSET( $field_value[Abstract_common::LOG_AND]['scenarios'] ) )
 						{
@@ -1576,7 +1605,7 @@ class AJD_validation extends Base_validator
 
 					if( $paramValidator->validate($field_key) )
 					{
-						$field_key = Validation_helpers::removeParentPath( $realFieldKey, $field_key );
+						$field_key 		= Validation_helpers::removeParentPath( $realFieldKey, $field_key );
 					}
  					
  					$or_pass_arr = [];
@@ -1602,7 +1631,31 @@ class AJD_validation extends Base_validator
  					$or_field_merge[$field_key]['value'] = $value;
  					$or_field_merge[$field_key]['no_error_message'] = true;
 
-					$or = $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value,  
+ 					/*$validateGroupings = static::$ajd_prop['groupings'];
+
+					if(
+						!is_array($validateGroupings)
+						||
+						!Array_helper::isAssoc($validateGroupings)
+
+					)
+					{
+						if(!isset(static::$ajd_prop['cache_groupings'][$field_key]))
+						{
+							static::$ajd_prop['cache_groupings'][$field_key] = $validateGroupings;		
+						}
+						
+					}
+					else
+					{
+						if(!isset(static::$ajd_prop['cache_groupings'][$field_key]))
+						{
+							static::$ajd_prop['cache_groupings'][$field_key] = $this->processGroupingsArray(static::$ajd_prop['cache_groupings'], $field_key);
+						}
+					
+					}*/
+
+					$or 					 = $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value,  
 						function($ajd, $checkResult) use (&$or_pass_arr, &$orResultArr, &$or_passed_per)
 						{
 
@@ -1614,56 +1667,60 @@ class AJD_validation extends Base_validator
 
 					$orPromisesRaw[] = $or;
 
-					$or_field_ch = $this->validation_fails( $field_key, null, true );
-					$or_field_ch_orig = $this->validation_fails( $field_key );
+
+					$or_field_ch 			= $this->validation_fails( $field_key, null, true );
+					$or_field_ch_orig 		= $this->validation_fails( $field_key );
 					
 					if($or_field_ch)
 					{						
 						$or->then(function()
 						{
 							throw new Exception('Validation Failed.');
+							
 						});
 						
-						$orFailed = PromiseHelpers::reject($or);
+						$orFailed 	= PromiseHelpers::reject($or);
 						
-						$orPromises[] = $orFailed;	
+						$orPromises[] 			= $orFailed;	
 					}
 					else
 					{
-						$orPromises[] = $or;	
+						$orPromises[] 			= $or;	
 					}
 
-					$or_check[] = $or_field_ch_orig;
+					$or_check[] 			= $or_field_ch_orig;
 
 					$fk++;
 				}
 
-				$or_field_arr = [];
+				$or_field_arr 					= array();
 
 				if( !EMPTY( static::$useContraintGroup ) )
 				{
-					$or_field_name = current( array_keys( static::$ajd_prop[static::$useContraintGroup][ 'fields' ][ Abstract_common::LOG_OR ] ) );
+					$or_field_name 				= current( array_keys( static::$ajd_prop[static::$useContraintGroup][ 'fields' ][ Abstract_common::LOG_OR ] ) );
 
-					$or_field_arr = static::$ajd_prop[static::$useContraintGroup][ 'fields' ][ Abstract_common::LOG_OR ];
+					$or_field_arr 				= static::$ajd_prop[static::$useContraintGroup][ 'fields' ][ Abstract_common::LOG_OR ];
  			 	}
  			 	else
  			 	{
-					$or_field_name = current( array_keys( static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ] ) );
-					$or_field_arr = static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ];
+					$or_field_name 				= current( array_keys( static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ] ) );
+					$or_field_arr 				= static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_OR ];
  			 	}
 
-				$details = $or_field[ $or_field_name ][ Abstract_common::LOG_AND ];
-				$field_arr = $this->format_field_name( $or_field_name );
+				$details 					= $or_field[ $or_field_name ][ Abstract_common::LOG_AND ];
+				$field_arr 					= $this->format_field_name( $or_field_name );
 				
-				$subCheck = $this->_processOrCollection( $orPromisesRaw );
+				$subCheck 					= $this->_processOrCollection( $orPromisesRaw );
 
 				$value_or = (isset($data[$field_arr['orig']])) ? $data[$field_arr['orig']] : null;
 
 				if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_arr['orig']] ) )
 				{
-					$eventLoad = static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_arr['orig']];
+					$eventLoad 	= static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_arr['orig']];
 
 					unset(static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_arr['orig']]);
+
+
 					$this->_runEvents($eventLoad, $value_or, $field_arr['orig']);
 				}
 
@@ -1671,7 +1728,7 @@ class AJD_validation extends Base_validator
 				{
 					if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_arr['orig']] ) )
 					{
-						$eventFails = static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_arr['orig']];
+						$eventFails 	= static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_arr['orig']];
 
 						unset(static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_arr['orig']]);
 						$this->_runEvents($eventFails, $value_or, $field_arr['orig']);
@@ -1681,60 +1738,60 @@ class AJD_validation extends Base_validator
 				{
 					if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_arr['orig']] ) )
 					{
-						$eventSuccess = static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_arr['orig']];
+						$eventSuccess 	= static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_arr['orig']];
 
 						unset(static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_arr['orig']]);
 						$this->_runEvents($eventSuccess, $value_or, $field_arr['orig']);
 					}
 				}
 
-				$or_check = array_merge( $or_check, $subCheck );
+				$or_check 					= array_merge( $or_check, $subCheck );
 			}
 
 		}
 
-		$check_and_arr = null;
+		$check_and_arr 		= NULL;
 
 		if( !EMPTY( static::$useContraintGroup ) )
 		{
-			$check_and_arr = static::$ajd_prop[static::$useContraintGroup][ 'fields' ][ Abstract_common::LOG_AND ];
+			$check_and_arr 	= static::$ajd_prop[static::$useContraintGroup][ 'fields' ][ Abstract_common::LOG_AND ];
 		}
 		else
 		{
 			if( ISSET( static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_AND ] ) )
 			{
-				$check_and_arr = static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_AND ];
+				$check_and_arr 	= static::$ajd_prop[ 'fields' ][ Abstract_common::LOG_AND ];
 			}
 		}
 
 		if( !EMPTY( $check_and_arr ) )
 		{
-			$and_field = $check_and_arr;
+			$and_field 						= $check_and_arr;
 
 			if( !EMPTY( $and_field ) )
 			{
 				foreach( $and_field as $field_key => $field_value )
 				{
-					$realFieldKey = Validation_helpers::getParentPath($field_key);
+					$realFieldKey 	= Validation_helpers::getParentPath($field_key);
 
 					$and_fields_key[] = $field_key;
 
-					$fieldValueOr = array();
+					$fieldValueOr 	= array();
 
 					if( ISSET( $field_value[Abstract_common::LOG_OR] ) )
 					{
 						$fieldValueOr = $field_value[Abstract_common::LOG_OR];
 					}
 
-					$propScene = $this->clearScenario( $field_value[Abstract_common::LOG_AND], $fieldValueOr );
+					$propScene 		= $this->clearScenario( $field_value[Abstract_common::LOG_AND], $fieldValueOr );
 
-					$field_value[Abstract_common::LOG_AND] = $propScene['prop_and'];
-					$field_value[Abstract_common::LOG_OR] = $propScene['prop_or'];
+					$field_value[Abstract_common::LOG_AND] 	= $propScene['prop_and'];
+					$field_value[Abstract_common::LOG_OR] 	= $propScene['prop_or'];
 
-					if( ISSET( $field_value[Abstract_common::LOG_AND]['scenarios'] ) || ISSET( $field_value[Abstract_common::LOG_OR]['scenarios'] ) )
+					if( ISSET( $field_value[Abstract_common::LOG_AND]['scenarios'] ) OR ISSET( $field_value[Abstract_common::LOG_OR]['scenarios'] ) )
 					{
-						$and_search = [];
-						$or_search = [];
+						$and_search = array();
+						$or_search 	= array();
 
 						if( ISSET( $field_value[Abstract_common::LOG_AND]['scenarios'] ) )
 						{
@@ -1743,7 +1800,7 @@ class AJD_validation extends Base_validator
 
 						if( ISSET( $field_value[Abstract_common::LOG_OR]['scenarios'] ) )
 						{
-							$or_search = $this->array_search_recursive( $field_key, $field_value[Abstract_common::LOG_OR]['scenarios'] );
+							$or_search 	= $this->array_search_recursive( $field_key, $field_value[Abstract_common::LOG_OR]['scenarios'] );
 						}
 						
 						if( !EMPTY( $and_search ) OR !EMPTY( $or_search ) )
@@ -1754,11 +1811,11 @@ class AJD_validation extends Base_validator
 
 					if( ISSET( $data[ $realFieldKey ] ) )
 					{
-						$value = $data[ $realFieldKey ];
+						$value 				= $data[ $realFieldKey ];
 					}
 					else 
 					{
-						$value = '';
+						$value 				= '';
 					}
 
 					if( $middleware )
@@ -1769,18 +1826,43 @@ class AJD_validation extends Base_validator
 					{
 						if( $paramValidator->validate($field_key) )
 						{
-							$field_key = Validation_helpers::removeParentPath( $realFieldKey, $field_key );
+							$field_key 		= Validation_helpers::removeParentPath( $realFieldKey, $field_key );
 						}
 
 						if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_key] ) )
 						{
-							$eventLoad = static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_key];
+							$eventLoad 	= static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_key];
 
 							unset(static::$ajd_prop['events'][Abstract_common::EV_LOAD][$field_key]);
+
+
 							$this->_runEvents($eventLoad, $value, $field_key);
 						}
 
 						$validateGroupings = static::$ajd_prop['groupings'];
+						/*$validateGroupings = static::$ajd_prop['groupings'];
+
+						if(
+							!is_array($validateGroupings)
+							||
+							!Array_helper::isAssoc($validateGroupings)
+
+						)
+						{
+							if(!isset(static::$ajd_prop['cache_groupings'][$field_key]))
+							{
+								static::$ajd_prop['cache_groupings'][$field_key] = $validateGroupings;		
+							}
+							
+						}
+						else
+						{
+							if(!isset(static::$ajd_prop['cache_groupings'][$field_key]))
+							{
+								static::$ajd_prop['cache_groupings'][$field_key] = $this->processGroupingsArray(static::$ajd_prop['cache_groupings'], $field_key);
+							}
+						
+						}*/
 
 						if(
 							isset($or_field_merge[$field_key])
@@ -1843,7 +1925,8 @@ class AJD_validation extends Base_validator
 										}
 										else
 										{
-											$newSometimes[$rr][$rk] = null;
+											$newSometimes[$rr][$rk] = null;	
+
 										}
 									}
 								}
@@ -1852,6 +1935,7 @@ class AJD_validation extends Base_validator
 								
 								foreach($field_value[Abstract_common::LOG_AND]['rules'] as $rk => $rr)
 								{
+
 									if(isset($newGroups[$rk]))
 									{
 										unset($field_value[Abstract_common::LOG_AND]['groups'][$rr]);
@@ -1863,26 +1947,28 @@ class AJD_validation extends Base_validator
 										unset($field_value[Abstract_common::LOG_AND]['sometimes'][$rr]);
 										$field_value[Abstract_common::LOG_AND]['sometimes'][$rr][$rk] = $newSometimes[$rr][$rk];
 									}
-								}	
+								}
+								
 							}	
+							
 						}
 							
-						$andPromise = $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value, null, false );
+						$andPromise 		= $this->checkArr( $field_key, $value, array(), TRUE, Abstract_common::LOG_AND, $field_value, null, false );
 
 						$andPromise = $this->promiseOrValidation($andPromise);
 
-						$andPromises[] = $andPromise;
-						$andPromisesRaw[] = $andPromise;
+						$andPromises[] 		= $andPromise;
+						$andPromisesRaw[]   = $andPromise;
 
-						$val_and_fails = $this->validation_fails( $field_key );
+						$val_and_fails 		= $this->validation_fails( $field_key );
 
-						$and_check[] = $val_and_fails;
+						$and_check[] 		= $val_and_fails;
 
 						if($val_and_fails)
 						{
 							if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_key] ) )
 							{
-								$eventFails = static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_key];
+								$eventFails 	= static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_key];
 
 								unset(static::$ajd_prop['events'][Abstract_common::EV_FAILS][$field_key]);
 								$this->_runEvents($eventFails, $value, $field_key);
@@ -1892,7 +1978,7 @@ class AJD_validation extends Base_validator
 						{
 							if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_key] ) )
 							{
-								$eventSuccess = static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_key];
+								$eventSuccess 	= static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_key];
 
 								unset(static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$field_key]);
 								$this->_runEvents($eventSuccess, $value, $field_key);
@@ -1912,7 +1998,9 @@ class AJD_validation extends Base_validator
 
 		if(!empty($orPromises))
 		{
-			$orAllPromises = PromiseHelpers::any($orPromises);			
+			$orAllPromises = PromiseHelpers::any($orPromises);
+
+			
 		}
 
 		if(!empty($andPromises))
@@ -1970,8 +2058,8 @@ class AJD_validation extends Base_validator
 
 	public static function subscribe($event, \Closure $callback)
 	{
-		$obs = static::get_observable_instance();
-		$ajds = static::get_ajd_instance();
+		$obs            = static::get_observable_instance();
+		$ajds 			= static::get_ajd_instance();
 
 		$obs->attach_observer( $event, $callback, array( $ajds ) );
 
@@ -2037,15 +2125,15 @@ class AJD_validation extends Base_validator
 		{
 			foreach( $customMesage as $find => $message )
 			{
-				$formatFind = $this->format_field_name( $find );
+				$formatFind		= $this->format_field_name( $find );
 
 				if( is_array( $value ) )
 				{
-					$custData = Validation_helpers::initializeProcessData($formatFind['orig'], $value);
+					$custData 	= Validation_helpers::initializeProcessData($formatFind['orig'], $value);
 				}
 				else
 				{
-					$custData = $value;
+					$custData 	= $value;
 				}
 
 				$this->addToCustomMessage( $custData, $message, $formatFind['orig'], $formatFind['clean'] );
@@ -2059,17 +2147,17 @@ class AJD_validation extends Base_validator
 		{
 			foreach( $custData as $field => $val )
 			{
-				$realField = $field;
-				$passArr = [
-					'message' => $message
-				];
+				$realField 		= $field;
+				$passArr 		= array(
+					'message'		=> $message
+				);
 
 				if( !EMPTY( $prependField ) )
 				{
-					$realField = $prependField.'.'.$field;
+					$realField 	= $prependField.'.'.$field;
 				}
 
-				$passArr['formatField'] = null;
+				$passArr['formatField'] 	= NULL;
 
 				if( $realField == $findOrig )
 				{
@@ -2090,17 +2178,17 @@ class AJD_validation extends Base_validator
 		}
 		else
 		{
-			$passArr = [
-				'message' => $message
-			];
+			$passArr 					= array(
+				'message'				=> $message
+			);
 
-			$passArr['formatField'] = $findClean;
+			$passArr['formatField'] 	= $findClean;
 
 			$this->customMesage[ $findOrig ] = $passArr;
 		}
 	}
 
-	public function checkArr( $field, $value, $customMesage = [], $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $func = null, $dontResetGrouping = false )
+	public function checkArr( $field, $value, $customMesage = array(), $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $func = null, $dontResetGrouping = false )
 	{
 		$validation = $this->processGlobalValidation('checkArr', $field, $value, $customMesage, $check_arr);
 		
@@ -2109,14 +2197,14 @@ class AJD_validation extends Base_validator
 			return $validation;
 		}
 
-		$obs = static::get_observable_instance();
-		$ev = static::get_promise_validator_instance();
+		$obs            = static::get_observable_instance();
+		$ev				= static::get_promise_validator_instance();
 
 		$this->processCustomMessage( $customMesage, $value ); 
 
-		$checks = $this->_checkArr( $field, $value, $check_arr, $logic, $group, $func, $dontResetGrouping );
+		$checks 		= $this->_checkArr( $field, $value, $check_arr, $logic, $group, $func, $dontResetGrouping );
 
-		$promiseAll = null;
+		$promiseAll  	= null;
 
 		if( is_array( $checks ) )
 		{
@@ -2171,29 +2259,29 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	protected function _checkArr( $field, $value, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $func = null, $dontResetGrouping = false )
+	protected function _checkArr( $field, $value, $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $func = null, $dontResetGrouping = false )
 	{
-		$validator = $this->getValidator();
-		$paramValidator = $validator->one_or( Validator::contains('.'), Validator::contains('*') );
+		$validator 		= $this->getValidator();
+		$paramValidator 	= $validator->one_or( Validator::contains('.'), Validator::contains('*') );
 
-		static $checkValidations = [];
-		static $checkArr = [];
+		static $checkValidations 	= array();
+		static $checkArr 			= array();
 
 		if( 
 			( $paramValidator->validate( $field ) ) 
 			AND is_array( $value ) 
 		)
 		{
-			$data = Validation_helpers::initializeProcessData($field, $value);
+			$data 		= Validation_helpers::initializeProcessData($field, $value);
 			
 			foreach( $data as $subField => $v )
 			{
-				$formatSubField = $subField;
-				$customDetails = [];
+				$formatSubField 	= $subField;
+				$customDetails 		= array();
 
 				if( ISSET( $this->customMesage[ $subField ] ) )
 				{
-					$customDetails = $this->customMesage[ $subField ];
+					$customDetails 		= $this->customMesage[ $subField ];
 
 					if( !EMPTY( $customDetails['formatField'] ) )
 					{
@@ -2209,19 +2297,20 @@ class AJD_validation extends Base_validator
 					}
 					else
 					{
-						$checkDet = $this->check( $formatSubField, $v, false, $logic, $group, true, $value, $func, $dontResetGrouping );
+						$checkDet 				= $this->check( $formatSubField, $v, false, $logic, $group, TRUE, $value, $func, $dontResetGrouping );
 
 						if( is_array( $checkDet ) )
 						{
-							$checkArr = array_merge( $checkArr, $checkDet );
+							$checkArr 			= array_merge( $checkArr, $checkDet );
 						}
 						else
 						{
-							$checkArr = $checkDet;
+							$checkArr 			= $checkDet;
 						}
 
-						$checkValidations[] = $this->validation_fails( $subField );
+						$checkValidations[] 	= $this->validation_fails( $subField );
 					}
+					
 				}
 				else
 				{
@@ -2230,35 +2319,35 @@ class AJD_validation extends Base_validator
 						$check_arr = false;
 					}
 
-					$checkDet = $this->check( $formatSubField, $v, $check_arr, $logic, $group, true, $value, $func, $dontResetGrouping );
+					$checkDet 				= $this->check( $formatSubField, $v, $check_arr, $logic, $group, TRUE, $value, $func, $dontResetGrouping );
 
 					if( is_array( $checkDet ) )
 					{
-						$checkArr = array_merge( $checkArr, $checkDet );
+						$checkArr 			= array_merge( $checkArr, $checkDet );
 					}
 					else
 					{
-						$checkArr = $checkDet;
+						$checkArr 			= $checkDet;
 					}
 
-					$checkValidations[] = $this->validation_fails( $subField );
+					$checkValidations[] 	= $this->validation_fails( $subField );
 				}
 			}
 
-			return [
-				'checkValidations' => $checkValidations,
-				'checkArr' => $checkArr
-			];
+			return array(
+				'checkValidations' 	=> $checkValidations,
+				'checkArr' 			=> $checkArr
+			);
 		}
 		else
 		{			
-			$check = $this->check( $field, $value, $check_arr, $logic, $group, false, $value, $func, $dontResetGrouping );
+			$check 		= $this->check( $field, $value, $check_arr, $logic, $group, FALSE, $value, $func, $dontResetGrouping );
 
 			return $check;
 		}
 	}
 
-	public function checkDependent( $field, $value = null, $origValue = null, array $customMessage = array(), $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $dontReset = false )
+	public function checkDependent( $field, $value = NULL, $origValue = NULL, array $customMessage = array(), $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE )
 	{
 		$validation = $this->processGlobalValidation('checkDependent', $field, $value, $origValue, $customMessage, $check_arr);
 		
@@ -2267,8 +2356,8 @@ class AJD_validation extends Base_validator
 			return $validation;
 		}
 
-		$validator = $this->getValidator();
-		$paramValidator = $validator->one_or( Validator::contains('.'), Validator::contains('*') );
+		$validator 			= $this->getValidator();
+		$paramValidator 	= $validator->one_or( Validator::contains('.'), Validator::contains('*') );
 
 		if( $paramValidator->validate( $field ) )
 		{
@@ -2280,7 +2369,7 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	public function checkAsync($field, $value = null, $function = null, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $dontReset = false, $origValue = null)
+	public function checkAsync($field, $value = NULL, $function = null, $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE, $origValue = NULL)
 	{
 		$validation = $this->processGlobalValidation('checkAsync', $field, $value, $function, $check_arr);
 		
@@ -2306,7 +2395,7 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	public function check( $field, $value = null, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $dontReset = false, $origValue = null, $function = null, $dontResetGrouping = false )
+	public function check( $field, $value = NULL, $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE, $origValue = NULL, $function = null, $dontResetGrouping = false )
 	{
 		$validation = $this->processGlobalValidation('check', $field, $value, $check_arr);
 
@@ -2328,8 +2417,8 @@ class AJD_validation extends Base_validator
 		{
 			$func = function($a){};	
 		}
-
-		$checkAsync = false;
+		
+		// $checkFiber = false;
 
 		if(static::$ajd_prop['makeAsync'] && $checkFiber)
 		{
@@ -2341,7 +2430,54 @@ class AJD_validation extends Base_validator
 				]
 			);
 
-			$checkAsync = true;
+			static::$ajd_prop['makeAsync'] = false;
+
+			return $that->createCheckPromiseValidator($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, true);
+
+			/*return (static function() use ($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField)
+			{
+				$mainFiber = null;
+
+				$promise = new PromiseValidator(function(callable $resolve, callable $reject, $target) use ($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, &$mainFiber)
+				{
+					$mainFiber = new \Fiber(function() use ($func, $resolve, $reject, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $target, &$mainFiber)
+					{
+						\Fiber::suspend();
+
+						$target->setField($formatField['orig']);
+
+						$fiberize_check = $that->_fiberize_check($field, $value, $check_arr, $logic, $group, $dontReset, $origValue, true, null, $dontResetGrouping);
+
+						try 
+						{
+
+							$that->setPromiseError($that, $formatField['orig'], $target);
+
+							$resolve($func($that, $fiberize_check));
+						}
+					 	catch (\Throwable $exception) 
+		                {
+		                    $reject($exception);
+		                } 
+						finally 
+		                {
+		                	return $fiberize_check;
+		                }
+					});
+
+					$target->setFiber($mainFiber);
+				},
+				function () use (&$mainFiber) 
+				{
+	        		if (\method_exists($target, 'cancel')) 
+					{
+	                	$target->cancel();
+	                }
+	            	
+        		});
+				
+				return $promise;
+			})($that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField);*/
 		}
 		else
 		{
@@ -2354,12 +2490,52 @@ class AJD_validation extends Base_validator
 					true
 				);
 			}
+
+			static::$ajd_prop['makeAsync'] = false;
+
+			return $that->createCheckPromiseValidator($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, false);
+		
+			/*return (static function() use ($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField)
+			{
+				$mainFiber = null;
+
+				$promise = new PromiseValidator(function(callable $resolve, callable $reject, $target) use ($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, &$mainFiber)
+				{
+					$target->setField($formatField['orig']);
+
+					$fiberize_check = $that->_fiberize_check($field, $value, $check_arr, $logic, $group, $dontReset, $origValue, false, $target, $dontResetGrouping);
+
+					try 
+					{
+						$that->setPromiseError($that, $formatField['orig'], $target);
+						$resolve($func($that, $fiberize_check));
+					}
+				 	catch (\Throwable $exception) 
+	                {
+	                    $reject($exception);
+	                  
+	                } 
+					finally 
+	                {
+                	  	return $fiberize_check;
+	                }
+
+				},
+				function () use (&$mainFiber) 
+				{
+	        		// FiberMap::cancel($fiber);
+	        		if (\method_exists($target, 'cancel')) 
+					{
+	                	$target->cancel();
+	                }
+	            	
+	            	
+        		});
+
+				return $promise;
+			})($that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField);*/
 			
 		}
-
-		static::$ajd_prop['makeAsync'] = false;
-
-		return $that->createCheckPromiseValidator($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync);
 		
 	}
 
@@ -2555,24 +2731,25 @@ class AJD_validation extends Base_validator
 		return $object;
 	}
 
-	private function _fiberize_check($field, $value = null, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $dontReset = false, $origValue = null, $fiberize = false, $promise = null, $dontResetGrouping = false)
+	private function _fiberize_check($field, $value = NULL, $check_arr = TRUE, $logic = Abstract_common::LOG_AND, $group = NULL, $dontReset = FALSE, $origValue = NULL, $fiberize = false, $promise = null, $dontResetGrouping = false)
 	{
-		$prop_or = [];
-		$prop_and = [];
-		$prop = [];
+		$prop_or 		= array();
+		$prop_and 		= array();
+		$prop  			= array();
 
-		$field_arr = $this->format_field_name( $field );
-		$orig_field = $field_arr['orig'];
+		$field_arr 		= $this->format_field_name( $field );
+
+		$orig_field 	= $field_arr['orig'];
 		
 		if( is_array( $value ) && $check_arr )
 		{
 			if( ISSET( $value[ $field_arr['orig'] ] ) )
 			{
-				$value = $value[$field_arr['orig']];
+				$value 	= $value[$field_arr['orig']];
 			}
 			else
 			{
-				$value = null;
+				$value 	= NULL;
 			}
 		}
 
@@ -2589,7 +2766,8 @@ class AJD_validation extends Base_validator
 					!empty(static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field][Abstract_common::LOG_AND] )
 				)
 				{
-					static::$ajd_prop[Abstract_common::LOG_AND] = static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field][Abstract_common::LOG_AND];
+					static::$ajd_prop[Abstract_common::LOG_AND] =  static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field][Abstract_common::LOG_AND];
+
 					unset(static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field]);
 				}
 
@@ -2599,7 +2777,8 @@ class AJD_validation extends Base_validator
 					!empty(static::$ajd_prop['fields'][Abstract_common::LOG_OR][$field][Abstract_common::LOG_AND] )
 				)
 				{
-					static::$ajd_prop[Abstract_common::LOG_AND] = static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field][Abstract_common::LOG_AND];
+					static::$ajd_prop[Abstract_common::LOG_AND] =  static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field][Abstract_common::LOG_AND];
+
 					unset(static::$ajd_prop['fields'][Abstract_common::LOG_OR][$field]);
 				}
 
@@ -2609,7 +2788,8 @@ class AJD_validation extends Base_validator
 					!empty(static::$ajd_prop['fields'][Abstract_common::LOG_OR][$field][Abstract_common::LOG_OR] )
 				)
 				{
-					static::$ajd_prop[Abstract_common::LOG_OR] = static::$ajd_prop['fields'][Abstract_common::LOG_OR][$field][Abstract_common::LOG_OR];
+					static::$ajd_prop[Abstract_common::LOG_OR] =  static::$ajd_prop['fields'][Abstract_common::LOG_OR][$field][Abstract_common::LOG_OR];
+
 					unset(static::$ajd_prop['fields'][Abstract_common::LOG_OR][$field]);
 				}
 
@@ -2619,7 +2799,8 @@ class AJD_validation extends Base_validator
 					!empty(static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field] )
 				)
 				{
-					static::$ajd_prop[Abstract_common::LOG_OR] = static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field][Abstract_common::LOG_OR];
+					static::$ajd_prop[Abstract_common::LOG_OR] =  static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field][Abstract_common::LOG_OR];
+
 					unset(static::$ajd_prop['fields'][Abstract_common::LOG_AND][$field]);
 				}
 			}
@@ -2628,35 +2809,38 @@ class AJD_validation extends Base_validator
 		
 		// if( $logic == Abstract_common::LOG_AND )
 		// {
-			$prop_and = static::process_check_args( Abstract_common::LOG_AND, $group );
+			$prop_and 	= static::process_check_args( Abstract_common::LOG_AND, $group );
 			// $prop 		= $prop_and;
 		// }
         
 		/*if( $logic == Abstract_common::LOG_OR )
 		{*/
-			$prop_or = static::process_check_args( Abstract_common::LOG_OR, $group );
+			$prop_or 	= static::process_check_args( Abstract_common::LOG_OR, $group );
 			// $prop 		= $prop_or;
 		// }
 		
-		$prop = $prop_and;
-		$obs = static::get_observable_instance();
-		$ev = $promise;
+		$prop 			= $prop_and;
+		
+		$obs            = static::get_observable_instance();
+		
+		$ev 			= $promise;
 
 		if(empty($ev))
 		{
-			$ev = static::get_promise_validator_instance(false);	
+			$ev				= static::get_promise_validator_instance(false);	
 		}
 		
-		$auto_arr = ( is_array( $value ) AND $check_arr );
+		$auto_arr 		= ( is_array( $value ) AND $check_arr );
 
-		$propScene = $this->clearScenario( $prop_and, $prop_or, $prop );
+		$propScene 		= $this->clearScenario( $prop_and, $prop_or, $prop );
 
-		$prop = $propScene['prop'];
-		$prop_and = $propScene['prop_and'];
-		$prop_or = $propScene['prop_or'];
+		$prop 			= $propScene['prop'];
+		$prop_and 		= $propScene['prop_and'];
+		$prop_or 		= $propScene['prop_or'];
 
 		$validateGroupings = [];
 		
+
 		if(
 			is_array(static::$ajd_prop['groupings'])
 			&&
@@ -2746,8 +2930,9 @@ class AJD_validation extends Base_validator
 		$prop_and['validateGroupings'] = $validateGroupings;
 		$prop_or['validateGroupings'] = $validateGroupings;
 		
-		$and_search = [];
-		$or_search = [];
+
+		$and_search 	= array();
+		$or_search 		= array();
 		
 		if( !EMPTY( $prop['scenarios'] ) 
 			OR !EMPTY( $prop_or['scenarios'] )
@@ -2760,7 +2945,7 @@ class AJD_validation extends Base_validator
 
 			if( ISSET( $prop_or['scenarios'] ) )
 			{
-				$or_search = $this->array_search_recursive( $field, $prop_or['scenarios'] );
+				$or_search 	= $this->array_search_recursive( $field, $prop_or['scenarios'] );
 			}
 			
 			if( !EMPTY( $and_search ) OR !EMPTY( $or_search ) )
@@ -2769,21 +2954,21 @@ class AJD_validation extends Base_validator
 			}
 		}
 
-		$extra_args = [];
-		$check_logic = [
-			Abstract_common::LOG_AND => [
-				'passed' => [],
-				'pass_arr' => [],
-				'arr_keys' => []
-			],
-			Abstract_common::LOG_OR => [
-				'passed' => [],
-				'pass_arr' => [],
-				'arr_keys' => []
-			]
-		];
+		$extra_args 	= array();
+		$check_logic 		= array(
+			Abstract_common::LOG_AND 	=> array(
+				'passed' 	=> array(),
+				'pass_arr' 	=> array(),
+				'arr_keys' 	=> array()
+			),
+			Abstract_common::LOG_OR		=> array(
+				'passed' 	=> array(),
+				'pass_arr' 	=> array(),
+				'arr_keys' 	=> array()
+			)
+		);
 
-		$real_value_before_filter = null;
+		$real_value_before_filter = NULL;
 
 		if( !EMPTY( $prop['filters'] ) )
 		{
@@ -2791,31 +2976,33 @@ class AJD_validation extends Base_validator
 			
 			static::handle_filter( $prop['filters'], $real_value_before_filter, $field, $prop['filter_satis'], $prop['pre_filters'], $check_arr, true, true );
 
-			$filt_value = static::pre_filter_value($field_arr['orig']);
+			$filt_value 		= static::pre_filter_value($field_arr['orig']);
 
 			if(in_array(1, $prop['pre_filters']))
 			{
-				$value = ( ISSET( $filt_value ) ) ? $filt_value : $value;
+				$value  			= ( ISSET( $filt_value ) ) ? $filt_value : $value;
 			}
 			else
 			{
-				$value = ( ISSET( $filt_value ) AND !EMPTY( $filt_value ) ) ? $filt_value : $value;	
+				$value  			= ( ISSET( $filt_value ) AND !EMPTY( $filt_value ) ) ? $filt_value : $value;	
 			}
+			
+			
 		}
 
 		if( EMPTY( $origValue ) )
 		{
-			$origValue = (!is_null($real_value_before_filter)) ? $real_value_before_filter : $value;
+			$origValue 			= (!is_null($real_value_before_filter)) ? $real_value_before_filter : $value;
 		}
 
 		if( !EMPTY( $origValue ) AND !EMPTY( $prop['filters'] ) )
 		{
-			$origValue = $this->processFilterOrigValue( $prop['filters'], $origValue, $field, $prop['filter_satis'], $prop['pre_filters'], $check_arr );
+			$origValue 			= $this->processFilterOrigValue( $prop['filters'], $origValue, $field, $prop['filter_satis'], $prop['pre_filters'], $check_arr );
 		}
 
 		if( $auto_arr )
 		{
-			$value = $this->flattened_array( $value );
+			$value 				= $this->flattened_array( $value );
 		}
 
 		$obs->attach_observer( 'endgiven', array( $this, 'endCondition' ) );
@@ -2830,6 +3017,7 @@ class AJD_validation extends Base_validator
 
 			if(!empty($group))
 			{
+
 				if(isset($group[Abstract_common::LOG_AND]['sometimes'][$field_arr['orig']]))
 				{
 					$sometimes_and = $group[Abstract_common::LOG_AND]['sometimes'][$field_arr['orig']];
@@ -2839,6 +3027,7 @@ class AJD_validation extends Base_validator
 				{
 					$sometimes_or = $group[Abstract_common::LOG_OR]['sometimes'][$field_arr['orig']];
 				}
+				
 			}
 
 			if( $auto_arr )
@@ -2859,17 +3048,18 @@ class AJD_validation extends Base_validator
 						}
 						else if( is_callable( $sometimes_and ) )
 						{
-							$sometime_and_result = $this->invoke_func( $sometimes_and, array( $v_value, $field_arr['orig'], $k_value, $group, $origValue ) );
+							$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $v_value, $field_arr['orig'], $k_value, $group, $origValue ) );
+
 						}
 						else if( $sometimes_and == Abstract_common::SOMETIMES 
-							|| $sometimes_and === true
+							OR $sometimes_and === TRUE
 						)
 						{
-							$sometime_and_result = !EMPTY( $v_value );
+							$sometime_and_result 				= !EMPTY( $v_value );
 						}
 						else
 						{
-							$sometime_and_result = true;	
+							$sometime_and_result 				= true;	
 						}
 					}
 
@@ -2885,18 +3075,18 @@ class AJD_validation extends Base_validator
 						}
 						else if( is_callable( $sometimes_or ) )
 						{
-							$sometime_or_result = $this->invoke_func( $sometimes_or, array( $v_value, $field_arr['orig'], $k_value, $group, $origValue ) );
+							$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $v_value, $field_arr['orig'], $k_value, $group, $origValue ) );
 
 						}
 						else if( $sometimes_or == Abstract_common::SOMETIMES 
-							|| $sometimes_or === true
+							OR $sometimes_or === TRUE
 						)
 						{
-							$sometime_or_result = !EMPTY( $v_value );
+							$sometime_or_result 				= !EMPTY( $v_value );
 						}
 						else
 						{
-							$sometime_or_result = true;	
+							$sometime_or_result 				= true;	
 						}
 					}
 
@@ -2915,7 +3105,7 @@ class AJD_validation extends Base_validator
 							static::$ajd_prop['cache_groupings'][$orig_field] = static::$ajd_prop['groupings'][$orig_field];
 						}
 
-						$check_logic[ Abstract_common::LOG_AND ][] = $this->_process_and_or_check( $prop, $field, $field_arr, $v_value, $auto_arr, $extra_args, $group, $logic, $k_value, $origValue, $promise );
+						$check_logic[ Abstract_common::LOG_AND ][] =  $this->_process_and_or_check( $prop, $field, $field_arr, $v_value, $auto_arr, $extra_args, $group, $logic, $k_value, $origValue, $promise );
 
 						if(
 							isset(static::$ajd_prop['cache_groupings'][$orig_field])
@@ -2941,9 +3131,9 @@ class AJD_validation extends Base_validator
 						{
 							$cp_pass[] = $pass;
 
-							$check_logic[ Abstract_common::LOG_AND ][ 'passed' ][] = $pass;
+							$check_logic[ Abstract_common::LOG_AND ][ 'passed' ][] 	= $pass;
 
-							$check_logic[ Abstract_common::LOG_AND ][ 'passed_field' ][$field_arr['orig']][] = $pass;
+							$check_logic[ Abstract_common::LOG_AND ][ 'passed_field' ][$field_arr['orig']][] 	= $pass;
 						}
 					}
 					
@@ -2951,7 +3141,7 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $and['pass_arr'] as $rule => $pass_arr )
 						{  
-							$check_logic[ Abstract_common::LOG_AND ][ 'pass_arr' ][ $k_and ][ $rule ] = $pass_arr;
+							$check_logic[ Abstract_common::LOG_AND ][ 'pass_arr' ][ $k_and ][ $rule ] 	= $pass_arr;
 						}
 					}
 
@@ -2959,9 +3149,9 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $and['passed_or'] as $rule => $pass_arr )
 						{  
-							$check_logic[ Abstract_common::LOG_AND ][ 'passed_or' ][ $k_and ][ $rule ] = $pass_arr;
+							$check_logic[ Abstract_common::LOG_AND ][ 'passed_or' ][ $k_and ][ $rule ] 	= $pass_arr;
 
-							$check_logic[ Abstract_common::LOG_AND ][ 'passed_field_or' ][$field_arr['orig']][ $k_and ][ $rule ] = $pass_arr;
+							$check_logic[ Abstract_common::LOG_AND ][ 'passed_field_or' ][$field_arr['orig']][ $k_and ][ $rule ] 	= $pass_arr;
 						}
 					}
 
@@ -2969,7 +3159,7 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $and['sequence_check'] as $rule => $pass_arr )
 						{  
-							$check_logic[ Abstract_common::LOG_AND ][ 'sequence_check' ][ $k_and ][ $rule ] = $pass_arr;
+							$check_logic[ Abstract_common::LOG_AND ][ 'sequence_check' ][ $k_and ][ $rule ] 	= $pass_arr;
 						}
 					}
 
@@ -2977,16 +3167,17 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $and['passed_per'] as $ruleKey => $pass_arr )
 						{  
-							$check_logic[ Abstract_common::LOG_AND ][ 'passed_per' ][ $k_and ][$ruleKey] = $pass_arr;
+							$check_logic[ Abstract_common::LOG_AND ][ 'passed_per' ][ $k_and ][$ruleKey] 	= $pass_arr;
 						}
 					}
 
 					if( ISSET( $and['passed'] ) )
 					{
-						$check_logic[ Abstract_common::LOG_AND ][ 'arr_keys' ][ $k_and ] = $and['passed'];
+						$check_logic[ Abstract_common::LOG_AND ][ 'arr_keys' ][ $k_and ] 				= $and['passed'];
 					}
 
 					unset( $check_logic[ Abstract_common::LOG_AND ][ $k_and ] );
+
 				}
 
 				$check_logic[ Abstract_common::LOG_AND ]['auto_arr_result'] = true;
@@ -3005,18 +3196,18 @@ class AJD_validation extends Base_validator
 					}
 					else if( is_callable( $sometimes_and ) )
 					{
-						$sometime_and_result = $this->invoke_func( $sometimes_and, array( $value, $field_arr['orig'], null, $group, $origValue ) );
+						$sometime_and_result 				= $this->invoke_func( $sometimes_and, array( $value, $field_arr['orig'], null, $group, $origValue ) );
 
 					}
 					else if( $sometimes_and == Abstract_common::SOMETIMES 
-						|| $sometimes_and === true
+						OR $sometimes_and === TRUE
 					)
 					{
-						$sometime_and_result = !EMPTY( $value );
+						$sometime_and_result 				= !EMPTY( $value );
 					}
 					else
 					{
-						$sometime_and_result = true;	
+						$sometime_and_result 				= true;	
 					}
 				}
 
@@ -3033,25 +3224,25 @@ class AJD_validation extends Base_validator
 					}
 					else if( is_callable( $sometimes_or ) )
 					{
-						$sometime_or_result = $this->invoke_func( $sometimes_or, array( $value, $field_arr['orig'], null, $group, $origValue ) );
+						$sometime_or_result 				= $this->invoke_func( $sometimes_or, array( $value, $field_arr['orig'], null, $group, $origValue ) );
 
 					}
 					else if( $sometimes_or == Abstract_common::SOMETIMES 
-						|| $sometimes_or === TRUE
+						OR $sometimes_or === TRUE
 					)
 					{
-						$sometime_or_result = !EMPTY( $value );
+						$sometime_or_result 				= !EMPTY( $value );
 					}
 					else
 					{
-						$sometime_or_result = true;	
+						$sometime_or_result 				= true;	
 					}
 				}
 
 				if($sometime_and_result && $sometime_or_result)
 				{
 					$prop = $this->processValidateGroupings($validateGroupings, $prop);
-					$check_logic[ Abstract_common::LOG_AND ] = $this->_process_and_or_check( $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, NULL, $origValue, $promise );
+					$check_logic[ Abstract_common::LOG_AND ] 		=  $this->_process_and_or_check( $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, NULL, $origValue, $promise );
 
 				}
 			}
@@ -3081,7 +3272,7 @@ class AJD_validation extends Base_validator
 						static::$ajd_prop['cache_groupings'][$orig_field] = static::$ajd_prop['groupings'][$orig_field];
 					}
 
-					$check_logic[ Abstract_common::LOG_OR ][] = $this->_process_and_or_check( $prop_or, $field, $field_arr, $v_value, $auto_arr, $extra_args, $group, $logic, $k_value, $origValue, $promise );
+					$check_logic[ Abstract_common::LOG_OR ][] 	= $this->_process_and_or_check( $prop_or, $field, $field_arr, $v_value, $auto_arr, $extra_args, $group, $logic, $k_value, $origValue, $promise );
 
 					if(
 						isset(static::$ajd_prop['cache_groupings'][$orig_field])
@@ -3104,7 +3295,7 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $or['passed'] as $pass )
 						{
-							$check_logic[ Abstract_common::LOG_OR ][ 'passed' ][] = $pass;
+							$check_logic[ Abstract_common::LOG_OR ][ 'passed' ][] 	= $pass;
 
 						}
 					}
@@ -3113,7 +3304,7 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $or['pass_arr'] as $rule => $pass_arr )
 						{
-							$check_logic[ Abstract_common::LOG_OR ][ 'pass_arr' ][ $rule ] = $pass_arr;
+							$check_logic[ Abstract_common::LOG_OR ][ 'pass_arr' ][ $rule ]    = $pass_arr;
 						}
 					}
 
@@ -3121,7 +3312,7 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $or['passed_or'] as $rule => $pass_arr )
 						{
-							$check_logic[ Abstract_common::LOG_OR ][ 'passed_or' ][ $rule ] = $pass_arr;
+							$check_logic[ Abstract_common::LOG_OR ][ 'passed_or' ][ $rule ]    = $pass_arr;
 						}
 					}
 
@@ -3129,7 +3320,7 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $or['sequence_check'] as $rule => $pass_arr )
 						{
-							$check_logic[ Abstract_common::LOG_OR ][ 'sequence_check' ][$k_or][ $rule ] = $pass_arr;
+							$check_logic[ Abstract_common::LOG_OR ][ 'sequence_check' ][$k_or][ $rule ]    = $pass_arr;
 						}
 					}
 
@@ -3137,15 +3328,15 @@ class AJD_validation extends Base_validator
 					{
 						foreach( $or['passed_per'] as $ruleKey => $pass_arr )
 						{  
-							$check_logic[ Abstract_common::LOG_OR ][ 'passed_per' ][ $k_or ][$ruleKey] = $pass_arr;
+							$check_logic[ Abstract_common::LOG_OR ][ 'passed_per' ][ $k_or ][$ruleKey] 	= $pass_arr;
 						}
 					}
 
 					if( ISSET( $or['passed'] ) )
 					{
-						if( !EMPTY( $check_logic[ Abstract_common::LOG_AND ][ 'arr_keys' ] ) && !EMPTY( $or['passed'] ) )
+						if( !EMPTY( $check_logic[ Abstract_common::LOG_AND ][ 'arr_keys' ] ) AND !EMPTY( $or['passed'] ) )
 						{
-							if( !in_array( 0, $check_logic[ Abstract_common::LOG_AND ][ 'arr_keys' ][ $k_or ] ) || !in_array( 0, $or['passed'] ) )
+							if( !in_array( 0, $check_logic[ Abstract_common::LOG_AND ][ 'arr_keys' ][ $k_or ] ) OR !in_array( 0, $or['passed'] ) )
 							{
 								if( !EMPTY( static::$ajd_prop['message'][ $field ] ) )
 								{
@@ -3164,6 +3355,7 @@ class AJD_validation extends Base_validator
 					}
 
 					unset( $check_logic[ Abstract_common::LOG_OR ][ $k_or ] );
+
 				}
 
 				if( EMPTY( static::$ajd_prop['message'][ $field ] ) )
@@ -3177,7 +3369,7 @@ class AJD_validation extends Base_validator
 			{
 				$prop_or = $this->processValidateGroupings($validateGroupings, $prop_or);
 				
-				$check_logic[ Abstract_common::LOG_OR ] = $this->_process_and_or_check( $prop_or, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, NULL, $origValue, $promise );		
+				$check_logic[ Abstract_common::LOG_OR ] 		= $this->_process_and_or_check( $prop_or, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, NULL, $origValue, $promise );		
 			}
 		}
 
@@ -3192,11 +3384,11 @@ class AJD_validation extends Base_validator
 
 		if( EMPTY( $group ) AND !$dontReset )
 		{
-			$obs->attach_observer( $field.'-|passed', $ev, [ $this ] );
-			$obs->attach_observer( $field.'-|fails', $ev, [ $this ] );
+			$obs->attach_observer( $field.'-|passed', $ev, array( $this ) );
+			$obs->attach_observer( $field.'-|fails', $ev, array( $this ) );
 			
 
-			$obs->attach_observer( $field.'-|customEvent', [ $ev, 'customEvent' ], [ $obs, $this, $field ] );
+			$obs->attach_observer( $field.'-|customEvent', array( $ev, 'customEvent' ), array( $obs, $this, $field ) );
 
 			$obs->notify_observer($field.'-|customEvent');
 			
@@ -3209,10 +3401,12 @@ class AJD_validation extends Base_validator
 			{
 				$obs->notify_observer( $field.'-|fails' );
 			}
+			
 		}
 		
 		if( !EMPTY( $group ) )
 		{
+
 			return $check_logic;
 		}
 		else 
@@ -3230,6 +3424,7 @@ class AJD_validation extends Base_validator
 					// $this->resetFiberize($field);
 					$this->reset_all_validation_prop();	
 				}
+				
 			}
 
 			return $ev;
@@ -3241,19 +3436,19 @@ class AJD_validation extends Base_validator
 	{
 		if( is_array( $origValue ) && $check_arr )
 		{
-			$newArr = array();
+			$newArr 	= array();
 			
 			foreach( $origValue as $key => $val )
 			{
 				if( is_array( $val ) )
 				{
-					$newDetail = $this->processFilterOrigValue($filters, $val, $field, $filterSatis, $preFilters, $check_arr);
+					$newDetail 		= $this->processFilterOrigValue($filters, $val, $field, $filterSatis, $preFilters, $check_arr);
 
-					$newArr[$key] = $newDetail;
+					$newArr[$key] 	= $newDetail;
 				}
 				else
 				{
-					$newVal = static::handle_filter( $filters, $val, $field, $filterSatis, $preFilters, $check_arr, TRUE, true );
+					$newVal 		= static::handle_filter( $filters, $val, $field, $filterSatis, $preFilters, $check_arr, TRUE, true );
 				}
 			}
 
@@ -3261,7 +3456,7 @@ class AJD_validation extends Base_validator
 		}
 		else
 		{
-			$newVal = static::handle_filter( $filters, $origValue, $field, $filterSatis, $preFilters, $check_arr, TRUE, true );
+			$newVal 				= static::handle_filter( $filters, $origValue, $field, $filterSatis, $preFilters, $check_arr, TRUE, true );
 
 			return $newVal;
 		}
@@ -3271,7 +3466,7 @@ class AJD_validation extends Base_validator
 	{
 		if( !EMPTY( static::$remove_scenario ) )
 		{
-			static::$remove_scenario = array_unique( static::$remove_scenario );
+			static::$remove_scenario 		= array_unique( static::$remove_scenario );
 			
 			foreach( static::$remove_scenario as $scene )
 			{	
@@ -3298,11 +3493,11 @@ class AJD_validation extends Base_validator
 			}
 		}
 
-		return [
-			'prop' => $prop,
-			'prop_and' => $prop_and,
-			'prop_or' => $prop_or
-		];	
+		return array(
+			'prop'		=> $prop,
+			'prop_and'	=> $prop_and,
+			'prop_or'	=> $prop_or
+		);	
 	}
 
 	private function _process_and_or_check( $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, $key = NULL, $origValue = NULL, $promise = null )
@@ -3310,12 +3505,12 @@ class AJD_validation extends Base_validator
 		return call_user_func_array([$this, 'fiberize'], func_get_args());
 	}
 
-	private function _refactored_process_and_or_check($prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, $key = null, $origValue = null, $promise = null)
+	private function _refactored_process_and_or_check($prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, $key = NULL, $origValue = NULL, $promise = null)
 	{
 		$params = func_get_args();
-		$check_arr = [];
-		$or_pass_arr = [];
-		$countErr = 0;
+		$check_arr 			= array();
+		$or_pass_arr 		= array();
+		$countErr 			= 0;
 
 		// $params[] = true;
 		
@@ -3325,17 +3520,26 @@ class AJD_validation extends Base_validator
 		
 		$fiberized 	= ($fiberize || $global_fiberize);
 
-		$obs = static::get_observable_instance();
-		$ev = $promise;
+		$obs            = static::get_observable_instance();
+		$ev 			= $promise;
 
 		if(empty($ev))
 		{
-			$ev = static::get_promise_validator_instance();
+			$ev				= static::get_promise_validator_instance();
 		}
 
 		$check_arr_det 	= [];
+
+		/*$validateGroupings = (isset($prop['validateGroupings'])) ? $prop['validateGroupings'] : null;*/
+
+		// $prop['seqValidateGroupings'] = $seqValidateGroupings;
+		
 		$rulesInSeq = [];
+		
 		$newSeq = (isset($prop['newSeq'])) ? $prop['newSeq'] : [];
+
+		// $prop['newSeq'] = $newSeq;
+
 		$seqValidateGroupings = [];
 
 		foreach( $prop['rules'] as $rule_key => $rule_value )
@@ -3375,6 +3579,7 @@ class AJD_validation extends Base_validator
 						}
 					}
 				}
+
 			}
 
 			$newSeqCh = ( !empty($firstSeq) && isset($newSeq[$firstSeq])) ? $newSeq[$firstSeq] : [];
@@ -3394,7 +3599,7 @@ class AJD_validation extends Base_validator
 
 			if( !EMPTY( $prop['scenarios'] ) )
 			{
-				$check_scena = $this->array_search_recursive( $rule_key.'|+'.$rule_value, $prop['scenarios'] );
+				$check_scena 		= $this->array_search_recursive( $rule_key.'|+'.$rule_value, $prop['scenarios'] );
 				
 				if( !EMPTY( $check_scena ) ) continue;
 			}
@@ -3418,6 +3623,7 @@ class AJD_validation extends Base_validator
 						'field' => $field,
 						'rule_key' => $rule_key
 					];
+					
 				}
 
 				$val = [];
@@ -3433,10 +3639,11 @@ class AJD_validation extends Base_validator
 					!empty(static::$ajd_prop['fiber_suspend'][$rule_value][$rule_key])
 				)
 				{
+
 					$fiber_ajd_prop['fibers'][$field][$rule_value][$rule_key]['fiber_suspend_val'] = $val;
 
 					
-					$obs->attach_observer( $rule_value.'_'.$rule_key.'_'.$field.'-|fiber', $ev, [$this, $fiber_ajd_prop['fibers'], $rule_value, $field] );
+					$obs->attach_observer( $rule_value.'_'.$rule_key.'_'.$field.'-|fiber', $ev, array( $this, $fiber_ajd_prop['fibers'], $rule_value, $field ) );
 					$obs->notify_observer( $rule_value.'_'.$rule_key.'_'.$field.'-|fiber' );
 				}
 
@@ -3444,6 +3651,7 @@ class AJD_validation extends Base_validator
 				{
 					$check_arr_det = $fiber->getReturn();
 				}
+
 			}
 			else
 			{
@@ -3458,6 +3666,7 @@ class AJD_validation extends Base_validator
 				}
 
 				$check_arr_det = call_user_func_array([$this, '_refactor_fiber_process_and_or_check'], $paramaters);
+				
 			}
 
 			if(!empty($check_arr_det))
@@ -3472,6 +3681,7 @@ class AJD_validation extends Base_validator
 					{
 						if(!empty($newSeqCh))
 						{
+							
 							$resSeq = $check_arr['sequence_check'][$firstSeq][$field_arr['orig']];
 							
 							$cntS = count($resSeq);
@@ -3487,6 +3697,7 @@ class AJD_validation extends Base_validator
 								{
 									if(!is_null($resSeq[$rule_value][$rule_key]) && in_array(0, $resSeq[$rule_value]))
 									{
+
 										break;
 									}	
 									else
@@ -3521,7 +3732,10 @@ class AJD_validation extends Base_validator
 
 									$this->useGroupings($seqArr, null, $field_arr['orig']);
 								}
+								
 							}
+							
+
 
 						}
 
@@ -3536,7 +3750,7 @@ class AJD_validation extends Base_validator
 			if( ISSET( $check_arr['pass_arr'][$rule_value][2][0] ) )
 			{
 				$pass_arr['cus_err'] = $check_arr['pass_arr'][$rule_value][2][0][$rule_value];
-				$prop['cus_err'] = $check_arr['pass_arr'][$rule_value][2][0][$rule_value];
+				$prop['cus_err'] 	 = $check_arr['pass_arr'][$rule_value][2][0][$rule_value];
 			}
 
 			if( !in_array( 1, $check_arr['passed'] ) )
@@ -3551,6 +3765,7 @@ class AJD_validation extends Base_validator
 					if(
 						isset($or_pass['pass_arr'][2][0][$or_pass['rule']][$rule_key])
 					)
+
 					{
 						$cus_err = $or_pass['pass_arr'][2][0][$or_pass['rule']][$rule_key];
 					}
@@ -3558,13 +3773,14 @@ class AJD_validation extends Base_validator
 					if(
 						isset($or_pass['pass_arr'][3][0][$or_pass['rule']][$rule_key])
 					)
+
 					{
 						$append_err = $or_pass['pass_arr'][3][0][$or_pass['rule']][$rule_key];
 					}
 
 					$or_pass['cus_err'] = $cus_err;
 
-					$or_pass['append_error'] = $append_err;
+					$or_pass['append_error']	= $append_err;
 
 					if( $this->check_cond ) 
 					{
@@ -3577,52 +3793,53 @@ class AJD_validation extends Base_validator
 		return $check_arr;
 	}
 
-	private function _refactor_fiber_process_and_or_check($rule_key, $rule_value, array $check_arr, array $or_pass_arr, $countErr, $firstSeq, $rulesInSeq, $seqValidateGroupings, $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, $key = null, $origValue = null, $fibered = false)
+	private function _refactor_fiber_process_and_or_check($rule_key, $rule_value, array $check_arr, array $or_pass_arr, $countErr, $firstSeq, $rulesInSeq, $seqValidateGroupings, $prop, $field, $field_arr, $value, $auto_arr, $extra_args, $group, $logic, $key = NULL, $origValue = NULL, $fibered = false)
 	{
-		$pass_arr = [];
+		$pass_arr 		= array();
 
-		$satisfier = $prop['satisfier'][ $rule_key ];
-		$details = $prop['details'][ $rule_key ];
+		$satisfier 		= $prop['satisfier'][ $rule_key ];
+		$details 		= $prop['details'][ $rule_key ];
 
 		if(isset($prop['sometimes'][ $rule_value ][$rule_key]))
 		{
-			$sometimes = $prop['sometimes'][ $rule_value ][$rule_key];	
+			$sometimes 		= $prop['sometimes'][ $rule_value ][$rule_key];	
 		}
 		else
 		{
-			$sometimes = $prop['sometimes'][ $rule_value ];		
+			$sometimes 		= $prop['sometimes'][ $rule_value ];		
 		}
 		
-		$groupings = (isset($prop['groups'][$rule_value])) ? $prop['groups'][$rule_value] : null;
+		$groupings 		= (isset($prop['groups'][$rule_value])) ? $prop['groups'][$rule_value] : null;
+
 		$validateGroupings = (isset($prop['validateGroupings'])) ? $prop['validateGroupings'] : null;
 		
-		$pass_arr['rule'] = $rule_value;
-		$pass_arr['satisfier'] = $satisfier;
+		$pass_arr['rule'] 			= $rule_value;
+		$pass_arr['satisfier'] 		= $satisfier;
 		$pass_arr['no_error_message'] = (isset($prop['no_error_message'])) ? $prop['no_error_message'] : null;
-		$pass_arr['field'] = $field;
-		$pass_arr['details'] = $details;
-		$pass_arr['value'] = $value;
+		$pass_arr['field'] 			= $field;
+		$pass_arr['details'] 		= $details;
+		$pass_arr['value'] 			= $value;
 		$pass_arr['validateGroupings'] = $validateGroupings;
-		$pass_arr['cus_err'] = ( isset( $prop['cus_err'][$rule_key] ) ) ? $prop['cus_err'][$rule_key] : [];
-		$pass_arr['clean_field'] = $field_arr['clean'];
-		$pass_arr['orig_field'] = $field_arr['orig'];
-		$pass_arr['logic'] = $prop['logic'];
-		$pass_arr['field_logic'] = $logic;
-		$pass_arr['origValue'] = $origValue;
-		$pass_arr['fibered'] = $fibered;
-		$pass_arr['groups'] = $groupings;
+		$pass_arr['cus_err'] 		= ( ISSET( $prop['cus_err'][$rule_key] ) ) ? $prop['cus_err'][$rule_key] : array();
+		$pass_arr['clean_field']	= $field_arr['clean'];
+		$pass_arr['orig_field'] 	= $field_arr['orig'];
+		$pass_arr['logic'] 			= $prop['logic'];
+		$pass_arr['field_logic'] 	= $logic;
+		$pass_arr['origValue'] 		= $origValue;
+		$pass_arr['fibered'] 		= $fibered;
+		$pass_arr['groups'] 		= $groupings;
 
-		$or_pass_arr[$rule_key]['rule'] = $rule_value;
-		$or_pass_arr[$rule_key]['satisfier'] = $satisfier;
-		$or_pass_arr[$rule_key]['field'] = $field;
-		$or_pass_arr[$rule_key]['details'] = $details;
-		$or_pass_arr[$rule_key]['value'] = $value;
-		$or_pass_arr[$rule_key]['cus_err'] = ( isset( $prop['cus_err'][$rule_key] ) ) ? $prop['cus_err'][$rule_key] : [];
-		$or_pass_arr[$rule_key]['clean_field'] = $field_arr['clean'];
-		$or_pass_arr[$rule_key]['orig_field'] = $field_arr['orig'];
-		$or_pass_arr[$rule_key]['logic'] = $prop['logic'];
-		$or_pass_arr[$rule_key]['field_logic'] = $logic;
-		$or_pass_arr[$rule_key]['fibered'] = $fibered;
+		$or_pass_arr[$rule_key]['rule'] 		= $rule_value;
+		$or_pass_arr[$rule_key]['satisfier'] 	= $satisfier;
+		$or_pass_arr[$rule_key]['field'] 		= $field;
+		$or_pass_arr[$rule_key]['details'] 		= $details;
+		$or_pass_arr[$rule_key]['value'] 		= $value;
+		$or_pass_arr[$rule_key]['cus_err'] 		= ( ISSET( $prop['cus_err'][$rule_key] ) ) ? $prop['cus_err'][$rule_key] : array();
+		$or_pass_arr[$rule_key]['clean_field'] 	= $field_arr['clean'];
+		$or_pass_arr[$rule_key]['orig_field'] 	= $field_arr['orig'];
+		$or_pass_arr[$rule_key]['logic'] 		= $prop['logic'];
+		$or_pass_arr[$rule_key]['field_logic'] 	= $logic;
+		$or_pass_arr[$rule_key]['fibered'] 	= $fibered;
 		
 		if( $sometimes instanceof Validator )
 		{
@@ -3634,24 +3851,24 @@ class AJD_validation extends Base_validator
 		}
 		else if( is_callable( $sometimes ) )
 		{
-			$sometimes = $this->invoke_func( $sometimes, array( $pass_arr['value'], $pass_arr['satisfier'], $pass_arr['orig_field'], $key, $pass_arr['origValue'] ) );
+			$sometimes 				= $this->invoke_func( $sometimes, array( $pass_arr['value'], $pass_arr['satisfier'], $pass_arr['orig_field'], $key, $pass_arr['origValue'] ) );
 
 		}
 		else if( $sometimes == Abstract_common::SOMETIMES 
-			|| $sometimes === true
+			OR $sometimes === TRUE
 		)
 		{
-			$sometimes = !empty( $pass_arr['value'] );
+			$sometimes 				= !EMPTY( $pass_arr['value'] );
 		}
 		else 
 		{
-			$sometimes = true;
+			$sometimes 				= TRUE;
 		}
 
-		$pass_arr['sometimes'] = $sometimes;
-		$or_pass_arr[$rule_key]['sometimes'] = $sometimes;
+		$pass_arr['sometimes'] 					= $sometimes;
+		$or_pass_arr[$rule_key]['sometimes'] 	= $sometimes;
 		
-		$check = $this->_process_validate( $pass_arr, $auto_arr, $extra_args, $key, $countErr, $rule_key, $firstSeq, $rulesInSeq, $seqValidateGroupings );
+		$check 						= $this->_process_validate( $pass_arr, $auto_arr, $extra_args, $key, $countErr, $rule_key, $firstSeq, $rulesInSeq, $seqValidateGroupings );
 
 		if( !$check['passed'][0] )
 		{
@@ -3700,7 +3917,7 @@ class AJD_validation extends Base_validator
 		$check_arr['passed_per'][$rule_key]['details'] = $check['passed_per'][$rule_key];
 		
 		
-		$or_pass_arr[$rule_key]['pass_arr'] = $check_arr['pass_arr'][ $rule_value ][$rule_key];
+		$or_pass_arr[$rule_key]['pass_arr'] 	= $check_arr['pass_arr'][ $rule_value ][$rule_key];
 		
 
 		return [
@@ -3725,28 +3942,28 @@ class AJD_validation extends Base_validator
 
 	public static function pre_filter_value( $key = NULL )
 	{
-		$filter = static::get_filter_ins();
+		$filter 	= static::get_filter_ins();
 		
 		return $filter->get_pre_filter_value( $key );
 	}
 
 	public static function filter_value( $key = NULL )
 	{
-		$filter = static::get_filter_ins();
+		$filter 	= static::get_filter_ins();
 
 		return $filter->get_filtered_value( $key );
 	}
 
 	public static function get_error( $rule )
 	{
-		$err = static::get_errors_instance();
+		$err 		= static::get_errors_instance();
 
 		return $err->get_error( $rule );
 	}
 
 	public static function errors()
 	{
-		$err = static::get_errors_instance();
+		$err 		= static::get_errors_instance();
 
 		return $err->set_validation_errors( static::$ajd_prop['message'] );
 	}
@@ -3761,23 +3978,23 @@ class AJD_validation extends Base_validator
 		static::$ajd_prop['message'] = $message;
 	}
 
-	public static function toStringErr( $msg = [] )
+	public static function toStringErr( $msg = array() )
 	{
-		$err = static::get_errors_instance();
+		$err 		= static::get_errors_instance();
 
 		return $err->toStringErr( $msg );
 	}
 
 	public static function setLang( $lang )
 	{
-		static::$lang = $lang;
+		static::$lang 	= $lang;
 	}
 
-	public static function validation_fails( $key = null, $err_key = null, $when = false )
+	public static function validation_fails( $key = NULL, $err_key = NULL, $when = FALSE )
 	{
-		$count_var = ( $when ) ? static::$ajd_prop['result'] : static::$ajd_prop['message'];
+		$count_var	= ( $when ) ? static::$ajd_prop['result'] : static::$ajd_prop['message'];
 
-		$check = count( $count_var ) ? true : false;
+		$check 		= COUNT( $count_var ) ? TRUE : FALSE;
 
 		if( !EMPTY( $key ) ) 
 		{
@@ -3785,24 +4002,24 @@ class AJD_validation extends Base_validator
 			{
 				if( $count_var[ $key ] instanceof Countable )
 				{
-					$check = ( !EMPTY( $count_var[ $key ] ) AND COUNT( $count_var[ $key ] ) ) ? true : false;
+					$check 	= ( !EMPTY( $count_var[ $key ] ) AND COUNT( $count_var[ $key ] ) ) ? TRUE : FALSE;
 				}
 				else
 				{
-					$check = ( ISSET( $count_var[ $key ] ) AND !EMPTY( $count_var[ $key ] ) ) ? true : false;
+					$check 	= ( ISSET( $count_var[ $key ] ) AND !EMPTY( $count_var[ $key ] ) ) ? TRUE : FALSE;
 				}
 			}
 			else
 			{
 				/*if( $when OR $arrCheck )
 				{*/
-					$check = false;
+					$check 	= FALSE;
 				// }
 			}
 
 			if( !IS_NULL( $err_key ) ) 
 			{
-				$check = ( !EMPTY( $count_var[ $key ][ $err_key ] ) AND COUNT( $count_var[ $key ][ $err_key ] ) ) ? true : false;
+				$check = ( !EMPTY( $count_var[ $key ][ $err_key ] ) AND COUNT( $count_var[ $key ][ $err_key ] ) ) ? TRUE : FALSE;
 			}
 
 		}
@@ -3810,14 +4027,14 @@ class AJD_validation extends Base_validator
 		return $check;
 	}
 
-	public static function db( $connection = null, $user = null, $pass = null, $options = array() )
+	public static function db( $connection = NULL, $user = NULL, $pass = NULL, $options = array() )
 	{
 		return new Database( $connection, $user, $pass, $options );
 	}
 
 	public static function expression( $expr, $expr_value )
 	{
-		$ajds = static::get_ajd_instance();
+		$ajds 	= static::get_ajd_instance();
 
 		return new Expression( $expr, $expr_value, $ajds );
 	}
@@ -3846,10 +4063,10 @@ class AJD_validation extends Base_validator
 
 		if(!$onlyMacro)
 		{
-			static::$ajd_prop['extensions_initialize'] 	= true;
-			static::$ajd_prop['extension_rule'] = [];
-			static::$ajd_prop['extension_filter'] = [];
-			static::$ajd_prop['extension_test'] = [];
+			static::$ajd_prop['extensions_initialize'] 	= TRUE;
+			static::$ajd_prop['extension_rule'] 		= array();
+			static::$ajd_prop['extension_filter'] 		= array();
+			static::$ajd_prop['extension_test'] 		= array();
 			static::$ajd_prop['extension_anonymous_class'] = [];
 		}
 
@@ -3881,17 +4098,17 @@ class AJD_validation extends Base_validator
 
 			foreach( $extension->getFilters() as $filter )
 			{
-				static::$ajd_prop['extension_filter'][ $filter ] = ['filter' => $filter, 'extension_name' => $name, 'extension_obj' => $extension];
+				static::$ajd_prop['extension_filter'][ $filter ] 	= array( 'filter' => $filter, 'extension_name' => $name, 'extension_obj' => $extension );
 			}
 
 			foreach( $extension->getLogics() as $test )
 			{
-				static::$ajd_prop['extension_test'][ $test ] = ['test' => $test, 'extension_name' => $name, 'extension_obj' => $extension];
+				static::$ajd_prop['extension_test'][ $test ] 	= array( 'test' => $test, 'extension_name' => $name, 'extension_obj' => $extension );
 			}
 
 			foreach( $extension->getMiddleWares() as $name => $func )
 			{	
-				static::$middleware[ $name ][ 'func' ] = $func;
+				static::$middleware[ $name ][ 'func' ] 				= $func;
 			}
 
 			$anons = $extension->getAnonClass();
@@ -3918,20 +4135,20 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	protected static function handle_filter( $filter, $value, $field, $satisfier, $pre_filter, $check_arr, $val_only = false, $append = false )
+	protected static function handle_filter( $filter, $value, $field, $satisfier, $pre_filter, $check_arr, $val_only = FALSE, $append = false )
 	{
-		$filter_ins = static::get_filter_ins();
-		$ajd = static::get_ajd_instance();
+		$filter_ins 						= static::get_filter_ins();
+		$ajd  								= static::get_ajd_instance();
 
-		$extension_filter = static::$ajd_prop['extension_filter'];
+		$extension_filter 					= static::$ajd_prop['extension_filter'];
 
-		$filter = ( $ajd->isset_empty( $filter ) ) ? $filter : null;
-		$satisfier = ( $ajd->isset_empty( $satisfier ) ) ? $satisfier : null;
-		$pre_filter = ( $ajd->isset_empty( $pre_filter ) ) ? $pre_filter : [];
+		$filter 							= ( $ajd->isset_empty( $filter ) ) ? $filter : NULL;
+		$satisfier 							= ( $ajd->isset_empty( $satisfier ) ) ? $satisfier : NULL;
+		$pre_filter 						= ( $ajd->isset_empty( $pre_filter ) ) ? $pre_filter : array();
 
 		$filter_ins->set_filter( $filter, $value, $field, $satisfier, $pre_filter, $extension_filter, $append );
 
-		$real_val = $filter_ins->filter( $check_arr, $val_only );
+		$real_val 	= $filter_ins->filter( $check_arr, $val_only );
 		
 		if( $val_only )
 		{
@@ -3941,52 +4158,56 @@ class AJD_validation extends Base_validator
 
 	protected static function process_method_name( $name )
 	{
-		$ret_name = $name;
+		$ret_name 		= $name;
 
 		if( ISSET( static::$macros[ $name ] ) )
 		{
-			$method = 'macro';
+			$method 	= 'macro';
 		}
 		else if( preg_match( '/^S/', $name ) )
 		{
-			$method = 'superRule';
-			$ret_name = static::removeWord( $name, '/^S/' );
+			$method 	= 'superRule';
+			$ret_name 	= static::removeWord( $name, '/^S/' );
 		}
 		else if( preg_match( '/^F/', $name ) )
 		{
-			$method = 'addFilter';
-			$ret_name = static::removeWord( $name, '/^F/' );
+			$method 	= 'addFilter';
+			$ret_name 	= static::removeWord( $name, '/^F/' );
 		}
 		else if( preg_match( '/^eS/' , $name ) )
 		{
-			$method = 'endSuperRule';
-			$ret_name = static::removeWord( $name, '/^eS/' );
+			$method 	= 'endSuperRule';
+			$ret_name 	= static::removeWord( $name, '/^eS/' );
 		}
 		else if( preg_match('/^oR/', $name ) )
 		{
-			$method = 'addOrRule';
-			$ret_name = static::removeWord( $name, '/^oR/' );	
+			$method 	= 'addOrRule';
+			$ret_name 	= static::removeWord( $name, '/^oR/' );	
 		}
 		else if( preg_match('/^Not/', $name ) )
 		{
-			$method = 'addRule';
-			$ret_name = static::removeWord( $name, '/^Not/' );
-			$ret_name = '!'.$ret_name;
+			$method 	= 'addRule';
+
+			$ret_name 	= static::removeWord( $name, '/^Not/' );
+
+			$ret_name 	= '!'.$ret_name;
 		}
 		else if( preg_match('/^Lg/', $name ) )
 		{
-			$method = 'addMainLogic';
-			$ret_name = static::removeWord( $name, '/^Lg/' );
+			$method 	= 'addMainLogic';
+
+			$ret_name 	= static::removeWord( $name, '/^Lg/' );
 		}
 		else 
 		{
-			$method = 'addRule';
+			$method 	= 'addRule';
 		}
 
-		return [
-			'method' => $method,
-			'name' => $ret_name
-		];
+		return array(
+
+			'method' 	=> $method,
+			'name' 		=> $ret_name
+		);
 	}
 
 	public function addMainLogic($test, ...$args)
@@ -3998,8 +4219,8 @@ class AJD_validation extends Base_validator
 
 	protected static function process_check_args( $logic, $group )
 	{
-		$ret_args = [];
-		$key_arr = static::get_ajd_and_or_prop();
+		$ret_args 			= array();
+		$key_arr  			= static::get_ajd_and_or_prop();
 	
 		if( static::$ajd_prop['check_group'] )
 		{  
@@ -4007,7 +4228,7 @@ class AJD_validation extends Base_validator
 			{
 				if( ISSET( $group[ $logic ][ $prop ] ) )
 				{
-					$ret_args[ $prop ] = $group[ $logic ][ $prop ];
+					$ret_args[ $prop ]	= $group[ $logic ][ $prop ];
 				}
 			}
 
@@ -4018,7 +4239,7 @@ class AJD_validation extends Base_validator
 
 			if( !EMPTY( $ret_args ) )
 			{
-				$ret_args['logic'] = $logic;
+				$ret_args['logic']	= $logic;
 			}
 		}
 		else
@@ -4029,7 +4250,7 @@ class AJD_validation extends Base_validator
 				{
 					if( ISSET( static::$ajd_prop[static::$useContraintGroup][ $logic ][ $prop ] ) )
 					{
-						$ret_args[ $prop ] = static::$ajd_prop[static::$useContraintGroup][ $logic ][ $prop ];
+						$ret_args[ $prop ]	= static::$ajd_prop[static::$useContraintGroup][ $logic ][ $prop ];
 					}
 
 					if(isset(static::$ajd_prop['cache_stored_filters'][static::$useContraintGroup]))
@@ -4044,18 +4265,18 @@ class AJD_validation extends Base_validator
 				}
 				else
 				{
-					$ret_args[ $prop ] = static::$ajd_prop[ $logic ][ $prop ];
+					$ret_args[ $prop ]	= static::$ajd_prop[ $logic ][ $prop ];
 				}
 			}
 
 			if( ISSET( static::$ajd_prop[static::$useContraintGroup]['events'] ) AND !EMPTY( static::$ajd_prop[static::$useContraintGroup]['events'] ) )
 			{
-				static::$ajd_prop['events'] = static::$ajd_prop[static::$useContraintGroup]['events'];
+				static::$ajd_prop['events']	= static::$ajd_prop[static::$useContraintGroup]['events'];
 			}
 
 			if( !EMPTY( $ret_args ) )
 			{
-				$ret_args['logic'] = $logic;
+				$ret_args['logic']	= $logic;
 			}
 		}
 
@@ -4067,7 +4288,7 @@ class AJD_validation extends Base_validator
 		return ['rules', 'details', 'satisfier', 'cus_err', 'filters', 'filter_satis', 'pre_filters', 'scenarios', 'sometimes', 'groups'];
 	}
 
-	protected function reset_validation_prop( $key, $sub_key = null )
+	protected function reset_validation_prop( $key, $sub_key = NULL )
 	{
 		$and_or 			= [Abstract_common::LOG_AND, Abstract_common::LOG_OR];	
 		$and_or_arr 		= static::get_ajd_and_or_prop();
@@ -4076,23 +4297,24 @@ class AJD_validation extends Base_validator
 		{
 			foreach ( $and_or_arr as $prop ) 
 			{
-				static::$ajd_prop[ $key ][ $prop ] 	= [];
+				static::$ajd_prop[ $key ][ $prop ] 	= array();
 			}
 		}
 		else 
 		{
 			if( is_array( static::$ajd_prop[ $key ] ) )
-				static::$ajd_prop[ $key ] 			= [];
+				static::$ajd_prop[ $key ] 			= array();
 			else if( in_array( static::$ajd_prop[ $key ], $and_or ) )
-				static::$ajd_prop[ $key ] = Abstract_common::LOG_AND;
+				static::$ajd_prop[ $key ] 			= Abstract_common::LOG_AND;
 			else 
-				static::$ajd_prop[ $key ] = null;
+				static::$ajd_prop[ $key ] 			= NULL;
 		}
+
 	}
 
 	public function resetMessage()
 	{
-		static::$ajd_prop['message'] = [];
+		static::$ajd_prop['message'] = array();
 	}
 
 	protected function reset_validation_selected_prop($pass_properties = [], $given_prop_only = false)
@@ -4103,36 +4325,36 @@ class AJD_validation extends Base_validator
 
 		if(empty($pass_properties))
 		{
-			$properties = $common_prop;	
+			$properties 	= $common_prop;	
 		}
 		else
 		{
 			if(is_array($pass_properties))
 			{
-				$properties = $pass_properties;	
+				$properties 	= $pass_properties;	
 			}
 			else
 			{
-				$properties = $common_prop;
+				$properties 	= $common_prop;
 			}
 		}
 
-		$and_or = static::get_ajd_and_or_prop();
+		$and_or 		= static::get_ajd_and_or_prop();
 
 		foreach( $properties as $prop )
 		{
 			if( is_array( static::$ajd_prop[ $prop ] ) )
-			 	static::$ajd_prop[ $prop ] = [];
+			 	static::$ajd_prop[ $prop ] 	= array();
 			else 
-				static::$ajd_prop[ $prop ] = null;	
+				static::$ajd_prop[ $prop ] 	= NULL;	
 		}
 
 		if(!$given_prop_only)
 		{
 			foreach( $and_or as $prop )
 			{
-				static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ] = [];
-				static::$ajd_prop[ Abstract_common::LOG_OR ][ $prop ] = [];
+				static::$ajd_prop[ Abstract_common::LOG_AND ][ $prop ] 	= array();
+				static::$ajd_prop[ Abstract_common::LOG_OR ][ $prop ] 	= array();
 			}
 		}
 	}
@@ -4160,23 +4382,23 @@ class AJD_validation extends Base_validator
 
 	protected function resetConstraintGroup()
 	{
-		static::$constraintStorageName = null;
-		static::$useContraintGroup = null;
+		static::$constraintStorageName 		= NULL;
+		static::$useContraintGroup 			= NULL;
 	}
 
 	protected function resetBail()
 	{
-		static::$bail = false;
+		static::$bail 						= FALSE;
 	}
 
 	protected function reset_check_group()
 	{
-		static::$ajd_prop[ 'check_group' ] = false;
+		static::$ajd_prop[ 'check_group' ]	= FALSE;
 	}
 
 	protected function reset_current_field()
 	{
-		static::$ajd_prop[ 'current_field' ] = null;
+		static::$ajd_prop[ 'current_field' ] 				= NULL;
 	}
 
 	protected function invoke_func( $func, $args = array() )
@@ -4186,7 +4408,7 @@ class AJD_validation extends Base_validator
 
 	protected function get_rules_path()
 	{
-		$this->rules_path = dirname( __FILE__ ).Abstract_common::DS.'Rules'.Abstract_common::DS;
+		$this->rules_path 		= dirname( __FILE__ ).Abstract_common::DS.'Rules'.Abstract_common::DS;
 
 		return $this->rules_path;
 	}
@@ -4220,6 +4442,7 @@ class AJD_validation extends Base_validator
 				{
 					foreach ($prop['groups'] as $rule => $groupings)
 					{
+					
 						foreach($groupings as $ruleKey => $grouping)
 						{
 							$ruleDetails = $prop['details'][$ruleKey];
@@ -4228,6 +4451,7 @@ class AJD_validation extends Base_validator
 							$propSatis = $prop['satisfier'][$ruleKey];
 
 							$cusErr = (isset($prop['cus_err'][$ruleKey])) ? $prop['cus_err'][$ruleKey] : null;
+
 							$groups = (isset($prop['groups'][$ruleNames])) ? $prop['groups'][$ruleNames] : [];
 
 							$continueAdd = false;
@@ -4252,6 +4476,7 @@ class AJD_validation extends Base_validator
 
 										if(!empty($cacheCheckRulesWhere))
 										{
+
 											if(isset($cacheCheckRulesWhere[$rule]))
 											{
 												if($cntProp[$rule] != $cacheCheckRulesWhere[$rule] )
@@ -4261,11 +4486,14 @@ class AJD_validation extends Base_validator
 											}
 										}
 
+
 										if($addRule)
 										{
 											$continueAdd = true;
+											
 											$newRules[$kseq][$rkseq] = $rule;
 										}
+										
 									}
 								}
 								
@@ -4275,6 +4503,8 @@ class AJD_validation extends Base_validator
 								)
 								{
 									$newDetails[$kseq][$rkseq] = $ruleDetails;
+
+
 									$newSatis[$kseq][$rkseq] = $propSatis;
 
 									if(!empty($cusErr))
@@ -4287,6 +4517,9 @@ class AJD_validation extends Base_validator
 									)
 									{
 										$newGroups[$kseq][$rkseq] = $groups[$ruleKey];
+
+										// ksort($newGroups[$kseq]);
+
 									}
 								}
 								
@@ -4355,6 +4588,7 @@ class AJD_validation extends Base_validator
 					
 					$prop['newSeq'] = $newSeq;
 					$prop['groups'] = $newContGroup;
+
 				}
 			}
 
@@ -4365,19 +4599,19 @@ class AJD_validation extends Base_validator
 
 	protected function handle_errors( $details, $check_arr, $key = NULL, $singleton = true, $useRuleObj = false )
 	{
-		$cus_err = $details['cus_err'];
-		$append_err = ( ISSET( $details['append_error'] ) ) ? $details['append_error'] : [];
+		$cus_err 				= $details['cus_err'];
+		$append_err 			= ( ISSET( $details['append_error'] ) ) ? $details['append_error'] : [];
 
-		$err = static::get_errors_instance($singleton);
+		$err 					= static::get_errors_instance($singleton);
 
-		$errors = $err->get_errors();
+		$errors 				= $err->get_errors();
 
-		$called_class = ( isset( $details['details'][1] ) ) ? $details['details'][1] : null;
-		$rule_instance = static::$cache_instance;
+		$called_class 			= ( ISSET( $details['details'][1] ) ) ? $details['details'][1] : null;
+		$rule_instance 			= static::$cache_instance;
 
-		$inverse = $details['details'][0];
+		$inverse 				= $details['details'][0];
 
-		$rule_obj = null;
+		$rule_obj 				= null;
 
 		if(
 			$useRuleObj
@@ -4388,18 +4622,18 @@ class AJD_validation extends Base_validator
 			$rule_obj = $details['rule_obj'];
 		}
 		
-		$errors = $err->processExceptions( $details['rule'], $called_class, $rule_instance, $details['satisfier'], $details['value'], $inverse, $errors, $rule_obj );
+		$errors 				= $err->processExceptions( $details['rule'], $called_class, $rule_instance, $details['satisfier'], $details['value'], $inverse, $errors, $rule_obj );
 		
-		$errors = $this->format_errors( $details['rule'], $details['details'][1], $details['clean_field'], $details['value'], $details['satisfier'], $errors['errors'], $cus_err, $check_arr, $err, $key, $append_err, $inverse );
+		$errors 				= $this->format_errors( $details['rule'], $details['details'][1], $details['clean_field'], $details['value'], $details['satisfier'], $errors['errors'], $cus_err, $check_arr, $err, $key, $append_err, $inverse );
 		
 		$this->append_error_msg( $errors, $details['orig_field'], $details['clean_field'], $details['rule'], $check_arr, $key );	
 	}
 
 	protected function append_error_msg( $errors, $field = NULL, $clean_field = NULL, $rules_name = NULL, $check_arr = FALSE, $key = NULL )
 	{
-		$valArr = [
-			'errors' => $errors,
-			'clean_field' => $clean_field
+		$valArr 	= [
+			'errors'		=> $errors,
+			'clean_field'	=> $clean_field
 		];
 
 		if( ISSET( $field ) ) 
@@ -4412,17 +4646,17 @@ class AJD_validation extends Base_validator
 				} 
 				else 
 				{
-					static::$ajd_prop['message'][ $field ][ $rules_name ][] = $valArr;
+					static::$ajd_prop['message'][ $field ][ $rules_name ][] 		= $valArr;
 				}
 			} 
 			else 
 			{
-				static::$ajd_prop['message'][ $field ][] = $valArr;
+				static::$ajd_prop['message'][ $field ][] 					= $valArr;
 			}
 		} 
 		else 
 		{
-			static::$ajd_prop['message'][] = $valArr;
+			static::$ajd_prop['message'][] 									= $valArr;
 		}
 	}
 
@@ -4430,8 +4664,8 @@ class AJD_validation extends Base_validator
 	{
 		try
 		{
-			$ob = static::get_observable_instance();
-			$args = array($value, $field);
+			$ob 					= static::get_observable_instance();
+			$args 					= array($value, $field);
 
 			if( !EMPTY( $events ) )
 			{
@@ -4475,14 +4709,15 @@ class AJD_validation extends Base_validator
 
 	private function _process_validate( $details, $check_arr, $extra_args, $key = NULL, $countErr = 0, $rule_key = null, $firstSeq = null, $rulesInSeq = null, $seqValidateGroupings = null )
 	{
-		$ob = static::get_observable_instance();
-		$passed = true;
+		$ob 					= static::get_observable_instance();
 
-		$extra_args['pass_arr'] = [];
+		$passed 				= TRUE;
 
-		$real_val = $details['value'];
+		$extra_args['pass_arr'] = array();
 
-		$details['append_error'][ $details['rule'] ] = '';
+		$real_val 					= $details['value'];
+
+		$details['append_error'][ $details['rule'] ]	= '';
 
 		$validateGroupings = $details['validateGroupings'];
 
@@ -4605,20 +4840,20 @@ class AJD_validation extends Base_validator
 					AND !in_array( $details['rule'], static::$callbackRules )
 				)
 				{
-					$ajd_ins = static::get_ajd_instance();
-					$error_ins = static::get_errors_instance();
+					$ajd_ins 			= static::get_ajd_instance();
+					$error_ins 			= static::get_errors_instance();
 
-					$over_satis_arg = [ $details['value'], $details['satisfier'], $details['field'], $details['origValue'], $ajd_ins, $error_ins, $key ];
+					$over_satis_arg 	= array( $details['value'], $details['satisfier'], $details['field'], $details['origValue'], $ajd_ins, $error_ins, $key );
 
-					$closure = call_user_func_array( $details['satisfier'][0], $over_satis_arg);
+					$closure  			= call_user_func_array( $details['satisfier'][0], $over_satis_arg);
 					
-					static::$cache_instance[$details['details'][1]] = $details['satisfier'][0];
+					static::$cache_instance[$details['details'][1]] 	= $details['satisfier'][0];
 
-					$pass_check = $closure;
+					$pass_check 		= $closure;
 				}
 				else
 				{
-					$pass_check = $this->{ $details['details'][2] }( $details );	
+					$pass_check 		= $this->{ $details['details'][2] }( $details );	
 
 					$psc = $pass_check;
 
@@ -4639,6 +4874,7 @@ class AJD_validation extends Base_validator
 
 								if(in_array($firstSeq, $details['groups'][$rule_key], true))
 								{
+									// $orig_field = $details['orig_field'];
 									$runValidate = true;
 									$rulesInSeq[] = $rule_key.'_'.$details['rule'];
 								}
@@ -4647,27 +4883,29 @@ class AJD_validation extends Base_validator
 
 						if($runValidate)
 						{
+						
 							if( is_array( $psc ) )
 							{
 								if($details['details'][2] == '_process_class')
 								{
 									if(is_array($psc['check']))
 									{
-										$sequence_check = $psc['check']['check'];
+										$sequence_check 		= $psc['check']['check'];
 									}
 									else
 									{
-										$sequence_check = $psc['check'];	
+										$sequence_check 		= $psc['check'];	
 									}
+									
 								}
 								else
 								{
-									$sequence_check = $psc['check'];	
+									$sequence_check 		= $psc['check'];	
 								}	
 							}
 							else
 							{
-								$sequence_check = $psc;
+								$sequence_check 		= $psc;
 							}
 
 							if($sequence_check)
@@ -4679,6 +4917,8 @@ class AJD_validation extends Base_validator
 								$seqValidateGroupings = array_values($seqValidateGroupings);
 								$firstSeq = reset($seqValidateGroupings);			
 							}
+
+
 						}
 					}
 
@@ -4687,7 +4927,7 @@ class AJD_validation extends Base_validator
 						&& is_array($pass_check)
 					)
 					{
-						$rule_obj = $pass_check['rule_obj'];
+						$rule_obj 	= $pass_check['rule_obj'];
 						
 						$pass_check = $pass_check['check'];
 						
@@ -4697,17 +4937,17 @@ class AJD_validation extends Base_validator
 
 				if( !is_array( $pass_check ) )
 				{
-					$passed = $pass_check;
+					$passed 		= $pass_check;
 				}
 				else
 				{
-					$passed = $pass_check['check'];
+					$passed 		= $pass_check['check'];
 
 					if( ISSET( $pass_check['msg'] ) AND !EMPTY( $pass_check['msg'] ) 
 						AND !ISSET( $details['cus_err'][ $details['rule'] ] )
 					)
 					{
-						$details['cus_err'][ $details['rule'] ] = $pass_check['msg'];
+						$details['cus_err'][ $details['rule'] ] 	= $pass_check['msg'];
 					}
 
 					if( ISSET( $pass_check['append_error'] ) AND !EMPTY( $pass_check['append_error'] ) )
@@ -4717,13 +4957,13 @@ class AJD_validation extends Base_validator
 
 					if( ISSET( $pass_check['val'] ) )
 					{
-						$real_val = $pass_check['val'];
+						$real_val 	= $pass_check['val'];
 					}
 				}
 				
 				if( ISSET( $this->customMesage[ $details['orig_field'] ] ) )
 				{	
-					$customMessage = $this->customMesage[ $details['orig_field'] ];
+					$customMessage 	= $this->customMesage[ $details['orig_field'] ];
 
 					if( is_array( $customMessage['message'] ) )
 					{
@@ -4734,7 +4974,7 @@ class AJD_validation extends Base_validator
 					}
 					else
 					{
-						$details['cus_err'][ $details['rule'] ] = $customMessage['message'];
+						$details['cus_err'][ $details['rule'] ] 	= $customMessage['message'];
 					}
 				}
 			}
@@ -4742,7 +4982,7 @@ class AJD_validation extends Base_validator
 
 		if( $this->isset_empty( $details['details'], 0 ) )
 		{
-			$passed = !$passed;
+			$passed 			= !$passed;
 		}
 
 		// $ob->attach_observer( 'endgiven', array( $this, 'end_condition' ) );
@@ -4753,9 +4993,10 @@ class AJD_validation extends Base_validator
 			if( ISSET( static::$ajd_prop['events'][Abstract_common::EV_FAILS][$details['rule']][$rule_key] ) 
 			)
 			{
-				$eventFails = static::$ajd_prop['events'][Abstract_common::EV_FAILS][$details['rule']][$rule_key];
+				$eventFails 	= static::$ajd_prop['events'][Abstract_common::EV_FAILS][$details['rule']][$rule_key];
 
 				unset(static::$ajd_prop['events'][Abstract_common::EV_FAILS][$details['rule']][$rule_key]);
+				
 				$this->_runEvents($eventFails, $details['value'], $details['orig_field'], TRUE);
 			}
 			else if(
@@ -4764,9 +5005,10 @@ class AJD_validation extends Base_validator
 				)
 			)
 			{
-				$eventFails = static::$ajd_prop['events'][Abstract_common::EV_FAILS][$key_event_fails][$rule_key];
+				$eventFails 	= static::$ajd_prop['events'][Abstract_common::EV_FAILS][$key_event_fails][$rule_key];
 
 				unset(static::$ajd_prop['events'][Abstract_common::EV_FAILS][$key_event_fails][$rule_key]);
+				
 				$this->_runEvents($eventFails, $details['value'], $details['orig_field'], TRUE);	
 			}
 
@@ -4778,9 +5020,9 @@ class AJD_validation extends Base_validator
 				}
 			}
 			
-			static::$ajd_prop['result'][ $details['field'] ] = $details['details'][1];
+			static::$ajd_prop['result'][ $details['field'] ] 	= $details['details'][1];
 			
-			if( $details['logic'] == Abstract_common::LOG_AND && $details['field_logic'] == Abstract_common::LOG_AND )
+			if( $details['logic'] == Abstract_common::LOG_AND AND $details['field_logic'] == Abstract_common::LOG_AND )
 			{
 				if( $this->check_cond ) 
 				{
@@ -4834,6 +5076,7 @@ class AJD_validation extends Base_validator
 													'rule_key' => $rule_key
 												],
 											 ];
+
 			}
 
 		}
@@ -4850,14 +5093,14 @@ class AJD_validation extends Base_validator
 					{
 						if(is_array(static::$ajd_prop['result_values'][ $details['field'] ][ $key ]))
 						{
-							static::$ajd_prop['result_values'][ $details['field'] ][ $key ] = $real_val;
+							static::$ajd_prop['result_values'][ $details['field'] ][ $key ]  	= $real_val;
 						}
 					}
 				}
 			}
 			else
 			{
-				static::$ajd_prop['result_values'][ $details['field'] ] = $real_val;
+				static::$ajd_prop['result_values'][ $details['field'] ]  			= $real_val;
 			}
 
 
@@ -4868,6 +5111,7 @@ class AJD_validation extends Base_validator
 				$eventSuccess 	= static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$details['rule']][$rule_key];
 
 				unset(static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$details['rule']][$rule_key]);
+
 				$this->_runEvents($eventSuccess, $details['value'], $details['orig_field'], TRUE);
 			}
 			else if(
@@ -4877,11 +5121,12 @@ class AJD_validation extends Base_validator
 				$eventSuccess 	= static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$key_load_sucess][$rule_key];
 
 				unset(static::$ajd_prop['events'][Abstract_common::EV_SUCCESS][$key_load_sucess][$rule_key]);
+
 				$this->_runEvents($eventSuccess, $details['value'], $details['orig_field'], TRUE);
 			}
 		}
 
-		$extra_args['passed'][] = $passed;
+		$extra_args['passed'][] 			= $passed;
 		
 		if( $details['logic'] == Abstract_common::LOG_OR AND $passed )
 		{
@@ -4934,7 +5179,7 @@ class AJD_validation extends Base_validator
 			]
 		];
 
-		$extra_args['pass_arr']['values'][$details['rule']] = $details['value'];
+		$extra_args['pass_arr']['values'][$details['rule']] 	= $details['value'];
 
 		$extra_args['orig_field'] = $orig_field;
 		$extra_args['firstSeq'] = $firstSeq;
@@ -4968,54 +5213,55 @@ class AJD_validation extends Base_validator
 			$ob->attach_observer( 'ongiven', array( $this, 'checkCondition' ) );
 		}
 
-		$when = new When( $this, $ob );
+		$when 						= new When( $this, $ob );
 
 		return $when;
 	}
 
 	protected function checkCondition()
 	{
-		$this->check_cond = false;
+		$this->check_cond 	= FALSE;
 	}
 
 	protected function endCondition()
 	{
-		$this->check_cond = true;
+		$this->check_cond 	= TRUE;
 	}
 
 	private function _process_extension( $details )
 	{	
-		$extension_rule = static::$ajd_prop[ 'extension_rule' ][ $details['details'][4] ];
+		$extension_rule 		= static::$ajd_prop[ 'extension_rule' ][ $details['details'][4] ];
 
-		$extension_obj = static::$ajd_prop[ 'extensions' ][ $extension_rule[ 'extension_name' ] ];
-		$origValue = ( isset( $details['origValue'] ) ) ? $details['origValue'] : null;
-		$args = [
+		$extension_obj 			= static::$ajd_prop[ 'extensions' ][ $extension_rule[ 'extension_name' ] ];
+		$origValue 				= ( ISSET( $details['origValue'] ) ) ? $details['origValue'] : NULL;
+
+		$args 					= array(
 			$extension_rule['rule'], $details['value'], $details['satisfier'], $details['field'], $origValue
-		];
+		);
 
-		$args = array_merge( $args, static::$globalVar );
+		$args 					= array_merge( $args, static::$globalVar );
 
-		$extension_result = call_user_func_array([ $extension_obj, 'runRules'], $args );
+		$extension_result 		= call_user_func_array(array( $extension_obj, 'runRules' ), $args );
 
 		return $extension_result;
 	}
 
 	private function _process_anon_class($details)
 	{
-		$raw_append_rule = $details['details'][3]['raw_append_rule'];
-		$append_rule = $details['details'][3]['append_rule'];
-		$rule_details = $details['details'];
-		$anon_obj = $rule_details[3]['anon_obj'];
-		$exceptionObj = $rule_details[3]['anon_exception_obj'];
-		$rule_obj = $anon_obj;
-		$origValue = ( isset( $details['origValue'] ) ) ? $details['origValue'] : NULL;	
+		$raw_append_rule 		= $details['details'][3]['raw_append_rule'];
+		$append_rule 			= $details['details'][3]['append_rule'];
+		$rule_details 			= $details['details'];
+		$anon_obj 				= $rule_details[3]['anon_obj'];
+		$exceptionObj 				= $rule_details[3]['anon_exception_obj'];
+		$rule_obj 				= $anon_obj;
+		$origValue 				= ( ISSET( $details['origValue'] ) ) ? $details['origValue'] : NULL;	
 
 		if( ISSET( static::$cache_instance[ $append_rule ] ) AND static::$cache_instance[ $append_rule ] instanceof \Closure )
 		{
 			unset( static::$cache_instance[ $append_rule ] );
 		}
 		
-		static::$cache_instance[ $append_rule ] = $rule_obj;
+		static::$cache_instance[ $append_rule ] 	= $rule_obj;
 		static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
 
 		$check_r = false;
@@ -5042,18 +5288,19 @@ class AJD_validation extends Base_validator
 
 	private function _process_class( $details )
 	{
-		$append_rule = $details['details'][3]['raw_class'];
-		$rule_details = $details['details'];
-		$from_framework = $details['details'][3]['from_framework'];	
-		$origValue = ( ISSET( $details['origValue'] ) ) ? $details['origValue'] : NULL;	
+		$append_rule 			= $details['details'][3]['raw_class'];
+		$rule_details 			= $details['details'];
+		$from_framework 		= $details['details'][3]['from_framework'];	
+		$origValue 				= ( ISSET( $details['origValue'] ) ) ? $details['origValue'] : NULL;	
 
 		if( ISSET( static::$cache_instance[ $append_rule ] ) AND static::$cache_instance[ $append_rule ] instanceof \Closure )
 		{
 			unset( static::$cache_instance[ $append_rule ] );
 		}
+		
 		/*if( !ISSET( static::$cache_instance[ $append_rule ] ) )
 		{*/
-			$class_factory = static::get_factory_instance()->get_instance( TRUE );
+			$class_factory 		= static::get_factory_instance()->get_instance( TRUE );
 
 			if( $this->isset_null( $rule_details[3], 'namespace' ) )
 			{
@@ -5066,16 +5313,16 @@ class AJD_validation extends Base_validator
 				$this->_appendRuleNameSpace( $class_factory );
 			}
 			
-			$class_args = $details[ 'details' ][3][ 'class_args' ];
+			$class_args 		= $details[ 'details' ][3][ 'class_args' ];
 			
-			$rule_obj = $class_factory->rules( $rule_details[3]['rules_path'], $append_rule, $class_args, FALSE, static::$globalVar );
+			$rule_obj 			= $class_factory->rules( $rule_details[3]['rules_path'], $append_rule, $class_args, FALSE, static::$globalVar );
 		/*}
 		else 
 		{
 			$rule_obj 			= static::$cache_instance[ $append_rule ];
 		}*/
 		
-		static::$cache_instance[ $append_rule ] = $rule_obj;
+		static::$cache_instance[ $append_rule ] 	= $rule_obj;
 		static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
 
 		$check_r = false;
@@ -5095,6 +5342,7 @@ class AJD_validation extends Base_validator
 					{
 						$rule_obj->inverseCheck = true;	
 					}
+					
 				}
 			}
 
@@ -5127,52 +5375,52 @@ class AJD_validation extends Base_validator
 
 	private function _process_method( $details )
 	{
-		$method_args = [];
+		$method_args    = array();
 
 		$method_factory = static::get_factory_instance()->get_instance( FALSE, FALSE, TRUE );
 
 		$from_framework = $details['details'][3]['from_framework'];
 
-		$rule = !EMPTY( $details['details'][3]['meth_override'] ) ? $details['rule'] : $details['details'][4];
-		$orig_rule = $rule;
+		$rule 			= !EMPTY( $details['details'][3]['meth_override'] ) ? $details['rule'] : $details['details'][4];
+		$orig_rule 		= $rule;
 
-		$args = $this->_process_method_args_for_framework( $from_framework, $details );
-		$method_args = $args;
+		$args  			= $this->_process_method_args_for_framework( $from_framework, $details );
+		$method_args    = $args;
 
 		if( $from_framework == Abstract_common::SYMFONY )
 		{
-			$rule = 'validate';
+			$rule 		= 'validate';
 		}
 		else if( $from_framework == Abstract_common::RESPECT )
 		{
-			$method_args = [];
-			$method_args[] = $orig_rule;
+			$method_args    	= array();
+			$method_args[]  	= $orig_rule;
 
 			if( !EMPTY( $details['satisfier'] ) )
 			{
-				$method_args[] = ( is_array( $details['satisfier'] ) ) ? $details['satisfier'] : array( $details['satisfier'] );
+				$method_args[]  = ( is_array( $details['satisfier'] ) ) ? $details['satisfier'] : array( $details['satisfier'] );
 			}
 			else 
 			{
-				$method_args[] = $details['details'][3]['symfony_args'];
+				$method_args[]  = $details['details'][3]['symfony_args'];
 			}
 
-			$method_args = array_merge( $method_args, static::$globalVar );
+			$method_args 		= array_merge( $method_args, static::$globalVar );
 
-			$rule = '__call';
+			$rule 		= '__call';
 		}
 		
-		$method = $method_factory->rules( $details['details'][3]['class_name'], $rule );
+		$method 		= $method_factory->rules( $details['details'][3]['class_name'], $rule );
 		
-		$passed = $method_factory->process_method( $method_args, $details['details'][3]['obj_ins'], true );
+		$passed 		= $method_factory->process_method( $method_args, $details['details'][3]['obj_ins'], TRUE );
 
 		if( $from_framework == Abstract_common::SYMFONY )
 		{
-			$passed = empty( count( $passed ) ) ? true : false;
+			$passed 	= EMPTY( COUNT( $passed ) ) ? TRUE : FALSE;
 		}
 		else if( $from_framework == Abstract_common::RESPECT )
 		{	
-			$passed = $passed->validate( $args[0] );
+			$passed     = $passed->validate( $args[0] );
 		}
 
 		return $passed;
@@ -5181,21 +5429,22 @@ class AJD_validation extends Base_validator
 
 	private function _process_function( $details )
 	{
-		$passed 			= false;
+		$passed 			= FALSE;
+
 		$funct_factory 		= static::get_factory_instance()->get_instance( FALSE, TRUE );
 
 		if( $funct_factory->func_valid( $details['rule'] ) )
 		{
-			$inc_field 		= false;
+			$inc_field 		= FALSE;
 
 			if( $this->isset_empty( $details['details'][3], 'func' ) )
 			{
-				$inc_field 	= true;
+				$inc_field 	= TRUE;
 			}
 			
-			$func = $funct_factory->rules( $details['rule'], $details['details'][3] );
+			$func 			= $funct_factory->rules( $details['rule'], $details['details'][3] );
 
-			$passed = $funct_factory->process_function( $details['field'], $details['value'], $details['satisfier'], FALSE, $inc_field );
+			$passed 		= $funct_factory->process_function( $details['field'], $details['value'], $details['satisfier'], FALSE, $inc_field );
 			
 		}
 
@@ -5239,19 +5488,19 @@ class AJD_validation extends Base_validator
 
 	private function _process_rule_kind( $rule, $append_rule, $raw_rule, $satis )
 	{
-		$args = [];
-		$lower_rule = strtolower( $append_rule );
-		$options = $this->_process_overrides( $lower_rule, $append_rule, $raw_rule, $rule, $satis );
+		$args 	 		= array();
+		$lower_rule 	= strtolower( $append_rule );
+		$options 		= $this->_process_overrides( $lower_rule, $append_rule, $raw_rule, $rule, $satis );
 
 		$is_anon_class = false;
 
 		if( is_string($options['rules_path']) && !is_object($options['rules_path']) )
 		{
-			$is_class = file_exists( $options['rules_path'] );	
+			$is_class 		= file_exists( $options['rules_path'] );	
 		}
 		else
 		{
-			$is_class = (!is_string($options['rules_path']) && is_object($options['rules_path']));
+			$is_class 		= (!is_string($options['rules_path']) && is_object($options['rules_path']));
 		}
 
 		if(!$is_class)
@@ -5263,44 +5512,46 @@ class AJD_validation extends Base_validator
 					$is_class = true;
 				}
 			}
+			
 		}
 
-		$is_method = method_exists( $options['obj_ins'], $append_rule );
-		$is_function = function_exists( $rule );
-		$is_extension = isset( static::$ajd_prop['extension_rule'][ $lower_rule ] );
-		$satis = !empty( $satis ) ? $satis : array();
-		$satis = !is_array( $satis ) ? array( $satis ) : $satis;
+		$is_method 		= method_exists( $options['obj_ins'], $append_rule );
+
+		$is_function 	= function_exists( $rule );
+		$is_extension   = ISSET( static::$ajd_prop['extension_rule'][ $lower_rule ] );
+		$satis 			= !EMPTY( $satis ) ? $satis : array();
+		$satis 			= !is_array( $satis ) ? array( $satis ) : $satis;
 
 		if(isset($options['is_anon_class']) && !empty($options['is_anon_class']))
 		{
 			$is_anon_class = $options['is_anon_class'];
 		}
 		
-		$args['lower_rule'] = $lower_rule;
-		$args['rule_kind'] = null;
+		$args['lower_rule'] 		= $lower_rule;
+		$args['rule_kind'] 			= NULL;
 		
 		if( $is_extension )
 		{	
-			$args['rule_kind'] = '_process_extension';
+			$args['rule_kind'] 		= '_process_extension';
 		}
 		else if( $is_class && !$options['override'] && !$is_anon_class )
 		{
-			$args['rule_kind'] = '_process_class';
+			$args['rule_kind']  	= '_process_class';
 		}
 		else if( ( $is_method || $options['meth_override'] ) && !$is_anon_class )
 		{
-			$args['rule_kind'] = '_process_method';
+			$args['rule_kind'] 		= '_process_method';
 		}
 		else if( ( $is_function || $options['func_override'] ) && !$is_anon_class )
 		{
-			$args['rule_kind'] = '_process_function';
+			$args['rule_kind'] 		= '_process_function';
 		}
 		else if($is_anon_class)
 		{
-			$args['rule_kind'] = '_process_anon_class';
+			$args['rule_kind'] 		= '_process_anon_class';
 		}
 
-		$args['args'] = $options;
+		$args['args'] 				= $options;
 		$args['args']['class_args'] = $satis;
 		
 		return $args;
@@ -5309,14 +5560,14 @@ class AJD_validation extends Base_validator
 
 	private function _process_overrides( $lower_rule, $append_rule, $raw_rule, $rule )
 	{
-		$override = false;
-		$function_override = false;
-		$method_override = false;
+		$override 			= FALSE;
+		$function_override 	= FALSE;
+		$method_override 	= FALSE;
 
-		$from_framework = "";
-		$args = array();
-		$obj_ins = static::get_ajd_instance();
-		$rules_path = $this->get_rules_path().$append_rule.'.php';
+		$from_framework 	= "";
+		$args 				= array();
+		$obj_ins 			= static::get_ajd_instance();
+		$rules_path 		= $this->get_rules_path().$append_rule.'.php';
 
 		$args['is_anon_class'] = false;
 		$args['anon_obj'] = null;
@@ -5326,78 +5577,78 @@ class AJD_validation extends Base_validator
 		{
 			foreach( static::$addRuleDirectory as $classPath )
 			{
-				$pathHolder = $classPath.$append_rule.'.php';
+				$pathHolder 	= $classPath.$append_rule.'.php';
 				
 				if( file_exists( $pathHolder ) )
 				{
-					$rules_path = $pathHolder;
+					$rules_path 	= $pathHolder;
 				}	
 			}
 		}
 
-		$raw_append_rule = $raw_rule.'_'.static::$rules_suffix;
-		$class_meth_call = 'run';
-		$raw_class = $append_rule;
-		$symfony_args = null;
+		$raw_append_rule 	= $raw_rule.'_'.static::$rules_suffix;
+		$class_meth_call 	= 'run';
+		$raw_class 			= $append_rule;
+		$symfony_args 		= NULL;
 
 		if( $this->isset_empty( static::$ajd_prop['class_override'], $append_rule ) OR
 			$this->isset_empty( static::$ajd_prop['class_override'], $raw_append_rule ) )
 		{
-			$from_framework = static::$ajd_prop[ 'class_override' ][ $raw_rule ][0];
-			$class_rule = $append_rule;
-			$class_meth_call = static::$ajd_prop[ 'class_override' ][ $raw_rule ][1];
-			$class_name = $append_rule;
+			$from_framework  	= static::$ajd_prop[ 'class_override' ][ $raw_rule ][0];
+			$class_rule 		= $append_rule;
+			$class_meth_call 	= static::$ajd_prop[ 'class_override' ][ $raw_rule ][1];
+			$class_name 		= $append_rule;
 			
 			if( !EMPTY( $from_framework ) )
 			{	
-				$class_rule = ( in_array( $from_framework, static::$raw_rule ) ) ? ucfirst( strtolower( $raw_append_rule ) ) : $append_rule;
-				$class_name = ( in_array( $from_framework, static::$raw_rule ) ) ? $raw_rule : $append_rule;
-				$raw_class = $class_name;
+				$class_rule 	= ( in_array( $from_framework, static::$raw_rule ) ) ? ucfirst( strtolower( $raw_append_rule ) ) : $append_rule;
+				$class_name 	= ( in_array( $from_framework, static::$raw_rule ) ) ? $raw_rule : $append_rule;
+				$raw_class 		= $class_name;
 			}
 			
-			$class = static::$ajd_prop['class_override'][ $class_rule ];
+			$class 				= static::$ajd_prop['class_override'][ $class_rule ];
 
 			if(is_string($class[0]) && !is_object($class[0]))
 			{
-				$rules_path = $class[0].Abstract_common::DS.$class_name.'.php';
+				$rules_path 		= $class[0].Abstract_common::DS.$class_name.'.php';
 			}
 			else
 			{
-				$rules_path = $class[0];
+				$rules_path 		= $class[0];
 			}
 
-			$args['namespace'] = isset($class[1]) ? $class[1] : null;
+			$args['namespace'] 	= isset($class[1]) ? $class[1] : null;
 
 		}
 		else if( $this->isset_empty( static::$ajd_prop['method_override'], $lower_rule ) OR 
 				 $this->isset_empty( static::$ajd_prop['method_override'], $raw_append_rule ) )
 		{ 
-			$override = true;
-			$from_framework = static::$ajd_prop['method_override'][ $raw_rule ];
-			$method_rule = $lower_rule;
+			$override 			= TRUE;
+			$from_framework 	= static::$ajd_prop['method_override'][ $raw_rule ];
+			$method_rule 		= $lower_rule;
 
 			if( !EMPTY( $from_framework ) )
 			{
-				$method_override = true;
-				$method_rule = ( in_array( $from_framework, static::$raw_rule ) ) ? $raw_append_rule : $lower_rule;
+				$method_override= TRUE;
+				$method_rule 	= ( in_array( $from_framework, static::$raw_rule ) ) ? $raw_append_rule : $lower_rule;
 
 				if( in_array( $from_framework, static::$method_w_args ) ) 
 				{
-					$meth_arg_processor = '_process_'.$from_framework;
+					$meth_arg_processor 	= '_process_'.$from_framework;
 
-					$args = $this->{ $meth_arg_processor }( $method_rule, static::$ajd_prop[ 'method_override' ][ $from_framework ] );
-					$symfony_args = $args['args'];
+					$args 					= $this->{ $meth_arg_processor }( $method_rule, static::$ajd_prop[ 'method_override' ][ $from_framework ] );
+					$symfony_args 			= $args['args'];
 				}
 
 			}
 
-			$obj_ins = static::$ajd_prop['method_override'][ $method_rule ];
+			$obj_ins 			= static::$ajd_prop['method_override'][ $method_rule ];
 		}
 		else if( $this->isset_empty( static::$ajd_prop['function_override'], $rule ) )
 		{
-			$function_override = true;
-			$func = static::$ajd_prop['function_override'][ $rule ];
-			$args['func'] = $func;
+			$function_override 	= TRUE;
+			$func 				= static::$ajd_prop['function_override'][ $rule ];
+			$args['func'] 		= $func;
 		}
 		else if( $this->isset_empty( static::$ajd_prop['anonymous_class_override'], $append_rule ) OR
 			$this->isset_empty( static::$ajd_prop['anonymous_class_override'], $raw_append_rule ) )
@@ -5411,6 +5662,7 @@ class AJD_validation extends Base_validator
 			else if(isset(static::$ajd_prop['anonymous_class_override'][$append_rule]))
 			{
 				$anon_details =	static::$ajd_prop['anonymous_class_override'][$append_rule];
+			
 			}
 
 			if(!empty($anon_details))
@@ -5423,17 +5675,17 @@ class AJD_validation extends Base_validator
 			}
 		}
 
-		$args['override'] = $override;
-		$args['meth_override'] = $method_override;
-		$args['obj_ins'] = $obj_ins;
+		$args['override'] 			= $override;
+		$args['meth_override'] 		= $method_override;
+		$args['obj_ins'] 			= $obj_ins;
 
-		$args['rules_path'] = $rules_path;
-		$args['class_name'] = get_class( $obj_ins );
-		$args['func_override'] = $function_override;
-		$args['from_framework'] = $from_framework;
-		$args['class_meth_call'] = $class_meth_call;
-		$args['raw_class'] = $raw_class;
-		$args['symfony_args'] = $symfony_args;
+		$args['rules_path'] 		= $rules_path;
+		$args['class_name'] 		= get_class( $obj_ins );
+		$args['func_override'] 		= $function_override;
+		$args['from_framework'] 	= $from_framework;
+		$args['class_meth_call'] 	= $class_meth_call;
+		$args['raw_class'] 			= $raw_class;
+		$args['symfony_args'] 		= $symfony_args;
 		
 		return $args;
 	}
@@ -5449,19 +5701,23 @@ class AJD_validation extends Base_validator
 	{
 		if( !ISSET( static::$cache_instance[ $constraint ] ) )
 		{
-			$classReflection = static::get_factory_instance()->get_instance( TRUE );
-			$ds = DIRECTORY_SEPARATOR;
-			$constraint = $this->remove_appended_rule( $constraint );
-			$path = null;
+			$classReflection 			= static::get_factory_instance()->get_instance( TRUE );
+
+			$ds 						= DIRECTORY_SEPARATOR;
+
+			$constraint 				= $this->remove_appended_rule( $constraint );
+
+			$path 						= NULL;
 
 			if( ISSET( $args['default_path'] ) AND $args['default_path'] == TRUE )
 			{
-				$path = static::getConfig();
-				$path = $path->get( 'symfony_path' ).$constraint.'.php';
+				$path 					= static::getConfig();
+				$path 					= $path->get( 'symfony_path' ).$constraint.'.php';
+
 				unset( $args['default_path'] );
 			}
 
-			$classReflection->set_rules_namespace( ['Symfony\\Component\\Validator\\Constraints\\'] );
+			$classReflection->set_rules_namespace( array( 'Symfony\\Component\\Validator\\Constraints\\' ) );
 
 			if( ISSET( $args[ 'path' ] ) )
 			{
@@ -5470,19 +5726,19 @@ class AJD_validation extends Base_validator
 				unset( $args['path'] );
 			}
 
-			$obj = $classReflection->rules( $path, $constraint, $args );
+			$obj 						= $classReflection->rules( $path, $constraint, $args );
 
 		}
 		else 
 		{
-			$obj = static::$cache_instance[ $constraint ];
+			$obj 						= static::$cache_instance[ $constraint ];
 		}
 
 		static::$cache_instance[ $constraint ] 	= $obj;
 
-		return [
-			'args' => $obj
-		];
+		return array(
+			'args' 						=> $obj
+		);
 
 	}
 
@@ -5536,7 +5792,7 @@ class AJD_validation extends Base_validator
 		{
 			$promise = null;
 		}
-		
+
 		$fiberize_check = $that->_fiberize_check($field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $checkAsync, $promise, $dontResetGrouping);
 
 		try 

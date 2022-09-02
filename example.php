@@ -62,8 +62,8 @@ class Custom_extension extends Base_extension
 	public function getRules()
 	{
 		return array(
-			'custom_validation_rule',
-			'custom_validation2_rule'
+			'custom_validation',
+			'custom_validation2'
 		);
 	}
 
@@ -75,7 +75,7 @@ class Custom_extension extends Base_extension
 		);
 	}
 
-	public function custom_validation_rule( $value, $satisfier, $field )
+	public function custom_validation( $value, $satisfier, $field )
 	{
 		if( $value == 'a' )
 		{
@@ -87,7 +87,7 @@ class Custom_extension extends Base_extension
 		}
 	}
 
-	public function custom_validation2_rule( $value, $satisfier, $field )
+	public function custom_validation2( $value, $satisfier, $field )
 	{
 
 		return false;
@@ -398,9 +398,9 @@ die;*/
 
 try
 {
-	/*$v->addPackages([
+	$v->addPackages([
 		PackageAjd\PackageValidationServiceProvider::class
-	]);*/
+	]);
 	/*
 		Make anonymous class register function and extension anonymous class
 	*/
@@ -554,6 +554,14 @@ try
 
 		$v->positive3(2)
 		->check('register_as_rule', '')
+		->then(function()
+		{
+			echo 'pass register as rule';
+		},
+		function()
+		{
+			echo 'fail register as rule';
+		})
 		;
 
 		// var_dump($v->getValidator()->required()->positive3()->setName('test')->assertErr('a', true));
@@ -1513,8 +1521,7 @@ try
 		->is_array()
 		->check('is_array_field', '', false);
 
-	// custom function using callback/Closure
-	$v->registerFunction('my_custom_func', function($value, $field, $satisfier)
+	function test_inline($value)
 	{
 		if( $value == 'a' )
 		{
@@ -1524,21 +1531,46 @@ try
 		{
 			return false;
 		}
-	});
+	}
 
-	$v->add_rule_msg('my_custom_func', 'this value is not a');
+	// custom function using callback/Closure
+	$v->registerFunction('my_custom_func', function($value)
+	{
+		if( $value == 'a' )
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+
+	}, ['default' => 'this value is not a', 'inverse' => 'not this value is not a']);
+
+
+	// $v->registerFunction('test_inline', null, ['default' => 'this value is not a']);
+
+	// $v->add_rule_msg('my_custom_func', 'this value is not a');
+	// var_dump($v->getValidator()->my_custom_func()->assertErr('b'));
 	$v->my_custom_func()->check('my_custom_func', 'b');
-
+	
+	/*$v->test_inline()->check('my_custom_func', 'b');
+	var_dump($v->getValidator()->test_inline()->validate('b'));
+	var_dump('test_func_register');*/
+	
 	// Registering a Method 
 	$custom_method 	= new Custom_method;
-	$v->registerMethod('custom_method', $custom_method);
-	$v->add_rule_msg('custom_method', 'this value custom method is not a');
+	$v->registerMethod('custom_method', $custom_method, ['default' => 'this value custom method is not a', 'inverse' => 'not this value custom method is not a'], ['custom_args']);
+	// $v->add_rule_msg('custom_method', 'this value custom method is not a');
+	/*var_dump($v->getValidator()->custom_method()->assertErr('b'));
+	var_dump('test_func_register');*/
 	$v->custom_method()->check('custom_method', '');
+
 
 	// Registering a Custom class
 	// $path 	= dirname();
-	$v->registerClass('custom_class', new Custom_class);
-	$v->add_rule_msg('custom_class', 'this value is not custom class a');
+	$v->registerClass('custom_class', new Custom_class, ['default' => 'this value is not custom class a', 'inverse' => 'not this value is not custom class a']);
+	// var_dump($v->getValidator()->custom_class()->validate('a'));
 	$v->custom_class()->check('custom_class', '');
 
 
@@ -1713,8 +1745,7 @@ class Custom_class
 
 class Custom_method
 {
-	// there must be a suffix _rule to the method name to avoid method conflict
-	public function custom_method_rule( $value = null, $satisfier = null, $field = null )
+	public function custom_method( $value = null, $satisfier = null, $field = null )
 	{
 		if( $value == 'a' )
 		{

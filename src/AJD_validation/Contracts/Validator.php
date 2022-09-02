@@ -117,7 +117,7 @@ class Validator extends All_rule
             {
                 $anon_details = static::$ajd_prop['anonymous_class_override'][$raw_append_rule_frommacro];   
             }
-
+            
             if(!empty($anon_details))
             {
                 static::$anonRuleExceptions[ spl_object_id($anon_details['obj']) ] = $anon_details['exception'];

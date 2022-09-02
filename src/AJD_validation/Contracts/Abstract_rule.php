@@ -231,6 +231,8 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         {
             if($currentRule)
             {
+                $currentRule::setFromRuleName($ruleObj->getAnonName());
+                $ruleObj::getAnonExceptionMessage($currentRule);
                 return $currentRule;
             }
         }

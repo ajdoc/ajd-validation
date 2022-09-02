@@ -66,7 +66,7 @@ trait CanMacro
                 {
                     $reflection = new \ReflectionClass($mixin);
 
-                    $interfaces =  array_keys($reflection->getInterfaces());
+                    $interfaces = array_keys($reflection->getInterfaces());
                     
 
                     if(

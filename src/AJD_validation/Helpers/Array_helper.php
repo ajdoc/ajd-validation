@@ -6,7 +6,7 @@ class Array_helper
 {
 	public static function accessible($value)
 	{
-		$check 	= is_array( $value ) OR $value instanceof ArrayAccess;
+		$check = is_array( $value ) OR $value instanceof ArrayAccess;
 
 		return $check;
 	}
@@ -52,24 +52,24 @@ class Array_helper
     {
 		if( IS_NULL( $key ) ) 
 		{
-			return $array 	= $value;
+			return $array = $value;
 		}
 
-		$keys 				= explode('.', $key);
+		$keys = explode('.', $key);
 
 		while ( count($keys) > 1 ) 
 		{
-			$key 			= array_shift($keys);
+			$key = array_shift($keys);
 
 			if ( !ISSET( $array[$key] ) OR !is_array( $array[$key] ) ) 
 			{
-				$array[$key] 		= array();
+				$array[$key] = [];
 			}
 
-			$array 					= &$array[$key];
+			$array = &$array[$key];
 		}
 
-		$array[array_shift($keys)] 	= $value;
+		$array[array_shift($keys)] = $value;
 
 		return $array;
     }
@@ -102,7 +102,7 @@ class Array_helper
         {
 			if( is_array( $value ) AND !EMPTY( $value ) ) 
 			{
-				$results 				= array_merge( $results, static::dot($value, $prepend.$key.'.') );
+				$results = array_merge( $results, static::dot($value, $prepend.$key.'.') );
 			} 
 			else 
 			{
@@ -115,13 +115,13 @@ class Array_helper
 
     public static function dataSet(&$target, $key, $value, $overwrite = TRUE)
     {
-    	$segments 			= ( is_array( $key ) ) ? $key : explode('.', $key);
+    	$segments = ( is_array( $key ) ) ? $key : explode('.', $key);
 
     	if( ( $segment = array_shift( $segments ) ) === '*' )
     	{
     		if( !static::accessible( $target ) )
     		{
-    			$target 	= array();
+    			$target = [];
     		}
 
     		if( $segments )
@@ -135,7 +135,7 @@ class Array_helper
     		{
     			foreach( $target as &$inner )
     			{
-    				$inner 	= $value;
+    				$inner = $value;
     			}
     		}
     	}
@@ -145,14 +145,14 @@ class Array_helper
     		{
     			if( !static::exists( $target, $segment ) )
     			{
-    				$target[$segment] 	= array();
+    				$target[$segment] = [];
     			}
 
     			static::dataSet( $target[$segment], $segments, $value, $overwrite );
     		}
     		else if( $overwrite OR !static::exists( $target, $segment ) )
     		{
-    			$target[$segment] 		= $value;
+    			$target[$segment] = $value;
     		}
     	}
     	else if( is_object( $target ) )
@@ -161,19 +161,19 @@ class Array_helper
     		{
     			if( !ISSET( $target->{ $segment } ) )
     			{
-    				$target->{ $segment } 	= array();
+    				$target->{ $segment } = array();
     			}
 
     			static::dataSet( $target->{$segment}, $segments, $value, $overwrite );
     		}
     		elseif( $overwrite OR !ISSET( $target->{$segment} ) ) 
     		{
-                $target->{$segment} 		= $value;
+                $target->{$segment} = $value;
             }
     	}
     	else
     	{
-    		$target 						= array();
+    		$target = array();
 
     		if( $segments )
     		{
@@ -181,7 +181,7 @@ class Array_helper
     		}
     		else if( $overwrite )
     		{
-    			$target[$segment] 			= $value;
+    			$target[$segment] = $value;
     		}
     	}
 
@@ -195,7 +195,7 @@ class Array_helper
             return $target;
         }
 
-        $key 	= ( is_array( $key ) ) ? $key : explode('.', $key);
+        $key = ( is_array( $key ) ) ? $key : explode('.', $key);
 
         while( !IS_NULL( $segment = array_shift( $key ) ) ) 
         {
@@ -206,18 +206,18 @@ class Array_helper
         			return Abstract_common::invokeClosure($default);
         		}
 
-        		$result 	= static::pluck( $target, $key );
+        		$result = static::pluck( $target, $key );
 
         		return ( in_array('*', $key ) ) ? static::collapse($result) : $result;
         	}
 
         	if( static::accessible( $target ) AND static::exists( $target, $segment ) )
         	{
-        		$target 	= $target[$segment];
+        		$target = $target[$segment];
         	}
         	else if( is_object( $target ) AND ISSET( $target->{ $segment } ) )
         	{
-        		$target 	= $target->{ $segment };
+        		$target = $target->{ $segment };
         	}
         	else 
         	{
@@ -230,7 +230,7 @@ class Array_helper
 
     public static function collapse($array)
     {
-		$results = array();
+		$results = [];
 
 		foreach( $array as $values ) 
 		{
@@ -247,28 +247,28 @@ class Array_helper
 
     public static function pluck($array, $value, $key = null)
     {
-    	$results = array();
+    	$results = [];
 
     	list($value, $key) = static::explodePluckParameters($value, $key);
 
     	foreach ($array as $item)
     	{
-    		$itemValue 		= static::dataGet($item, $value);
+    		$itemValue = static::dataGet($item, $value);
 
     		if( IS_NULL($key) ) 
     		{
-    			$results[] 	= $itemValue;
+    			$results[] = $itemValue;
     		}
     		else
     		{
-    			$itemKey 	= static::dataGet( $item, $key );
+    			$itemKey = static::dataGet( $item, $key );
 
     			if( is_object( $itemKey ) AND method_exists($itemKey, '__toString' ) )
     			{
     				$itemKey = ( string ) $itemKey;
     			}
 
-    			$results[$itemKey] 	= $itemValue;
+    			$results[$itemKey] = $itemValue;
     		}
     	}
 
@@ -277,11 +277,11 @@ class Array_helper
 
 	protected static function explodePluckParameters($value, $key)
     {
-        $value 	= ( is_string($value) ) ? explode('.', $value) : $value;
+        $value = ( is_string($value) ) ? explode('.', $value) : $value;
 
-        $key 	= ( IS_NULL($key) OR is_array($key) ) ? $key : explode('.', $key);
+        $key = ( IS_NULL($key) OR is_array($key) ) ? $key : explode('.', $key);
 
-        return array($value, $key);
+        return [$value, $key];
     }
 
  	public static function where($array, callable $callback)

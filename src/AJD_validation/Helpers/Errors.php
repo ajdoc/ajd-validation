@@ -787,7 +787,7 @@ EOS;
 				$ruleCh 		= $rule_instance[ $called_class ];	
 				$rule 			= $rule_instance[ $called_class ];	
 			}
-
+			
 			if( isset(static::$anonymousObj[$called_class]) )
 			{
 				$exception_class_obj 	= static::$anonymousObj[$called_class];

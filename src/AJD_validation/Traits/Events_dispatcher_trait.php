@@ -7,13 +7,13 @@ use \Closure;
 
 Trait Events_dispatcher_trait 
 {
-	public static $PASSED 	= 'passed';
-	public static $FAILS 	= 'fails';
-	public static $FIBER 	= 'fiber';
+	public static $PASSED = 'passed';
+	public static $FAILS = 'fails';
+	public static $FIBER = 'fiber';
 
-	protected static $valid_events 	= [ ];
+	protected static $valid_events = [ ];
 
-	protected $customEvents 		= array();
+	protected $customEvents = [];
 
 	protected $event;
 	protected $ajd;
@@ -61,10 +61,10 @@ Trait Events_dispatcher_trait
 		}
 		
 		static::$fibers[$event] = $fibers;
-		$this->events[] 		= $event;
-		$this->event 		= strtolower( $event );
-		$this->ajd 			= $ajd;
-		$this->observer 	= $observer;
+		$this->events[] = $event;
+		$this->event = strtolower( $event );
+		$this->ajd = $ajd;
+		$this->observer = $observer;
 	}
 
 	public function passed( Closure $func )
@@ -92,7 +92,6 @@ Trait Events_dispatcher_trait
 	{
 		if( isset(static::$fibers[static::$FIBER]) && !empty(static::$fibers[static::$FIBER]) ) 
 		{
-
 			foreach(static::$fibers[static::$FIBER] as $field => $rulesk)
 			{
 				foreach($rulesk as $ruleKey => $rules)
@@ -111,7 +110,6 @@ Trait Events_dispatcher_trait
 						$paramaters_sub[] = $rule;
 						
 						call_user_func_array($func, $paramaters_sub);
-
 					}
 				}
 			}
@@ -124,7 +122,7 @@ Trait Events_dispatcher_trait
 	{
 		if( !EMPTY( $this->customEvents ) )
 		{
-			$obs 	= $this->customEvents['observer'];
+			$obs = $this->customEvents['observer'];
 
 			$obs->notify_observer($event);
 
@@ -148,16 +146,16 @@ Trait Events_dispatcher_trait
 	{
 		if( !EMPTY( $this->customEvents ) )
 		{
-			$obs 	= $this->customEvents['observer'];
-			$ajd 	= $this->customEvents['ajd'];
+			$obs = $this->customEvents['observer'];
+			$ajd = $this->customEvents['ajd'];
 
 			if( !EMPTY( $chainField ) )
 			{
-				$field 	= $chainField;
+				$field = $chainField;
 			}
 			else
 			{
-				$field 	= $this->customEvents['field'];
+				$field = $this->customEvents['field'];
 			}
 			
 			if( !$fails )
@@ -175,7 +173,6 @@ Trait Events_dispatcher_trait
 					$obs->notify_observer( $event );
 					// $this->resetCustomEvent();
 				}
-				
 			}
 		}
 
@@ -184,29 +181,29 @@ Trait Events_dispatcher_trait
 
 	protected function resetCustomEvent()
 	{
-		$this->customEvents 	= array();
+		$this->customEvents = [];
 	}
 
 	public function customEvent($event, $eventDispatcher, $observer, $ajd, $field)
 	{
-		$this->customEvents 	= array(
-			'field' 	=> $field,
-			'event'		=> $event,
-			'eventDispatcher'	=> $eventDispatcher,
-			'observer' 	=> $observer,
-			'ajd' 		=> $ajd
-		); 
+		$this->customEvents = [
+			'field' => $field,
+			'event' => $event,
+			'eventDispatcher' => $eventDispatcher,
+			'observer' => $observer,
+			'ajd' => $ajd
+		]; 
 	}
 
 	protected function check_event( $event )
 	{
-		$check 	= ( in_array( $this->event, static::$valid_events ) AND $this->event == $event );
+		$check = ( in_array( $this->event, static::$valid_events ) AND $this->event == $event );
 
 		return $check;
 
 	}
 
-	protected function invoke_function( $func, $args = [], $event = NULL )
+	protected function invoke_function( $func, $args = [], $event = null )
 	{
 		$paramaters = [
 			$this->ajd
@@ -219,7 +216,6 @@ Trait Events_dispatcher_trait
 				$paramaters[] = $this->fibers[$event]['fiber'];	
 				$paramaters[] = $this->fibers[$event]['paramaters'];	
 			}
-			
 		}
 
 		if($this->field)

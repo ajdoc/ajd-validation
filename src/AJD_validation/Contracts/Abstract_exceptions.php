@@ -243,6 +243,11 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
         return static::$fromRuleName;
     }
 
+    public static function setDefaultMessages(array $defaultMessages)
+    {
+        static::$defaultMessages = $defaultMessages;
+    }
+
     protected function buildMessageErr()
     {
         $messageKey 	= $this->chooseMessage();

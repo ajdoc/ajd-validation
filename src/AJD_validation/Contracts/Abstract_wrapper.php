@@ -55,8 +55,6 @@ abstract class Abstract_wrapper extends Abstract_rule
 
 		$appendError    = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.$error.'<br/>';
 
-		// $err->
-
 		return array(
 			'check' 		=> $check,
 			'msg'			=> $error

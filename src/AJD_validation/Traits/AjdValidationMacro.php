@@ -44,9 +44,12 @@ trait AjdValidationMacro
      * @param  Closure $validator
      * @param  array $errorMessages
      * @param  string $ruleName
+     * @param  bool $autoRun
+     * @param  bool $fromRegisterer
+     * @param  bool $bindObj
      * @return AJD_validation
      */
-    public function registerAsRule(CLosure $validator, array $errorMessages, $ruleName = null, $autoRun = true)
+    public function registerAsRule(CLosure $validator, array $errorMessages, $ruleName = null, $autoRun = true, $fromRegisterer = false, $bindObj = true)
     {
     	$that = $this;
 
@@ -57,7 +60,19 @@ trait AjdValidationMacro
         	$name = $ruleName;
         }
 
-        $anonName = $name.static::$signatureName;
+        $arguments = [];
+
+    	if(!empty($name))
+    	{
+    		$arguments = $this->arguments[$name] ?? [];
+    	}
+
+        $anonName = $name;
+
+        if(!$fromRegisterer)
+        {
+    		$anonName = $name.static::$signatureName;    	
+        }
 
         $this->ruleName = $anonName;
 
@@ -65,22 +80,35 @@ trait AjdValidationMacro
         {
 	        static::$storeErrorMessage[$anonName] = $errorMessages;
 
-	        $anonClassRule = new class($that, $validator, static::$storeErrorMessage) extends Abstract_anonymous_rule
+	        $anonClassRule = new class($that, $validator, static::$storeErrorMessage, $arguments, $bindObj) extends Abstract_anonymous_rule
 	        {
 	        	protected $mainObject;
 	        	protected $validator;
+	        	protected $bindObj;
+	        	protected $arguments = [];
 	        	protected static $errorMessages;
 
-	        	public function __construct($mainObject, CLosure $validator, array $errorMessages)
+	        	public function __construct($mainObject, CLosure $validator, array $errorMessages, array $arguments, $bindObj = true)
 	        	{
 	        		$this->mainObject = $mainObject;
 	        		$this->validator = $validator;
+	        		$this->arguments = $arguments;
+	        		$this->bindObj = $bindObj;
 	        		static::$errorMessages = $errorMessages;
 	        	}
 
 	        	public function __invoke($value, $satisfier = NULL, $field = NULL)
-				{
-					return call_user_func_array($this->validator->bindTo($this, self::class), func_get_args());
+				{	
+					$closure = $this->validator;
+
+					if($this->bindObj)
+					{
+						$closure = $this->validator->bindTo($this, self::class);
+					}
+
+					$arguments = array_merge(func_get_args(), $this->arguments);
+
+					return call_user_func_array($closure, $arguments);
 				}
 
 				public static function getAnonName() : string
@@ -91,6 +119,7 @@ trait AjdValidationMacro
 				public static function getAnonExceptionMessage(Abstract_exceptions $exceptionObj)
 				{
 					$fromRule = $exceptionObj::getFromRuleName();
+					
 					$defaultMessage = static::$errorMessages[$fromRule]['default'] ?? '';
 					$inverseMessage = static::$errorMessages[$fromRule]['inverse'] ?? $defaultMessage;
 
@@ -128,6 +157,7 @@ trait AjdValidationMacro
      *
      * @param  bool $inverse
      * @param  string $passRulename
+     * @param  string $normalName
      * @return AJD_validation
      */
     public function callRule($inverse = false, $passRulename = null, $fromRegister = false, $normalName = null)
