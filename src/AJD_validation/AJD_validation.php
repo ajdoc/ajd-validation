@@ -1,12 +1,9 @@
 <?php namespace AJD_validation;
 
-// require_once ( dirname( __FILE__ ).DIRECTORY_SEPARATOR.'autoload.php' );
-
 use AJD_validation\Contracts\Abstract_common;
 use AJD_validation\Contracts\Base_validator;
 use AJD_validation\Contracts\Validator;
 use AJD_validation\Helpers\When;
-use AJD_validation\Helpers\Expression;
 use AJD_validation\Helpers\Database;
 use AJD_validation\Helpers\Client_side;
 use AJD_validation\Helpers\Errors;
@@ -3790,13 +3787,6 @@ class AJD_validation extends Base_validator
 	public static function db( $connection = null, $user = null, $pass = null, $options = array() )
 	{
 		return new Database( $connection, $user, $pass, $options );
-	}
-
-	public static function expression( $expr, $expr_value )
-	{
-		$ajds = static::get_ajd_instance();
-
-		return new Expression( $expr, $expr_value, $ajds );
 	}
 
 	public function accessInitExtensions()
