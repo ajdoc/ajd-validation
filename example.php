@@ -240,6 +240,18 @@ class Custom_extension extends Base_extension
 			return $this;
 		};
 	}
+
+	protected $metadatatest = 'a';
+
+	public function __invoke()
+	{
+		return 'a';
+	}
+
+	protected function metadatatest()
+	{
+		return 'aa';
+	}
 }
 
 $testmacroPositive = function($args = null)
@@ -399,7 +411,8 @@ die;*/
 try
 {
 	$v->addPackages([
-		PackageAjd\PackageValidationServiceProvider::class
+		PackageAjd\PackageValidationServiceProvider::class,
+		AjdMetadata\AjdMetadataServiceProvider::class
 	]);
 	/*
 		Make anonymous class register function and extension anonymous class
@@ -466,6 +479,11 @@ try
 		->check('packagevalidation');*/
 
 	// var_dump($v->pre_filter_value());
+		
+		$v 
+			->required()
+			->minlength(2)
+			->checkClass($extension)->done(function(){ echo 'passed metadata'; });
 
 
 		$v->mixin(Custom_macro::class, true, $testmacroPositive, '1' );
@@ -1572,8 +1590,6 @@ try
 	$v->registerClass( new Custom_class, ['default' => 'this value is not custom class a', 'inverse' => 'not this value is not custom class a']);
 	// var_dump($v->getValidator()->custom_class()->validate('a'));
 	$v->custom_class()->check('custom_class', '');
-
-
 	
 	$v->custom_validation()->custom_validation2()->check('custom_extension', '');
 

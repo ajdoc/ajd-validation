@@ -4,6 +4,7 @@ namespace AJD_validation\Async;
 
 use AJD_validation\Async\PromiseHelpers;
 use AJD_validation\Async\Promise_interface;
+use AJD_validation\Async\UnhandledRejectException;
 
 class FailedPromise implements Promise_interface
 {
@@ -44,18 +45,20 @@ class FailedPromise implements Promise_interface
 
     public function done(callable $onFulfilled = null, callable $onRejected = null)
     {
-
-        /*if (null === $onRejected) 
+        if (null === $onRejected) 
         {
-            throw UnhandledRejectionException::resolve($this->reason);
-        }*/
+            $onRejected = function($reason)
+            {
+                return $reason;
+            };
+        }
+        
+        $result = $onRejected($this->reason);                
 
-        $result = $onRejected($this->reason);
-
-        /*if ($result instanceof self) 
+        if ($result instanceof self) 
         {
-            throw UnhandledRejectionException::resolve($result->reason);
-        }*/
+            throw UnhandledRejectException::resolve($result->reason);
+        }
 
         if ($result instanceof Promise_interface) 
         {
