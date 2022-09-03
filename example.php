@@ -70,7 +70,7 @@ class Custom_extension extends Base_extension
 	public function getRuleMessages()
 	{
 		return array(
-			'custom_validation' 	=> 'The :field field is not a a.',
+			'custom_validation' 	=> ['default' => 'The :field field is not a a.', 'inverse' => 'Not The :field field is not a a.'],
 			'custom_validation2' 	=> 'The :field field is not a a 2.',
 		);
 	}
