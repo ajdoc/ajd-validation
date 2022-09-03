@@ -7,7 +7,7 @@ class Validation_helpers
 {
 	public static function initializeData($field, $masterData)
     {
-        $data 			= Array_helper::dot(static::initializeFieldOnData($field, $masterData));
+        $data = Array_helper::dot(static::initializeFieldOnData($field, $masterData));
 
         return array_merge($data, static::extractValuesForWildcards(
             $masterData, $data, $field
@@ -16,10 +16,10 @@ class Validation_helpers
 
     public static function initializeProcessData( $field, $masterData )
     {
-    	$newData 		= array();
-    	$data 			= static::initializeData( $field, $masterData );
-    	$validator 		= new Validator;
-    	$pattern 		= str_replace('\*', '[^\.]*', preg_quote($field));
+    	$newData = [];
+    	$data = static::initializeData( $field, $masterData );
+    	$validator = new Validator;
+    	$pattern = str_replace('\*', '[^\.]*', preg_quote($field));
 
     	foreach( $data as $key => $value )
     	{
@@ -27,7 +27,7 @@ class Validation_helpers
 
     		if( $startsWith->validate( $field ) OR (bool) preg_match('/^'.$pattern.'\z/', $key ) )
     		{
-    			$newData[$key] 	= $value;
+    			$newData[$key] = $value;
     		}
     	}
 
@@ -37,27 +37,24 @@ class Validation_helpers
 
     protected static function initializeFieldOnData($field, $masterData)
     {
-    	$explicitPath 	= static::getLeadingExplicitFieldPath($field);
+    	$explicitPath = static::getLeadingExplicitFieldPath($field);
+    	$data = static::extractDataFromPath($explicitPath, $masterData);
+    	$validator = new Validator;
 
-    	$data 			= static::extractDataFromPath($explicitPath, $masterData);
-
-    	$validator 		= new Validator;
-
-    	$paramValidator 	= $validator->one_or( Validator::contains('*'), Validator::ends_with('*') );
+    	$paramValidator = $validator->one_or( Validator::contains('*'), Validator::ends_with('*') );
 
     	if( !$paramValidator->validate( $field ) )
     	{
     		return $data;
     	}
 
-    	return Array_helper::dataSet( $data, $field, NULL, TRUE );
+    	return Array_helper::dataSet( $data, $field, null, true );
     }
 
 	protected static function extractValuesForWildcards($masterData, $data, $field)
 	{
-	    $keys 			= array();
-
-	    $pattern 		= str_replace('\*', '[^\.]+', preg_quote($field));
+	    $keys = [];
+	    $pattern = str_replace('\*', '[^\.]+', preg_quote($field));
 
 	    foreach ($data as $key => $value) 
 	    {
@@ -67,9 +64,8 @@ class Validation_helpers
 	        }
 	    }
 
-	    $keys 			= array_unique($keys);
-
-	    $data 			= array();
+	    $keys = array_unique($keys);
+	    $data = [];
 
 	    foreach($keys as $key) 
 	    {
@@ -81,9 +77,8 @@ class Validation_helpers
 
 	public static function extractDataFromPath($field, $masterData)
     {
-        $results 	= array();
-
-        $value 		= Array_helper::get($masterData, $field, '__missing__');
+        $results = [];
+        $value = Array_helper::get($masterData, $field, '__missing__');
 
         if($value !== '__missing__') 
         {
@@ -105,11 +100,10 @@ class Validation_helpers
 
     public static function removeParentPath($parentPath, $field)
     {
-    	$fields 		= explode('.', $field);
+    	$fields = explode('.', $field);
+    	$parentKey = array_search($parentPath, $fields);
 
-    	$parentKey 		= array_search($parentPath, $fields);
-
-    	if( ISSET( $fields[$parentKey] ) )
+    	if( isset( $fields[$parentKey] ) )
     	{
     		unset( $fields[$parentKey] );
     	}
@@ -119,40 +113,38 @@ class Validation_helpers
 
     public static function formatAppendedError($messages, $exception = null, $clean_field = null, ...$args)
     {
-        $firstMessage   = str_replace('-', '', $messages[0]);
-        $realMessage    = array();
-        $messages[0]    = $firstMessage;
+        $firstMessage = str_replace('-', '', $messages[0]);
+        $realMessage = array();
+        $messages[0] = $firstMessage;
         $checkforMesage = 'Data validation failed for';
-
         $cnt = 0;
+
         foreach( $messages as $key => $message )
         {
             $origMessage = $message;
 
             if( preg_match('/'.$checkforMesage.'/', $message) )
             {
-                $message        = preg_replace('/Data validation failed for [\"]'.$clean_field.'[\"]/', '', $message );
+                $message = preg_replace('/Data validation failed for [\"]'.$clean_field.'[\"]/', '', $message );
                 
                 unset($messages[$key]);
             }
 
             if( $key != 0 )
             {
-
-                $message        = '<br/>&nbsp;&nbsp;'.$message;
+                $message = '<br/>&nbsp;&nbsp;'.$message;
             }
             else
             {
-                $message        = '<br/>&nbsp;&nbsp;&nbsp;-'.$message;
+                $message = '<br/>&nbsp;&nbsp;&nbsp;-'.$message;
             }
 
             if( !preg_match('/'.$checkforMesage.'/', $origMessage) )
             {
-                $realMessage[$cnt]  = $message;
+                $realMessage[$cnt] = $message;
 
                 $cnt++;
-            }
-            
+            }   
         }
 
         return rtrim(implode('', $realMessage), '.');

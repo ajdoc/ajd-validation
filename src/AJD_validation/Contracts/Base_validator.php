@@ -11,16 +11,16 @@ abstract class Base_validator extends Abstract_common
 	protected static $scen_ins;	
 	protected static $field_scene_ins;
 	protected static $lang;
-	protected static $addLangDir 			= [];
-	protected static $createWriteLangDir 	= [];
+	protected static $addLangDir = [];
+	protected static $createWriteLangDir = [];
 
-	public static $rules_suffix 			= 'rule';
+	public static $rules_suffix = 'rule';
 
 	protected static function get_factory_instance()
 	{
 		if( IS_NULL( static::$factory ) ) 
 		{
-			static::$factory 	= Vefja::singleton('AJD_validation\Factory\Factory_strategy');
+			static::$factory = Vefja::singleton('AJD_validation\Factory\Factory_strategy');
 		}
 
 		return static::$factory;
@@ -28,7 +28,7 @@ abstract class Base_validator extends Abstract_common
 
 	protected static function set_factory_instance( $factory )
 	{
-		static::$factory 		= $factory;
+		static::$factory = $factory;
 	}
 
 	public static function get_observable_instance($singleton = true)
@@ -39,7 +39,6 @@ abstract class Base_validator extends Abstract_common
 		}
 		else
 		{
-
 			return Vefja::instance('AJD_validation\Observer\Observable');	
 		}
 	}
@@ -61,7 +60,7 @@ abstract class Base_validator extends Abstract_common
 		return Vefja::singleton('AJD_validation\Helpers\Metadata');
 	}
 
-	protected static function get_scene_ins( $rule, $logic, $not_once = FALSE, When $when = null, $currentRuleKey = null )
+	protected static function get_scene_ins( $rule, $logic, $not_once = false, When $when = null, $currentRuleKey = null )
 	{
 		/*if( IS_NULL( static::$scen_ins ) OR $not_once ) 
 		{
@@ -73,16 +72,16 @@ abstract class Base_validator extends Abstract_common
 		return new \AJD_validation\Helpers\Rule_scenario($rule, $logic, $when, $currentRuleKey);
 	}
 
-	protected static function get_field_scene_ins( $field, $not_once = FALSE, $singleton = true )
+	protected static function get_field_scene_ins( $field, $not_once = false, $singleton = true )
 	{
-		if( ( IS_NULL( static::$field_scene_ins ) OR $not_once ) AND $singleton )
+		if( ( IS_NULL( static::$field_scene_ins ) || $not_once ) && $singleton )
 		{
-			static::$field_scene_ins 	= Vefja::singleton( 'AJD_validation\Helpers\Field_scenario', array( $field ) );
+			static::$field_scene_ins = Vefja::singleton( 'AJD_validation\Helpers\Field_scenario', array( $field ) );
 		}
 
 		if(!$singleton)
 		{
-			static::$field_scene_ins 	= Vefja::instance( 'AJD_validation\Helpers\Field_scenario', array( $field ) );
+			static::$field_scene_ins = Vefja::instance( 'AJD_validation\Helpers\Field_scenario', array( $field ) );
 		}
 
 		return static::$field_scene_ins;
@@ -129,7 +128,6 @@ abstract class Base_validator extends Abstract_common
 		
 		if($error)
 		{
-
 			if(!empty(static::$addLangDir))
 			{
 				foreach(static::$addLangDir as $lang => $path)
@@ -157,15 +155,15 @@ abstract class Base_validator extends Abstract_common
 
 	protected static function getConfig( $file = 'common_config.php' )
 	{   
-		return Vefja::singleton('AJD_validation\Config\Config', array( $file ) );
+		return Vefja::singleton('AJD_validation\Config\Config', [$file] );
 	}
 
 	protected static function createRulesName($rule)
 	{
-		$rule 			= filter_var($rule, FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES);
+		$rule = filter_var($rule, FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES);
 		$raw_class_name = strtolower($rule);
-		$class_name 	= ucfirst($raw_class_name);
-		$append_rule 	= $class_name.'_'.static::$rules_suffix;
+		$class_name = ucfirst($raw_class_name);
+		$append_rule = $class_name.'_'.static::$rules_suffix;
 
 		return [
 			'raw_class_name' => $raw_class_name,
@@ -187,8 +185,8 @@ abstract class Base_validator extends Abstract_common
 				$ruleNames = static::createRulesName($anon::getAnonName());
 
 				$raw_class_name = $ruleNames['raw_class_name'];
-				$class_name 	= $ruleNames['class_name'];
-				$append_rule 	= $ruleNames['append_rule'];
+				$class_name = $ruleNames['class_name'];
+				$append_rule = $ruleNames['append_rule'];
 
 				$newClassStr .= '
 

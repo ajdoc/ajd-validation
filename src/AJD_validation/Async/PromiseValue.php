@@ -8,7 +8,6 @@ use AJD_validation\Async\Promise_interface;
 
 class PromiseValue implements Promise_interface
 {
-
     private $value;
 
     public function __construct($value = null)

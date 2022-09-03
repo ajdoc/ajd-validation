@@ -4,35 +4,35 @@ class Config
 {
 	protected static $default_dir_path;
 	protected static $file;
-	protected static $default = NULL;
+	protected static $default = null;
 
-	public function __construct( $file = NULL, $dir = NULL )
+	public function __construct( $file = null, $dir = null )
 	{
 		static::setConfigFile( $file, $dir );
 	}
 
-	public static function setConfigFile( $file = NULL, $dir = NULL )
+	public static function setConfigFile( $file = null, $dir = null )
 	{
-		static::$default_dir_path 		= dirname( __FILE__ ).DIRECTORY_SEPARATOR;
+		static::$default_dir_path = dirname( __FILE__ ).DIRECTORY_SEPARATOR;
 		
-		if( !IS_NULL( $dir ) ) 
+		if( !is_null( $dir ) ) 
 		{
-			static::$default_dir_path 	= $dir;		
+			static::$default_dir_path = $dir;		
 		}
 
-		if( !EMPTY( $file ) AND file_exists( static::$default_dir_path.$file ) )
+		if( !empty( $file ) && file_exists( static::$default_dir_path.$file ) )
 		{
-			static::$file 					= require static::$default_dir_path.$file;
+			static::$file = require static::$default_dir_path.$file;
 		}
 	}
 
-	public static function getConfigFile( $file = NULL, $dir = NULL )
+	public static function getConfigFile( $file = null, $dir = null )
 	{
-		$default_dir_path 				= dirname( __FILE__ ).DIRECTORY_SEPARATOR;
+		$default_dir_path = dirname( __FILE__ ).DIRECTORY_SEPARATOR;
 
-		if( !IS_NULL( $dir ) ) 
+		if( !is_null( $dir ) ) 
 		{
-			$default_dir_path 			= $dir;		
+			$default_dir_path = $dir;		
 		}
 
 		if( file_exists( $default_dir_path.$file ) )
@@ -41,25 +41,23 @@ class Config
 		}
 	}
 
-	public static function get( $key, $default = NULL, $file_data = NULL )	
+	public static function get( $key, $default = null, $file_data = null )	
 	{
-		static::$default 			= $default;
-		$segments					= explode( '.', $key );
-		$file 						= ( !EMPTY( $file_data ) ) ? $file_data : static::$file;
+		static::$default = $default;
+		$segments = explode( '.', $key );
+		$file = ( !empty( $file_data ) ) ? $file_data : static::$file;
 
 		foreach( $segments as $item ) 
 		{
-			if( ISSET( $file[ $item ] ) ) 
+			if( isset( $file[ $item ] ) ) 
 			{
-				$file 				= $file[ $item ];
+				$file = $file[ $item ];
 			} 
 			else 
 			{
-				$file 				= static::$default;
-
+				$file = static::$default;
 				break;
 			}
-
 		}
 
 		return $file;
@@ -69,6 +67,5 @@ class Config
 	{
 		return ( static::get( $key ) !== static::$default );
 	}
-
 }
 

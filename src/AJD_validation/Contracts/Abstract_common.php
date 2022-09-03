@@ -6,23 +6,23 @@ use AJD_validation\Contracts\Abstract_exceptions;
 
 abstract class Abstract_common
 {
-	const DS 			= DIRECTORY_SEPARATOR;
-	const LOG_AND 		= 'and',
-		  LOG_OR 		= 'or',
-		  LOG_XOR 		= 'xor',
-		  SOMETIMES 	= 'sometimes',
-		  CODEIGNITER 	= 'codeigniter',
-		  LARAVEL  		= 'laravel',
-		  RESPECT 		= 'respect',
-		  SYMFONY 		= 'symfony',
-		  CLIENT_PARSLEY= 'parsley',
-		  EV_LOAD 		= 'load',
-		  EV_SUCCESS 	= 'success',
-		  EV_FAILS 		= 'fails',
+	const DS = DIRECTORY_SEPARATOR;
+	const LOG_AND = 'and',
+		  LOG_OR = 'or',
+		  LOG_XOR = 'xor',
+		  SOMETIMES = 'sometimes',
+		  CODEIGNITER = 'codeigniter',
+		  LARAVEL = 'laravel',
+		  RESPECT = 'respect',
+		  SYMFONY = 'symfony',
+		  CLIENT_PARSLEY = 'parsley',
+		  EV_LOAD = 'load',
+		  EV_SUCCESS = 'success',
+		  EV_FAILS = 'fails',
 		  URL_VERY_BASIC = 'verybasic';
 
    	protected $dir_root;
-   	protected static $callbackRules 	= array('callback', 'filtervar');
+   	protected static $callbackRules = ['callback', 'filtervar'];
 
 	protected static function getDirRoot()
 	{
@@ -31,7 +31,7 @@ abstract class Abstract_common
 
 	protected function flattened_array( array $arr )
 	{
-		$flat_arr 			= iterator_to_array(
+		$flat_arr = iterator_to_array(
 
 			new RecursiveIteratorIterator(
 
@@ -46,28 +46,24 @@ abstract class Abstract_common
 
 	protected function format_field_name( $field )
 	{
-		$field_arr 	= [];
+		$field_arr = [];
 		$field_return = [];
 		$clean_field = $field;
 		$orig_field = $field;
 
 		if( $this->check_has_pipe( $field ) ) 
 		{
-			$field_arr 	= explode( '|', $field );
+			$field_arr = explode( '|', $field );
 
 			$orig_field = $field_arr[ 0 ];
-
 			$clean_field = $field_arr[ 1 ];
 		} 
 
 		$clean_field = (!empty($clean_field)) ? $clean_field : '';
-
 		$clean_field = preg_replace( '/\_/', ' ', $clean_field );
-
 		$clean_field = ucfirst( strtolower( $clean_field ) );
 		
 		$field_return[ 'clean' ] = $clean_field;
-
 		$field_return[ 'orig' ] = $orig_field;
 
 		return $field_return;
@@ -91,23 +87,18 @@ abstract class Abstract_common
 	protected function clean_rule_name( $rules )
 	{
 		$return_array = [];
-
 		$clean_rule = $rules;
-
 		$inverse = $this->check_inverse( $rules );
-
-		$check 	= FALSE;
+		$check 	= false;
 
 		if( $inverse[ 'check' ] ) 
 		{
 			$clean_rule = explode( $inverse[ 'match' ][0], $rules );
-
 			$clean_rule = $clean_rule[ 1 ];
-
-			$check 	= TRUE;
+			$check 	= true;
 		}
 
-		$return_array[ 'check' ]  = $check;
+		$return_array[ 'check' ] = $check;
 		$return_array[ 'rule' ]	= $clean_rule;
 
 		return $return_array;
@@ -116,8 +107,7 @@ abstract class Abstract_common
 
 	protected function check_inverse( $value ) 
 	{
-		$match = NULL;
-
+		$match = null;
 		$check = ( bool ) preg_match( '/^!|not_/' , $value, $match );
 
 		$arr = [
@@ -132,8 +122,7 @@ abstract class Abstract_common
 	protected function remove_appended_rule( $rule )
 	{
 		$ret_rule = $rule;
-
-		$check 	= ( bool ) preg_match( '/_rule$/', $rule );
+		$check = ( bool ) preg_match( '/_rule$/', $rule );
 
 		if( $check ) 
 		{
@@ -150,38 +139,36 @@ abstract class Abstract_common
 
 	public function isset_empty( $value, $key = NULL )
 	{
-		if( ISSET( $key ) ) 
+		if( isset( $key ) ) 
 		{
-			$check 	= ( ISSET( $value[ $key ] ) AND !EMPTY( $value[ $key ] ) );
+			$check = ( isset( $value[ $key ] ) && !empty( $value[ $key ] ) );
 		} 
 		else 
 		{
-			$check 	= ( ISSET( $value ) AND !EMPTY( $value ) );
+			$check = ( isset( $value ) && !empty( $value ) );
 		}
 
 		return $check;
 	}
 
-	protected function isset_null( $value, $key = NULL )
+	protected function isset_null( $value, $key = null )
 	{
-		if( ISSET( $key ) ) 
+		if( isset( $key ) ) 
 		{
-			$check 	= ( ISSET( $value[ $key ] ) AND !IS_NULL( $value[ $key ] ) );
+			$check = ( isset( $value[ $key ] ) && !is_null( $value[ $key ] ) );
 		} 
 		else 
 		{
-			$check 	= ( ISSET( $value ) AND !IS_NULL( $value ) );
+			$check = ( isset( $value ) && !is_null( $value ) );
 		}
 
 		return $check;
 	}
 
-	protected function format_errors( $rules_name, $append_rules, $field, $value, $satisfier, $errors, $cus_err = array(), $check_arr = TRUE, $error_instance = null, $arr_key = NULL, array $append_errors = array(), $inverse = FALSE )
+	protected function format_errors( $rules_name, $append_rules, $field, $value, $satisfier, $errors, $cus_err = [], $check_arr = true, $error_instance = null, $arr_key = null, array $append_errors = [], $inverse = false )
 	{
 		// $cus_err 			= static::$cus_err;
-
 		$satis = $satisfier;
-
 		$keys = $cus_err;
 
 		if( is_callable( $satisfier ) ) 
@@ -196,86 +183,82 @@ abstract class Abstract_common
 		
 		if( in_array( $rules_name, $keys ) ) 
 		{
-			$cus_arr 	= $cus_err[ $rules_name ];
+			$cus_arr = $cus_err[ $rules_name ];
 			
-			$cus_field 	= $this->isset_empty( $cus_arr, 'field' ) ? $cus_arr[ 'field' ] : $field;
+			$cus_field = $this->isset_empty( $cus_arr, 'field' ) ? $cus_arr[ 'field' ] : $field;
 
 			if( is_array( $cus_err[ $rules_name ] ) ) 
 			{
 				if( $this->isset_empty( $cus_arr, 'satisfier' ) ) 
 				{
-					$cus_satis 	= $cus_arr[ 'satisfier' ];
+					$cus_satis = $cus_arr[ 'satisfier' ];
 				} 
 				else 
 				{
-					$cus_satis 	= $satis;
+					$cus_satis = $satis;
 				}
 
-				$errors 		= $this->process_format_errors( $cus_field, $cus_satis, $errors, $rules_name, $value, $inverse );
+				$errors = $this->process_format_errors( $cus_field, $cus_satis, $errors, $rules_name, $value, $inverse );
 			} 
 			else 
 			{
-				$errors 		= $this->process_format_errors( $cus_field, $satis, $cus_err, $rules_name, $value, $inverse );
+				$errors = $this->process_format_errors( $cus_field, $satis, $cus_err, $rules_name, $value, $inverse );
 			}
 
 		} 
 		else 
 		{
-			$errors 			= $this->process_format_errors( $field, $satis, $errors, $rules_name, $value, $inverse );
+			$errors = $this->process_format_errors( $field, $satis, $errors, $rules_name, $value, $inverse );
 		}
 
-		if( ISSET( $append_errors[ $rules_name ] ) AND !EMPTY( $append_errors[ $rules_name ] ) )
+		if( isset( $append_errors[ $rules_name ] ) && !empty( $append_errors[ $rules_name ] ) )
 		{
-			$errors 			= $errors.' '.$append_errors[ $rules_name ].'. ';
+			$errors = $errors.' '.$append_errors[ $rules_name ].'. ';
 
 		}
 
-		if( !IS_NULL( $arr_key ) AND !EMPTY( $check_arr ) )
+		if( !is_null( $arr_key ) && !empty( $check_arr ) )
 		{
-			$arr_key_str 		= $arr_key + 1;	
-			
-			$multiErr 			= $error_instance->processMultiMsg( $arr_key_str );
-			
-			$errors 			= $errors.' '.$multiErr;
+			$arr_key_str = $arr_key + 1;	
+			$multiErr = $error_instance->processMultiMsg( $arr_key_str );
+			$errors = $errors.' '.$multiErr;
 		}
 
 		return $errors;
 
 	}
 
-	protected function processErrorTemplate( array $errors, $rules_name, $inverse = FALSE )
+	protected function processErrorTemplate( array $errors, $rules_name, $inverse = false )
 	{
-		$errMsg 	= '';
-
-		$errMsg  	= ( ISSET( $errors[ $rules_name ] ) ) ? $errors[ $rules_name ] : '';
+		$errMsg = '';
+		$errMsg = ( isset( $errors[ $rules_name ] ) ) ? $errors[ $rules_name ] : '';
 
 		if( is_array( $errMsg ) )
 		{
-			$template 		= ( $inverse ) ? Abstract_exceptions::ERR_NEGATIVE : Abstract_exceptions::ERR_DEFAULT;
+			$template = ( $inverse ) ? Abstract_exceptions::ERR_NEGATIVE : Abstract_exceptions::ERR_DEFAULT;
 
-			if( ISSET( $errMsg[ $template ] ) )
+			if( isset( $errMsg[ $template ] ) )
 			{
-				if( ISSET( $errMsg[ $template ][ Abstract_exceptions::STANDARD ] ) )
+				if( isset( $errMsg[ $template ][ Abstract_exceptions::STANDARD ] ) )
 				{
-					$errMsg 	= $errMsg[ $template ][ Abstract_exceptions::STANDARD ];
+					$errMsg = $errMsg[ $template ][ Abstract_exceptions::STANDARD ];
 				}
 				else
 				{
-					$errMsg 	= '';
+					$errMsg = '';
 				}
 			}
 			else
 			{
-				$errMsg 	= '';
+				$errMsg = '';
 			}
 		}
 
 		return $errMsg;
 	}
 
-	protected function process_format_errors( $field = NULL, $satisfier = NULL, $errors = null, $rules_name = null, $value = null, $inverse = FALSE )
+	protected function process_format_errors( $field = null, $satisfier = null, $errors = null, $rules_name = null, $value = null, $inverse = false )
 	{
-
 		if(function_exists('enum_exists')) 
 		{
 			if( $value instanceof \UnitEnum ) 
@@ -286,47 +269,47 @@ abstract class Abstract_common
 
 		if( is_array( $satisfier ) ) 
 		{			
-			$errors 			= $this->replace_satisfier_errors( $satisfier, $errors, $rules_name, $inverse );
+			$errors = $this->replace_satisfier_errors( $satisfier, $errors, $rules_name, $inverse );
 
 			if( is_array( $value ) ) 
 			{
-				$value 			= $this->flattened_array( $value );
-				$valueStr		= implode( ', ', $value );
-				$errors 		= str_replace( array( ':field', ':value' ), array( $field, $valueStr ), $errors );
+				$value = $this->flattened_array( $value );
+				$valueStr = implode( ', ', $value );
+				$errors = str_replace( array( ':field', ':value' ), array( $field, $valueStr ), $errors );
 			}
 			else
 			{
 				if(is_object($value))
 				{
-					$errors 		= str_replace( array( ':field' ), array( $field ), $errors );
+					$errors = str_replace( array( ':field' ), array( $field ), $errors );
 				}
 				else
 				{
-					$errors 		= str_replace( array( ':field', ':value' ), array( $field, $value ), $errors );	
+					$errors = str_replace( array( ':field', ':value' ), array( $field, $value ), $errors );	
 				}
 				
 			}
 		} 
 		else 
 		{
-			$errMsg 			= $this->processErrorTemplate( $errors, $rules_name, $inverse );
+			$errMsg = $this->processErrorTemplate( $errors, $rules_name, $inverse );
 
 			if( ISSET( $field ) AND ISSET( $satisfier ) ) 
 			{
 				if( is_string( $satisfier ) )
 				{
-					$cl_satis 	= $this->format_field_name( $satisfier );
-					$satisfier  = $cl_satis['clean'];
+					$cl_satis = $this->format_field_name( $satisfier );
+					$satisfier = $cl_satis['clean'];
 				}
 
 				if(is_object($value))
 				{
-					$errors 		= str_replace( array( ':field', ':satisfier' ), array( $field, $satisfier ), $errMsg );
+					$errors = str_replace( array( ':field', ':satisfier' ), array( $field, $satisfier ), $errMsg );
 				}
 				else
 				{
 
-					$errors 		= str_replace( array( ':field', ':value', ':satisfier' ), array( $field, $value, $satisfier ), $errMsg );
+					$errors = str_replace( array( ':field', ':value', ':satisfier' ), array( $field, $value, $satisfier ), $errMsg );
 				}
 
 			} 
@@ -334,62 +317,62 @@ abstract class Abstract_common
 			{
 				if(is_object($value))
 				{
-					$errors 		= str_replace( array( ':field', ':satisfier' ), array( $field, $satisfier ), $errMsg );
+					$errors = str_replace( array( ':field', ':satisfier' ), array( $field, $satisfier ), $errMsg );
 				}
 				else
 				{
-					$errors 		= str_replace( array( ':field', ':value', ':satisfier' ), array( $field, $value, $satisfier ), $errMsg );
+					$errors = str_replace( array( ':field', ':value', ':satisfier' ), array( $field, $value, $satisfier ), $errMsg );
 				}
 			}
 		}
 
-		$errors 				= preg_replace( '/(\s)+/', ' ', $errors );
+		$errors = preg_replace( '/(\s)+/', ' ', $errors );
 
 		return $errors;
 
 	}
 
-	protected function replace_satisfier_errors( $satisfier, $errors, $rules_name, $inverse = FALSE ) 
+	protected function replace_satisfier_errors( $satisfier, $errors, $rules_name, $inverse = false ) 
 	{
-		$satisfier_flat    		= $this->flattened_array( $satisfier );
+		$satisfier_flat = $this->flattened_array( $satisfier );
 
 		array_walk( $satisfier_flat, function( $value, $key ) use ( &$satisfier_flat ) {
 
 			if( is_string( $value ) )
 			{
-				$cl_satis 				= $this->format_field_name( $value );
+				$cl_satis = $this->format_field_name( $value );
 				$satisfier_flat[ $key ] = $cl_satis['clean'];
 			}
 
 		} );
 
-      	$satis_replace 			= array_map( function( $i ) 
+      	$satis_replace = array_map( function( $i ) 
       	{
             return ":$i";
 
         }, array_keys( $satisfier_flat ) );
               
-      	$implode 				= implode( ', ', $satisfier_flat );
+      	$implode = implode( ', ', $satisfier_flat );
 
-            	// Number of arguments
-    	$satisfier_flat[] 		= count( $satisfier_flat );
-    	$satis_replace[] 		= ':#';
+        // Number of arguments
+    	$satisfier_flat[] = count( $satisfier_flat );
+    	$satis_replace[] = ':#';
 
-	            // All arguments
-        $satisfier_flat[] 		= $implode;
-        $satis_replace[] 		= ':*';        
+	    // All arguments
+        $satisfier_flat[] = $implode;
+        $satis_replace[] = ':*';        
 
-        $errMsg 				= $this->processErrorTemplate( $errors, $rules_name, $inverse );
+        $errMsg = $this->processErrorTemplate( $errors, $rules_name, $inverse );
         
-        $message 				= str_replace( $satis_replace , $satisfier_flat, $errMsg );
+        $message = str_replace( $satis_replace , $satisfier_flat, $errMsg );
 
         return $message;
 
 	}
 
-	protected function array_search_recursive( $needle, $haystack, $strict = FALSE )
+	protected function array_search_recursive( $needle, $haystack, $strict = false )
 	{
-		$path 				= array();
+		$path = [];
 
 		if( !is_array( $haystack ) ) 
 		{
@@ -398,24 +381,23 @@ abstract class Abstract_common
 
 	    foreach ( $haystack as $key => $val ) 
 	    {
-	    	$sub_path 		 	= $this->array_search_recursive( $needle, $val, $strict );
+	    	$sub_path = $this->array_search_recursive( $needle, $val, $strict );
 
-	    	if( is_array( $val ) AND !IS_NULL( $sub_path ) AND $sub_path !== FALSE ) 
+	    	if( is_array( $val ) && !is_null( $sub_path ) && $sub_path !== false ) 
 	    	{
-	    		$path[ $key ] 	= $sub_path;
+	    		$path[ $key ] = $sub_path;
 
 	    		return $path;
 	    	} 
-	    	else if( ( !$strict AND $val == $needle ) || ( $strict AND $val === $needle ) ) 
+	    	else if( ( !$strict && $val == $needle ) || ( $strict && $val === $needle ) ) 
 	    	{
-	    		$path 			= $key;
+	    		$path = $key;
 
 	    		return $path;
 	    	}
-	    	
 	    }
 
-	    return FALSE;
+	    return false;
 	}
 
 	public static function invokeClosure($value)
@@ -423,32 +405,32 @@ abstract class Abstract_common
 		return ( $value instanceof Closure ) ? $value() : $value;
 	}
 
-	public static function processDefaultParams( array $defaultParams = array(), array $args = array() )
+	public static function processDefaultParams( array $defaultParams = [], array $args = [] )
 	{
-		$addToArgs 		= array();
+		$addToArgs = [];
 
-		if( !EMPTY( $defaultParams ) )
+		if( !empty( $defaultParams ) )
 		{
 			foreach( $defaultParams as $key => $reflectParams )
 			{
-				if( !ISSET( $args[ $key ] ) )
+				if( !isset( $args[ $key ] ) )
 				{
 					if( $reflectParams->isDefaultValueAvailable() )
 					{
-						$addToArgs[] 	= $reflectParams->getDefaultValue();
+						$addToArgs[] = $reflectParams->getDefaultValue();
 					}
 					else
 					{
-						$addToArgs[] 	= NULL;
+						$addToArgs[] = null;
 					}
 				}
 				else
 				{
-					$addToArgs[] 	= $args[$key];
+					$addToArgs[] = $args[$key];
 				}
 			}
 
-			$args 					= $addToArgs;
+			$args = $addToArgs;
 		}
 
 		return $args;

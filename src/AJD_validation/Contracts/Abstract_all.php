@@ -5,7 +5,7 @@ use AJD_validation\Contracts\Abstract_exceptions;
 
 abstract class Abstract_all extends Abstract_rule
 {
-	protected $rules 	= array();
+	protected $rules = [];
 
 	public function __construct()
 	{
@@ -14,11 +14,11 @@ abstract class Abstract_all extends Abstract_rule
 
     public function setName($name)
     {
-        $parentName     = $this->getName();
+        $parentName = $this->getName();
 
         foreach ($this->rules as $rule) 
         {
-            $ruleName   = $rule->getName();
+            $ruleName = $rule->getName();
 
             if( $ruleName && $parentName !== $ruleName) 
             {
@@ -33,7 +33,7 @@ abstract class Abstract_all extends Abstract_rule
 
  	public function removeRules()
     {
-        $this->rules = array();
+        $this->rules = [];
     }
 
 	public function addRules(array $rules)
@@ -56,13 +56,12 @@ abstract class Abstract_all extends Abstract_rule
     		{
     			$this->addRuleValidator( $rule );
     		}
-
     	}
 
     	return $this;
     }
 
-    public function addRuleValidator( $rule, $arguments = array() )
+    public function addRuleValidator( $rule, $arguments = [] )
     {
     	if( !$rule instanceof Rule_interface )
     	{
@@ -78,7 +77,7 @@ abstract class Abstract_all extends Abstract_rule
 	
 	protected function appendRule(Rule_interface $rule)
     {
-    	 $this->rules[spl_object_hash($rule)] = $rule;
+        $this->rules[spl_object_hash($rule)] = $rule;
     }
 
     public function getRules()
@@ -86,10 +85,10 @@ abstract class Abstract_all extends Abstract_rule
         return $this->rules;
     }
 
-    protected function assertRules($value, $override = FALSE, $inverseCheck = null)
+    protected function assertRules($value, $override = false, $inverseCheck = null)
     {
-        $validators     = $this->getRules();
-        $exceptions     = array();
+        $validators = $this->getRules();
+        $exceptions = [];
         
         foreach( $validators as $v )
         {
@@ -106,10 +105,10 @@ abstract class Abstract_all extends Abstract_rule
         return $exceptions;
     }
 
-    protected function assertSequenceRules($sequentialRules, $value, $clean_field = null, $override = FALSE, $compound = false)
+    protected function assertSequenceRules($sequentialRules, $value, $clean_field = null, $override = false, $compound = false)
     {
-        $collections    = $sequentialRules;
-        $exceptions     = [];
+        $collections = $sequentialRules;
+        $exceptions = [];
 
         $countCollections = count($collections);
         
@@ -158,10 +157,10 @@ abstract class Abstract_all extends Abstract_rule
         return $exceptions;
     }
 
-     protected function assertCompoundRules($compoundRules, $value, $clean_field = null, $override = FALSE)
+     protected function assertCompoundRules($compoundRules, $value, $clean_field = null, $override = false)
     {
-        $collections    = $compoundRules;
-        $exceptions     = [];
+        $collections = $compoundRules;
+        $exceptions = [];
 
         $countCollections = count($collections);
         

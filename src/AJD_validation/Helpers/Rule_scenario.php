@@ -11,20 +11,20 @@ class Rule_scenario extends AJD_validation
 	protected $when;
 	protected $currentRuleKey;
 
-	public function __construct( $rule = NULL, $logic = Abstract_common::LOG_AND, When $when = NULL, $currentRuleKey = null )
+	public function __construct( $rule = null, $logic = Abstract_common::LOG_AND, When $when = null, $currentRuleKey = null )
 	{
 		if( !EMPTY( $rule ) ) 
 		{
-			$this->rule_name 							= $rule;	
+			$this->rule_name = $rule;	
 		}
 		
-		$this->logic 									= $logic;
+		$this->logic = $logic;
 
-		$this->currentRuleKey 							= $currentRuleKey;
+		$this->currentRuleKey = $currentRuleKey;
 
 		if( !EMPTY( $when ) )
 		{
-			$this->when 								= $when;
+			$this->when = $when;
 
 			return $this->when;
 		}
@@ -39,16 +39,16 @@ class Rule_scenario extends AJD_validation
 		return $this->currentRuleKey;
 	}
 
-	public function on( $scenario = NULL, $ruleOverride = NULL, $forJs = FALSE )
+	public function on( $scenario = null, $ruleOverride = null, $forJs = false )
 	{
-		$logic 												= static::$ajd_prop[ 'current_logic' ];
-		$curr_field 										= static::$ajd_prop[ 'current_field' ];
+		$logic = static::$ajd_prop[ 'current_logic' ];
+		$curr_field = static::$ajd_prop[ 'current_field' ];
 
-		$rule 												= $this->rule_name;
+		$rule = $this->rule_name;
 
 		if( !EMPTY( $ruleOverride ) )
 		{
-			$rule 											= $ruleOverride;
+			$rule = $ruleOverride;
 		}
 
 		if( !$forJs )
@@ -61,11 +61,11 @@ class Rule_scenario extends AJD_validation
 					{
 						if(!is_null($this->currentRuleKey))
 						{
-							static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'scenarios' ][ $scenario ][][] 	= $this->currentRuleKey.'|+'.$rule;
+							static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'scenarios' ][ $scenario ][][] = $this->currentRuleKey.'|+'.$rule;
 						}
 						else
 						{
-							static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'scenarios' ][ $scenario ][][] 	= $rule;	
+							static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'scenarios' ][ $scenario ][][] = $rule;	
 						}
 						
 					}
@@ -73,11 +73,11 @@ class Rule_scenario extends AJD_validation
 					{
 						if(!is_null($this->currentRuleKey))
 						{
-							static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'scenarios' ][ $scenario ][][] 	= $this->currentRuleKey.'|+'.$rule;
+							static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'scenarios' ][ $scenario ][][] = $this->currentRuleKey.'|+'.$rule;
 						}
 						else
 						{
-							static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'scenarios' ][ $scenario ][][] 	= $rule;	
+							static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'scenarios' ][ $scenario ][][] = $rule;	
 						}
 						
 					}
@@ -88,24 +88,23 @@ class Rule_scenario extends AJD_validation
 					{
 						if(!is_null($this->currentRuleKey))
 						{
-							static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'scenarios' ][ $scenario ][][] 											= $this->currentRuleKey.'|+'.$rule;
+							static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'scenarios' ][ $scenario ][][] = $this->currentRuleKey.'|+'.$rule;
 						}
 						else
 						{
-							static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'scenarios' ][ $scenario ][][] 											= $rule;
+							static::$ajd_prop[static::$constraintStorageName][ $logic ][ 'scenarios' ][ $scenario ][][] = $rule;
 						}
 					}
 					else
 					{
 						if(!is_null($this->currentRuleKey))
 						{
-							static::$ajd_prop[ $logic ][ 'scenarios' ][ $scenario ][][] 											= $this->currentRuleKey.'|+'.$rule;
+							static::$ajd_prop[ $logic ][ 'scenarios' ][ $scenario ][][] = $this->currentRuleKey.'|+'.$rule;
 						}
 						else
 						{
-							static::$ajd_prop[ $logic ][ 'scenarios' ][ $scenario ][][] 											= $rule;	
+							static::$ajd_prop[ $logic ][ 'scenarios' ][ $scenario ][][] = $rule;	
 						}
-						
 					}
 				}
 			}
@@ -122,12 +121,11 @@ class Rule_scenario extends AJD_validation
 	
 	}
 
-	public function publish($event, \Closure $callback = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = NULL, $forJs = FALSE)
+	public function publish($event, \Closure $callback = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = null, $forJs = false)
 	{
-		$logic 												= static::$ajd_prop[ 'current_logic' ];
-		$curr_field 										= static::$ajd_prop[ 'current_field' ];
-
-		$rule 												= $this->rule_name;
+		$logic = static::$ajd_prop[ 'current_logic' ];
+		$curr_field = static::$ajd_prop[ 'current_field' ];
+		$rule = $this->rule_name;
 
 		if(!empty($callback))
 		{
@@ -143,7 +141,7 @@ class Rule_scenario extends AJD_validation
 
 		if( !EMPTY( $ruleOverride ) )
 		{
-			$rule 											= $ruleOverride;
+			$rule = $ruleOverride;
 		}
 
 		if( !$forJs )
@@ -154,11 +152,11 @@ class Rule_scenario extends AJD_validation
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] 	= $curr_field.'-|'.$event;
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] = $curr_field.'-|'.$event;
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][] 	= $curr_field.'-|'.$event;	
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][] = $curr_field.'-|'.$event;	
 					}
 					
 				}
@@ -166,11 +164,11 @@ class Rule_scenario extends AJD_validation
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][$this->currentRuleKey][] 	= $event;	
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][$this->currentRuleKey][] = $event;	
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][] 	= $event;	
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][] = $event;	
 					}
 				}
 				
@@ -181,24 +179,23 @@ class Rule_scenario extends AJD_validation
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] 	= 	$curr_field.'-|'.$event;
+						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] = $curr_field.'-|'.$event;
 					}
 					else
 					{
-						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][] 	= 	$curr_field.'-|'.$event;
+						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][] = $curr_field.'-|'.$event;
 					}
 				}
 				else
 				{	
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop['events'][$eventType][$rule][$this->currentRuleKey][] 	= 	$event;
+						static::$ajd_prop['events'][$eventType][$rule][$this->currentRuleKey][] = $event;
 					}
 					else
 					{
-						static::$ajd_prop['events'][$eventType][$rule][] 	= 	$event;	
+						static::$ajd_prop['events'][$eventType][$rule][] = $event;	
 					}
-					
 				}
 			}
 		}
@@ -213,53 +210,51 @@ class Rule_scenario extends AJD_validation
 		}
 	}
 
-	public function publishSuccess($event, \Closure $callback = null, $forJs = FALSE, $ruleOverride = NULL)
+	public function publishSuccess($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
 	{
 		return $this->publish($event, $callback, Abstract_common::EV_SUCCESS, $ruleOverride, $forJs);
 	}
 
-	public function publishFail($event, \Closure $callback = null, $forJs = FALSE, $ruleOverride = NULL)
+	public function publishFail($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
 	{
 		return $this->publish($event, $callback, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
 	}
 
-	public function sometimes( $sometimes = Abstract_common::SOMETIMES, $ruleOverride = NULL, $forJs = FALSE )
+	public function sometimes( $sometimes = Abstract_common::SOMETIMES, $ruleOverride = null, $forJs = false )
 	{
-		$logic 												= static::$ajd_prop[ 'current_logic' ];
-		$curr_field 										= static::$ajd_prop[ 'current_field' ];
-
-		$rule 												= $this->rule_name;
+		$logic = static::$ajd_prop[ 'current_logic' ];
+		$curr_field = static::$ajd_prop[ 'current_field' ];
+		$rule = $this->rule_name;
 
 		if( !EMPTY( $ruleOverride ) )
 		{
-			$rule 											= $ruleOverride;
+			$rule = $ruleOverride;
 		}
 
 		if( !$forJs )
 		{
-
 			if( !EMPTY( $curr_field ) )
 			{ 
 				if( !EMPTY( static::$constraintStorageName ) )
 				{
 					if(!is_null($this->currentRuleKey))
 					{		
-						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey] 	= $sometimes;
+						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey] = $sometimes;
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ] 	= $sometimes;
+						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ] = $sometimes;
 					}
 				}
 				else
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey] 		= $sometimes;
+						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey] = $sometimes;
 					}
 					else
 					{
-						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ] 		= $sometimes;	
+						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ] = $sometimes;	
 					}
 					
 				}
@@ -270,25 +265,23 @@ class Rule_scenario extends AJD_validation
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[static::$constraintStorageName][ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey]										= $sometimes;
+						static::$ajd_prop[static::$constraintStorageName][ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey] = $sometimes;
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName][ $this->logic ][ 'sometimes' ][ $rule ] 										= $sometimes;	
+						static::$ajd_prop[static::$constraintStorageName][ $this->logic ][ 'sometimes' ][ $rule ] = $sometimes;	
 					}
-					
 				}
 				else
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey] 										= $sometimes;
+						static::$ajd_prop[ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey] = $sometimes;
 					}
 					else
 					{
-						static::$ajd_prop[ $this->logic ][ 'sometimes' ][ $rule ] 										= $sometimes;	
+						static::$ajd_prop[ $this->logic ][ 'sometimes' ][ $rule ] = $sometimes;	
 					}
-					
 				}
 			}
 		}
@@ -303,12 +296,11 @@ class Rule_scenario extends AJD_validation
 		}
 	}
 
-	public function groups( $groups = null, $ruleOverride = NULL, $forJs = FALSE )
+	public function groups( $groups = null, $ruleOverride = NULL, $forJs = false )
 	{
-		$logic 												= static::$ajd_prop[ 'current_logic' ];
-		$curr_field 										= static::$ajd_prop[ 'current_field' ];
-
-		$rule 												= $this->rule_name;
+		$logic = static::$ajd_prop[ 'current_logic' ];
+		$curr_field = static::$ajd_prop[ 'current_field' ];
+		$rule = $this->rule_name;
 
 		if(!is_array($groups))
 		{
@@ -317,35 +309,33 @@ class Rule_scenario extends AJD_validation
 
 		if( !EMPTY( $ruleOverride ) )
 		{
-			$rule 											= $ruleOverride;
+			$rule = $ruleOverride;
 		}
 
 		if( !$forJs )
 		{
-
 			if( !EMPTY( $curr_field ) )
 			{ 
 				if( !EMPTY( static::$constraintStorageName ) )
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'groups' ][ $rule ][$this->currentRuleKey] 	= $groups;
+						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'groups' ][ $rule ][$this->currentRuleKey] = $groups;
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'groups' ][ $rule ] 	= $groups;	
+						static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'groups' ][ $rule ] = $groups;	
 					}
-					
 				}
 				else
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'groups' ][ $rule ][$this->currentRuleKey] 		= $groups;
+						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'groups' ][ $rule ][$this->currentRuleKey] = $groups;
 					}
 					else
 					{
-						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'groups' ][ $rule ] 		= $groups;
+						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'groups' ][ $rule ] = $groups;
 					}
 				}
 			}
@@ -355,22 +345,22 @@ class Rule_scenario extends AJD_validation
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[static::$constraintStorageName][ $this->logic ][ 'groups' ][ $rule ][$this->currentRuleKey] 										= $groups;
+						static::$ajd_prop[static::$constraintStorageName][ $this->logic ][ 'groups' ][ $rule ][$this->currentRuleKey] = $groups;
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName][ $this->logic ][ 'groups' ][ $rule ] 										= $groups;
+						static::$ajd_prop[static::$constraintStorageName][ $this->logic ][ 'groups' ][ $rule ] = $groups;
 					}
 				}
 				else
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[ $this->logic ][ 'groups' ][ $rule ][$this->currentRuleKey] 										= $groups;
+						static::$ajd_prop[ $this->logic ][ 'groups' ][ $rule ][$this->currentRuleKey] = $groups;
 					}
 					else
 					{
-						static::$ajd_prop[ $this->logic ][ 'groups' ][ $rule ] 										= $groups;
+						static::$ajd_prop[ $this->logic ][ 'groups' ][ $rule ] = $groups;
 					}
 				}
 			}
@@ -386,13 +376,13 @@ class Rule_scenario extends AJD_validation
 		}
 	}
 
-	public function suspend($ruleOverride = NULL, $forJs = FALSE)
+	public function suspend($ruleOverride = null, $forJs = false)
 	{
-		$rule 			= $this->rule_name;
+		$rule = $this->rule_name;
 
 		if( !EMPTY( $ruleOverride ) )
 		{
-			$rule 		= $ruleOverride;
+			$rule = $ruleOverride;
 		}
 
 		if(!is_null($this->currentRuleKey))

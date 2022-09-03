@@ -4,14 +4,14 @@ use AJD_validation\Factory\Factory_strategy;
 
 class Vefja
 {	
-	protected $definitions  	= array();
+	protected $definitions = [];
 
-	protected static $singleton = array();
+	protected static $singleton = [];
 	protected static $vefja_ins;
 
-	public function add( $alias, array $args = array() )
+	public function add( $alias, array $args = [] )
 	{
-		$this->definitions[ $alias ] 	= $this->getDefinition( $alias, $args );
+		$this->definitions[ $alias ] = $this->getDefinition( $alias, $args );
 	}
 
 	public function get( $alias )
@@ -19,9 +19,9 @@ class Vefja
 		return $this->definitions[ $alias ];
 	}
 
-	public function getDefinition( $definition, array $args = array() )
+	public function getDefinition( $definition, array $args = [] )
 	{
-		$factory 				= new Factory_strategy;
+		$factory = new Factory_strategy;
 
 		if( is_array( $definition ) )
 		{
@@ -29,10 +29,9 @@ class Vefja
 		}
 		else
 		{
-
-			$reflection 		= $factory->make( Factory_strategy::F_CLASS, $definition );
+			$reflection = $factory->make( Factory_strategy::F_CLASS, $definition );
 			
-			return  $reflection->getConstructor() ? $reflection->newInstanceArgs( $args ) : $reflection->newInstanceWithoutConstructor();
+			return $reflection->getConstructor() ? $reflection->newInstanceArgs( $args ) : $reflection->newInstanceWithoutConstructor();
 		}
 	}
 
@@ -40,46 +39,44 @@ class Vefja
 	{
 		if( IS_NULL( static::$vefja_ins ) ) 
 		{
-			static::$vefja_ins 	= new static;
+			static::$vefja_ins = new static;
 		}
 
 		return static::$vefja_ins;
 	}
 
-	public static function singleton( $alias, array $args = array() )
+	public static function singleton( $alias, array $args = [])
 	{
-		$vefja 		= static::get_instance();
-
-		$obj_ins 	= NULL;
+		$vefja = static::get_instance();
+		$obj_ins = NULL;
 		
-		if( !ISSET( static::$singleton[ $alias ] ) )
+		if( !isset( static::$singleton[ $alias ] ) )
 		{
 			if( class_exists( $alias ) )
 			{
 				$obj_ins = $vefja->getDefinition( $alias, $args );
 
-				static::$singleton[ $alias ] 	= $obj_ins;
+				static::$singleton[ $alias ] = $obj_ins;
 			}
 		}
 		else
 		{
-			$obj_ins 	= static::$singleton[ $alias ];
+			$obj_ins = static::$singleton[ $alias ];
 		}
 
 		return $obj_ins;
 	}
 
-	public static function instance( $alias, array $args = array() )
+	public static function instance( $alias, array $args = [])
 	{
-		$vefja 		= static::get_instance();
-
-		$obj_ins 	= NULL;
+		$vefja = static::get_instance();
+		$obj_ins = null;
 
 		if( class_exists( $alias ) )
 		{
 			$obj_ins = $vefja->getDefinition( $alias, $args );
 
-			static::$singleton[ $alias ] 	= $obj_ins;
+			static::$singleton[ $alias ] = $obj_ins;
 		}
 		
 		return $obj_ins;

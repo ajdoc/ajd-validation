@@ -26,44 +26,44 @@ abstract class Abstract_wrapper extends Abstract_rule
 
 	public function run( $value, $satisfier = NULL, $field = NULL, $clean_field = NULL )
 	{
-		$currClass 		= $this->getValidationRules();
-		$check 			= $currClass->run( $value, $satisfier, $field );
+		$currClass = $this->getValidationRules();
+		$check = $currClass->run( $value, $satisfier, $field );
 		
-		$err 			= static::get_errors_instance();
+		$err = static::get_errors_instance();
 
-		$calledClass 	= get_class($currClass);
+		$calledClass = get_class($currClass);
 
-		$currExcept 	= str_replace('\\Rules\\', '\\Exceptions\\', $calledClass);
-		$currExcept 	.= '_exception';
+		$currExcept = str_replace('\\Rules\\', '\\Exceptions\\', $calledClass);
+		$currExcept .= '_exception';
 
-		$currNamespaceArr 	= explode('\\', $currExcept);
-		$keys 				= array_keys($currNamespaceArr);
-		$end 				= end($keys);
+		$currNamespaceArr = explode('\\', $currExcept);
+		$keys = array_keys($currNamespaceArr);
+		$end = end($keys);
 		unset($currNamespaceArr[ $end ]);
 		
-		$curNamespace 	= implode('\\', $currNamespaceArr);
-		$curNamespace 	.= '\\';
+		$curNamespace = implode('\\', $currNamespaceArr);
+		$curNamespace .= '\\';
 
-		$currExceptDIr 	= dirname(dirname(__FILE__)).Abstract_common::DS.'Exceptions'.Abstract_common::DS.'SubdivisionCode'.Abstract_common::DS;
+		$currExceptDIr = dirname(dirname(__FILE__)).Abstract_common::DS.'Exceptions'.Abstract_common::DS.'SubdivisionCode'.Abstract_common::DS;
 
 		$err->addExceptionNamespace( $curNamespace );
 		$err->addExceptionDirectory( $currExceptDIr );
 
-		$exception 		= $this->getExceptionError($value, array(), $currClass);
+		$exception = $this->getExceptionError($value, array(), $currClass);
 
-		$error 			= str_replace(array(':field'), array($clean_field), $exception->getExceptionMessage());
+		$error = str_replace(array(':field'), array($clean_field), $exception->getExceptionMessage());
 
-		$appendError    = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.$error.'<br/>';
+		$appendError = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.$error.'<br/>';
 
-		return array(
-			'check' 		=> $check,
-			'msg'			=> $error
-		);
+		return [
+			'check' => $check,
+			'msg' => $error
+		];
 	}
 
 	public function validate( $value )
 	{
-	 	$check              = $this->run( $value );
+	 	$check = $this->run( $value );
 
         if( is_array( $check ) )
         {

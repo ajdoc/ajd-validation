@@ -12,11 +12,11 @@ use Egulias\EmailValidator\Validation\SpoofCheckValidation;
 class Abstract_email extends Abstract_rule
 {
 	protected $emailChecker;
-	protected $eguilasValidationNamespace 	= 'Egulias\\EmailValidator\\Validation\\';
+	protected $eguilasValidationNamespace = 'Egulias\\EmailValidator\\Validation\\';
 
-	protected $validEmailValidation  		= [];
+	protected $validEmailValidation = [];
 
-	protected $eguilasValidations 			= [
+	protected $eguilasValidations = [
 		'RFCValidation',
 		'SpoofCheckValidation'
 	];
@@ -47,7 +47,7 @@ class Abstract_email extends Abstract_rule
     		'default' => [$this, 'validateEmail']
     	];
 
-    	$this->emailChecker 	= $emailChecker;
+    	$this->emailChecker = $emailChecker;
 
     	$this->eguilasValidations[] = [
 			$this, 'validateEmail'
@@ -88,33 +88,32 @@ class Abstract_email extends Abstract_rule
     	return $this->emailChecker;
     }
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
     {
-	 	$emailChecker 		= $this->getemailChecker();
+	 	$emailChecker = $this->getemailChecker();
 
-	 	$checkEm 			= FALSE;
-	 	$errorMessage 		= '';
-
+	 	$checkEm = false;
+	 	$errorMessage = '';
 	 	$checkbByValidateEmail = null;
 
 	 	if( is_string( $value ) )
 	 	{
-	 		$value 			= $this->Femail()
-	 		 					->cacheFilter('value')
-	 		 					->filterSingleValue( $value, TRUE );
+	 		$value = $this->Femail()
+ 						->cacheFilter('value')
+	 					->filterSingleValue( $value, true );
 	 	}
 
 	 	if( !$emailChecker instanceof EmailValidator ) 
 	 	{
-	 		$checkEm 		= $this->validateEmail($value);
+	 		$checkEm = $this->validateEmail($value);
 	 	}
 	 	else if( !class_exists('Egulias\\EmailValidator\\Validation\\RFCValidation') ) 
 	 	{
-	 		$checkEm 		= $emailChecker->isValid($value);
+	 		$checkEm = $emailChecker->isValid($value);
 	 	}
 	 	else
 	 	{
-	 		$multipleArr 	= array();
+	 		$multipleArr = [];
 	 		
 	 		if( class_exists('Egulias\\EmailValidator\\Validation\\MultipleValidationWithAnd') )
 	 		{
@@ -124,11 +123,11 @@ class Abstract_email extends Abstract_rule
 	 				{
 	 					if( !ISSET( $multipleArr[$emailValidation] ) )
 	 					{
-	 						$reflection 					= new \ReflectionClass($this->eguilasValidationNamespace.$emailValidation);
+	 						$reflection = new \ReflectionClass($this->eguilasValidationNamespace.$emailValidation);
 
 	 						try
 	 						{
-	 							$multipleArr[$emailValidation] 	= $reflection->newInstanceArgs(array());
+	 							$multipleArr[$emailValidation] = $reflection->newInstanceArgs(array());
 	 						}
 	 						catch( \LogicException $e )
 	 						{
@@ -154,7 +153,7 @@ class Abstract_email extends Abstract_rule
 	 			{
 	 				if( count( $multipleArr ) == 1 )
 	 				{
-	 					$checkEm 				= $emailChecker->isValid( $value, current( $multipleArr ) );
+	 					$checkEm = $emailChecker->isValid( $value, current( $multipleArr ) );
 
 	 					if(!is_null($checkbByValidateEmail))
 	 					{
@@ -163,9 +162,9 @@ class Abstract_email extends Abstract_rule
 	 				}
 	 				else
 	 				{
-		 				$multipleValidations 	= new MultipleValidationWithAnd( array_values( $multipleArr ) );
+		 				$multipleValidations = new MultipleValidationWithAnd( array_values( $multipleArr ) );
 
-		 				$checkEm 				= $emailChecker->isValid( $value, $multipleValidations );
+		 				$checkEm = $emailChecker->isValid( $value, $multipleValidations );
 
 		 				if(!is_null($checkbByValidateEmail))
 	 					{
@@ -183,7 +182,7 @@ class Abstract_email extends Abstract_rule
 	 		}
 	 		else
 	 		{
-	 			$checkEm 	= $emailChecker->isValid($value, new RFCValidation());
+	 			$checkEm = $emailChecker->isValid($value, new RFCValidation());
 
 	 			if(!is_null($checkbByValidateEmail))
 				{
@@ -191,11 +190,11 @@ class Abstract_email extends Abstract_rule
 				}
 	 		}
 
-	 		$errorInstance 	= $emailChecker->getError();
+	 		$errorInstance = $emailChecker->getError();
 
 	 		if( $errorInstance )
 	 		{
-	 			$errorMessage 	= $errorInstance::REASON;
+	 			$errorMessage = $errorInstance::REASON;
 	 		}
 	 	}
 
@@ -213,9 +212,9 @@ class Abstract_email extends Abstract_rule
 
     public function validate( $value )
     {
-    	$satisfier 		= array( $this->emailChecker );
+    	$satisfier = [$this->emailChecker];
 
-    	$check 			= $this->run( $value, $satisfier );
+    	$check = $this->run( $value, $satisfier );
 
     	if($this->makeValidateReturnArr)
     	{
@@ -235,7 +234,7 @@ class Abstract_email extends Abstract_rule
     	return ( is_string($value) AND filter_var($value, FILTER_VALIDATE_EMAIL) );
     }
 
-    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = FALSE, $satisfier = NULL, $error = NULL, $value = NULL )
+    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
 	{
 		if( $jsTypeFormat == Abstract_rule::CLIENT_PARSLEY ) 
         {
@@ -249,7 +248,7 @@ JS;
 
 		}
 
-		$js                 = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
+		$js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
 		
         return $js;
 	}

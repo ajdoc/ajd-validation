@@ -7,14 +7,14 @@ use \Exception;
 trait Validation_trait
 {
 	protected $ajd;
-	protected $annotation 				= FALSE;
-	protected static $group_value 		= array();
+	protected $annotation = false;
+	protected static $group_value = [];
 
 	protected function ajd_ins()
 	{
 		if( IS_NULL( $this->ajd ) )
 		{
-			$this->ajd 	= new AJD_validation;
+			$this->ajd = new AJD_validation;
 		}
 
 		return $this->ajd;
@@ -22,7 +22,7 @@ trait Validation_trait
 
 	public function setAnnotation()
 	{
-		$this->annotation 	= TRUE;
+		$this->annotation = true;
 	}
 
 	public function validatorInstance()
@@ -39,9 +39,9 @@ trait Validation_trait
 
 	public function validate()
 	{
-		$obj 		= $this->setInstance();		
+		$obj = $this->setInstance();		
 
-		$options 	= ( $this->annotation ) ? $this->annotation() : $this->validator;
+		$options = ( $this->annotation ) ? $this->annotation() : $this->validator;
 		
 		if( ISSET( $options ) AND !EMPTY( $options ) )
 		{
@@ -50,10 +50,10 @@ trait Validation_trait
 				foreach( $rules['rules'] as $rule => $args )
 				{
 					
-					$satisfier 			= ISSET( $args[0] ) ? $args[0] : NULL;
-					$custom_err 		= ISSET( $args[1] ) ? $args[1] : NULL;
-					$client_side 		= ISSET( $args[2] ) ? $args[2] : NULL;
-					$logic 				= ISSET( $args[3] ) ? $args[3] : AJD_validation::LOG_AND;
+					$satisfier = ISSET( $args[0] ) ? $args[0] : NULL;
+					$custom_err = ISSET( $args[1] ) ? $args[1] : NULL;
+					$client_side = ISSET( $args[2] ) ? $args[2] : NULL;
+					$logic = ISSET( $args[3] ) ? $args[3] : AJD_validation::LOG_AND;
 
 					AJD_validation::addRule( $rule, $satisfier, $custom_err, $client_side, $logic );
 				}
@@ -64,8 +64,8 @@ trait Validation_trait
 					{
 						foreach( $this->filters[ $field ] as $filter => $filter_args )
 						{
-							$filter_satis 	= ISSET( $filter_args[0] ) ? $filter_args[0] : NULL;
-							$pre_filter		= ISSET( $filter_args[1] ) ? $filter_args[1] : FALSE;
+							$filter_satis = ISSET( $filter_args[0] ) ? $filter_args[0] : NULL;
+							$pre_filter = ISSET( $filter_args[1] ) ? $filter_args[1] : FALSE;
 
 							AJD_validation::addFilter( $filter, $filter_satis, $pre_filter );
 						}
@@ -80,32 +80,29 @@ trait Validation_trait
 
 	protected function groupValidation( $group = NULL, $extra = NULL )
 	{
-		$obj 		= $this->setInstance();	
-		$value 		= array();	
+		$obj = $this->setInstance();	
+		$value = array();	
 
 		if( !EMPTY( $group ) )
 		{
-			$group_arr 	= $group;	
+			$group_arr = $group;	
 		}
 		else 
 		{
-			$group_arr 	= ISSET( $this->groupValidator ) ? $this->groupValidator : array(); 
+			$group_arr = ISSET( $this->groupValidator ) ? $this->groupValidator : array(); 
 		}
 
-		$str 		= '';
+		$str = '';
 
 		if( ISSET( $group_arr ) AND !EMPTY( $group_arr ) )
 		{
-
 			foreach( $group_arr['rule'] as $superRule => $values )
 			{
-				
-				$logic 			= ISSET( $values['args'][0] ) ? $values['args'][0] : AJD_validation::LOG_AND;
-				$satis 			= ISSET( $values['args'][1] ) ? $values['args'][1] : NULL;
-				$custom_err 	= ISSET( $values['args'][2] ) ? $values['args'][2] : NULL;
-				$client_side 	= ISSET( $values['args'][3] ) ? $values['args'][3] : NULL;
-
-				$end 			= ( ISSET( $values['end'] ) AND !EMPTY( $values['end'] ) ) ? 1 : 0;
+				$logic = ISSET( $values['args'][0] ) ? $values['args'][0] : AJD_validation::LOG_AND;
+				$satis = ISSET( $values['args'][1] ) ? $values['args'][1] : NULL;
+				$custom_err = ISSET( $values['args'][2] ) ? $values['args'][2] : NULL;
+				$client_side = ISSET( $values['args'][3] ) ? $values['args'][3] : NULL;
+				$end = ( ISSET( $values['end'] ) AND !EMPTY( $values['end'] ) ) ? 1 : 0;
 
 				AJD_validation::superRule( $superRule, $logic, $satis, $custom_err, $client_side );
 
@@ -138,7 +135,7 @@ trait Validation_trait
 				{
 					AJD_validation::field( $field );
 					
-					static::$group_value[ $field ] 		= $obj->{ $field };
+					static::$group_value[ $field ] = $obj->{ $field };
 				}
 			}
 
@@ -157,9 +154,9 @@ trait Validation_trait
 
 	public function bindToProp()
 	{
-		$obj 				= $this->setInstance();
+		$obj = $this->setInstance();
 
-		$filtered_value 	= $this->filtered_value();
+		$filtered_value = $this->filtered_value();
 
 		if( !EMPTY( $filtered_value ) )
 		{
@@ -169,7 +166,7 @@ trait Validation_trait
 				{
 					if( !is_array( $value ) )
 					{
-						$obj->{ $property } 	= $value;
+						$obj->{ $property } = $value;
 					}
 				}
 			}
@@ -194,7 +191,7 @@ trait Validation_trait
 
 	public function assert()
 	{
-		$ajd 	= $this->validatorInstance();
+		$ajd = $this->validatorInstance();
 
 		$this->runValidationGroup();
 		$this->validate();
@@ -209,31 +206,28 @@ trait Validation_trait
 
 	public function annotation()
 	{
-		$factory 		= new Factory\Class_factory;
-		$reflect 		= $factory->reflection( $this->setInstance() );
+		$factory = new Factory\Class_factory;
+		$reflect = $factory->reflection( $this->setInstance() );
 
-		$properties 	= $reflect->getProperties();	
-
-		$master_arr 	= array();
+		$properties = $reflect->getProperties();	
+		$master_arr = [];
 
 		foreach ( $properties as $property ) 
 		{
-			if( preg_match( '/@AJD\\\/', $property->getDocComment(), $match ) != FALSE )
+			if( preg_match( '/@AJD\\\/', $property->getDocComment(), $match ) != false )
 			{
-				
-				$rules 		= str_replace( 
+				$rules = str_replace( 
 								array( '*', '/', '/', '@AJD\\' ), 
 								array( '', '', '', '' ), 
 								$property->getDocComment()
 							);
 				
-				$rules 		= preg_replace('/[\n\r]/', '|', trim( $rules ) );
-
-				$rules 		= preg_replace('/[\s]/', '', $rules );
+				$rules = preg_replace('/[\n\r]/', '|', trim( $rules ) );
+				$rules = preg_replace('/[\s]/', '', $rules );
 
 				if( !EMPTY( $rules ) )
 				{
-					$rules 	= explode( '|', $rules );
+					$rules = explode( '|', $rules );
 
 					foreach( $rules as $rule ) 
 					{
@@ -241,32 +235,25 @@ trait Validation_trait
 						{
 							if( $this->expression_has_args( $rule ) )
 							{
-								$master_arr[ $property->getName() ][ 'rules' ][ $this->clean_name( $rule ) ] 	= $this->get_expr_args( $rule );	
+								$master_arr[ $property->getName() ][ 'rules' ][ $this->clean_name( $rule ) ] = $this->get_expr_args( $rule );	
 							}
 							else 
 							{
-								$master_arr[ $property->getName() ][ 'rules' ][ $rule ] 	= array();		
+								$master_arr[ $property->getName() ][ 'rules' ][ $rule ] = [];		
 							}
-							
 						}
 					}
-
 				}
-
 			}
-
 		}
-	/*	echo '<pre>';
-		print_r($master_arr);
-		echo '</pre>';*/
+	
 		return $master_arr;
 
 	}
 
 	protected function expression_has_args( $str )
 	{
-
-		$check 				= explode( '(', $str );
+		$check = explode( '(', $str );
 
 		return ( ISSET( $check[1] ) AND !EMPTY( $check[1] ) );
 
@@ -279,7 +266,7 @@ trait Validation_trait
 			return $name;
 		}
 
-		$name_clean 		= preg_replace( '/\([\s\S]*/', '', $name );
+		$name_clean = preg_replace( '/\([\s\S]*/', '', $name );
 
 		return $name_clean;
 
@@ -287,28 +274,26 @@ trait Validation_trait
 
 	protected function get_expr_args( $name, $dont_get_value = FALSE )
 	{
-		$ret_args 			= array();
+		$ret_args = [];
 
 		if( !$this->expression_has_args( $name ) ) 
 		{
-			return array();
+			return [];
 		}
 
 	    list( $meth_name, $args_with_bracket_end ) 	= explode( '(', $name );
 
-        $args  				= rtrim( $args_with_bracket_end, ')' );
-
-        $args 				= preg_replace( '/\s+/', '', $args );
-
-        $args  				= explode( ',', $args );
+        $args = rtrim( $args_with_bracket_end, ')' );
+        $args = preg_replace( '/\s+/', '', $args );
+        $args = explode( ',', $args );
 
         if( $dont_get_value ) 
         {
-        	$ret_args 		= $args;
+        	$ret_args = $args;
         } 
         else 
         {        
-    		$ret_args 		= $this->get_value_args( $args );
+    		$ret_args = $this->get_value_args( $args );
         }
 
         return $ret_args;
@@ -317,7 +302,7 @@ trait Validation_trait
 
 	protected function get_value_args( array $args )
 	{
-		$ret_args 		= array();
+		$ret_args = [];
 
 		if( EMPTY( $args ) ) 
 		{
@@ -326,7 +311,7 @@ trait Validation_trait
 
 		foreach( $args as $arg_key => $arg_value ) 
 		{
-			$ret_args[] 	= $arg_value;
+			$ret_args[] = $arg_value;
 		}
 
 		return $ret_args;

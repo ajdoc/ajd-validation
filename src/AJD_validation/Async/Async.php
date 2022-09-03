@@ -11,8 +11,8 @@ use AJD_validation\Async\Promise_interface;
 class Async
 {
 	public static $activeAwaits = [];
-	public static $fails 		= [];
-	public static $passes 		= [];
+	public static $fails = [];
+	public static $passes = [];
 
 	protected $currentThenFiber;
 	protected $errorMessages = [];
@@ -22,7 +22,7 @@ class Async
 	{
 		$reflection = new \ReflectionClass($childFiber);
 
-		$interfaces =  array_keys($reflection->getInterfaces());
+		$interfaces = array_keys($reflection->getInterfaces());
 
 		if(
 			!in_array(Promise_interface::class, $interfaces, true)
@@ -135,8 +135,8 @@ class Async
 
 			foreach($childFibersToRun as $index => $pair)
 			{
-				$parentFiber  = $pair[0] ?? null;
-				$childFiber   = $pair[1];
+				$parentFiber = $pair[0] ?? null;
+				$childFiber = $pair[1];
 
 				$childFibers[$index] = $childFiber;
 				
@@ -144,7 +144,6 @@ class Async
 				{
 					if ($parentFiber->isSuspended() && $parentFiber->isTerminated() === false)
 					{
-
 						// Resume the parent fiber
 						$parentFiber->resume();
 					}
@@ -167,7 +166,6 @@ class Async
 
 					if ($childFiber->isSuspended() && $childFiber->isTerminated() === false)
 					{
-
 						// Resume the parent fiber
 						$childFiber->resume();
 					}
@@ -181,7 +179,6 @@ class Async
 
 							if( $ajd->validation_fails($field) )
 							{
-
 								if(
 									!empty($ajd->errors()->outputError(true, $field))
 								)
@@ -200,7 +197,6 @@ class Async
 						{
 							static::$passes[] = 1;	
 						});
-
 						// Register this fiber index to be removed from the activeAwaits
 						$toRemove[] = $index;
 					}
@@ -221,24 +217,19 @@ class Async
 				{
 					unset($childFibersToRun[$indexToRemove]);
 					unset($self->whenFibers[$indexToRemove]);
-					
 				}
 				
-				unset(self::$activeAwaits[$indexToRemove]);	
-				
-				
+				unset(self::$activeAwaits[$indexToRemove]);		
 			}
 
 			// Re-index the array
 			if(!empty($childFibers))
 			{
-				$childFibersToRun 		= array_values($childFibersToRun);	
-				$self->whenFibers 		= array_values($self->whenFibers);	
+				$childFibersToRun = array_values($childFibersToRun);	
+				$self->whenFibers = array_values($self->whenFibers);	
 			}
 			
-			self::$activeAwaits = array_values(self::$activeAwaits);	
-			
-			
+			self::$activeAwaits = array_values(self::$activeAwaits);		
 		}
 		
 		return $self->async($resolver, $self->errorMessages, $self, $childFibers, $self->errorMessages, static::$passes, static::$fails, ...$args);
@@ -248,20 +239,18 @@ class Async
 	{
 		return (static function (mixed ...$args) use ($function, $errorMessages, $self) 
 		{
-			
 			$fiber = null;
 
 			$promise = new PromiseValidator(function(callable $resolve, callable $reject, $target) use ($function, $args, $errorMessages, &$fiber)
 			{
-				$ajd 			= AJD_validation::get_ajd_instance();
-				$obs            = $ajd::get_observable_instance(false);
+				$ajd = AJD_validation::get_ajd_instance();
+				$obs = $ajd::get_observable_instance(false);
 				
 				$obs->attach_observer( 'passed', $target, array( $ajd ) );
 				$obs->attach_observer( 'fails', $target, array( $ajd ) );
 
 				$fiber = new Fiber(function () use ($resolve, $reject, $function, $args, $errorMessages, &$fiber, &$obs)
 				{
-					
 					try 
 					{
 						if(!empty(static::$fails) && in_array(1, static::$fails))
@@ -288,8 +277,8 @@ class Async
 			}, 
 			function(callable $resolve, callable $reject, $target) use (&$fiber)
 			{
-				$ajd 			= AJD_validation::get_ajd_instance();
-				$obs            = $ajd::get_observable_instance(false);
+				$ajd = AJD_validation::get_ajd_instance();
+				$obs = $ajd::get_observable_instance(false);
 
 				$obs->attach_observer( 'fails', $target, array( $ajd ) );
 

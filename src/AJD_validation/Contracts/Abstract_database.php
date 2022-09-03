@@ -8,49 +8,47 @@ use AJD_validation\Helpers\Logics_map;
 
 abstract class Abstract_database extends Abstract_rule
 {
-	const USERNAME_STR 	= 'username',
-		  PASSWORD_STR 	= 'password',
-		  OPTIONS_STR 	= 'options',
-		  TABLE_STR 	= 'table',
-		  PRIMARY_ID_STR= 'primary_id',
-		  CONNECTION_STR	= 'connection',
-		  AES_DECRYPT_STR	= 'aes_decrypt',
-		  DEFAULT_PORT 	= '3306',
-		  EXCLUDE_ID 	= 'exclude_id',
+	const USERNAME_STR = 'username',
+		  PASSWORD_STR = 'password',
+		  OPTIONS_STR = 'options',
+		  TABLE_STR = 'table',
+		  PRIMARY_ID_STR = 'primary_id',
+		  CONNECTION_STR = 'connection',
+		  AES_DECRYPT_STR = 'aes_decrypt',
+		  DEFAULT_PORT = '3306',
+		  EXCLUDE_ID = 'exclude_id',
 		  EXCLUDE_VALUE = 'exclude_value',
 		  CALLABLE_QUERY_STR = 'callback',
 		  LOGICS_MAP_STR = 'logics_map',
 		  JUST_INSTANCE_STR = 'just_instance';
 
-	protected $allowedStr 	= array();
+	protected $allowedStr = [];
 	protected $db;
 	protected $config;
-	protected $queryConfig 	= array();
+	protected $queryConfig = [];
 	protected $callableQueryConfig;
-	protected $reverseCheck = FALSE;
+	protected $reverseCheck = false;
 
 	public $table;
 	public $primary_id;
 
-	public function __construct($config, $queryConfig = array(), $callableQueryConfig= NULL)
+	public function __construct($config, $queryConfig = array(), $callableQueryConfig = null)
 	{
-		$this->allowedStr 	= array( self::USERNAME_STR, self::PASSWORD_STR, self::TABLE_STR, self::PRIMARY_ID_STR, self::AES_DECRYPT_STR, self::EXCLUDE_ID, self::EXCLUDE_VALUE, self::CALLABLE_QUERY_STR, self::LOGICS_MAP_STR, self::JUST_INSTANCE_STR );
+		$this->allowedStr = [self::USERNAME_STR, self::PASSWORD_STR, self::TABLE_STR, self::PRIMARY_ID_STR, self::AES_DECRYPT_STR, self::EXCLUDE_ID, self::EXCLUDE_VALUE, self::CALLABLE_QUERY_STR, self::LOGICS_MAP_STR, self::JUST_INSTANCE_STR];
 		
-		$mainConfig 		= $this->processConfig($config);
+		$mainConfig = $this->processConfig($config);
+		$this->config = $mainConfig;
+		$queryConfig = $this->processQueryConfig($queryConfig);
 
-		$this->config 		= $mainConfig;
+		$this->queryConfig = $queryConfig;
 
-		$queryConfig 		= $this->processQueryConfig($queryConfig);
-
-		$this->queryConfig 	= $queryConfig;
-
-		if( !EMPTY( $callableQueryConfig ) AND is_callable( $callableQueryConfig ) )
+		if( !EMPTY( $callableQueryConfig ) && is_callable( $callableQueryConfig ) )
 		{
-			$this->callableQueryConfig	= $callableQueryConfig;
+			$this->callableQueryConfig = $callableQueryConfig;
 		}
 
-		$validator 			= $this->getValidator();
-		$paramValidator		= $validator->required();
+		$validator = $this->getValidator();
+		$paramValidator = $validator->required();
 
 		$this->processDbInstance($mainConfig);
 
@@ -91,8 +89,8 @@ abstract class Abstract_database extends Abstract_rule
 			}
 		}
 
-		$this->table 			= ( ISSET( $this->queryConfig[ self::TABLE_STR ] ) ) ? $this->queryConfig[ self::TABLE_STR ] : '';
-		$this->primary_id 		= ( ISSET( $this->queryConfig[ self::PRIMARY_ID_STR ] ) ) ? $this->queryConfig[ self::PRIMARY_ID_STR ] : '';
+		$this->table = ( isset( $this->queryConfig[ self::TABLE_STR ] ) ) ? $this->queryConfig[ self::TABLE_STR ] : '';
+		$this->primary_id = ( isset( $this->queryConfig[ self::PRIMARY_ID_STR ] ) ) ? $this->queryConfig[ self::PRIMARY_ID_STR ] : '';
 	}
 
 	protected function processDbInstance( $mainConfig )
@@ -101,9 +99,9 @@ abstract class Abstract_database extends Abstract_rule
 		{
 			if( is_array( $mainConfig ) )
 			{
-				if( !EMPTY( $mainConfig['connection'] ) AND !EMPTY( $mainConfig['username'] ) AND ISSET( $mainConfig['password'] ) )
+				if( !EMPTY( $mainConfig['connection'] ) && !EMPTY( $mainConfig['username'] ) && ISSET( $mainConfig['password'] ) )
 				{
-					$this->db 	= new Database( $mainConfig['connection'], $mainConfig['username'], $mainConfig['password'], $mainConfig['options'] );
+					$this->db = new Database( $mainConfig['connection'], $mainConfig['username'], $mainConfig['password'], $mainConfig['options'] );
 				}
 				else if( !EMPTY( $mainConfig['connection'] ) )
 				{
@@ -117,7 +115,6 @@ abstract class Abstract_database extends Abstract_rule
 						{
 							$this->db = new Database( static::$dbConnections[ $mainConfig['connection'] ] );	
 						}
-						
 					}
 					else if( is_object( $mainConfig['connection'] ) )
 					{
@@ -127,18 +124,18 @@ abstract class Abstract_database extends Abstract_rule
 			}
 			else if( is_object( $mainConfig ) )
 			{
-				$this->db 		= new Database( $mainConfig );
+				$this->db = new Database( $mainConfig );
 			}
 		}
 	}
 
 	protected function processQueryConfig($queryConfig)
 	{
-		$config 	= array();
+		$config = [];
 		
 		if( ISSET( $this->config[ self::TABLE_STR ] ) )
 		{
-			$config[ self::TABLE_STR ]		= $this->config[ self::TABLE_STR ];
+			$config[ self::TABLE_STR ] = $this->config[ self::TABLE_STR ];
 		}
 
 		if( ISSET( $this->config[ self::PRIMARY_ID_STR ] ) )
@@ -148,22 +145,22 @@ abstract class Abstract_database extends Abstract_rule
 
 		if( ISSET( $this->config[ self::AES_DECRYPT_STR ] ) )
 		{
-			$config[ self::AES_DECRYPT_STR ]= $this->config[ self::AES_DECRYPT_STR ];
+			$config[ self::AES_DECRYPT_STR ] = $this->config[ self::AES_DECRYPT_STR ];
 		}
 
 		if( ISSET( $this->config[ self::EXCLUDE_ID ] ) )
 		{
-			$config[ self::EXCLUDE_ID ] 	= $this->config[ self::EXCLUDE_ID ];
+			$config[ self::EXCLUDE_ID ] = $this->config[ self::EXCLUDE_ID ];
 		}
 
 		if( ISSET( $this->config[ self::EXCLUDE_VALUE ] ) )
 		{
-			$config[ self::EXCLUDE_VALUE ] 	= $this->config[ self::EXCLUDE_VALUE ];
+			$config[ self::EXCLUDE_VALUE ] = $this->config[ self::EXCLUDE_VALUE ];
 		}
 
 		if( ISSET( $this->config[ self::EXCLUDE_VALUE ] ) )
 		{
-			$config[ self::EXCLUDE_VALUE ] 	= $this->config[ self::EXCLUDE_VALUE ];
+			$config[ self::EXCLUDE_VALUE ] = $this->config[ self::EXCLUDE_VALUE ];
 		}
 
 		if(is_array($queryConfig))
@@ -171,7 +168,7 @@ abstract class Abstract_database extends Abstract_rule
 
 			if( ISSET( $this->queryConfig[ self::TABLE_STR ] ) )
 			{
-				$config[ self::TABLE_STR ]		= $this->queryConfig[ self::TABLE_STR ];
+				$config[ self::TABLE_STR ] = $this->queryConfig[ self::TABLE_STR ];
 			}
 
 			if( ISSET( $this->queryConfig[ self::PRIMARY_ID_STR ] ) )
@@ -181,27 +178,27 @@ abstract class Abstract_database extends Abstract_rule
 
 			if( ISSET( $this->queryConfig[ self::AES_DECRYPT_STR ] ) )
 			{
-				$config[ self::AES_DECRYPT_STR ]= $this->queryConfig[ self::AES_DECRYPT_STR ];
+				$config[ self::AES_DECRYPT_STR ] = $this->queryConfig[ self::AES_DECRYPT_STR ];
 			}
 
 			if( ISSET( $this->queryConfig[ self::EXCLUDE_ID ] ) )
 			{
-				$config[ self::EXCLUDE_ID ]= $this->queryConfig[ self::EXCLUDE_ID ];
+				$config[ self::EXCLUDE_ID ] = $this->queryConfig[ self::EXCLUDE_ID ];
 			}
 
 			if( ISSET( $this->queryConfig[ self::EXCLUDE_VALUE ] ) )
 			{
-				$config[ self::EXCLUDE_VALUE ]= $this->queryConfig[ self::EXCLUDE_VALUE ];
+				$config[ self::EXCLUDE_VALUE ] = $this->queryConfig[ self::EXCLUDE_VALUE ];
 			}
 
 			if( ISSET( $this->queryConfig[ self::CALLABLE_QUERY_STR ] ) )
 			{
-				$config[ self::CALLABLE_QUERY_STR ]= $this->queryConfig[ self::CALLABLE_QUERY_STR ];
+				$config[ self::CALLABLE_QUERY_STR ] = $this->queryConfig[ self::CALLABLE_QUERY_STR ];
 			}
 
 			if( ISSET( $this->queryConfig[ self::JUST_INSTANCE_STR ] ) )
 			{
-				$config[ self::JUST_INSTANCE_STR ]= $this->queryConfig[ self::JUST_INSTANCE_STR ];
+				$config[ self::JUST_INSTANCE_STR ] = $this->queryConfig[ self::JUST_INSTANCE_STR ];
 			}
 		}
 		else
@@ -214,14 +211,14 @@ abstract class Abstract_database extends Abstract_rule
 
 		if( is_callable( $queryConfig ) )
 		{
-			$this->queryConfig 				= $config;
-			$this->callableQueryConfig 		= $queryConfig;
+			$this->queryConfig = $config;
+			$this->callableQueryConfig = $queryConfig;
 		}
 		else
 		{
-			if( !EMPTY( $queryConfig ) AND is_array( $queryConfig ) )
+			if( !EMPTY( $queryConfig ) && is_array( $queryConfig ) )
 			{
-				$config 					= array_merge( $config, $queryConfig );
+				$config = array_merge( $config, $queryConfig );
 			}
 		}
 
@@ -230,33 +227,33 @@ abstract class Abstract_database extends Abstract_rule
 
 	protected function processConfig($config)
 	{
-		$options 	= array(
-			self::CONNECTION_STR 	=> '',
-			self::USERNAME_STR 		=> '',
-			self::PASSWORD_STR 		=> '',
-			self::OPTIONS_STR 		=> array(),
-			self::TABLE_STR 		=> '',
-			self::PRIMARY_ID_STR 	=> '',
-			self::AES_DECRYPT_STR 	=> '',
-			self::EXCLUDE_ID 		=> '',
-			self::EXCLUDE_VALUE 	=> '',
-		);
+		$options 	= [
+			self::CONNECTION_STR => '',
+			self::USERNAME_STR => '',
+			self::PASSWORD_STR => '',
+			self::OPTIONS_STR => [],
+			self::TABLE_STR => '',
+			self::PRIMARY_ID_STR => '',
+			self::AES_DECRYPT_STR => '',
+			self::EXCLUDE_ID => '',
+			self::EXCLUDE_VALUE => '',
+		];
 
 		if( is_string( $config ) )
 		{
-			$processOptions 		= $this->processStringConfig($config);
+			$processOptions = $this->processStringConfig($config);
 
-			$options 				= array_merge( $options, $processOptions );
+			$options = array_merge( $options, $processOptions );
 		}
 		else if( is_object( $config ) )
 		{
-			$options 				= $config;
+			$options = $config;
 		}
 		else if( is_array( $config ) )
 		{
-			$processOptions 		= $this->processArrayConfig($config);
+			$processOptions = $this->processArrayConfig($config);
 
-			$options 				= array_merge( $options, $processOptions );
+			$options = array_merge( $options, $processOptions );
 		}
 
 		return $options;
@@ -264,17 +261,17 @@ abstract class Abstract_database extends Abstract_rule
 
 	protected function processArrayConfig( array $config )
 	{
-		$host 		= NULL;
-		$driver 	= NULL;
-		$dbname 	= NULL;
-		$port 		= self::DEFAULT_PORT;
-		$connection = NULL;
+		$host = null;
+		$driver = null;
+		$dbname = null;
+		$port = self::DEFAULT_PORT;
+		$connection = null;
 
-		$optionArr 	= array();
+		$optionArr = [];
 
 		if( ISSET( $config['host'] ) )
 		{
-			$host 	= $config['host'];
+			$host = $config['host'];
 		}
 
 		if( ISSET( $config['driver'] ) )
@@ -289,22 +286,22 @@ abstract class Abstract_database extends Abstract_rule
 
 		if( ISSET( $config['port'] ) )
 		{
-			$port 	= $config['port'];
+			$port = $config['port'];
 		}
 
-		if( !EMPTY( $host ) AND !EMPTY( $driver ) AND !EMPTY( $dbname ) )
+		if( !empty( $host ) && !empty( $driver ) && !empty( $dbname ) )
 		{
-			$connection 	= $driver.':host='.$host.';port='.$port.';dbname='.$dbname;
+			$connection = $driver.':host='.$host.';port='.$port.';dbname='.$dbname;
 		}
-		else if( ISSET( $config[ self::CONNECTION_STR ] ) )
+		else if( isset( $config[ self::CONNECTION_STR ] ) )
 		{
-			$connection 	= $config[ self::CONNECTION_STR ];
+			$connection = $config[ self::CONNECTION_STR ];
 		}
 
 		if( !EMPTY( $connection ) )
 		{
-			$optionArr 					= $config;
-			$optionArr['connection']	= $connection;
+			$optionArr = $config;
+			$optionArr['connection'] = $connection;
 		}
 
 		return $optionArr;
@@ -312,27 +309,27 @@ abstract class Abstract_database extends Abstract_rule
 
 	protected function processStringConfig( $config )
 	{
-		$configPieces 	= explode('|', $config);
+		$configPieces = explode('|', $config);
 
-		$configArr 		= array();
+		$configArr = [];
 
-		$configArr['connection']	= $configPieces[0];
+		$configArr['connection'] = $configPieces[0];
 
 		unset( $configPieces[0] );
 
 		foreach( $configPieces as $piece )
 		{
-			$subPiece 	= explode('=', $piece);
+			$subPiece = explode('=', $piece);
 
-			if( in_array($subPiece[0], $this->allowedStr, TRUE) )
+			if( in_array($subPiece[0], $this->allowedStr, true) )
 			{
-				$configArr[ $subPiece[0] ] 	= $subPiece[1];
+				$configArr[ $subPiece[0] ] = $subPiece[1];
 			}
 			else if( $subPiece[0] == self::OPTIONS_STR )
 			{
-				$option 	= $this->processStringOptions( $subPiece[1] );
+				$option = $this->processStringOptions( $subPiece[1] );
 
-				$configArr[ $subPiece[0] ] 	= $option;
+				$configArr[ $subPiece[0] ] = $option;
 			}
 		}
 
@@ -341,22 +338,22 @@ abstract class Abstract_database extends Abstract_rule
 
 	protected function processStringOptions( $optionString )
 	{
-		$optionPiece 	= explode(',', $optionString);
-		$optionArr 		= array();
+		$optionPiece = explode(',', $optionString);
+		$optionArr = [];
 
 		foreach( $optionPiece as $piece )
 		{
-			$subPiece 	= explode('@', $piece);
+			$subPiece = explode('@', $piece);
 
-			$optionArr[$subPiece[0]] 	= $subPiece[1];
+			$optionArr[$subPiece[0]] = $subPiece[1];
 		}
 
 		return $optionArr;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 	= FALSE;
+		$check = false;
 		$result = null;
 
 		if( 
@@ -367,7 +364,7 @@ abstract class Abstract_database extends Abstract_rule
 			)
 		)
 		{
-			$args 		= [
+			$args = [
 				'db' => $this->db,
 				'queryConfig' => $this->queryConfig
 			];
@@ -389,8 +386,8 @@ abstract class Abstract_database extends Abstract_rule
 			)
 		)
 		{
-			$args 		= [$this->db, $value, $this->queryConfig];
-			$resultArr 	= call_user_func_array($this->queryConfig[self::CALLABLE_QUERY_STR], $args);
+			$args = [$this->db, $value, $this->queryConfig];
+			$resultArr = call_user_func_array($this->queryConfig[self::CALLABLE_QUERY_STR], $args);
 
 			if(is_array($resultArr))
 			{
@@ -407,7 +404,6 @@ abstract class Abstract_database extends Abstract_rule
 					{
 						$this->table = $table;	
 					}
-					
 				}
 			}
 			else
@@ -420,36 +416,36 @@ abstract class Abstract_database extends Abstract_rule
 		}
 		else
 		{
-			$table 	= ( ISSET( $this->queryConfig[ self::TABLE_STR ] ) ) ? $this->queryConfig[ self::TABLE_STR ] : '';
-			$id 	= ( ISSET( $this->queryConfig[ self::PRIMARY_ID_STR ] ) ) ? $this->queryConfig[ self::PRIMARY_ID_STR ] : '';
+			$table = ( isset( $this->queryConfig[ self::TABLE_STR ] ) ) ? $this->queryConfig[ self::TABLE_STR ] : '';
+			$id = ( isset( $this->queryConfig[ self::PRIMARY_ID_STR ] ) ) ? $this->queryConfig[ self::PRIMARY_ID_STR ] : '';
 
-			$aes_decrypt 	= ( ISSET( $this->queryConfig[ self::AES_DECRYPT_STR ] ) ) ? $this->queryConfig[ self::AES_DECRYPT_STR ] : '';
+			$aes_decrypt = ( isset( $this->queryConfig[ self::AES_DECRYPT_STR ] ) ) ? $this->queryConfig[ self::AES_DECRYPT_STR ] : '';
 			
-			if( !EMPTY( $this->db ) AND !EMPTY( $value ) )
+			if( !empty( $this->db ) && !empty( $value ) )
 			{
 
-				$qb 		= $this->db
-								->select( "COUNT(".$id.") as check_id" )
-								->from( $table );
+				$qb = $this->db
+						->select( "COUNT(".$id.") as check_id" )
+						->from( $table );
 
-				if( !EMPTY( $aes_decrypt ) )
+				if( !empty( $aes_decrypt ) )
 				{
-					$id 	= $this->Fadd_aes_decrypt($aes_decrypt)
-		                        ->cacheFilter( 'value' )
-		                        ->filterSingleValue( $id, TRUE );
+					$id = $this->Fadd_aes_decrypt($aes_decrypt)
+                        	->cacheFilter( 'value' )
+	                        ->filterSingleValue( $id, true );
 	            }
 
 				$qb->where( $id, $value );
 
 				if( 
 					( 
-						ISSET( $this->queryConfig[ self::EXCLUDE_ID ] ) 
-						AND !EMPTY( $this->queryConfig[ self::EXCLUDE_ID ] )
+						isset( $this->queryConfig[ self::EXCLUDE_ID ] ) 
+						&& !empty( $this->queryConfig[ self::EXCLUDE_ID ] )
 					)
-					AND 
+					&& 
 					(
-						ISSET( $this->queryConfig[ self::EXCLUDE_VALUE ] ) 
-						AND !EMPTY( $this->queryConfig[ self::EXCLUDE_VALUE ] )
+						isset( $this->queryConfig[ self::EXCLUDE_VALUE ] ) 
+						&& !empty( $this->queryConfig[ self::EXCLUDE_VALUE ] )
 					)
 
 				)
@@ -457,26 +453,26 @@ abstract class Abstract_database extends Abstract_rule
 					$qb->where( $this->queryConfig[ self::EXCLUDE_ID ], '!=', $this->queryConfig[ self::EXCLUDE_VALUE ] );
 				}
 
-				if( !EMPTY( $this->callableQueryConfig ) )
+				if( !empty( $this->callableQueryConfig ) )
 				{
-					$args 	= array( $qb, $this->db, $value );
-					$qb 	= call_user_func_array($this->callableQueryConfig, $args);
+					$args = [$qb, $this->db, $value];
+					$qb = call_user_func_array($this->callableQueryConfig, $args);
 				}
 			}
 			
-			$result 	= (isset($qb)) ? $qb->fetchColumn() : null;
+			$result = (isset($qb)) ? $qb->fetchColumn() : null;
 
 			/*$result 	= $qb->debug();
 			var_dump($result);*/
 		}
 
-		if( EMPTY( $result ) )
+		if( empty( $result ) )
 		{
-			$check 	= ( $this->reverseCheck ) ? TRUE : FALSE;
+			$check = ( $this->reverseCheck ) ? true : false;
 		}
 		else 
 		{
-			$check 	= ( $this->reverseCheck ) ? FALSE : TRUE;
+			$check = ( $this->reverseCheck ) ? false : true;
 		}
 
 		return $check;
@@ -484,7 +480,7 @@ abstract class Abstract_database extends Abstract_rule
 
 	public function validate( $value )
     {
-        $check              = $this->run( $value );
+        $check = $this->run( $value );
 
         if( is_array( $check ) )
         {

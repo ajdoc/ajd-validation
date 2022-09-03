@@ -7,21 +7,21 @@ use AJD_validation\Contracts\Abstract_common;
 
 class Date_helper extends DateTime
 {
-	const MOCK_DATETIME_FORMAT 		= 'Y-m-d H:i:s.u';
-	const DEFAULT_TO_STRING_FORMAT 	= 'Y-m-d H:i:s';
+	const MOCK_DATETIME_FORMAT = 'Y-m-d H:i:s.u';
+	const DEFAULT_TO_STRING_FORMAT = 'Y-m-d H:i:s';
 
 	protected static $testNow;
 	protected static $lastErrors;
 
-	protected static $microsecondsFallback = TRUE;
+	protected static $microsecondsFallback = true;
 
-	public function __construct($time = NULL, $tz = NULL)
+	public function __construct($time = null, $tz = null)
     {    	
-        $isNow = EMPTY($time) OR $time === 'now';
+        $isNow = EMPTY($time) || $time === 'now';
 
-		if( static::hasTestNow() AND ( $isNow OR static::hasRelativeKeywords($time) ) ) 
+		if( static::hasTestNow() && ( $isNow OR static::hasRelativeKeywords($time) ) ) 
 		{
-			$testInstance 	= clone static::getTestNow();
+			$testInstance = clone static::getTestNow();
 
         	if( $tz !== NULL AND $tz !== static::getTestNow()->getTimezone() ) 
         	{
@@ -29,7 +29,7 @@ class Date_helper extends DateTime
         	}
         	else
         	{
-        		$timezone 	= $testInstance->getTimezone();
+        		$timezone = $testInstance->getTimezone();
         	}
 
         	if( static::hasRelativeKeywords($time) ) 
@@ -37,22 +37,22 @@ class Date_helper extends DateTime
         		$testInstance->modify($time);
         	}
 
-        	$time 			= $testInstance->format(static::MOCK_DATETIME_FORMAT);
+        	$time = $testInstance->format(static::MOCK_DATETIME_FORMAT);
 		}
 
-		$timezone 			= static::safeCreateDateTimeZone($tz);
+		$timezone = static::safeCreateDateTimeZone($tz);
 
-	 	if ($isNow AND !ISSET($testInstance) AND static::isMicrosecondsFallbackEnabled() AND (
+	 	if ($isNow && !isset($testInstance) && static::isMicrosecondsFallbackEnabled() && (
                 version_compare(PHP_VERSION, '7.1.0-dev', '<')
-                OR
-                version_compare(PHP_VERSION, '7.1.3-dev', '>=') AND version_compare(PHP_VERSION, '7.1.4-dev', '<')
+                ||
+                version_compare(PHP_VERSION, '7.1.3-dev', '>=') && version_compare(PHP_VERSION, '7.1.4-dev', '<')
             )
         ) 
         {
         	// Get microseconds from microtime() if "now" asked and PHP < 7.1 and PHP 7.1.3 if fallback enabled.
             list($microTime, $timeStamp) = explode(' ', microtime());
 
-            $dateTime 		= new DateTime('now', $timezone);
+            $dateTime = new DateTime('now', $timezone);
             $dateTime->setTimestamp($timeStamp); // Use the timestamp returned by microtime as now can happen in the next second
 
             $time = $dateTime->format(static::DEFAULT_TO_STRING_FORMAT).substr($microTime, 1, 7);
@@ -66,7 +66,7 @@ class Date_helper extends DateTime
 
         parent::__construct($time, $timezone);
 
-        if( ISSET( $locale ) ) 
+        if( isset( $locale ) ) 
         {
             setlocale(LC_NUMERIC, $locale);
         }
@@ -76,7 +76,7 @@ class Date_helper extends DateTime
 
     protected static function safeCreateDateTimeZone($object)
     {
-        if($object === NULL) 
+        if($object === null) 
         {
             // Don't return null... avoid Bug #52063 in PHP <5.3.6
             return new DateTimeZone(date_default_timezone_get());
@@ -89,14 +89,14 @@ class Date_helper extends DateTime
 
         if(is_numeric($object)) 
         {
-            $timezoneName 	= timezone_name_from_abbr(NULL, $object * 3600, TRUE);
+            $timezoneName = timezone_name_from_abbr(NULL, $object * 3600, TRUE);
 
             if($timezoneName === FALSE) 
             {
                 throw new InvalidArgumentException('Unknown or bad timezone ('.$object.')');
             }
 
-            $object 		= $timezoneName;
+            $object = $timezoneName;
         }
 
         $timezone = @timezone_open($object = (string) $object);
@@ -109,7 +109,7 @@ class Date_helper extends DateTime
         // Work-around for a bug fixed in PHP 5.5.10 https://bugs.php.net/bug.php?id=45528
         // See: https://stackoverflow.com/q/14068594/2646927
         // @codeCoverageIgnoreStart
-        if(strpos($object, ':') !== FALSE) 
+        if(strpos($object, ':') !== false) 
         {
             try 
             {
@@ -127,7 +127,7 @@ class Date_helper extends DateTime
 
     private static function createFromFormatAndTimezone($format, $time, $timezone)
     {
-        return $timezone !== NULL
+        return $timezone !== null
             ? parent::createFromFormat($format, $time, static::safeCreateDateTimeZone($timezone))
             : parent::createFromFormat($format, $time);
     }
@@ -144,14 +144,14 @@ class Date_helper extends DateTime
 
     public static function hasRelativeKeywords($time)
     {
-        if( strtotime($time) === FALSE ) 
+        if( strtotime($time) === false ) 
         {
-            return FALSE;
+            return false;
         }
 
-        $date1 	= new DateTime('2000-01-01T00:00:00Z');
+        $date1 = new DateTime('2000-01-01T00:00:00Z');
         $date1->modify($time);
-        $date2 	= new DateTime('2001-12-25T00:00:00Z');
+        $date2 = new DateTime('2001-12-25T00:00:00Z');
         $date2->modify($time);
 
         return $date1 != $date2;
@@ -159,7 +159,7 @@ class Date_helper extends DateTime
 
     public static function hasTestNow()
     {
-        return static::getTestNow() !== NULL;
+        return static::getTestNow() !== null;
     }
 
     public static function getTestNow()

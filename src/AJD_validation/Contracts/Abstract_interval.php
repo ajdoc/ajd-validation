@@ -16,17 +16,17 @@ abstract class Abstract_interval extends Abstract_rule
  	
     public function __construct($inclusive = true, $isString = false)
     {
-       $this->inclusive    = $inclusive;
-       $this->isString     = $isString;
+       $this->inclusive = $inclusive;
+       $this->isString = $isString;
     }
 
     protected function filterInterval($value)
     {
-        $this->interval     = $value;
+        $this->interval = $value;
 
-        $new_value  = $this->Finterval()
+        $new_value = $this->Finterval()
                         ->cacheFilter( 'value' )
-                        ->filterSingleValue( $value, TRUE );
+                        ->filterSingleValue( $value, true );
         
         return $new_value;
     }

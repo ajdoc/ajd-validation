@@ -14,7 +14,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
 
     protected static $anonRuleExceptions = [];
 
-	public function __invoke($value, $satisfier = NULL, $field = NULL)
+	public function __invoke($value, $satisfier = null, $field = null)
     {
         return $this->run($value, $satisfier, $field);
     }
@@ -31,21 +31,21 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         return $this;
     }
 
- 	public function getExceptionError($value, array $extraParams = array(), $rule = NULL, $overrideName = FALSE, $ruleObj = NULL, $inverse = false)
+ 	public function getExceptionError($value, array $extraParams = [], $rule = null, $overrideName = false, $ruleObj = null, $inverse = false)
     {
-    	$currentClass	= $this;
-    	$currentObj 	= $this;
+    	$currentClass = $this;
+    	$currentObj = $this;
         
     	if( !EMPTY( $rule ) )
     	{
-    		$currentClass 	= $rule;
-    		$currentObj 	= $rule;
+    		$currentClass = $rule;
+    		$currentObj = $rule;
     	}
 
-        $exception          = $this->createException($rule, $ruleObj);
-        $name               = $this->name ?: Errors::stringify($value);
+        $exception = $this->createException($rule, $ruleObj);
+        $name = $this->name ?: Errors::stringify($value);
 
-        $params             = array_merge(
+        $params = array_merge(
             get_class_vars( get_class($currentClass) ),
             get_object_vars($currentObj),
             $extraParams,
@@ -54,7 +54,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
 
         if( $overrideName )
         {
-            $params['field']    = $name;
+            $params['field'] = $name;
         }
 
         if($inverse)
@@ -75,7 +75,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         return $exception;
     }
 
-    public function assertErr( $value, $override = FALSE, $inverseCheck = null )
+    public function assertErr( $value, $override = false, $inverseCheck = null )
     {
         if(!is_null($inverseCheck))
         {
@@ -96,14 +96,14 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
             {
                 if( !$response )
                 {
-                    return TRUE;
+                    return true;
                 }
             }
             else
             {
                 if( $response )
                 {
-                    return TRUE;
+                    return true;
                 }
             }
         }
@@ -125,17 +125,16 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
 
             if($this->inverseCheck)
             {
-                
                 if( !$checkResponse )
                 {
-                    return TRUE;
+                    return true;
                 }
             }
             else
             {
                 if( $checkResponse )
                 {
-                    return TRUE;
+                    return true;
                 }
             }
         }
@@ -155,7 +154,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
             }
         }
 
-        $exceptions = $this->getExceptionError( $value, $extraParams, NULL, $override, $this );
+        $exceptions = $this->getExceptionError( $value, $extraParams, null, $override, $this );
 
         if($this->inverseCheck)
         {
@@ -165,28 +164,28 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         throw $exceptions;
     }
 
- 	protected function createException($rule = NULL, $ruleObj = NULL)
+ 	protected function createException($rule = null, $ruleObj = null)
     {
-        $err        = static::get_errors_instance();
-        $ruleStr    = NULL;
+        $err = static::get_errors_instance();
+        $ruleStr = null;
 
     	if( !EMPTY( $rule ) )
     	{
-    		$currentRule	= get_class( $rule );
-            $ruleStr        = get_class( $rule );
+    		$currentRule = get_class( $rule );
+            $ruleStr = get_class( $rule );
     	}
     	else
     	{
-     		$currentRule 	= get_called_class();
-            $ruleStr        = get_called_class();
+     		$currentRule = get_called_class();
+            $ruleStr = get_called_class();
      	}
 
-        $currentRule        = str_replace('\\Rules\\', '\\Exceptions\\', $currentRule);
-        $currentRule        .= '_exception';
+        $currentRule = str_replace('\\Rules\\', '\\Exceptions\\', $currentRule);
+        $currentRule .= '_exception';
 
         if($ruleObj instanceof Abstract_invokable)
         {
-            $currentRule    = 'AJD_validation\\Exceptions\\Common_invokable_rule_exception';
+            $currentRule = 'AJD_validation\\Exceptions\\Common_invokable_rule_exception';
         }
         else if($ruleObj instanceof Abstract_anonymous_rule)
         {
@@ -200,25 +199,23 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         {
             foreach( Errors::getExceptionDirectory() as $key => $directory )
             {
-                $namespace      = '';
-                $addExceptionNamespace  = Errors::getExceptionNamespace();
+                $namespace = '';
+                $addExceptionNamespace = Errors::getExceptionNamespace();
 
                 if( ISSET( $addExceptionNamespace[ $key ] ) )
                 {
-                    $namespace  = $addExceptionNamespace[ $key ];
+                    $namespace = $addExceptionNamespace[ $key ];
                 }
 
-                $exceptionPath  = $directory.$ruleStr.'_exception.php';
+                $exceptionPath = $directory.$ruleStr.'_exception.php';
+                $requiredFiles = get_required_files();
 
-                $requiredFiles  = get_required_files();
-
-                $search         = array_search($exceptionPath, $requiredFiles);
+                $search = array_search($exceptionPath, $requiredFiles);
             
                 if( file_exists($exceptionPath) AND EMPTY( $search ) )
                 {
                     $currentRule = $namespace.$ruleStr.'_exception';
-
-                    $check  = require $exceptionPath;
+                    $check = require $exceptionPath;
                 }
             }
         }
@@ -238,41 +235,41 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         }
     }
 
-    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = FALSE, $satisfier = NULL, $error = NULL, $value = NULL )
+    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
     {
-        return array();
+        return [];
     }
 
-    protected function processJsArr( array $js, $field, $rule, $clientMessageOnly = FALSE )
+    protected function processJsArr( array $js, $field, $rule, $clientMessageOnly = false )
     {
-        $newJsFormat            = '';
-        $newJsArr               = array(
-            'customJS'          => ''
-        );
+        $newJsFormat = '';
+        $newJsArr = [
+            'customJS' => ''
+        ];
 
         if( $clientMessageOnly )
         {
             if( ISSET( $js[$field][$rule][$clientMessageOnly] ) )
             {
-                $newJsFormat    = $js[$field][$rule][$clientMessageOnly];
+                $newJsFormat = $js[$field][$rule][$clientMessageOnly];
             }
             else
             {
-                $newJsFormat    = $js[$field][$rule]['message'];
+                $newJsFormat = $js[$field][$rule]['message'];
             }
         }
         else
         {
             if( ISSET($js[$field][$rule]['js']) )
             {
-                $newJsArr['customJS']   .= $js[$field][$rule]['js'];
+                $newJsArr['customJS'] .= $js[$field][$rule]['js'];
                 unset($js[$field][$rule]['js']);
             }
 
-            $newJsFormat        = implode(' ', $js[$field][$rule]);
+            $newJsFormat = implode(' ', $js[$field][$rule]);
         }
 
-        $newJsArr[$field][$rule]    = $newJsFormat;
+        $newJsArr[$field][$rule] = $newJsFormat;
 
         return $newJsArr;
     }

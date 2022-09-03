@@ -4,7 +4,7 @@ namespace AJD_validation\Async;
 
 class PromiseCollection
 {
-	private $started 	= false;
+	private $started = false;
     private $collection = [];
 
  	public function __invoke()

@@ -33,7 +33,6 @@ class Promise implements Promise_interface
         {
             PromiseHelpers::setHasErrors($this->errors);
         }
-        
     }
 
     public function setHasErrors(array $errors, $field = null)
@@ -46,7 +45,6 @@ class Promise implements Promise_interface
 
     public function then(callable $onFulfilled = null, callable $onRejected = null)
     {
-
         if (null !== $this->result) 
         {
             return $this->result->then($onFulfilled, $onRejected);
@@ -156,7 +154,6 @@ class Promise implements Promise_interface
                 $promise
                     ->then($onFulfilled, $onRejected)
                     ->done($resolve, $reject);
-                    
             };
 
             $this->progressHandlers[] = $progressHandler;
@@ -223,7 +220,6 @@ class Promise implements Promise_interface
 
     private function extract($promise)
     {
-
         return $promise;
     }
 
@@ -231,8 +227,7 @@ class Promise implements Promise_interface
     {
         $callback = $cb;
         $cb = null;
-
-        
+    
         if (\is_array($callback)) 
         {
             $ref = new \ReflectionMethod($callback[0], $callback[1]);

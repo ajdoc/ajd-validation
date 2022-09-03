@@ -5,7 +5,7 @@ use AJD_validation\Contracts\Abstract_callback;
 
 abstract class Abstract_filter_validate extends Abstract_callback
 {
-	protected $validFilters 	= array(
+	protected $validFilters = [
 	 	FILTER_VALIDATE_BOOLEAN,
         FILTER_VALIDATE_EMAIL,
         FILTER_VALIDATE_FLOAT,
@@ -13,15 +13,15 @@ abstract class Abstract_filter_validate extends Abstract_callback
         FILTER_VALIDATE_IP,
         FILTER_VALIDATE_REGEXP,
         FILTER_VALIDATE_URL,
-	);
+	];
 
 	public function __construct()
     {
-        $args       = func_get_args();
+        $args = func_get_args();
 
         if( !EMPTY( $args ) )
         {
-            $this->arguments    = $args;
+            $this->arguments = $args;
         }
         
         if( !ISSET( $this->arguments[0] ) ) 
@@ -34,7 +34,7 @@ abstract class Abstract_filter_validate extends Abstract_callback
             throw new Exception('Cannot accept the given filter');
         }
 
-        $this->callback         = 'filter_var';
+        $this->callback = 'filter_var';
     }
 
 	private function isValidFilter($filter)

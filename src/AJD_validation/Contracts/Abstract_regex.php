@@ -17,13 +17,12 @@ abstract class Abstract_regex extends Abstract_filter_type
         return preg_match($this->getRegex(), $value);
     }
 
-    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = FALSE, $satisfier = NULL, $error = NULL, $value = NULL )
+    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
     {
         $regex  = $this->getRegex();
 
-        if( !EMPTY( $regex ) )
+        if( !empty( $regex ) )
         {
-        
             $error  = preg_replace('/\"/', '', $error);
             
             if( $jsTypeFormat == Abstract_regex::CLIENT_PARSLEY ) 
@@ -62,7 +61,7 @@ JS;
             }
         }
 
-        $js                 = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
+        $js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
 
         return $js;
     }

@@ -8,16 +8,16 @@ use AJD_validation\Contracts\Abstract_rule;
 abstract class Abstract_compare extends Abstract_rule
 {
 	public $comparator;
-	public $compareValue 	= "";
+	public $compareValue = "";
 	public $toString;
 
-	protected $validComparator 	= array(
+	protected $validComparator = [
 		'==', '===', '!=', '!==', '<>', '<', '>', '<=', '>=', '<=>'
-	);
+	];
 
-	public function __construct($comparator, $compareValue = "", $toString = TRUE)
+	public function __construct($comparator, $compareValue = "", $toString = true)
 	{
-		$validator 			= $this->getValidator();
+		$validator = $this->getValidator();
 		$validateComparator = $validator->required()->in($this->validComparator);
 
 		$validComparatorStr = implode(', ', $this->validComparator);
@@ -27,30 +27,29 @@ abstract class Abstract_compare extends Abstract_rule
 			throw new Exception('Comparator is required and must be either '.$validComparatorStr.'.');
 		}
 
-		$this->comparator 	= $comparator;
+		$this->comparator = $comparator;
 		$this->compareValue = $compareValue;
-		$this->toString 	= $toString;
+		$this->toString = $toString;
 		
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 	= FALSE;
+		$check = false;
+		$compareValue = $this->compareValue;
 
-		$compareValue 		= $this->compareValue;
-
-		if( EMPTY( $this->compareValue ) ) 
+		if( empty( $this->compareValue ) ) 
 		{
-			$compareValue 	= 'NULL';
+			$compareValue = 'NULL';
 		}
 
 		if( $this->toString )
 		{
-			$check 	= eval(" return '".$value."' ".$this->comparator." '".$compareValue."'; ");
+			$check = eval(" return '".$value."' ".$this->comparator." '".$compareValue."'; ");
 		}
 		else
 		{
-			$check 	= eval(" return ".$value." ".$this->comparator." ".$compareValue."; ");
+			$check = eval(" return ".$value." ".$this->comparator." ".$compareValue."; ");
 		}
 		
 		return $check;
@@ -58,7 +57,7 @@ abstract class Abstract_compare extends Abstract_rule
 
 	public function validate( $value )
     {
-        $check              = $this->run( $value );
+        $check = $this->run( $value );
 
         if( is_array( $check ) )
         {

@@ -17,23 +17,23 @@ abstract class Abstract_date extends Abstract_rule
 
 	public $operator;
 
-	public function __construct( $compareDate, $dateFormat = NULL, $operator = NULL )  
+	public function __construct( $compareDate, $dateFormat = null, $operator = null )  
 	{
-        $this->compareDate  = $compareDate;
-        $this->dateFormat   = $dateFormat;
-        $this->operator     = $operator;
+        $this->compareDate = $compareDate;
+        $this->dateFormat = $dateFormat;
+        $this->operator = $operator;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 	= $this->compareDates( $value, $this->operator );
+		$check = $this->compareDates( $value, $this->operator );
 
 		return $check;
 	}
 
 	public function validate( $value )
 	{
-		$check          = $this->run( $value );
+		$check = $this->run( $value );
 
         if( is_array( $check ) )
         {
@@ -45,14 +45,14 @@ abstract class Abstract_date extends Abstract_rule
 
 	protected function compareDates( $value, $operator )
 	{
-		if( EMPTY( $value ) OR EMPTY( $this->compareDate ) )
+		if( empty( $value ) || empty( $this->compareDate ) )
 		{
-			return FALSE;
+			return false;
 		}
 		
-		if( !is_string( $value ) AND !is_numeric( $value ) AND !$value instanceof DateTimeInterface )
+		if( !is_string( $value ) && !is_numeric( $value ) && !$value instanceof DateTimeInterface )
 		{
-			return FALSE;
+			return false;
 		}
 
 		if( $this->dateFormat )
@@ -79,7 +79,7 @@ abstract class Abstract_date extends Abstract_rule
         {
             $date = $this->getDateTime($value);
 
-            if( !IS_NULL( $date ) ) 
+            if( !is_null( $date ) ) 
             {
                 return $date->getTimestamp();
             }
@@ -90,14 +90,14 @@ abstract class Abstract_date extends Abstract_rule
 
 	protected function checkDateTimeOrder($format, $first, $second, $operator)
     {
-    	$firstDate 	= $this->getDateTimeWithOptionalFormat($format, $first);
+    	$firstDate = $this->getDateTimeWithOptionalFormat($format, $first);
 
     	if( !$secondDate = $this->getDateTimeWithOptionalFormat($format, $second) ) 
     	{
             $secondDate = $this->getDateTimeWithOptionalFormat($format, $second);
         }
 
-        return ($firstDate AND $secondDate) AND ($this->compare($firstDate, $secondDate, $operator));
+        return ($firstDate && $secondDate) && ($this->compare($firstDate, $secondDate, $operator));
     }
 
  	protected function getDateTimeWithOptionalFormat($format, $value)
@@ -129,8 +129,8 @@ abstract class Abstract_date extends Abstract_rule
 
     protected function isRelativeDateTime($value)
     {
-        return Date_helper::hasTestNow() AND is_string($value) AND (
-            $value === 'now' OR Date_helper::hasRelativeKeywords($value)
+        return Date_helper::hasTestNow() && is_string($value) && (
+            $value === 'now' || Date_helper::hasRelativeKeywords($value)
         );
     }
 

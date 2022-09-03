@@ -7,15 +7,15 @@ use AJD_validation\Contracts\Abstract_exceptions;
 
 abstract class Abstract_related extends Abstract_rule
 {
-	public $mandatory = TRUE;
-	public $relation  = '';
+	public $mandatory = true;
+	public $relation = '';
 	public $validator;
 
  	abstract public function hasRelation($value);
 
     abstract public function getRelationValue($value);
 
-	public function __construct($relation, Rule_interface $validator = NULL, $mandatory = TRUE)
+	public function __construct($relation, Rule_interface $validator = null, $mandatory = true)
 	{
         $this->setName($relation);
 
@@ -24,7 +24,7 @@ abstract class Abstract_related extends Abstract_rule
             $validator->setName($relation);
         }
 
-        $this->relation  = $relation;
+        $this->relation = $relation;
         $this->validator = $validator;
         $this->mandatory = $mandatory;
 	}
@@ -41,29 +41,29 @@ abstract class Abstract_related extends Abstract_rule
 	    return $this;
 	}
 
-	private function decision($type, $hasRelation, $value, $override = FALSE)
+	private function decision($type, $hasRelation, $value, $override = false)
     {
-        $relationValue  = $this->getRelationValue( $value );
+        $relationValue = $this->getRelationValue( $value );
 
-    	return ( !$this->mandatory AND !$hasRelation )
-				    OR ( IS_NULL( $this->validator ) 
-					   OR ( $type === 'assertErr' ) ? $this->validator->{$type}( $relationValue, $override ) :  $this->validator->{$type}( $relationValue )
+    	return ( !$this->mandatory && !$hasRelation )
+				    || ( IS_NULL( $this->validator ) 
+					   || ( $type === 'assertErr' ) ? $this->validator->{$type}( $relationValue, $override ) : $this->validator->{$type}( $relationValue )
 				);
     }
 
-    public function run( $value, $satisfier = NULL, $field = NULL, $clean_field = NULL )
+    public function run( $value, $satisfier = null, $field = null, $clean_field = null )
     {
-    	$hasRelation 	= $this->hasRelation($value);
-    	$check 			= FALSE;
-        $append_error   = '';
+    	$hasRelation = $this->hasRelation($value);
+    	$check = false;
+        $append_error = '';
 
-    	if( $this->mandatory AND !$hasRelation ) 
+    	if( $this->mandatory && !$hasRelation ) 
     	{
-    		$check 		= FALSE;
+    		$check = false;
     	}
     	else
     	{
-    		$check 		= $this->decision( 'run', $hasRelation, $value );
+    		$check = $this->decision( 'run', $hasRelation, $value );
 
             if( !$check )
             {
@@ -73,11 +73,11 @@ abstract class Abstract_related extends Abstract_rule
                 }
                 catch( Abstract_exceptions $e )
                 {
-                    $append_error  = $e->getFullMessage(function($messages)
+                    $append_error = $e->getFullMessage(function($messages)
                     {
-                        $firstMessage   = str_replace('-', '', $messages[0]);
-                        $realMessage    = array();
-                        $messages[0]    = $firstMessage;
+                        $firstMessage = str_replace('-', '', $messages[0]);
+                        $realMessage = array();
+                        $messages[0] = $firstMessage;
 
                         foreach( $messages as $key => $message )
                         {
@@ -88,15 +88,15 @@ abstract class Abstract_related extends Abstract_rule
 
                             if( $key != 0 )
                             {
-                                $message        = '<br/>&nbsp;&nbsp;&nbsp;&nbsp;'.$message;
+                                $message = '<br/>&nbsp;&nbsp;&nbsp;&nbsp;'.$message;
                             }
                             else
                             {
-                                $message        = preg_replace('/^[\s]/', '', $message);   
-                                $message        = '&nbsp;&nbsp;&nbsp;&nbsp;- '.$message;
+                                $message = preg_replace('/^[\s]/', '', $message);   
+                                $message = '&nbsp;&nbsp;&nbsp;&nbsp;- '.$message;
                             }
 
-                            $realMessage[$key]  = $message;
+                            $realMessage[$key] = $message;
                         }
 
                         return implode('', $realMessage);
@@ -108,22 +108,22 @@ abstract class Abstract_related extends Abstract_rule
 
         if(!empty($append_error))
         {
-            return array(
-                'check'     => $check,
-                'append_error'  => '<br>'.$append_error
-            );
+            return [
+                'check' => $check,
+                'append_error' => '<br>'.$append_error
+            ];
         }
         else
         {
-            return array(
-                'check'     => $check,
-            );
+            return [
+                'check' => $check,
+            ];
         }
     }
 
     public function validate($value)
     {
-	 	$check              = $this->run( $value );
+	 	$check = $this->run( $value );
 
         if( is_array( $check ) )
         {
@@ -133,13 +133,13 @@ abstract class Abstract_related extends Abstract_rule
         return $check;
     }
 
-    public function assertErr($value, $override = FALSE, $inverseCheck = null)
+    public function assertErr($value, $override = false, $inverseCheck = null)
     {
-        $hasRelation    = $this->hasReference($value);
+        $hasRelation = $this->hasReference($value);
 
-        if($this->mandatory AND !$hasRelation) 
+        if($this->mandatory && !$hasRelation) 
         {
-            throw $this->getExceptionError($value, array('hasReference' => FALSE), NULL, $override);
+            throw $this->getExceptionError($value, array('hasReference' => false), null, $override);
         }
 
         try 
@@ -149,7 +149,7 @@ abstract class Abstract_related extends Abstract_rule
         catch(Abstract_exceptions $e) 
         {
             throw $this
-                ->getExceptionError($this->relation, array('hasReference' => TRUE), NULL, $override)
+                ->getExceptionError($this->relation, array('hasReference' => true), null, $override)
                 ->addRelated($e);
         }
     }

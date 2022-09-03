@@ -8,26 +8,26 @@ use AJD_validation\Contracts\Exception_interface;
 
 abstract class Abstract_exceptions extends Errors implements Exception_interface
 {
-	protected $params 	= array();
+	protected $params = [];
 	protected static $config;
 
- 	const ERR_DEFAULT 	= 1;
-    const ERR_NEGATIVE 	= 2;
-    const STANDARD 		= 0;
+ 	const ERR_DEFAULT = 1;
+    const ERR_NEGATIVE = 2;
+    const STANDARD = 0;
 
- 	public static $defaultMessages = array(
-        self::ERR_DEFAULT 	=> array(
-            self::STANDARD 	=> 'Data validation failed for :field',
-        ),
-        self::ERR_NEGATIVE 	=> array(
-            self::STANDARD 	=> 'Data validation failed for :field',
-        ),
-    );
+ 	public static $defaultMessages = [
+        self::ERR_DEFAULT => [
+            self::STANDARD => 'Data validation failed for :field',
+        ],
+        self::ERR_NEGATIVE => [
+            self::STANDARD => 'Data validation failed for :field',
+        ],
+    ];
 
-    protected $mode 	      = self::ERR_DEFAULT;
-    protected $id             = 'validation';
-    protected $name           = '';
-    protected static $fromRuleName   = '';
+    protected $mode = self::ERR_DEFAULT;
+    protected $id = 'validation';
+    protected $name = '';
+    protected static $fromRuleName = '';
 
     public static $localizeFile;
 
@@ -64,11 +64,11 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
             $className = get_called_class();
         }
 
-        $pieces                 = explode('\\', $className);
-        $exceptionShortName     = end($pieces);
-        $ruleShortName          = str_replace('Exception', '', $exceptionShortName);
+        $pieces = explode('\\', $className);
+        $exceptionShortName = end($pieces);
+        $ruleShortName = str_replace('Exception', '', $exceptionShortName);
 
-        $ruleName               = lcfirst($ruleShortName);
+        $ruleName = lcfirst($ruleShortName);
         
         return $ruleName;
     }
@@ -80,7 +80,7 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
 
     public function setMode($mode)
     {
-        $this->mode 	= $mode;
+        $this->mode = $mode;
 
         if( $this->mode == self::ERR_NEGATIVE )
         {
@@ -97,10 +97,8 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
 
     public function localize()
     {
-        $file                       = static::$localizeFile.'.php';
-        
-        $file_data                  = static::$config->getConfigFile( $file, static::$errDir.static::$lang.DIRECTORY_SEPARATOR );
-
+        $file = static::$localizeFile.'.php';
+        $file_data = static::$config->getConfigFile( $file, static::$errDir.static::$lang.DIRECTORY_SEPARATOR );
         $hasLocale = false;
 
         if( isset(static::$localizeMessage)
@@ -129,7 +127,7 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
 
                     if(file_exists($path.DIRECTORY_SEPARATOR.$customFile))
                     {
-                        $file_data                  = static::$config->getConfigFile( $customFile, $path.DIRECTORY_SEPARATOR );
+                        $file_data = static::$config->getConfigFile( $customFile, $path.DIRECTORY_SEPARATOR );
 
                         if(!empty($file_data))
                         {
@@ -146,7 +144,6 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
             {
                 $ruleName = strtolower(str_replace('_rule_exception', '', $this->id));
                 
-
                 if(isset($file_data['error_msg'][$ruleName]))
                 {
                     static::$defaultMessages = $file_data['error_msg'][$ruleName];
@@ -172,7 +169,7 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
         
     	$this->localize();
 
-    	if( ISSET( $params['inverse'] ) AND !EMPTY( $params['inverse'] ) )
+    	if( isset( $params['inverse'] ) && !empty( $params['inverse'] ) )
     	{
     		$this->setMode(self::ERR_NEGATIVE);
     	}
@@ -230,7 +227,7 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
 
     public function setName($name)
     {
-        $this->name     = $name;
+        $this->name = $name;
     }
 
     public static function setFromRuleName($name)
@@ -250,22 +247,22 @@ abstract class Abstract_exceptions extends Errors implements Exception_interface
 
     protected function buildMessageErr()
     {
-        $messageKey 	= $this->chooseMessage();
+        $messageKey = $this->chooseMessage();
 
-        $message_str 	= static::$defaultMessages[$this->mode][$messageKey];
+        $message_str = static::$defaultMessages[$this->mode][$messageKey];
 
-        $message 		= $this->replaceErrorPlaceholder( $this->getParams(), $message_str );
+        $message = $this->replaceErrorPlaceholder( $this->getParams(), $message_str );
 
-        $append_error   = $this->getParam('append_error');
+        $append_error = $this->getParam('append_error');
         
         if( EMPTY( $message ) )
         {
-        	$message 	= $message_str;
+        	$message = $message_str;
         }
 
         if(!empty($append_error))
         {
-            $message    .= ' '.$append_error;
+            $message .= ' '.$append_error;
         }
 
         return $message;

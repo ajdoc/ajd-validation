@@ -26,7 +26,7 @@ class NotPawnedVerifier implements Uncompromised_interface
 
         [$hash, $hashPrefix] = $this->getHash($value);
 
-        $response 	= $this->makeRequest($hashPrefix);
+        $response = $this->makeRequest($hashPrefix);
 
     	return $this->search($response, $hashPrefix, $hash);
     }
@@ -37,9 +37,9 @@ class NotPawnedVerifier implements Uncompromised_interface
 
 		if( isset($response) && !empty( $response ) )
 		{
-			$results 		= explode("\n", trim($response));
+			$results = explode("\n", trim($response));
 
-			$resultsFilter 	= array_filter($results, function($value)
+			$resultsFilter = array_filter($results, function($value)
 			{
 				return str_contains($value, ':');
 			});

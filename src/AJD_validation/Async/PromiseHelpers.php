@@ -141,7 +141,7 @@ class PromiseHelpers
                     }
                     
                     $toResolve = \count($array);
-                    $values    = [];
+                    $values = [];
 
                     foreach ($array as $i => $promiseOrValue) 
                     {
@@ -199,9 +199,9 @@ class PromiseHelpers
                     }
 
                     $toResolve = $number;
-                    $toReject  = ($len - $toResolve) + 1;
-                    $values    = [];
-                    $reasons   = [];
+                    $toReject = ($len - $toResolve) + 1;
+                    $values = [];
+                    $reasons = [];
 
                     foreach ($array as $i => $promiseOrValue) 
                     {

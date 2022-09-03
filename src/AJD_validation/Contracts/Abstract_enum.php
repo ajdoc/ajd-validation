@@ -17,9 +17,9 @@ abstract class Abstract_enum extends Abstract_rule
 
     }
 
-    public function run( $value, $satisfier = NULL, $field = NULL )
+    public function run( $value, $satisfier = null, $field = null )
 	{   
-		$check 		= FALSE;
+		$check = false;
 
 		$validator = v::getValidator();
 
@@ -62,7 +62,7 @@ abstract class Abstract_enum extends Abstract_rule
         	{
         		if(method_exists($this->enumType, 'tryFrom'))
         		{
-        			return ! is_null($this->enumType::tryFrom($value));
+        			return !is_null($this->enumType::tryFrom($value));
         		}
         	}
         	else
@@ -105,7 +105,7 @@ abstract class Abstract_enum extends Abstract_rule
 
     public function validate( $value )
     {
-        $check      = $this->run( $value );
+        $check = $this->run( $value );
 
         if( is_array( $check ) )
         {

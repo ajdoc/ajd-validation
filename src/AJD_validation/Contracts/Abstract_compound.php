@@ -39,8 +39,8 @@ class Abstract_compound extends Abstract_all
 	*/
     public function run($value, $satisfier = null, $field = null, $clean_field = null)
     {
-    	$check 			= false;
-		$append_error 	= "";
+    	$check = false;
+		$append_error = "";
 
 		$collectionExceptions = $this->assertCompoundRules($this->rules, $value, $clean_field, true, true);
         $check = ($this->inverseCheck) ? false : true;
@@ -90,9 +90,9 @@ class Abstract_compound extends Abstract_all
     */
     public function validate( $value )
     {
-        $satisfier  = null;
+        $satisfier = null;
 
-        $check  = $this->run( $value, $satisfier );
+        $check = $this->run( $value, $satisfier );
 
         if( is_array( $check ) )
         {

@@ -8,7 +8,6 @@ class Validator extends All_rule
 {
   	public static function __callStatic($method, array $arguments)
     {
-      
         if('all' === $method) 
         {
             return static::buildRule($method, $arguments);
@@ -32,33 +31,30 @@ class Validator extends All_rule
 
    	protected static function processRules( $rule, $arguments = array() )
    	{
-   		$ajd_ins 		    = static::get_ajd_instance();
-   		$baseRulesPath 	    = $ajd_ins->get_rules_path();
-   		$raw_rule 			= static::removeWord( $rule, '/^!/' );
-        $raw_append_rule    = $raw_rule.'_'.static::$rules_suffix;
-   		$rule 				= strtolower( $rule );
-   		$clean_rule 		= $ajd_ins->clean_rule_name( $rule );		
-  		$append_rule 		= ucfirst( $clean_rule['rule'] ).'_'.static::$rules_suffix;
-  		$lower_rule 		= strtolower( $append_rule );
-
-        $raw_append_rule_frommacro    = $raw_rule.static::$signatureName.'_'.static::$rules_suffix;
-        $append_rule_frommacro    = ucfirst( $clean_rule['rule'] ).static::$signatureName.'_'.static::$rules_suffix;
-
-   		$rulesPath 			= $baseRulesPath.$append_rule.'.php';
+   		$ajd_ins = static::get_ajd_instance();
+   		$baseRulesPath = $ajd_ins->get_rules_path();
+   		$raw_rule = static::removeWord( $rule, '/^!/' );
+        $raw_append_rule = $raw_rule.'_'.static::$rules_suffix;
+   		$rule = strtolower( $rule );
+   		$clean_rule = $ajd_ins->clean_rule_name( $rule );		
+  		$append_rule = ucfirst( $clean_rule['rule'] ).'_'.static::$rules_suffix;
+  		$lower_rule = strtolower( $append_rule );
+        $raw_append_rule_frommacro = $raw_rule.static::$signatureName.'_'.static::$rules_suffix;
+        $append_rule_frommacro = ucfirst( $clean_rule['rule'] ).static::$signatureName.'_'.static::$rules_suffix;
+   		$rulesPath = $baseRulesPath.$append_rule.'.php';
    		
-
         if( !EMPTY( static::$addRuleDirectory ) )
         {
             foreach( static::$addRuleDirectory as $classPath )
             {
                 if( file_exists( $classPath.$append_rule.'.php' ) )
                 {
-                    $rulesPath     = $classPath.$append_rule.'.php';
+                    $rulesPath = $classPath.$append_rule.'.php';
                 }   
             }
         }
 
-        $is_class           = file_exists( $rulesPath );
+        $is_class = file_exists( $rulesPath );
 
         if(!$is_class)
         {
@@ -69,33 +65,31 @@ class Validator extends All_rule
                     $is_class = true;
                 }
             }
-            
         }
 
-   		$is_function 		    = function_exists( $rule );
-
-   		$factory 			      = NULL;
+   		$is_function = function_exists( $rule );
+   		$factory = null;
         
    		if( $is_class )
    		{
-   			$factory 		= static::get_factory_instance()->get_instance( TRUE );
+   			$factory = static::get_factory_instance()->get_instance(true);
 
             if( !EMPTY( static::$addRuleNamespace ) )
             {
                 static::_appendValidRuleNameSpace( $factory );
             }
 
-   			$ruleObj 		= $factory->rules($rulesPath, $append_rule, $arguments);
+   			$ruleObj = $factory->rules($rulesPath, $append_rule, $arguments);
             
    			return $ruleObj;
    		} 
         else if( 
             $ajd_ins->isset_empty( static::$ajd_prop['anonymous_class_override'], $append_rule ) 
-            OR
+            ||
             $ajd_ins->isset_empty( static::$ajd_prop['anonymous_class_override'], $raw_append_rule ) 
-            OR
+            ||
             $ajd_ins->isset_empty( static::$ajd_prop['anonymous_class_override'], $append_rule_frommacro ) 
-            OR
+            ||
             $ajd_ins->isset_empty( static::$ajd_prop['anonymous_class_override'], $raw_append_rule_frommacro ) 
         )
         {

@@ -13,7 +13,7 @@ abstract class Abstract_filter_type extends Abstract_rule
 
 	public function __construct($additionalChars = '')
     {
-        if ( !EMPTY( $additionalChars ) AND ( !is_string( $additionalChars ) AND !is_array($additionalChars) ) ) 
+        if ( !EMPTY( $additionalChars ) && ( !is_string( $additionalChars ) && !is_array($additionalChars) ) ) 
         {
             throw new \Exception('Invalid list of additional characters to be loaded.');
         }
@@ -30,9 +30,9 @@ abstract class Abstract_filter_type extends Abstract_rule
 
     protected function filter($value)
     {
-    	$new_value  = v::Fwhite_space_option($this->additionalChars)
+    	$new_value = v::Fwhite_space_option($this->additionalChars)
                         ->cacheFilter( 'value' )
-                        ->filterSingleValue( $value, TRUE );
+                        ->filterSingleValue( $value, true );
         
         return $new_value;
     }
@@ -41,8 +41,9 @@ abstract class Abstract_filter_type extends Abstract_rule
     {
         if ($l > 0) 
         {
-            $ret    = array();
-            $len    = mb_strlen($str, "UTF-8");
+            $ret = [];
+            $len = mb_strlen($str, "UTF-8");
+
             for ($i = 0; $i < $len; $i += $l) 
             {
                 $ret[] = mb_substr($str, $i, $l, "UTF-8");
@@ -50,59 +51,60 @@ abstract class Abstract_filter_type extends Abstract_rule
             
             return $ret;
         }
+
         return preg_split("//u", $str, -1, PREG_SPLIT_NO_EMPTY);
     }
 
     protected function processAddtionalCharRegex()
     {
-        $addCharReg     = '';
+        $addCharReg = '';
 
         if( !EMPTY( $this->additionalChars ) )
         {
-            $addChar    = $this->str_split_unicode($this->additionalChars);
+            $addChar = $this->str_split_unicode($this->additionalChars);
             $addCharReg = '\\'.implode('\\', $addChar);
         }
 
         return $addCharReg;
     }
 
-    public function run($value, $satisfier = NULL, $field = NULL)
+    public function run($value, $satisfier = null, $field = null)
     {
         if ( !is_scalar($value) ) 
         {
-            return FALSE;
+            return false;
         }
         
-        if( EMPTY( $this->additionalChars ) AND !EMPTY( $satisfier ) )
+        if( empty( $this->additionalChars ) && !empty( $satisfier ) )
         {
             if( is_array( $satisfier ) )
             {
-                if( ISSET( $satisfier[0] ) )
+                if( isset( $satisfier[0] ) )
                 {
-                     $this->additionalChars     = $satisfier[0];
+                     $this->additionalChars = $satisfier[0];
                 }
             }
             else
             {
-        	   $this->additionalChars 	= $satisfier;
+        	   $this->additionalChars = $satisfier;
             }
         }
 
-        $stringInput 	= (string) $value;
+        $stringInput = (string) $value;
 
         if ( '' === $stringInput ) 
         {
-            return FALSE;
+            return false;
         }
 
-        $cleanInput 	= $this->filter($stringInput);
+        $cleanInput = $this->filter($stringInput);
         
         return $cleanInput === '' || $this->validateValue($cleanInput);
     }
 
     public function validate( $value )
     {
-        $satisfier  = array( $this->additionalChars );
+        $satisfier = [$this->additionalChars];
 
         $check  = $this->run( $value, $satisfier );
 
@@ -114,14 +116,13 @@ abstract class Abstract_filter_type extends Abstract_rule
         return $check;
     }
 
-     public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = FALSE, $satisfier = NULL, $error = NULL, $value = NULL )
+     public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
     {
-        $regex  = $this->getRegexString();
+        $regex = $this->getRegexString();
 
         if( !EMPTY( $regex ) )
         {
-        
-            $error  = preg_replace('/\"/', '', $error);
+            $error = preg_replace('/\"/', '', $error);
             
             if( $jsTypeFormat == Abstract_regex::CLIENT_PARSLEY ) 
             {
@@ -158,7 +159,7 @@ JS;
             }
         }
 
-        $js                 = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
+        $js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
 
         return $js;
     }

@@ -1569,7 +1569,7 @@ try
 
 	// Registering a Custom class
 	// $path 	= dirname();
-	$v->registerClass('custom_class', new Custom_class, ['default' => 'this value is not custom class a', 'inverse' => 'not this value is not custom class a']);
+	$v->registerClass( new Custom_class, ['default' => 'this value is not custom class a', 'inverse' => 'not this value is not custom class a']);
 	// var_dump($v->getValidator()->custom_class()->validate('a'));
 	$v->custom_class()->check('custom_class', '');
 

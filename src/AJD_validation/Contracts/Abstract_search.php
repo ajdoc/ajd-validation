@@ -18,12 +18,12 @@ abstract class Abstract_search extends Abstract_rule
 				return in_array( $this->haystack, $value );
 			}
 
-			if( $value === NULL OR $value === '' )
+			if( $value === NULL || $value === '' )
 			{
 				return ( $this->haystack == $value );  
 			}
 			
-			$check 		= ( false !== mb_stripos( $value, $this->haystack, 0, mb_detect_encoding( $value ) ) );
+			$check = ( false !== mb_stripos( $value, $this->haystack, 0, mb_detect_encoding( $value ) ) );
 		}
 		else
 		{
@@ -32,12 +32,12 @@ abstract class Abstract_search extends Abstract_rule
 				return in_array( $value, $this->haystack );
 			}
 
-			if( $value === NULL OR $value === '' )
+			if( $value === NULL || $value === '' )
 			{
 				return ( $value == $this->haystack );  
 			}
 
-			$check 		= ( false !== mb_stripos( $this->haystack, $value, 0, mb_detect_encoding( $value ) ) );
+			$check = ( false !== mb_stripos( $this->haystack, $value, 0, mb_detect_encoding( $value ) ) );
 		}
 
 		return $check;
@@ -49,35 +49,35 @@ abstract class Abstract_search extends Abstract_rule
 		{
 			if( is_array( $value ) )
 			{
-				return in_array( $this->haystack, $value, TRUE );
+				return in_array( $this->haystack, $value, true );
 			}
 
-			if( $value === NULL OR $value === '' )
+			if( $value === NULL || $value === '' )
 			{
 				return ( $this->haystack === $value );  
 			}
 
-			$check 		= ( false !== mb_strpos( $value, $this->haystack, 0, mb_detect_encoding( $value ) ) );
+			$check = ( false !== mb_strpos( $value, $this->haystack, 0, mb_detect_encoding( $value ) ) );
 		}
 		else
 		{
 			if( is_array( $this->haystack ) )
 			{
-				return in_array( $value, $this->haystack, TRUE );
+				return in_array( $value, $this->haystack, true );
 			}
 
-			if( $value === NULL OR $value === '' )
+			if( $value === NULL || $value === '' )
 			{
 				return ( $value === $this->haystack );  
 			}
 
-			$check 		= ( false !== mb_strpos( $this->haystack, $value, 0, mb_detect_encoding( $value ) ) );
+			$check = ( false !== mb_strpos( $this->haystack, $value, 0, mb_detect_encoding( $value ) ) );
 		}
 
 		return $check;
 	}
 
-	public function run($value, $satisfier = NULL, $field = NULL)
+	public function run($value, $satisfier = null, $field = null)
 	{
 		if( is_array( $satisfier ) )
 		{
@@ -85,33 +85,33 @@ abstract class Abstract_search extends Abstract_rule
 			{
 				if( EMPTY( $this->haystack ) )
 				{
-					$this->haystack 	= $satisfier[0];
+					$this->haystack = $satisfier[0];
 				}
 			}
 
-			if( ISSET( $satisfier[1] ) AND is_bool( $satisfier[1] )  )
+			if( ISSET( $satisfier[1] ) && is_bool( $satisfier[1] )  )
 			{
-				$this->identical 	= $satisfier[1];
+				$this->identical = $satisfier[1];
 			}
 		}
 		else
 		{
 			if( EMPTY( $this->haystack ) )
 			{
-				$this->haystack 		= $satisfier;
+				$this->haystack = $satisfier;
 			}
 		}
 		
-		$check_arr 	= array();
-		$check 		= FALSE;
+		$check_arr = [];
+		$check = false;
 
 		if( $this->identical )
 		{
-			$check 	= $this->validateIdentical( $value );
+			$check = $this->validateIdentical( $value );
 		}
 		else
 		{
-			$check 	= $this->validateEquals( $value );
+			$check = $this->validateEquals( $value );
 		}
 
 		return $check;
@@ -119,9 +119,9 @@ abstract class Abstract_search extends Abstract_rule
 
 	public function validate( $value )
 	{
-		$satisfier 	= array( $this->haystack, $this->identical );
+		$satisfier = array( $this->haystack, $this->identical );
 
-		$check 		= $this->run( $value, $satisfier );
+		$check = $this->run( $value, $satisfier );
 
 		if( is_array( $check ) )
 		{

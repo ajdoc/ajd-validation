@@ -6,27 +6,23 @@ use AJD_validation\Contracts\Abstract_common;
 use AJD_validation\Helpers\Logics_map;
 use AJD_validation\Helpers\LogicsAddMap;
 use AJD_validation\Factory\Class_factory;
-// use AJD_validation\Traits\Events_dispatcher_trait;
 
 class When extends AJD_validation
 {
-	// use Events_dispatcher_trait;	
-
 	protected $ajd;
 	protected $obs;
 	protected $testPath;
-	protected $given_field	= array();
-	protected $customTest 	= array();
+	protected $given_field = [];
+	protected $customTest = [];
 
-	protected static $testNamespace 			= array( 'AJD_validation\\Logics\\' );
+	protected static $testNamespace = ['AJD_validation\\Logics\\'];
 
-	protected static $cacheTestInstance 		= array();
-	public static $testSuffix 				= 'logic';
+	protected static $cacheTestInstance = [];
+	public static $testSuffix = 'logic';
 
-	protected $classArgs 						= array();
-	protected static $addTestClassPath 			= array();
-
-	protected static $addLogicsMappings 		= [];
+	protected $classArgs = [];
+	protected static $addTestClassPath = [];
+	protected static $addLogicsMappings = [];
 
 	protected $currLogic;
 	protected $currRule;
@@ -35,13 +31,13 @@ class When extends AJD_validation
  
 	public function __construct( AJD_validation $ajd, $obs = null )
 	{
-		$this->ajd 	= $ajd;
+		$this->ajd = $ajd;
 
-		$this->obs 	= $obs;
+		$this->obs = $obs;
 
-		$this->classArgs 	= array(
+		$this->classArgs = [
 			$this->ajd->getValidator(), $this->ajd, $this->obs
-		);
+		];
 
 		if($this->obs)
 		{
@@ -51,9 +47,9 @@ class When extends AJD_validation
 
 	public function __call( $name, array $args )
 	{
-		$method 	= $this->processMethodName( $name );
+		$method = $this->processMethodName( $name );
 
-		$factory 	= static::get_factory_instance()->get_instance( FALSE, FALSE, TRUE );
+		$factory = static::get_factory_instance()->get_instance( FALSE, FALSE, TRUE );
 
 		$factory->rules( get_class( $this ), $method['method'] );
 
@@ -87,69 +83,64 @@ class When extends AJD_validation
 
 	protected function processMethodName( $name )
 	{
-		$ret_name 		= $name;
+		$ret_name = $name;
 		$method = null;
 
 		if( preg_match( '/^Giv/', $name ) )
 		{
-			$method 	= 'given';
-			$ret_name 	= static::removeWord( $name, '/^Giv/' );
+			$method = 'given';
+			$ret_name = static::removeWord( $name, '/^Giv/' );
 		}
 		if( preg_match( '/^OrGiv/', $name ) )
 		{
-			$method 	= 'givenOr';
-			$ret_name 	= static::removeWord( $name, '/^OrGiv/' );
+			$method = 'givenOr';
+			$ret_name = static::removeWord( $name, '/^OrGiv/' );
 		}
 		else if( preg_match( '/^eGiv/', $name ) )
 		{
-			$method 	= 'endgiven';
-			$ret_name 	= static::removeWord( $name, '/^eGiv/' );
+			$method = 'endgiven';
+			$ret_name = static::removeWord( $name, '/^eGiv/' );
 		}
 		else if( preg_match( '/^Th/' , $name ) )
 		{
-			$method 	= 'then';
-			$ret_name 	= static::removeWord( $name, '/^Th/' );
+			$method = 'then';
+			$ret_name = static::removeWord( $name, '/^Th/' );
 		}
 		else if( preg_match( '/^OrTh/' , $name ) )
 		{
-			$method 	= 'thenOr';
-			$ret_name 	= static::removeWord( $name, '/^OrTh/' );
+			$method = 'thenOr';
+			$ret_name = static::removeWord( $name, '/^OrTh/' );
 		}
 		else if( preg_match('/^eTh/', $name ) )
 		{
-			$method 	= 'endthen';
-			$ret_name 	= static::removeWord( $name, '/^eTh/' );	
+			$method = 'endthen';
+			$ret_name = static::removeWord( $name, '/^eTh/' );	
 		}
 		else if( preg_match('/^Oth/', $name ) )
 		{
-			$method 	= 'otherwise';
-
-			$ret_name 	= static::removeWord( $name, '/^Oth/' );
+			$method = 'otherwise';
+			$ret_name = static::removeWord( $name, '/^Oth/' );
 		}
 		else if( preg_match('/^OrOth/', $name ) )
 		{
-			$method 	= 'otherwiseOr';
-
-			$ret_name 	= static::removeWord( $name, '/^OrOth/' );
+			$method = 'otherwiseOr';
+			$ret_name = static::removeWord( $name, '/^OrOth/' );
 		}
 		else if( preg_match('/^eOth/', $name ) )
 		{
-			$method 	= 'endotherwise';
-
-			$ret_name 	= static::removeWord( $name, '/^eOth/' );
+			$method = 'endotherwise';
+			$ret_name = static::removeWord( $name, '/^eOth/' );
 		}
 		else if( preg_match('/^Lg/', $name ) )
 		{
-			$method 	= 'addLogic';
-
-			$ret_name 	= static::removeWord( $name, '/^Lg/' );
+			$method = 'addLogic';
+			$ret_name = static::removeWord( $name, '/^Lg/' );
 		}
 
-		return array(
-
-			'method' 	=> $method,
-			'name' 		=> $ret_name
-		);
+		return [
+			'method' => $method,
+			'name' => $ret_name
+		];
 	}
 
 	public function addLogicNamespace( $namespace )
@@ -168,26 +159,26 @@ class When extends AJD_validation
 
 	public function addLogic( $test )
 	{
-		$arguments 	= func_get_args();
+		$arguments = func_get_args();
 
 		unset( $arguments[0] );
 
 		$this->ajd->accessInitExtensions();
 		
-		$options 	= $this->processTests( $test, $arguments );
+		$options = $this->processTests( $test, $arguments );
 
 		if( is_array( $options['testObj'] ) )
 		{
 			if( ISSET( $options['testObj']['extensionObj'] ) )
 			{
-				$this->customTest[spl_object_hash($options['testObj']['extensionObj'])] 	= $options['testObj'];
+				$this->customTest[spl_object_hash($options['testObj']['extensionObj'])] = $options['testObj'];
 			}
 		}
 		else
 		{
 			if(!empty($options['testObj']))
 			{
-				$this->customTest[spl_object_hash($options['testObj'])] 	= $options['testObj'];
+				$this->customTest[spl_object_hash($options['testObj'])] = $options['testObj'];
 			}
 		}
 
@@ -216,28 +207,26 @@ class When extends AJD_validation
 	
 	protected function processTests( $test, $arguments )
 	{
-		$rawTest 	= static::removeWord( $test, '/^!/' );
-		$lowerTest 	= strtolower( $test );
-		$cleanTest 	= static::clean_rule_name( $lowerTest );
+		$rawTest = static::removeWord( $test, '/^!/' );
+		$lowerTest = strtolower( $test );
+		$cleanTest = static::clean_rule_name( $lowerTest );
 		$appendTest = ucfirst( $cleanTest['rule'] ).'_'.static::$testSuffix;
-		
-		$testKind 	= $this->processTestsKind( $cleanTest['rule'], $appendTest, $rawTest, $arguments );
+		$testKind = $this->processTestsKind( $cleanTest['rule'], $appendTest, $rawTest, $arguments );
 
 		return $testKind;
 	}
 
 	protected function processTestsKind( $test, $appendTest, $rawTest, $arguments )
 	{
-		$options 	= array();
-		$lowerTest 	= strtolower( $appendTest );
-		$options 	= $this->processOptions( $lowerTest, $appendTest, $rawTest, $test );
+		$options = [];
+		$lowerTest = strtolower( $appendTest );
+		$options = $this->processOptions( $lowerTest, $appendTest, $rawTest, $test );
 
-		$extensionTests 	= $this->ajd->getExtensionLogics();
+		$extensionTests = $this->ajd->getExtensionLogics();
+		$isExtension = isset( $extensionTests[ $lowerTest ] );
+		$isClass = file_exists( $options['testPath'] );
 
-		$isExtension= ISSET( $extensionTests[ $lowerTest ] );
-		$isClass 	= file_exists( $options['testPath'] );
-
-		$isMethod 	= method_exists( $options['objIns'], $appendTest );
+		$isMethod = method_exists( $options['objIns'], $appendTest );
 
 		if(!$isClass)
 		{
@@ -250,37 +239,36 @@ class When extends AJD_validation
 			}
 		}
 
-		$options['lowerTest'] 	= $lowerTest;
-		$options['testKind'] 	= NULL;
-		$options['appendTest'] 	= $appendTest;
-		$options['rawTest'] 	= $rawTest;
-		$options['test'] 		= $test;
-		$options['testObj'] 	= NULL;
-		$options['arguments'] 	= $arguments;
-		$options['extensionTests'] 	= $extensionTests;
-
-		$classArgs 			= $this->classArgs;
+		$options['lowerTest'] = $lowerTest;
+		$options['testKind'] = null;
+		$options['appendTest'] = $appendTest;
+		$options['rawTest'] = $rawTest;
+		$options['test'] = $test;
+		$options['testObj'] = null;
+		$options['arguments'] = $arguments;
+		$options['extensionTests'] = $extensionTests;
+		$classArgs = $this->classArgs;
 
 		if( !EMPTY( $options['arguments'] ) )
 		{
-			$classArgs 		= array_merge( $options['arguments'], $classArgs );
+			$classArgs = array_merge( $options['arguments'], $classArgs );
 		}
 
-		$options['classArgs'] 	= $classArgs;
+		$options['classArgs'] = $classArgs;
 
 		if( $isExtension )
 		{
-			$options['testKind']  	= '_processExtension';
-			$options['testObj'] 	= $this->_processExtension( $options );
+			$options['testKind'] = '_processExtension';
+			$options['testObj'] = $this->_processExtension( $options );
 		}
 		else if( $isClass )
 		{
-			$options['testKind'] 	= '_processClass';
-			$options['testObj'] 	= $this->_processClass( $options );
+			$options['testKind'] = '_processClass';
+			$options['testObj'] = $this->_processClass( $options );
 		}
 		else if( $isMethod )
 		{
-			$options['testKind'] 	= '_processMethod';
+			$options['testKind'] = '_processMethod';
 			$this->_processMethod( $options );
 		}
 		
@@ -289,10 +277,9 @@ class When extends AJD_validation
 
 	protected function processOptions( $lowerTest, $appendTest, $rawTest, $test )
 	{
-		$options 	= array();
-
-		$objIns 		= $this;
-		$testPath 		= $this->getTestPath().$appendTest.'.php';
+		$options = [];
+		$objIns = $this;
+		$testPath = $this->getTestPath().$appendTest.'.php';
 
 		if( !EMPTY( static::$addTestClassPath ) )
 		{
@@ -300,20 +287,18 @@ class When extends AJD_validation
 			{
 				if( file_exists( $classPath.$appendTest.'.php' ) )
 				{
-					$testPath 	= $classPath.$appendTest.'.php';
+					$testPath = $classPath.$appendTest.'.php';
 				}	
 			}
 		}
 		
-		$rawAppendTest 	= $rawTest.'_'.static::$testSuffix;
-
-		$rawClass 		= $appendTest;
-
-		$options['testPath'] 		= $testPath;
-		$options['rawAppendTest'] 	= $rawAppendTest;
-		$options['rawClass'] 		= $rawClass;
-		$options['className'] 		= get_class( $objIns );
-		$options['objIns'] 			= $objIns;
+		$rawAppendTest = $rawTest.'_'.static::$testSuffix;
+		$rawClass = $appendTest;
+		$options['testPath'] = $testPath;
+		$options['rawAppendTest'] = $rawAppendTest;
+		$options['rawClass'] = $rawClass;
+		$options['className'] = get_class( $objIns );
+		$options['objIns'] = $objIns;
 
 		return $options;
 
@@ -321,44 +306,44 @@ class When extends AJD_validation
 
 	private function _processExtension( array $options )
 	{
-		$extensionTests 	= $options['extensionTests'];
+		$extensionTests = $options['extensionTests'];
 
-		$extensionTest 		= $extensionTests[ $options['lowerTest'] ];
+		$extensionTest = $extensionTests[ $options['lowerTest'] ];
 
-		$extensionObj 	 	= $extensionTest['extension_obj'];
+		$extensionObj = $extensionTest['extension_obj'];
 
-		return array(
-			'extensionObj' 	=> $extensionObj,
+		return [
+			'extensionObj' => $extensionObj,
 			'extensionName' => $extensionTest['test'],
-			'classArgs' 	=> $options['classArgs']
-		);
+			'classArgs' => $options['classArgs']
+		];
 	}
 
 	protected function getTestPath()
 	{
-		$this->testPath 		= dirname( dirname( __FILE__ ) ).Abstract_common::DS.'Logics'.Abstract_common::DS;
+		$this->testPath = dirname( dirname( __FILE__ ) ).Abstract_common::DS.'Logics'.Abstract_common::DS;
 
 		return $this->testPath;
 	}
 
 	private function _processClass( array $options )
 	{
-		$appendTest 	= $options['appendTest'];
+		$appendTest = $options['appendTest'];
 
 		/*if( !ISSET( static::$cacheTestInstance[ $appendTest ] ) )
 		{*/
-			$classFactory 	= static::get_factory_instance()->get_instance( TRUE );
+			$classFactory = static::get_factory_instance()->get_instance( TRUE );
 
 			$this->appendTestNameSpace( $classFactory );
 
-			$testObj 		= $classFactory->rules( $options['testPath'], $appendTest, $options['classArgs'], FALSE );
+			$testObj = $classFactory->rules( $options['testPath'], $appendTest, $options['classArgs'], FALSE );
 		/*}
 		else
 		{
 			$testObj 		= static::$cacheTestInstance[ $appendTest ];
 		}*/
 
-		static::$cacheTestInstance[ $appendTest ] 	= $testObj;
+		static::$cacheTestInstance[ $appendTest ] = $testObj;
 
 		return $testObj;
 	}
@@ -371,17 +356,17 @@ class When extends AJD_validation
 		}
 	}
 
-	public function givenOr( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_OR )
+	public function givenOr( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_OR )
 	{
 		$this->given($rule, $satis, $custom_err, $client_side, $logic);
 
 		return $this;
 	}
 
-	public function given( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_AND )
+	public function given( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_AND )
 	{
-		$this->currRule 	= $rule;
-		$this->currLogic 	= $logic;
+		$this->currRule = $rule;
+		$this->currLogic = $logic;
 
 		$addRule = $this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
 
@@ -392,7 +377,7 @@ class When extends AJD_validation
 			$this->obs->notify_observer( 'ongiven' );
 		}
 
-		$clean_rule 			= $this->ajd->clean_rule_name( $rule );
+		$clean_rule = $this->ajd->clean_rule_name( $rule );
 
 		$this->whenRuleName = $clean_rule['rule'];
 		return $this;
@@ -410,7 +395,7 @@ class When extends AJD_validation
 					{
 						if( !$this->processCustomExtensionTest( $value, $test, $paramaters ) )
 						{
-							return FALSE;
+							return false;
 						}
 					}
 				}
@@ -426,22 +411,22 @@ class When extends AJD_validation
 
 					if( !$test->logic( $value ) )
 					{
-						return FALSE;
+						return false;
 					}
 				}
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	protected function processCustomExtensionTest( $value, $test, array $paramaters = [] )
 	{
 		if( method_exists( $test['extensionObj'], $test['extensionName'] ) )
 		{
-			$args 		= array( $value );
+			$args = array( $value );
 
-			$args 		= array_merge( $args, $test['classArgs'] );
+			$args = array_merge( $args, $test['classArgs'] );
 			
 			if(!empty($paramaters))
 			{
@@ -451,15 +436,15 @@ class When extends AJD_validation
 				}
 			}
 
-			$result 	= call_user_func_array( array( $test['extensionObj'], $test['extensionName'] ), $args );
+			$result = call_user_func_array( array( $test['extensionObj'], $test['extensionName'] ), $args );
 			
 			if( !$result )
 			{
-				return FALSE;
+				return false;
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	public function runLogics($value, array $paramaters = [], $reset = true)
@@ -467,49 +452,44 @@ class When extends AJD_validation
 		if($reset && $this->obs)
 		{
 			$this->obs->notify_observer( 'endwhen' );
-
 			$this->obs->detach_observer( 'ongiven' );
 			$this->obs->detach_observer( 'endgiven' );
-
 			$this->obs->detach_observer( 'endwhen' );
 		}
 
 		return $this->processCustomTest($value, $paramaters);
-
-
 	}
 
-	public function endgiven( $field, $value = NULL, $operator = NULL, $check_arr = TRUE, $customMesage = array() )
+	public function endgiven( $field, $value = null, $operator = null, $check_arr = true, $customMesage = [] )
 	{
-		$result 		= TRUE;
-		$passArr 		= array(
-			'field' 	=> $field
-		);
+		$result = true;
+		$passArr = [
+			'field' => $field
+		];
 		
-		$result 			= $this->processCustomTest( $value );
+		$result = $this->processCustomTest( $value );
 		
 		if( !empty($this->customTest) ) 
 		{
-			$passArr['result'] 	= $result;
+			$passArr['result'] = $result;
 		}
 
 		if( !EMPTY( $this->given_field ) ) 
 		{
 			if( !EMPTY( $operator ) ) 
 			{
-				$this->given_field[][ strtolower( $operator ) ] 	= $passArr;
+				$this->given_field[][ strtolower( $operator ) ] = $passArr;
 			} 
 			else 
 			{
-				$this->given_field[][Abstract_common::LOG_AND] 		= $passArr;
+				$this->given_field[][Abstract_common::LOG_AND] = $passArr;
 			}
 
 		} 
 		else 
 		{
-			$this->given_field[][Abstract_common::LOG_AND] 			= $passArr;
+			$this->given_field[][Abstract_common::LOG_AND] = $passArr;
 		}
-
 
 		$this->ajd->checkArr( $field, $value, $customMesage, $check_arr );
 
@@ -524,86 +504,80 @@ class When extends AJD_validation
 
 	private function _check_given()
 	{
-		$and 	= array();
-		$or 	= array();
-		$xor 	= array();
+		$and = [];
+		$or = [];
+		$xor = [];
 		
 		foreach( $this->given_field as $key => $value ) 
 		{
 			if( !EMPTY( $value[Abstract_common::LOG_AND] ) ) 
 			{
-				$andDetails 	= $value[Abstract_common::LOG_AND];
+				$andDetails = $value[Abstract_common::LOG_AND];
 
-				$ch_and 		= $this->ajd->validation_fails( $andDetails['field'], NULL, TRUE );
+				$ch_and = $this->ajd->validation_fails( $andDetails['field'], null, true );
 				
-				$and[] 			= !(bool) $ch_and;
+				$and[] = !(bool) $ch_and;
 				
 				if(isset($andDetails['result']))
 				{
-					$and[] 			= $andDetails['result'];
+					$and[] = $andDetails['result'];
 				}
 			} 
 
 			if( !EMPTY( $value[Abstract_common::LOG_OR] ) ) 
 			{
-				$orDetails 		= $value[Abstract_common::LOG_OR];
+				$orDetails = $value[Abstract_common::LOG_OR];
 
-				$or[] 			= !(bool) $this->ajd->validation_fails( $orDetails['field'], NULL, TRUE );				
+				$or[] = !(bool) $this->ajd->validation_fails( $orDetails['field'], null, true );				
 
 				if(isset($orDetails['result']))
 				{
-					$or[] 			= $orDetails['result'];				
+					$or[] = $orDetails['result'];				
 				}
 				
 			}
 
 			if( !EMPTY( $value[Abstract_common::LOG_XOR] ) ) 
 			{
-				$xorDetails 	= $value[Abstract_common::LOG_XOR];
+				$xorDetails = $value[Abstract_common::LOG_XOR];
 
-				$xor[] 			= !(bool) $this->ajd->validation_fails( $xorDetails['field'], NULL, TRUE );
+				$xor[] = !(bool) $this->ajd->validation_fails( $xorDetails['field'], null, true );
 
 				if(isset($xorDetails['result']))
 				{
-					$xor[] 			= $xorDetails['result'];
+					$xor[] = $xorDetails['result'];
 				}
 			}
 		}
 		
-		$and_check2 	= !in_array( 0, $and );
+		$and_check2 = !in_array( 0, $and );
 		
 		// $and_check 		= !in_array( 1, $and );
 
-		$and_check 		= !in_array( 0, $and );
-			
-		$or_check		= in_array( 1, $or );
+		$and_check = !in_array( 0, $and );
+		$or_check = in_array( 1, $or );
 
-		if( COUNT( $xor ) === 1 ) 
+		if( count( $xor ) === 1 ) 
 		{
-			$xor_check 		= in_array( 1, $xor );
+			$xor_check = in_array( 1, $xor );
 		} 
 		else 
 		{
 			$str_func = '';
 			foreach($xor as $xorr)
 			{	
-
 				if(is_bool($xorr))
 				{
 					$xorr_str_val = ($xorr === true) ? 'true' : 'false';
 					$str_func .= $xorr_str_val.' xor ';
 				}
-
 			}
 
-
 			$str_func = rtrim($str_func, ' xor ');
-
 			$xor_check = eval( "return $str_func;" );
 		}
 
-
-		if( !EMPTY( $or ) OR !EMPTY( $xor ) ) 
+		if( !EMPTY( $or ) || !EMPTY( $xor ) ) 
 		{
 			if(!empty($and))
 			{
@@ -695,7 +669,7 @@ class When extends AJD_validation
 
 	}
 
-	public function thenOr( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_OR )
+	public function thenOr( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_OR )
 	{
 		$this->then($rule, $satis, $custom_err, $client_side, $logic);
 
@@ -703,10 +677,10 @@ class When extends AJD_validation
 
 	}
 
-	public function then( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_AND )
+	public function then( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_AND )
 	{
-		$this->currRule 	= $rule;
-		$this->currLogic 	= $logic;
+		$this->currRule = $rule;
+		$this->currLogic = $logic;
 
 		if( $this->_check_given() ) 
 		{
@@ -714,7 +688,7 @@ class When extends AJD_validation
 
 			$this->currentRuleKey = $addRule->getCurrentRuleKey();
 
-			$clean_rule 			= $this->ajd->clean_rule_name( $rule );
+			$clean_rule = $this->ajd->clean_rule_name( $rule );
 
 			$this->whenRuleName = $clean_rule['rule'];
 		}
@@ -723,7 +697,7 @@ class When extends AJD_validation
 
 	}
 
-	public function endthen( $field, $value = NULL, $check_arr = TRUE, $customMesage = array() )
+	public function endthen( $field, $value = null, $check_arr = true, $customMesage = [] )
 	{
 		if( $this->_check_given() ) 
 		{
@@ -733,10 +707,10 @@ class When extends AJD_validation
 		return $this;
 	}
 
-	public function otherwise( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_AND )
+	public function otherwise( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_AND )
 	{
-		$this->currRule 	= $rule;
-		$this->currLogic 	= $logic;
+		$this->currRule = $rule;
+		$this->currLogic = $logic;
 
 		if( !$this->_check_given() ) 
 		{
@@ -744,7 +718,7 @@ class When extends AJD_validation
 
 			$this->currentRuleKey = $addRule->getCurrentRuleKey();
 
-			$clean_rule 			= $this->ajd->clean_rule_name( $rule );
+			$clean_rule = $this->ajd->clean_rule_name( $rule );
 
 			$this->whenRuleName = $clean_rule['rule'];
 		}
@@ -752,14 +726,14 @@ class When extends AJD_validation
 		return $this;
 	}
 
-	public function otherwiseOr( $rule, $satis = NULL, $custom_err = NULL, $client_side = NULL, $logic = Abstract_common::LOG_OR )
+	public function otherwiseOr( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_OR )
 	{
 		$this->otherwise($rule, $satis, $custom_err, $client_side, $logic);
 
 		return $this;
 	}
 
-	public function endotherwise( $field, $value = NULL, $check_arr = TRUE, $customMesage = array() )
+	public function endotherwise( $field, $value = null, $check_arr = true, $customMesage = [] )
 	{
 		if( !$this->_check_given() ) 
 		{
@@ -774,10 +748,8 @@ class When extends AJD_validation
 		if($this->obs)
 		{
 			$this->obs->notify_observer( 'endwhen' );
-
 			$this->obs->detach_observer( 'ongiven' );
 			$this->obs->detach_observer( 'endgiven' );
-
 			$this->obs->detach_observer( 'endwhen' );
 		}
 
@@ -786,14 +758,14 @@ class When extends AJD_validation
 
 	public function on( $scenario )
 	{
-		$clean_rule 	= $this->ajd->clean_rule_name( $this->currRule );
+		$clean_rule = $this->ajd->clean_rule_name( $this->currRule );
 
 		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this, $this->currentRuleKey )->on( $scenario );
 	}
 
 	public function sometimes( $sometimes = Abstract_common::SOMETIMES )
 	{
-		$clean_rule 	= $this->ajd->clean_rule_name( $this->currRule );
+		$clean_rule = $this->ajd->clean_rule_name( $this->currRule );
 
 		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this, $this->currentRuleKey )->sometimes( $sometimes );
 	}	
@@ -806,12 +778,12 @@ class When extends AJD_validation
 		return $this;
 	}*/
 
-	public function publish($event, \Closure $callback = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = NULL, $forJs = FALSE)
+	public function publish($event, \Closure $callback = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = null, $forJs = false)
 	{
-		$logic 												= static::$ajd_prop[ 'current_logic' ];
-		$curr_field 										= static::$ajd_prop[ 'current_field' ];
+		$logic = static::$ajd_prop[ 'current_logic' ];
+		$curr_field = static::$ajd_prop[ 'current_field' ];
 
-		$rule 												= $this->whenRuleName;
+		$rule = $this->whenRuleName;
 
 		if(!empty($callback))
 		{
@@ -827,7 +799,7 @@ class When extends AJD_validation
 
 		if( !EMPTY( $ruleOverride ) )
 		{
-			$rule 											= $ruleOverride;
+			$rule = $ruleOverride;
 		}
 
 		if( !$forJs )
@@ -838,23 +810,22 @@ class When extends AJD_validation
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] 	= $curr_field.'-|'.$event;
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] = $curr_field.'-|'.$event;
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][] 	= $curr_field.'-|'.$event;	
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][] = $curr_field.'-|'.$event;
 					}
-					
 				}
 				else
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][$this->currentRuleKey][] 	= $event;	
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][$this->currentRuleKey][] = $event;	
 					}
 					else
 					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][] 	= $event;	
+						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][] = $event;	
 					}
 				}
 				
@@ -865,24 +836,23 @@ class When extends AJD_validation
 				{
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] 	= 	$curr_field.'-|'.$event;
+						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] = $curr_field.'-|'.$event;
 					}
 					else
 					{
-						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][] 	= 	$curr_field.'-|'.$event;
+						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][] = $curr_field.'-|'.$event;
 					}
 				}
 				else
 				{	
 					if(!is_null($this->currentRuleKey))
 					{
-						static::$ajd_prop['events'][$eventType][$rule][$this->currentRuleKey][] 	= 	$event;
+						static::$ajd_prop['events'][$eventType][$rule][$this->currentRuleKey][] = $event;
 					}
 					else
 					{
-						static::$ajd_prop['events'][$eventType][$rule][] 	= 	$event;	
+						static::$ajd_prop['events'][$eventType][$rule][] = $event;	
 					}
-					
 				}
 			}
 		}
@@ -897,23 +867,23 @@ class When extends AJD_validation
 		}
 	}
 
-	public function publishSuccess($event, \Closure $callback = null, $forJs = FALSE, $ruleOverride = NULL)
+	public function publishSuccess($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
 	{
 		return $this->publish($event, $callback, Abstract_common::EV_SUCCESS, $ruleOverride, $forJs);
 	}
 
-	public function publishFail($event, \Closure $callback = null, $forJs = FALSE, $ruleOverride = NULL)
+	public function publishFail($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
 	{
 		return $this->publish($event, $callback, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
 	}
 
-	public function suspend($ruleOverride = NULL, $forJs = FALSE)
+	public function suspend($ruleOverride = null, $forJs = false)
 	{
-		$rule 			= $this->whenRuleName;
+		$rule = $this->whenRuleName;
 
 		if( !EMPTY( $ruleOverride ) )
 		{
-			$rule 		= $ruleOverride;
+			$rule = $ruleOverride;
 		}
 
 		if(!is_null($this->currentRuleKey))

@@ -12,7 +12,7 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
     /**
      * @var SplObjectStorage
      */
-    private $exceptions = array();
+    private $exceptions = [];
 
     /**
      * @param Abstract_exceptions $exception
@@ -59,19 +59,19 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
      */
     public function findMessages(array $paths)
     {
-        $messages       = array();
+        $messages = [];
 
         foreach($paths as $key => $value) 
         {
-            $numericKey     = is_numeric($key);
-            $path           = $numericKey ? $value : $key;
+            $numericKey = is_numeric($key);
+            $path = $numericKey ? $value : $key;
 
             if( !( $exception = $this->getRelatedByName($path) ) ) 
             {
-                $exception  = $this->findRelated($path);
+                $exception = $this->findRelated($path);
             }
 
-            $path           = str_replace('.', '_', $path);
+            $path = str_replace('.', '_', $path);
 
             if(!$exception) 
             {
@@ -79,14 +79,14 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
                 continue;
             }
 
-            $exception          = $this->getExceptionForPath($path, $exception);
+            $exception = $this->getExceptionForPath($path, $exception);
 
             /*if( !$numericKey ) 
             {
                 $exception->setTemplate($value);
             }*/
 
-            $messages[$path]    = $exception->getExceptionMessage();
+            $messages[$path] = $exception->getExceptionMessage();
         }
 
         return $messages;
@@ -97,12 +97,12 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
      */
     public function findRelated($path)
     {
-        $target     = $this;
-        $pieces     = explode('.', $path);
+        $target = $this;
+        $pieces = explode('.', $path);
 
-        while( !EMPTY( $pieces ) AND $target )  
+        while( !EMPTY( $pieces ) && $target )  
         {
-            $piece  = array_shift($pieces);
+            $piece = array_shift($pieces);
             $target = $target->getRelatedByName($piece);
         }
 
@@ -114,10 +114,10 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
      */
     private function getRecursiveIterator()
     {
-        $recursive_rule_exception   = new Recursive_rule_exception($this);
+        $recursive_rule_exception = new Recursive_rule_exception($this);
 
-        $exceptionIterator          = $recursive_rule_exception;
-        $recursiveIteratorIterator  = new RecursiveIteratorIterator(
+        $exceptionIterator = $recursive_rule_exception;
+        $recursiveIteratorIterator = new RecursiveIteratorIterator(
             $exceptionIterator,
             RecursiveIteratorIterator::SELF_FIRST
         );
@@ -130,14 +130,14 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
      */
     public function getIterator() : \Traversable
     {
-        $childrenExceptions         = new SplObjectStorage();
+        $childrenExceptions = new SplObjectStorage();
 
-        $recursiveIteratorIterator  = $this->getRecursiveIterator();
-        $exceptionIterator          = $recursiveIteratorIterator->getInnerIterator();
+        $recursiveIteratorIterator = $this->getRecursiveIterator();
+        $exceptionIterator = $recursiveIteratorIterator->getInnerIterator();
 
-        $lastDepth                  = 0;
-        $lastDepthOriginal          = 0;
-        $knownDepths                = array();
+        $lastDepth = 0;
+        $lastDepthOriginal = 0;
+        $knownDepths = [];
 
         foreach( $recursiveIteratorIterator as $childException ) 
         {
@@ -149,12 +149,12 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
                 continue;
             }
 
-            $currentDepth           = $lastDepth;
-            $currentDepthOriginal   = $recursiveIteratorIterator->getDepth() + 1;
+            $currentDepth = $lastDepth;
+            $currentDepthOriginal = $recursiveIteratorIterator->getDepth() + 1;
 
             if( ISSET( $knownDepths[$currentDepthOriginal] ) ) 
             {
-                $currentDepth       = $knownDepths[$currentDepthOriginal];
+                $currentDepth = $knownDepths[$currentDepthOriginal];
 
             } 
             elseif( $currentDepthOriginal > $lastDepthOriginal
@@ -169,17 +169,17 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
                 $knownDepths[$currentDepthOriginal] = $currentDepth;
             }
 
-            $lastDepth          = $currentDepth;
-            $lastDepthOriginal  = $currentDepthOriginal;
+            $lastDepth = $currentDepth;
+            $lastDepthOriginal = $currentDepthOriginal;
 
             $childrenExceptions->attach(
                 $childException,
-                array(
-                    'depth'                     => $currentDepth,
-                    'depth_original'            => $currentDepthOriginal,
-                    'previous_depth'            => $lastDepth,
-                    'previous_depth_original'   => $lastDepthOriginal,
-                )
+                [
+                    'depth' => $currentDepth,
+                    'depth_original' => $currentDepthOriginal,
+                    'previous_depth' => $lastDepth,
+                    'previous_depth_original' => $lastDepthOriginal,
+                ]
             );
         }
 
@@ -191,7 +191,7 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
     */
     public function getMessages()
     {
-        $messages       = array($this->getExceptionMessage());
+        $messages = [$this->getExceptionMessage()];
 
         foreach( $this as $exception ) 
         {
@@ -209,22 +209,21 @@ class Nested_rule_exception extends Abstract_exceptions implements IteratorAggre
     /**
      * @return string
      */
-    public function getFullMessage($callable = NULL, $exceptionPass = null, $clean_field = null, ...$args)
+    public function getFullMessage($callable = null, $exceptionPass = null, $clean_field = null, ...$args)
     {
-        $marker     = '-';
-        $messages   = array();
+        $marker = '-';
+        $messages = [];
         $exceptions = $this->getIterator();
 
-        if ( count($exceptions) != 1 ) 
+        if( count($exceptions) != 1 ) 
         {
             $messages[] = sprintf('%s %s', $marker, $this->getExceptionMessage());
         }
 
         foreach( $exceptions as $exception ) 
         {
-            $depth      = $exceptions[$exception]['depth'];
-            $prefix     = str_repeat('&nbsp;', $depth * 2);
-
+            $depth = $exceptions[$exception]['depth'];
+            $prefix = str_repeat('&nbsp;', $depth * 2);
             $messages[] = sprintf('%s%s %s', $prefix, $marker, $exception->getExceptionMessage());
         }
 

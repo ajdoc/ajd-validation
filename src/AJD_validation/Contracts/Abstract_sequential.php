@@ -32,9 +32,9 @@ class Abstract_sequential extends Abstract_all
 	*/
     public function run($value = null, $satisfier = null, $field = null, $clean_field = null)
     {
-    	$check 			= false;
-		$append_error 	= "";
-        $msg            = "";
+    	$check = false;
+		$append_error = "";
+        $msg = "";
 
         $collectionExceptions = $this->assertSequenceRules($this->sequentialRules, $value, $clean_field, true);
         $check = ($this->inverseCheck) ? false : true;
@@ -108,9 +108,9 @@ class Abstract_sequential extends Abstract_all
     */
     public function validate( $value )
     {
-        $satisfier  = null;
+        $satisfier = null;
 
-        $check  = $this->run( $value, $satisfier );
+        $check = $this->run( $value, $satisfier );
 
         if( is_array( $check ) )
         {

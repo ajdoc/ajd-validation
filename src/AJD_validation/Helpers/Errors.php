@@ -7,51 +7,48 @@ use AJD_validation\Contracts\Invokable_rule_interface;
 use AJD_validation\Constants\Lang;
 use AJD_validation\Helpers\VarExport;
 use AJD_validation\AJD_validation as v;
-
 use InvalidArgumentException;
 
 class Errors extends InvalidArgumentException
 {
 
-	public static $lang 					= Lang::EN;
+	public static $lang = Lang::EN;
 
 	protected static $config_ins;
 
-	protected static $error_msg 			= array();
+	protected static $error_msg = [];
 
-	protected static $validation_err_msg 	= array();
+	protected static $validation_err_msg = [];
 
-	public $start_delimiter 				= '';
+	public $start_delimiter = '';
 
-	public $end_delimiter 					= '</br>';
+	public $end_delimiter = '</br>';
 
-	protected static $appendErrorMsgMulti 	= 'at row {arr_key}.';
+	protected static $appendErrorMsgMulti = 'at row {arr_key}.';
 	protected static $errDir;
 
-	protected $exceptionNamespace 			= 'AJD_validation\\Exceptions\\';
+	protected $exceptionNamespace = 'AJD_validation\\Exceptions\\';
 
   	protected static $maxDepthOfString = 5;
     protected static $maxCountOfString = 10;
     protected static $maxReplacementOfString = '...';
 
-    protected static $addExceptionNamespace 	= array();
-    protected static $addExceptionDirectory 	= array();
+    protected static $addExceptionNamespace = [];
+    protected static $addExceptionDirectory = [];
     protected static $addRulesMappings = [];
+    protected static $anonymousObj = [];
+    protected static $addLangDir = [];
 
-    protected static $anonymousObj 	= [];
-
-    protected static $addLangDir 	= [];
-
-	public function __construct( $lang = NULL )
+	public function __construct( $lang = null )
 	{
-		if( !IS_NULL( $lang ) ) 
+		if( !is_null( $lang ) ) 
 		{
-			static::$lang 			= $lang;
+			static::$lang = $lang;
 		}
 		
-		$config 					= static::get_config_ins();
+		$config = static::get_config_ins();
 
-		static::$error_msg 			= $config::get( 'error_msg' );
+		static::$error_msg = $config::get( 'error_msg' );
 		
 	}
 
@@ -85,7 +82,7 @@ class Errors extends InvalidArgumentException
 
 				if(!file_exists($path.DIRECTORY_SEPARATOR.$file_lang))
 				{
-					$lang_dir   = dirname(__DIR__).DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR;
+					$lang_dir = dirname(__DIR__).DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR;
 					$lang_stubs = $lang_dir.'lang.stubs';
 
 					$lang_stubs_result = require $lang_stubs;
@@ -109,8 +106,6 @@ EOS;
 				
 
 					$file_lang = file_put_contents($path.DIRECTORY_SEPARATOR.$file_lang, $lang_stubs_result_str);
-
-
 				}
 			}
 		}
@@ -119,20 +114,19 @@ EOS;
 	public static function setLang($lang)
 	{
 		static::$lang = $lang;
-
-		$config 					= static::get_config_ins(static::$lang);
-		$newError 					= $config::get( 'error_msg' );
+		$config = static::get_config_ins(static::$lang);
+		$newError = $config::get( 'error_msg' );
 
 		if(!empty(static::$error_msg))
 		{
 			if(!empty($newError))
 			{
-				static::$error_msg 			= array_merge(static::$error_msg, $newError);
+				static::$error_msg = array_merge(static::$error_msg, $newError);
 			}
 		}
 		else
 		{
-			static::$error_msg 			= $newError;
+			static::$error_msg = $newError;
 		}
 	}
 
@@ -196,7 +190,7 @@ EOS;
 
     public static function stringifyArray(array $value, $depth = 1)
     {
-        $nextDepth  = ($depth + 1);
+        $nextDepth = ($depth + 1);
 
         if( $nextDepth >= static::$maxDepthOfString ) 
         {
@@ -208,9 +202,9 @@ EOS;
              return '{ }';
         }
 
-     	$total 		= count($value);
-        $string 	= '';
-        $current 	= 0;
+     	$total = count($value);
+        $string = '';
+        $current = 0;
 
         foreach($value as $key => $val)
         {
@@ -225,7 +219,7 @@ EOS;
  				$string .= sprintf('%s: ', static::stringify($key, $nextDepth));
  			}
 
- 			$string 	.= static::stringify($val, $nextDepth);
+ 			$string .= static::stringify($val, $nextDepth);
 
  			if($current !== $total) 
  			{
@@ -238,28 +232,28 @@ EOS;
 
     public static function stringifyObject($value, $depth = 2)
     {
-    	$nextDepth 	= $depth + 1;
+    	$nextDepth = $depth + 1;
 
     	if($value instanceof DateTime) 
     	{
     		return sprintf('"%s"', $value->format('Y-m-d H:i:s'));
     	}
 
-    	$class 			= get_class($value);
+    	$class = get_class($value);
 
-    	if($value instanceof Traversable) 
+    	if($value instanceof \Traversable) 
     	{
     		return sprintf('`[traversable] (%s: %s)`', $class, static::stringify(iterator_to_array($value), $nextDepth));
     	}
 
-    	if($value instanceof Exception) 
+    	if($value instanceof \Exception) 
     	{
-    		$errProp 		= array(
-		 		'message' 	=> $value->getMessage(),
-		 		'code' 		=> $value->code(),
-		 		'file'		=> $value->getFile().':'.$value->getLine(),
-		 		'trace'		=> $value->getTraceAsString()
-    		);
+    		$errProp = [
+		 		'message' => $value->getMessage(),
+		 		'code' => $value->code(),
+		 		'file' => $value->getFile().':'.$value->getLine(),
+		 		'trace' => $value->getTraceAsString()
+    		];
 
     		return sprintf('`[exception] (%s: %s)`', $class, static::stringify($errProp, $nextDepth));
     	}
@@ -269,7 +263,7 @@ EOS;
     		return static::stringify($value->__toString(), $nextDepth);
     	}
 
-    	$errProp 		= static::stringify(get_object_vars($value), $nextDepth);
+    	$errProp = static::stringify(get_object_vars($value), $nextDepth);
 
     	return sprintf('`[object] (%s: %s)`', $class, str_replace('`', '', $errProp));
     }
@@ -278,18 +272,17 @@ EOS;
 	{
 		if( IS_NULL( static::$config_ins ) || !empty($lang) ) 
 		{
-			$dir 				= dirname( dirname( __FILE__ ) ).DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR;
+			$dir = dirname( dirname( __FILE__ ) ).DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR;
 
-			static::$errDir 	= $dir;
-
-			$realLang 			= static::$lang;
+			static::$errDir = $dir;
+			$realLang = static::$lang;
 
 			if(!empty($lang))
 			{
-				$realLang 		= $lang;
+				$realLang = $lang;
 			}
 			
-			$file_name 			= $realLang.'_lang.php';
+			$file_name = $realLang.'_lang.php';
 			
 			static::$config_ins = new Config( $file_name, $dir );
 
@@ -318,7 +311,7 @@ EOS;
 
 	public function get_error( $rule )
 	{
-		if( ISSET( static::$error_msg[ $rule ] ) )
+		if( isset( static::$error_msg[ $rule ] ) )
 		{
 			return static::$error_msg[ $rule ];
 		}
@@ -331,7 +324,7 @@ EOS;
 
 	public function set_errors( $rule, $msg )
 	{
-		static::$error_msg[ $rule ] 	= $msg;
+		static::$error_msg[ $rule ] = $msg;
 	}
 
 	public function all()
@@ -339,7 +332,7 @@ EOS;
 		return static::outputError();
 	}
 
-	public function set_validation_errors( $msg = array() )
+	public function set_validation_errors( $msg = [] )
 	{
 		static::$validation_err_msg = $msg;
 
@@ -348,27 +341,27 @@ EOS;
 
 	public function find( $field )
 	{  
-		return static::outputError( FALSE, $field );
+		return static::outputError( false, $field );
 	}
 
 	public function first( $field )
 	{  
-		return static::outputError( FALSE, $field, 0 );
+		return static::outputError( false, $field, 0 );
 	}
 
 	public function firstAll()
 	{
-		$messages 	= static::outputError(TRUE);
-		$newMsgArr 	= array();
+		$messages = static::outputError(true);
+		$newMsgArr = [];
 
 		if( !EMPTY( $messages ) )
 		{
 			foreach( $messages as $field => $message )
 			{
-				$currentRule 		= key($message);
-				$currentMsg 		= current($message);
+				$currentRule = key($message);
+				$currentMsg = current($message);
 				
-				$newMsgArr[$field][$currentRule] 	= $currentMsg;
+				$newMsgArr[$field][$currentRule] = $currentMsg;
 			}
 		}
 		
@@ -377,32 +370,31 @@ EOS;
 
 	public function assocMsg()
 	{
-		return static::outputError( TRUE );
+		return static::outputError(true);
 	}
 
-	public static function outputError( $assoc_msg = TRUE, $keys = NULL, $err_key = NULL )
+	public static function outputError( $assoc_msg = true, $keys = null, $err_key = null )
 	{
-		$msg 							= array();
+		$msg = [];
 
 		foreach( static::$validation_err_msg as $key => $value ) 
 		{
-			$len 	= ( int )count( $value );
+			$len = ( int )count( $value );
 
 			for( $i = 0; $i < $len; $i++ ) 
 			{
-				$val_keys 	= array_keys( $value );
-
-				$type 		= $val_keys[ $i ];
+				$val_keys = array_keys( $value );
+				$type = $val_keys[ $i ];
 
 				if( $assoc_msg ) 
 				{
 					if( is_string( $type ) ) 
 					{
-						$msg[ $key ][ $val_keys[ $i ] ] 	= $value[ $val_keys[ $i ] ];
+						$msg[ $key ][ $val_keys[ $i ] ] = $value[ $val_keys[ $i ] ];
 					}	
 					else if( is_numeric( $type ) )
 					{
-						$msg[ $key ][ $val_keys[ $i ] ][] 	= $value[ $val_keys[ $i ] ];	
+						$msg[ $key ][ $val_keys[ $i ] ][] = $value[ $val_keys[ $i ] ];	
 					}
 				} 
 				else 
@@ -413,7 +405,7 @@ EOS;
 					}
 					else if( is_string( $type ) )
 					{
-						$msg[ $key ][]  = $value[ $val_keys[ $i ] ];
+						$msg[ $key ][] = $value[ $val_keys[ $i ] ];
 					}
 				}
 			}
@@ -439,98 +431,91 @@ EOS;
 		}
 	}
 
-	public function toStringErr( $msg = array(), $addParent = FALSE )
+	public function toStringErr( $msg = array(), $addParent = false )
 	{	
-		$err_msg 		= !EMPTY( $msg ) ? $msg : static::$validation_err_msg;
+		$err_msg = !empty( $msg ) ? $msg : static::$validation_err_msg;
 		
 		if( !is_array( $msg ) )
 		{
-			$err_msg 	= $this->start_delimiter.$err_msg.$this->end_delimiter;
+			$err_msg = $this->start_delimiter.$err_msg.$this->end_delimiter;
 		}
 		else
 		{
-			$str 		= "";
+			$str = "";
 
 			if( $addParent )
 			{
-				$prefix 		= str_repeat('&nbsp;', 1 * 2).'- ';
+				$prefix = str_repeat('&nbsp;', 1 * 2).'- ';
 
-				$allRuleException 	= Vefja::singleton('AJD_validation\\Exceptions\\All_rule_exception');
+				$allRuleException = Vefja::singleton('AJD_validation\\Exceptions\\All_rule_exception');
 
 				$parentErrorMessage	= $allRuleException->getExceptionMessage();
 
-				$checkArr 			= array();
+				$checkArr = [];
 
 				foreach( $err_msg as $field => $rules )
 				{	
-					$currRule 	= current( $rules );
-					$currRuleKey= key( $rules );
+					$currRule = current( $rules );
+					$currRuleKey = key( $rules );
 
 					if( is_numeric( key($currRule) ) )
 					{
 						foreach( $rules as $k => $rule )
 						{
-							$arrCleanField 	= current( $rule );
+							$arrCleanField = current( $rule );
 
-							$str 	= $this->processErrors( $arrCleanField, $rule, $parentErrorMessage, $prefix, $str, $currRuleKey, $field, $checkArr );	
-
-							$checkArr[$field] 	= TRUE;	
+							$str = $this->processErrors( $arrCleanField, $rule, $parentErrorMessage, $prefix, $str, $currRuleKey, $field, $checkArr );	
+							$checkArr[$field]  = true;	
 						}
-
 					}
 					else
 					{
 						$cleanField	= current($rules);
 						
-						$str 		= $this->processErrors( $cleanField, $rules, $parentErrorMessage, $prefix, $str, $currRuleKey, $field, $checkArr );
+						$str = $this->processErrors( $cleanField, $rules, $parentErrorMessage, $prefix, $str, $currRuleKey, $field, $checkArr );
 
-						$checkArr[$field] 	= TRUE;
+						$checkArr[$field] = true;
 					}
-
-					
 				}
 			}
 			else
 			{
-				// $err_msg 	= $this->flattened_array( $err_msg );
-
+				// $err_msg = $this->flattened_array( $err_msg );
 				foreach( $err_msg as $field => $rules ) 
 				{
-					$currRule 	= current( $rules );
+					$currRule = current( $rules );
 					
 					foreach( $rules as $rule )
 					{
 						if( is_numeric( key($currRule) ) )
 						{
-							$currSubRule 	= current($rule);
+							$currSubRule = current($rule);
 
 							if( is_numeric( key( $currSubRule ) ) )
 							{
 								foreach( $rule as $k => $r )	
 								{
-									$ruleStr 		= $this->processRuleStrArr($r);
+									$ruleStr = $this->processRuleStrArr($r);
 
-									$str 			.= $ruleStr['ruleErrStr'];
+									$str .= $ruleStr['ruleErrStr'];
 								}
 							}
 							else
 							{
-								$ruleStr 		= $this->processRuleStrArr($rule);
+								$ruleStr = $this->processRuleStrArr($rule);
 
-								$str 			.= $ruleStr['ruleErrStr'];
+								$str .= $ruleStr['ruleErrStr'];
 							}
 						}
 						else
 						{
-							$str       .= $this->start_delimiter.$rule['errors'].$this->end_delimiter;
+							$str .= $this->start_delimiter.$rule['errors'].$this->end_delimiter;
 						}
 					}
 				}
-
 			}
 
-			$err_msg 		= $str;
-
+			$err_msg = $str;
 		}
 
 		return $err_msg;
@@ -542,69 +527,69 @@ EOS;
 		$self = new static;
 		return [
 			'start_delimiter' => $self->start_delimiter,
-			'end_delimiter' 	=> $self->end_delimiter
+			'end_delimiter' => $self->end_delimiter
 		];
 	}
 
 	public function processRuleStrArr( array $ruleErrors )
 	{
-		$obj 			= $this;
+		$obj = $this;
 
-		$ruleStr 		= array_map(function($r) use ( &$obj )
+		$ruleStr = array_map(function($r) use ( &$obj )
 		{
 			return $obj->start_delimiter.$r['errors'].$obj->end_delimiter;
 		}, $ruleErrors);
 
-		return array(
-			'ruleErrArr'	=> $ruleStr,
-			'ruleErrStr'	=> implode('', $ruleStr)
-		);
+		return [
+			'ruleErrArr' => $ruleStr,
+			'ruleErrStr' => implode('', $ruleStr)
+		];
 	}
 
 	protected function processErrors( $cleanField, $rules, $parentErrorMessage, $prefix, $str, $currRule, $field, array $checkArr )
 	{
 		if( EMPTY( $checkArr[$field] ) )
 		{
-			$currCleanField 	= current( $cleanField );
+			$currCleanField = current( $cleanField );
 			
 			if( is_array( $currCleanField ) )
 			{
-				$parErrArr 	= array(
+				$parErrArr = [
 					'field'	=> $currCleanField['clean_field']
-				);
+				];
 			}
 			else
 			{
-				$parErrArr 	= array(
-					'field'	=> $cleanField['clean_field']
-				);
+				$parErrArr = [
+					'field' => $cleanField['clean_field']
+				];
 			}
 
-			$parErrMsg 	= static::formatError( $parErrArr, $parentErrorMessage );
+			$parErrMsg = static::formatError( $parErrArr, $parentErrorMessage );
 
-			$str       .= $this->start_delimiter.$parErrMsg.$this->end_delimiter;
+			$str .= $this->start_delimiter.$parErrMsg.$this->end_delimiter;
 		}
 
 		foreach( $rules as $key => $rule )
 		{
-			$currSubRule 	= current($rule);
+			$currSubRule = current($rule);
 			
 			if( is_array( $currSubRule ) )
 			{
-				$obj 		= $this;
+				$obj = $this;
 
-				$ruleStr 	= array_map(function($r) use( &$prefix, &$obj )
+				$ruleStr = array_map(function($r) use( &$prefix, &$obj )
 				{
 					return $prefix.$obj->start_delimiter.$r['errors'].$obj->end_delimiter;
 				}, $rule);
 
-				$str       .= implode('', $ruleStr);
+				$str .= implode('', $ruleStr);
 			}
 			else
 			{
 				if( ISSET( $rule['errors'] ) )
 				{
-					$str       .= $prefix.$this->start_delimiter.$rule['errors'].$this->end_delimiter;
+					$str .= $prefix.$this->start_delimiter.$rule['errors'].$this->end_delimiter;
 				}
 			}
 		}
@@ -614,7 +599,7 @@ EOS;
 
 	public function toJsonErr( $msg = array() )
 	{
-		$err_msg 		= !EMPTY( $msg ) ? $msg : static::$validation_err_msg;
+		$err_msg = !EMPTY( $msg ) ? $msg : static::$validation_err_msg;
 
 		if( extension_loaded( 'json' ) )
 		{
@@ -628,7 +613,7 @@ EOS;
 
 	protected function flattened_array( array $arr )
 	{
-		$flat_arr 			= iterator_to_array(
+		$flat_arr = iterator_to_array(
 
 			new \RecursiveIteratorIterator(
 
@@ -643,28 +628,28 @@ EOS;
 
 	public function replace_err_msg( $key, $new_msg )
 	{
-		$err_msg 				= static::$error_msg;
+		$err_msg = static::$error_msg;
 
 		if( in_array( $key, array_keys( $err_msg ) ) ) 
 		{
-			$err_msg[ $key ] 	= $new_msg;
+			$err_msg[ $key ] = $new_msg;
 		} 
 
-		static::$error_msg 		= $err_msg;
+		static::$error_msg = $err_msg;
 	}
 
 	public function processMultiMsg( $arr_key )
 	{
-		$msg_arr 		= array(
-			'arr_key'	=> $arr_key
-		);
+		$msg_arr = [
+			'arr_key' => $arr_key
+		];
 
 		return $this->replaceErrorPlaceholder( $msg_arr, static::$appendErrorMsgMulti );
 	}
 
 	public static function formatError( array $message_details, $message, $pattern = '/{(\w+)}/' )
 	{
-		$newMessage 	= preg_replace_callback(
+		$newMessage = preg_replace_callback(
            $pattern,
             function ($match) use (&$message_details) {
      			
@@ -673,7 +658,7 @@ EOS;
                     return $match[0];
                 }
 
-                $real_match 	= $match[0];
+                $real_match = $match[0];
 
                 if( ISSET( $match[1] ) )
                 {
@@ -682,7 +667,7 @@ EOS;
                 
                 if( ISSET( $message_details[ $match[1] ] ) )
                 {
-            		$value 		= $message_details[$match[1]];	
+            		$value = $message_details[$match[1]];	
                 }
                 
                 if('name' == $real_match AND is_string( $value ) ) 
@@ -700,15 +685,15 @@ EOS;
 
 	public function replaceErrorPlaceholder( array $message_details, $message )
 	{
-		$newMessage 	= static::formatError( $message_details, $message );
-		$newMessage 	= static::formatError( $message_details, $newMessage, '/:(\w+)/' );
+		$newMessage = static::formatError( $message_details, $message );
+		$newMessage = static::formatError( $message_details, $newMessage, '/:(\w+)/' );
 
 		return $newMessage;
 	}
 
 	public function processExceptions( $rule_name, $called_class, $rule_instance, $satisfier, $values, $inverse, array $errors, $passRuleObj = null  )
 	{
-		$exception_class 			= $this->exceptionNamespace.$called_class.'_exception';
+		$exception_class = $this->exceptionNamespace.$called_class.'_exception';
 		$qualified_exception_class = $exception_class;
 
 		$is_annon_class = false;
@@ -719,34 +704,34 @@ EOS;
 			&& !isset(static::$anonymousObj[$called_class])
 		)
 		{
-			$exception_class 			= $this->exceptionNamespace.'Common_invokable_rule'.'_exception';
+			$exception_class = $this->exceptionNamespace.'Common_invokable_rule'.'_exception';
 		}
 	
-		$exceptionObj 				= NULL;
-		$exception_arr 				= array();
+		$exceptionObj = null;
+		$exception_arr = [];
 		
 		if( !EMPTY( static::$addExceptionDirectory ) )
 		{
 			foreach( static::$addExceptionDirectory as $key => $directory )
 			{
-				$namespace 		= '';
+				$namespace = '';
 
 				if( ISSET( static::$addExceptionNamespace[ $key ] ) )
 				{
 					$namespace 	= static::$addExceptionNamespace[ $key ];
 				}
 
-				$exceptionPath 	= $directory.$called_class.'_exception.php';
+				$exceptionPath = $directory.$called_class.'_exception.php';
 
-				$requiredFiles 	= get_required_files();
+				$requiredFiles = get_required_files();
 
-				$search 		= array_search($exceptionPath, $requiredFiles);
+				$search = array_search($exceptionPath, $requiredFiles);
 				
 				if( file_exists($exceptionPath) )
 				{
 					$exception_class = $namespace.$called_class.'_exception';
 					
-					if( !class_exists($exception_class) AND EMPTY( $search ) )
+					if( !class_exists($exception_class) && empty( $search ) )
 					{
 						require $exceptionPath;
 					}
@@ -767,8 +752,7 @@ EOS;
 				isset(static::$addRulesMappings[$lower_rule_name])
 			)
 			{
-
-				$ruleMapKey 	= key(static::$addRulesMappings[$lower_rule_name]);
+				$ruleMapKey = key(static::$addRulesMappings[$lower_rule_name]);
 				
 				$exception_class = static::$addRulesMappings[$lower_rule_name][$ruleMapKey];
 			}
@@ -778,19 +762,18 @@ EOS;
 		{
 			if(!empty($passRuleObj))
 			{
-				$ruleCh 		= $passRuleObj;	
-				$rule 			= $passRuleObj;
-
+				$ruleCh = $passRuleObj;	
+				$rule = $passRuleObj;
 			}
 			else
 			{
-				$ruleCh 		= $rule_instance[ $called_class ];	
-				$rule 			= $rule_instance[ $called_class ];	
+				$ruleCh = $rule_instance[ $called_class ];	
+				$rule = $rule_instance[ $called_class ];	
 			}
 			
 			if( isset(static::$anonymousObj[$called_class]) )
 			{
-				$exception_class_obj 	= static::$anonymousObj[$called_class];
+				$exception_class_obj = static::$anonymousObj[$called_class];
 
 				$exception_class_obj::setFromRuleName(strtolower($rule_name));
 
@@ -798,7 +781,7 @@ EOS;
 			}
 			else
 			{
-				$exception_class_obj 	= Vefja::singleton($exception_class);
+				$exception_class_obj = Vefja::singleton($exception_class);
 			}
 			
 			if( !EMPTY( $exception_class_obj ) )
@@ -807,7 +790,7 @@ EOS;
 					|| !empty($passRuleObj)
 				)
 				{
-					$params 		= array_merge(
+					$params = array_merge(
 						get_class_vars( get_class( $rule ) ),
 						get_object_vars( $rule ),
 						compact('satisfier'),
@@ -827,7 +810,7 @@ EOS;
 
 					$exception_class_obj->configure($params);
 
-					$exceptionObj 			= $exception_class_obj;
+					$exceptionObj = $exception_class_obj;
 
 					if( 
 						$ruleCh instanceof Invokable_rule_interface 
@@ -836,16 +819,16 @@ EOS;
 					{
 						$ruleCh->setException($exceptionObj);
 						
-						$message 	= $ruleCh($values, $satisfier, null, null, null);
+						$message = $ruleCh($values, $satisfier, null, null, null);
 					}
 					else
 					{
-						$message 				= $exception_class_obj->getExceptionMessage();
+						$message = $exception_class_obj->getExceptionMessage();
 					}
 					
-					$errors[$rule_name]		= $message;
+					$errors[$rule_name] = $message;
 					
-					$exception_arr[]  		= $exceptionObj;
+					$exception_arr[] = $exceptionObj;
 				}
 			}
 		}
@@ -862,10 +845,10 @@ EOS;
 			print_r( $nested_exception->setRelated($exception_arr)->getFullMessage());
 		}*/
 
-		return array( 
-			'errors' 	=> $errors,
-			'exObj'		=> $exceptionObj
-		);
+		return [
+			'errors' => $errors,
+			'exObj' => $exceptionObj
+		];
 	}
 }
 

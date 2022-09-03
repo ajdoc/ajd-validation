@@ -59,15 +59,39 @@ trait AjdValExtender
 		return static::get_ajd_instance();
 	}
 
-	public static function registerClass( $class_name, $path, array $messages = [],  array $passArgs = [], $class_method = 'run', $namespace = null, $anonymousWay = true, $from_framework = null )
+	public static function registerClass( $class_name, array $messages = [], array $passArgs = [], $path = null, $class_method = 'run', $namespace = null, $anonymousWay = true, $from_framework = null )
 	{
-		$raw_class_name = $class_name;
-		$class_name = ucfirst( strtolower( $class_name ) );
-		$args 	= [];
-		$args[] = $path;
-
 		$object = null;
-		$qualifiedClass = $namespace.$class_name;
+		$invokable = false;
+
+		if(is_object($class_name))
+		{
+			$qualifiedClassName = get_class($class_name);
+			$segments = explode('\\', $qualifiedClassName);
+			$raw_class_name = end($segments);
+			$raw_class_name = strtolower($raw_class_name);
+			$object = $class_name;
+		}
+		else
+		{
+			$raw_class_name = $class_name;
+		}	
+
+		$class_name = ucfirst( strtolower( $raw_class_name ) );
+
+		$args 	= [];
+
+		if(!empty($path))
+		{
+			$args[] = $path;
+		}
+
+		$qualifiedClass = $class_name;
+
+		if(!empty($namespace))
+		{
+			$qualifiedClass = $namespace.$class_name;	
+		}
 
 		if( !IS_NULL( $namespace ) )
 		{
@@ -103,12 +127,19 @@ trait AjdValExtender
 		}
 		else
 		{
+			if(!empty($object) && method_exists($object, '__invoke'))
+			{
+				$invokable = true;
+				$class_method = '__invoke';
+			}
+
 			if(
 				!empty($object)
 				&&
 				method_exists($object, $class_method))
 			{
 				$realFunc = static::fromCallable([$object, $class_method]);
+				
 				if(!empty($args))
 				{
 					static::get_ajd_instance()->setArguments($args, $raw_class_name);
