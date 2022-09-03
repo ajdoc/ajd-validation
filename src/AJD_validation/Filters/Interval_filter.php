@@ -5,9 +5,9 @@ use DateTime;
 
 class Interval_filter extends Abstract_filter
 {
-	public function filter( $value, $satisfier = NULL, $field = NULL )
+	public function filter( $value, $satisfier = null, $field = null )
 	{
-		if ( !is_string($value) OR is_numeric($value) OR EMPTY($value) ) 
+		if ( !is_string($value) || is_numeric($value) || EMPTY($value) ) 
         {
             return $value;
         }

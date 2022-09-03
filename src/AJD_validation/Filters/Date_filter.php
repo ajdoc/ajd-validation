@@ -7,12 +7,12 @@ class Date_filter extends Abstract_filter
 
 	public function __construct( $dateFormat = 'Y-m-d' )
 	{
-		$this->dateFormat 	= $dateFormat;
+		$this->dateFormat = $dateFormat;
 	}
 
 	public function filter( $value, $satisfier = NULL, $field = NULL )
 	{
-		$filtValue 			= date_format( date_create( $value ), $this->dateFormat );
+		$filtValue = date_format( date_create( $value ), $this->dateFormat );
 
 		return $filtValue;
 	}

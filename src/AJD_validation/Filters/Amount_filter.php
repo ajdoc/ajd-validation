@@ -5,15 +5,15 @@ class Amount_filter extends Abstract_filter
 {
 	public function filter( $value, $satisfier = NULL, $field = NULL )
 	{
-		$filtValue 		= $value;
+		$filtValue = $value;
 
         if( !EMPTY( $satisfier ) )
         {
-            $filtValue  = trim( str_replace(',', '', $value ), $satisfier );
+            $filtValue = trim( str_replace(',', '', $value ), $satisfier );
         }
         else
         {
-            $filtValue  = trim( str_replace(',', '', $value ) );
+            $filtValue = trim( str_replace(',', '', $value ) );
         }
 
         return $filtValue;

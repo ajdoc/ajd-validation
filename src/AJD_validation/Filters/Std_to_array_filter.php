@@ -3,9 +3,9 @@ use AJD_validation\Contracts\Abstract_filter;
 
 class Std_to_array_filter extends Abstract_filter
 {
-	public function filter( $value, $satisfier = NULL, $field = NULL )
+	public function filter( $value, $satisfier = null, $field = null )
 	{
-		$filtValue 		= ( array ) $value;
+		$filtValue = ( array ) $value;
 
         return $filtValue;
 	}

@@ -6,7 +6,7 @@ use AJD_validation\Factory\Factory_interface;
 
 class Function_factory implements Factory_interface
 {
-	protected static $valid_func 		= array(
+	protected static $valid_func = [
 		'filter_var',
 		'in_array',
 		'preg_match',
@@ -22,62 +22,59 @@ class Function_factory implements Factory_interface
 		'is_resource',
 		'is_scalar',
 		'is_finite'
-	);
+	];
 
-	protected static $value_in_first 	= array(
+	protected static $value_in_first = [
 		'filter_var',
 		'in_array',
-	);
+	];
 
-	protected static $value_in_last 	= array(
+	protected static $value_in_last = [
 		'preg_match'
-	);
+	];
 
-	protected static $only_value 		= array(
-		'is_int'		=> 'is_int',
-		'is_numeric'	=> 'is_numeric',
-		'is_array'		=> 'is_array',
-		'is_float'		=> 'is_float',
-		'is_string'		=> 'is_string',
-		'is_object'		=> 'is_object',
-		'is_callable'	=> 'is_callable',
-		'is_bool' 		=> 'is_bool',
-		'is_null' 		=> 'is_null',
-		'is_resource' 	=> 'is_resource',
-		'is_scalar'		=> 'is_scalar',
-		'is_finite' 	=> 'is_finite'
-	);
+	protected static $only_value = [
+		'is_int' => 'is_int',
+		'is_numeric' => 'is_numeric',
+		'is_array' => 'is_array',
+		'is_float' => 'is_float',
+		'is_string' => 'is_string',
+		'is_object' => 'is_object',
+		'is_callable' => 'is_callable',
+		'is_bool' => 'is_bool',
+		'is_null' => 'is_null',
+		'is_resource' => 'is_resource',
+		'is_scalar' => 'is_scalar',
+		'is_finite' => 'is_finite'
+	];
 
 	protected static $ref_func;
 	protected static $func_name;
 
-	public function rules( $rule_name, $options = array() )
+	public function rules( $rule_name, $options = [] )
 	{
-		$func_name 					= $rule_name;
+		$func_name = $rule_name;
 		
 		if( ISSET( $options['func'] ) AND !EMPTY( $options['func'] ) ) 
 		{
-			$func_name 				= $options['func'];
+			$func_name = $options['func'];
 		}
 
-		$func 						= new ReflectionFunction( $func_name );
+		$func = new ReflectionFunction( $func_name );
 
-		static::$ref_func 			= $func;
-		static::$func_name 			= $rule_name;
+		static::$ref_func = $func;
+		static::$func_name = $rule_name;
 
 		return $func;		
-
 	}
 
-	public function process_function( $field, $value, $satisfier, $inverse = FALSE, $include_field = FALSE, array $details = array() )
+	public function process_function( $field, $value, $satisfier, $inverse = false, $include_field = false, array $details = [] )
 	{
-		$args 						= array();
+		$args = [];
 
-		$value_in_first 			= static::$value_in_first;
-
-		$value_in_last				= static::$value_in_last;		
-
-		$func 						= static::$ref_func;
+		$value_in_first = static::$value_in_first;
+		$value_in_last = static::$value_in_last;		
+		$func = static::$ref_func;
 
 		if( in_array( static::$func_name, $value_in_first ) ) $args[] = $value;
 
@@ -89,35 +86,33 @@ class Function_factory implements Factory_interface
 			{
 				foreach( $satisfier as $satis_key => $satis_val ) 
 				{
-					$args[] 	= $satis_val;
+					$args[] = $satis_val;
 				}
-
 			} 
 			else 
 			{
-				$args[] 		= $satisfier;
+				$args[] = $satisfier;
 			}
 		} 
 
-		if( !EMPTY( $details ) AND ISSET( $details['origValue'] ) )
+		if( !empty( $details ) && isset( $details['origValue'] ) )
 		{
-			$args[] 			= $details['origValue'];
+			$args[] = $details['origValue'];
 		}
 		
 		if( in_array( static::$func_name, $value_in_last ) ) $args[] = $value;
 
-		if( !EMPTY( static::$only_value ) )
+		if( !empty( static::$only_value ) )
 		{
-			if( ISSET( static::$only_value[ static::$func_name ] ) )
+			if( isset( static::$only_value[ static::$func_name ] ) )
 			{
-				$args 			= array();
-				$args[] 		= $value;
+				$args = [];
+				$args[] = $value;
 			}
 		}
 
-		$check 					= $func->invokeArgs( $args );
-		
-		$passed 				= ( $inverse ) ? !$check : $check;
+		$check = $func->invokeArgs( $args );
+		$passed = ( $inverse ) ? !$check : $check;
 
 		return $passed;
 

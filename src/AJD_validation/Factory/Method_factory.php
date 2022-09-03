@@ -13,42 +13,42 @@ class Method_factory implements Factory_interface
 
 	public function rules( $obj_name, $rule_name )
 	{
-		$method 			= new ReflectionMethod( $obj_name, $rule_name );
+		$method = new ReflectionMethod( $obj_name, $rule_name );
 
-		static::$ref_meth 	= $method;
-		static::$object 	= $obj_name;
-		static::$method 	= $rule_name;
+		static::$ref_meth = $method;
+		static::$object = $obj_name;
+		static::$method = $rule_name;
 
 		return $method;
 	}
 
-	public function process_method( $args = array(), $object = null, $accessible = FALSE, $inverse = FALSE, array $globalVar = array() )
+	public function process_method( $args = [], $object = null, $accessible = false, $inverse = false, array $globalVar = [] )
 	{
-		$ref_meth 			= static::$ref_meth;
+		$ref_meth = static::$ref_meth;
 
 		if( $accessible ) 
 		{
-			$check_method	= ( $ref_meth->isProtected() OR $ref_meth->isPublic() );
+			$check_method = ( $ref_meth->isProtected() OR $ref_meth->isPublic() );
 		} 
 		else 
 		{
-			$check_method 	= ( $ref_meth->isPublic() );
+			$check_method = ( $ref_meth->isPublic() );
 		}
 
 		if( $check_method ) 
 		{
 			$ref_meth->setAccessible( TRUE );
 
-			$defaultParams 	= $ref_meth->getParameters();
+			$defaultParams = $ref_meth->getParameters();
 			
 			Abstract_common::processDefaultParams( $defaultParams, $args );
 
 			if( is_array( $args ) )
 			{
-				$args 		= array_merge( $args, $globalVar );
+				$args = array_merge( $args, $globalVar );
 			}
 
-			$passed 		= ( $inverse ) ? !$ref_meth->invokeArgs( $object, $args ) : $ref_meth->invokeArgs( $object, $args );
+			$passed = ( $inverse ) ? !$ref_meth->invokeArgs( $object, $args ) : $ref_meth->invokeArgs( $object, $args );
 		}
 
 		return $passed;

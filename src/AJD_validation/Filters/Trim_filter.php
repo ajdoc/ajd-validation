@@ -3,17 +3,17 @@ use AJD_validation\Contracts\Abstract_filter;
 
 class Trim_filter extends Abstract_filter
 {
-	public function filter( $value, $satisfier = NULL, $field = NULL )
+	public function filter( $value, $satisfier = null, $field = null )
 	{
-		$filtValue 		= $value;
+		$filtValue = $value;
 
         if( !EMPTY( $satisfier ) )
         {
-            $filtValue  = trim( $value, $satisfier );
+            $filtValue = trim( $value, $satisfier );
         }
         else
         {
-            $filtValue  = trim( $value );
+            $filtValue = trim( $value );
         }
 
         return $filtValue;

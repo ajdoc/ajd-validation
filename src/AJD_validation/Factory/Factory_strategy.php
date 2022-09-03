@@ -6,9 +6,9 @@ use AJD_validation\Factory\Method_factory;
 
 class Factory_strategy
 {
-	const F_CLASS 	= 'class',
-		  F_METHOD  = 'method',
-		  F_FUNCTION= 'function';
+	const F_CLASS = 'class',
+		  F_METHOD = 'method',
+		  F_FUNCTION = 'function';
 
 	protected static $class_factory;
 	protected static $function_factory;
@@ -18,7 +18,7 @@ class Factory_strategy
 	{
 		if( !static::$class_factory instanceof Class_factory ) 
 		{
-			static::$class_factory 		= new Class_factory();
+			static::$class_factory = new Class_factory();
 		}
 
 		return static::$class_factory;
@@ -28,7 +28,7 @@ class Factory_strategy
 	{
 		if( !static::$function_factory instanceof Function_factory ) 
 		{
-			static::$function_factory 	= new Function_factory();
+			static::$function_factory = new Function_factory();
 		}
 
 		return static::$function_factory;
@@ -38,7 +38,7 @@ class Factory_strategy
 	{
 		if( !static::$method_factory instanceof Method_factory ) 
 		{
-			static::$method_factory 	= new Method_factory();
+			static::$method_factory = new Method_factory();
 		}
 
 		return static::$method_factory;		
@@ -64,13 +64,13 @@ class Factory_strategy
 
 	public function make( $type, $resolver )
 	{
-		$options 		= array(
-			self::F_CLASS 		=> $this->get_instance( TRUE ),
-			self::F_METHOD		=> $this->get_instance( FALSE, FALSE, TRUE ),
-			self::F_FUNCTION	=> $this->get_instance( FALSE, TRUE )
-		);
+		$options = [
+			self::F_CLASS => $this->get_instance( TRUE ),
+			self::F_METHOD => $this->get_instance( FALSE, FALSE, TRUE ),
+			self::F_FUNCTION => $this->get_instance( FALSE, TRUE )
+		];
 
-		if( ISSET( $options[ $type ] ) )
+		if( isset( $options[ $type ] ) )
 		{
 			return $options[ $type ]->reflection( $resolver );
 		}

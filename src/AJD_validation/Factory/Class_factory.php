@@ -6,14 +6,14 @@ use AJD_validation\Factory\Factory_interface;
 
 class Class_factory implements Factory_interface
 {
-	const DS 					= DIRECTORY_SEPARATOR;
+	const DS = DIRECTORY_SEPARATOR;
 
-	protected $filter_namespace = array( 'AJD_validation\\Filters\\' );
-	protected $rules_namespace 	= array( 'AJD_validation\\Rules\\' );
-	protected $rules_suffix 	= 'rule';	
-	protected $classDontPutArgs = array(
+	protected $filter_namespace = ['AJD_validation\\Filters\\'];
+	protected $rules_namespace 	= ['AJD_validation\\Rules\\'];
+	protected $rules_suffix = 'rule';	
+	protected $classDontPutArgs = [
 		'Filtervar_rule', 'Numeric_filter', 'Email_filter'
-	);
+	];
 
 	protected static $addRulesMappings = [];
 	protected static $addFiltersMappings = [];
@@ -83,9 +83,9 @@ class Class_factory implements Factory_interface
 		array_unshift( $this->filter_namespace, $filter_namespace );
 	}
 
-	public function rules( $rules_path = NULL, $rule_name = null, $args = array(), $filter = FALSE, array $globalVar = array() )
+	public function rules( $rules_path = NULL, $rule_name = null, $args = [], $filter = FALSE, array $globalVar = [])
 	{
-		$namespaces 			= ( $filter ) ? $this->get_filter_namespace() : $this->get_rules_namespace();
+		$namespaces = ( $filter ) ? $this->get_filter_namespace() : $this->get_rules_namespace();
 
 		$lower_rule_name = strtolower($rule_name);
 		
@@ -119,35 +119,35 @@ class Class_factory implements Factory_interface
 			{
 				if(is_string($rules_path) && !is_object($rules_path))
 				{
-					$class_name 		= $rule_name;
+					$class_name = $rule_name;
 				}
 				else
 				{
-					$class_name 		= get_class($rules_path);
+					$class_name = get_class($rules_path);
 				}
 
 				if(is_string($rules_path) && !is_object($rules_path))
 				{
-					$class_prefix 		= ( !EMPTY( $namespace ) ) ? $namespace.$class_name : $class_name;
+					$class_prefix = ( !empty( $namespace ) ) ? $namespace.$class_name : $class_name;
 				}
 				else
 				{
-					$class_prefix 		= $class_name;
+					$class_prefix = $class_name;
 				}
 				
-				if( !EMPTY( $rules_path ) AND !class_exists( $class_prefix ) )
+				if( !empty( $rules_path ) AND !class_exists( $class_prefix ) )
 				{
 					if(is_string($rules_path) && !is_object($rules_path))
 					{
-						$requiredFiles 	= get_included_files();
+						$requiredFiles = get_included_files();
 
-						$rules_path 	= str_replace(array('\\\\', '//'), array(DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR), $rules_path);
+						$rules_path = str_replace(array('\\\\', '//'), [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $rules_path);
 						
-						$search 		= array_search($rules_path, $requiredFiles);
+						$search = array_search($rules_path, $requiredFiles);
 						
-						if( EMPTY( $search ) )
+						if( empty( $search ) )
 						{
-							$rules_req 		= require $rules_path;	
+							$rules_req = require $rules_path;	
 						}
 					}
 				}
@@ -158,16 +158,16 @@ class Class_factory implements Factory_interface
 				continue;
 			}
 
-			$reflect 			= new ReflectionClass( $class_prefix );
-			$getConstructor 	= $reflect->getConstructor();
+			$reflect = new ReflectionClass( $class_prefix );
+			$getConstructor = $reflect->getConstructor();
 
 			/*if( EMPTY( $args ) )
 			{*/
 				if( ( bool ) $getConstructor )
 				{
-					$defaultParams 	= $getConstructor->getParameters();
+					$defaultParams = $getConstructor->getParameters();
 					
-					$args 			= Abstract_common::processDefaultParams( $defaultParams, $args );
+					$args = Abstract_common::processDefaultParams( $defaultParams, $args );
 				}
 			// }
 
@@ -175,7 +175,7 @@ class Class_factory implements Factory_interface
 			{
 				if( is_array( $args ) )
 				{
-					$args 	= array_merge( $args, $globalVar );
+					$args = array_merge( $args, $globalVar );
 				}
 			}
 

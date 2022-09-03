@@ -4,9 +4,9 @@ use AJD_validation\Contracts\Abstract_filter;
 
 class White_space_option_filter extends Abstract_filter
 {
-	public function filter( $value, $satisfier = NULL, $field = NULL )
+	public function filter( $value, $satisfier = null, $field = null )
 	{
-		$filtValue 		= $value;
+		$filtValue = $value;
 
 	 	if ( !EMPTY( $satisfier ) ) 
 	 	{
@@ -28,13 +28,12 @@ class White_space_option_filter extends Abstract_filter
                     }      
                 }
             }
-
             // $filtValue 	= str_replace( str_split( $satisfier ), '', $value );
-            $filtValue      = preg_replace('/'.$satisfier_imp.'/', '', $value);
+            $filtValue = preg_replace('/'.$satisfier_imp.'/', '', $value);
     	}
     	else
     	{
-    		$filtValue 	= preg_replace('/\s/', '', $value);
+    		$filtValue = preg_replace('/\s/', '', $value);
     	}
 
         return $filtValue;
