@@ -55,11 +55,6 @@ abstract class Base_validator extends Abstract_common
 		}
 	}
 
-	protected static function getMetadata()
-	{
-		return Vefja::singleton('AJD_validation\Helpers\Metadata');
-	}
-
 	protected static function get_scene_ins( $rule, $logic, $not_once = false, When $when = null, $currentRuleKey = null )
 	{
 		/*if( IS_NULL( static::$scen_ins ) OR $not_once ) 

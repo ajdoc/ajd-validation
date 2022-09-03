@@ -9,7 +9,6 @@ use AJD_validation\Helpers\When;
 use AJD_validation\Helpers\Expression;
 use AJD_validation\Helpers\Database;
 use AJD_validation\Helpers\Client_side;
-use AJD_validation\Helpers\Metadata;
 use AJD_validation\Helpers\Errors;
 use AJD_validation\Helpers\Array_helper;
 use AJD_validation\Helpers\Validation_helpers;
@@ -483,7 +482,6 @@ class AJD_validation extends Base_validator
 							{
 								static::$ajd_prop[ Abstract_common::LOG_OR ] = static::$middleware[ $name ][ 'prop_or' ];
 							}
-							
 						}
 						else
 						{
@@ -2009,21 +2007,6 @@ class AJD_validation extends Base_validator
 		}
 
 		return $this->_checkGroup( $data );
-	}
-
-	public function checkProperty( $object, $propertyName, $check_arr = TRUE )
-	{
-		return static::getMetadata()->checkMetadata( Metadata::PROP_PROPERTY, $object, $propertyName, $check_arr );
-	}
-
-	public function checkMethod( $object, $methodName, $check_arr = TRUE )
-	{
-		return static::getMetadata()->checkMetadata( Metadata::METH_PROPERTY, $object, $methodName, $check_arr );
-	}
-
-	public function checkClass( $object, $className = NULL, $check_arr = TRUE )
-	{
-		return static::getMetadata()->checkMetadata( Metadata::CLASS_PROPERTY, $object, $className, $check_arr );
 	}
 
 	public static function createGroupSequence(array $groupSequence)
@@ -3716,12 +3699,6 @@ class AJD_validation extends Base_validator
 
 		return call_user_func_array([$this, '_refactored_process_and_or_check'], $paramaters);
 	}
-
-	public static function validateMetada( $object, $assert = FALSE )
-	{
-		return static::getMetadata()->validateMetada( $object, $assert );
-	}
-
 
 	public static function pre_filter_value( $key = NULL )
 	{
