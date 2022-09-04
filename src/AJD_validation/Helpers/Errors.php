@@ -86,7 +86,24 @@ class Errors extends InvalidArgumentException
 					$lang_stubs = $lang_dir.'lang.stubs';
 
 					$lang_stubs_result = require $lang_stubs;
+					$addLangStubs = v::getAddLangStubs();
 
+					if(!empty($addLangStubs))
+					{
+						foreach($addLangStubs as $stubs)
+						{
+							$addedStubs = require $stubs;
+
+							if(!empty($addedStubs) && is_array($addedStubs))
+							{
+								if(isset($addedStubs['error_msg']))
+								{
+									$lang_stubs_result['error_msg'] = array_merge($lang_stubs_result['error_msg'], $addedStubs['error_msg']);
+								}
+							}
+						}
+					}
+					
 					$lang_arr = VarExport::export($lang_stubs_result, VarExport::FORCED_SHOW_ARRAY_KEY);
 
 					$lang_stubs_result_str = <<<EOS

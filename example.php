@@ -379,12 +379,17 @@ class Custom_macro implements CanMacroInterface
 
 /*try
 {
+	// $v->addLangStubs(__DIR__.DIRECTORY_SEPARATOR.'addLang.stubs');
+	// $v->addLangDir('test', __DIR__,true);
+
 	$v->addPackages([
 		PackageAjd\PackageValidationServiceProvider::class
 	]);
 
+	// $v->setLang('test');
+	// die;
 	$v->setValidation('packagevalidation');
-
+	
 	$v 
 		->required()
 		->minlength(2)
@@ -425,6 +430,8 @@ try
 	// Registering an extension
 	$extension 	= new Custom_extension;
 	$v->registerExtension($extension);
+
+	
 
 	$v->registerAnonClass(
 
@@ -1587,7 +1594,7 @@ try
 
 	// Registering a Custom class
 	// $path 	= dirname();
-	$v->registerClass( new Custom_class, ['default' => 'this value is not custom class a', 'inverse' => 'not this value is not custom class a']);
+	$v->registerClass( new Custom_class, ['default' => 'this value is not custom class a', 'inverse' => 'not this value is not custom class a'], []);
 	// var_dump($v->getValidator()->custom_class()->validate('a'));
 	$v->custom_class()->check('custom_class', '');
 	

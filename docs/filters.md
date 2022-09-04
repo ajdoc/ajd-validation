@@ -265,20 +265,22 @@ class Custom_extension extends Base_extension
 	public function getRules()
 	{
 		return array(
-			'custom_validation_rule',
-			'custom_validation2_rule'
+			'custom_validation',
+			'custom_validation2'
 		);
 	}
 
 	public function getRuleMessages()
 	{
+		// it is recommended to define the inverse message also for the custom rule.
+		// but if you don't define an inverse message ajd validation will just output the same message.
 		return array(
-			'custom_validation' 	=> 'The :field field is not a a.',
+			'custom_validation' 	=> ['default' => 'The :field field is not a a.', 'inverse' => 'Not The :field field is not a a.'],
 			'custom_validation2' 	=> 'The :field field is not a a 2.',
 		);
 	}
 
-	public function custom_validation_rule( $value, $satisfier, $field )
+	public function custom_validation( $value, $satisfier, $field )
 	{
 		if( $value == 'a' )
 		{
@@ -290,7 +292,7 @@ class Custom_extension extends Base_extension
 		}
 	}
 
-	public function custom_validation2_rule( $value, $satisfier, $field )
+	public function custom_validation2( $value, $satisfier, $field )
 	{
 
 		return false;

@@ -181,7 +181,6 @@ $lang['error_msg']  = array(
 	'distinct' => Assert\Distinct_rule_exception::$defaultMessages,
 	'dns_email' => Assert\Dns_email_rule_exception::$defaultMessages,
 	'domain' => Assert\Domain_rule_exception::$defaultMessages,
-	'email_available' => Assert\Email_available_rule_exception::$defaultMessages,
 	'email' => Assert\Email_rule_exception::$defaultMessages,
 	'ends_with' => Assert\Ends_with_rule_exception::$defaultMessages,
 	'enum' => Assert\Enum_rule_exception::$defaultMessages,

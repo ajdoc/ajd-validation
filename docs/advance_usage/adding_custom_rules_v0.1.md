@@ -294,25 +294,8 @@ $v = new AJD_validation;
 
 class Custom_class
 {
-	// must have a method run or must have an __invoke magic method
-	public function run( $value = null, $satisfier = null, $field = null, ...$custom_args )
-	{
-		if( $value == 'a' )
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
-	}
-}
-
-//  or 
-class Custom_class
-{
-	// must have a method run or must have an __invoke magic method
-	public function __invoke( $value = null, $satisfier = null, $field = null, ...$custom_args )
+	// must have a method run
+	public function run( $value = null, $satisfier = null, $field = null )
 	{
 		if( $value == 'a' )
 		{
@@ -326,36 +309,22 @@ class Custom_class
 }
 
 /*
-	1. first argument is class object
-	2. second arugment is the default message and inverse message
-	3. third argument is the optional array of arguments to be passed
-	4. fourth argument is the optional rule name or how this class rule will be called
+	1. Register the rule name and the Object, object must have method run
+	2. Then add rule msg for rule name.
 */
 
-/*
-	By default ajd validation will explode the class name by \ and it will get the last segment as the rule name but if you define a rule name as fourth argument ajd validation will use that as the rule name
-*/
-$v->registerClass( new Custom_class, ['default' => 'this value is not custom class a', 'inverse' => 'not this value is not custom class a'], ['custom_args']);
+$v->registerClass('custom_class', new Custom_class);
+$v->add_rule_msg('custom_class', 'this value is not custom class a');
+
 $v->custom_class()->check('custom_class', ''); // outputs error 
 /*
 	Outputs error
 		this value is not custom class a
 */
+
 $v->custom_class()->check('custom_class', 'a'); // validation passes
-
-
-/*
-	Example of fourth argument as rule name
-*/
-$v->registerClass( new Custom_class, ['default' => 'this value is not custom class a', 'inverse' => 'not this value is not custom class a'], ['custom_args'], 'custom_class_name');
-$v->custom_class_name()->check('custom_class', ''); // outputs error 
-/*
-	Outputs error
-		this value is not custom class a
-*/
-$v->custom_class_name()->check('custom_class', 'a'); // validation passes
 ```
-	- **Note: Currently there is no localization support for this way of adding custom rule.**
+	- **Note: Custom rules Registered using `$v->registerClass()` won't work when using `$v->getValidator()->custom_class()`. There is also no localization support for this way of adding custom rule.**
 
 ## Registering Custom Rule using `$v->registerMethod()`
 ```php
@@ -365,7 +334,9 @@ $v = new AJD_validation;
 
 class Custom_method
 {
-	public function custom_method( $value = null, $satisfier = null, $field = null, ...$custom_args )
+	// there must be a suffix _rule to the method name to avoid method conflict.
+	// whatever name you register as method name in `$v->registerMethod()` there must be always a suffix _rule
+	public function custom_method_rule( $value = null, $satisfier = null, $field = null )
 	{
 		if( $value == 'a' )
 		{
@@ -379,14 +350,13 @@ class Custom_method
 }
 
 /*
-	1. first argument is method name
-	2. second argument is the object
-	3. third arugment is the default message and inverse message
-	4. fourth argument is the optional array of arguments to be passed
+	1. Register the rule name and the Object, object must have method name with a suffix _rule
+		e.g. 'custom_method_rule'
+
+	2. Then add rule msg for rule name.
 */
-
-$v->registerMethod('custom_method', new Custom_method, ['default' => 'this value custom method is not a', 'inverse' => 'not this value custom method is not a'], ['custom_args']);
-
+$v->registerMethod('custom_method', new Custom_method);
+$v->add_rule_msg('custom_method', 'this value custom method is not a');
 
 $v->custom_method()->check('custom_method', ''); // outputs error 
 /*
@@ -396,7 +366,7 @@ $v->custom_method()->check('custom_method', ''); // outputs error
 
 $v->custom_method()->check('custom_method', 'a'); // validation passes
 ```
-	- **Note: Currently there is no localization support for this way of adding custom rule.**
+	- **Note: Custom rules Registered using `$v->registerMethod()` won't work when using `$v->getValidator()->custom_method()`. There is also no localization support for this way of adding custom rule.**
 
 ## Registering custom rule using `$v->registerFunction()`
 ```php
@@ -404,12 +374,10 @@ use AJD_validation\AJD_validation;
 $v = new AJD_validation;
 // custom function using callback/Closure
 /*
-	1. first argument is function name
-	2. second argument is the optional ?\Closure anonymous function
-	3. third arugment is the default message and inverse message
-	4. fourth argument is the optional array of arguments to be passed
+	1. Register the rule name and the callback/Closure
+	2. Then add rule msg for rule name.
 */
-$v->registerFunction('my_custom_func', function($value, $field, $satisfier, ...$custom_args)
+$v->registerFunction('my_custom_func', function($value, $field, $satisfier)
 {
 	if( $value == 'a' )
 	{
@@ -419,7 +387,9 @@ $v->registerFunction('my_custom_func', function($value, $field, $satisfier, ...$
 	{
 		return false;
 	}
-}, ['default' => 'this value is not a', 'inverse' => 'not this value is not a'], ['custom_args']);
+});
+
+$v->add_rule_msg('my_custom_func', 'this value is not a');
 
 $v->my_custom_func()->check('my_custom_func', 'b'); // outputs error
 /*
@@ -428,35 +398,8 @@ $v->my_custom_func()->check('my_custom_func', 'b'); // outputs error
 */
 
 $v->my_custom_func()->check('my_custom_func', 'a'); // validation passes
-
-/*
-	You could also add named function
-*/
-
-function my_custom_func($value)
-{
-	if( $value == 'a' )
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-}
-
-$v->registerFunction('my_custom_func', null, ['default' => 'this value is not a', 'inverse' => 'not this value is not a']);
-
-$v->my_custom_func()->check('my_custom_func', 'b'); // outputs error
-/*
-	Outputs error
-		this value is not a
-*/
-
-$v->my_custom_func()->check('my_custom_func', 'a'); // validation passes
-
 ```
-	- **Note: Currently there is no localization support for this way of adding custom rule.**
+	- **Note: Custom rules Registered using `$v->registerFunction()` won't work when using `$v->getValidator()->my_custom_func()`. There is also no localization support for this way of adding custom rule.**
 
 ### Default php function supported
 	- error message for the following supported php function is found under src/AJD_validation/lang/[current_lang]_lang.php
@@ -518,22 +461,20 @@ class Custom_extension extends Base_extension
 	public function getRules()
 	{
 		return array(
-			'custom_validation',
-			'custom_validation2'
+			'custom_validation_rule',
+			'custom_validation2_rule'
 		);
 	}
 
 	public function getRuleMessages()
 	{
-		// it is recommended to define the inverse message also for the custom rule.
-		// but if you don't define an inverse message ajd validation will just output the same message.
 		return array(
-			'custom_validation' 	=> ['default' => 'The :field field is not a a.', 'inverse' => 'Not The :field field is not a a.'],
+			'custom_validation' 	=> 'The :field field is not a a.',
 			'custom_validation2' 	=> 'The :field field is not a a 2.',
 		);
 	}
 
-	public function custom_validation( $value, $satisfier, $field )
+	public function custom_validation_rule( $value, $satisfier, $field )
 	{
 		if( $value == 'a' )
 		{
@@ -545,7 +486,7 @@ class Custom_extension extends Base_extension
 		}
 	}
 
-	public function custom_validation2( $value, $satisfier, $field )
+	public function custom_validation2_rule( $value, $satisfier, $field )
 	{
 
 		return false;

@@ -121,6 +121,7 @@ class AJD_validation extends Base_validator
 	protected static $lang;
 	protected static $addLangDir = [];
 	protected static $createWriteLangDir = [];
+	protected static $langStubs = [];
 	
 	protected static $ajd_ins;
 
@@ -5451,6 +5452,19 @@ class AJD_validation extends Base_validator
 			'args' => $obj
 		];
 
+	}
+
+	public static function addLangStubs($stubs)
+	{
+		if(file_exists($stubs))
+		{
+			static::$langStubs[] = $stubs;
+		}
+	}
+
+	public static function getAddLangStubs()
+	{
+		return static::$langStubs;
 	}
 
 	public static function addLangDir($lang, $path, $create_write = false)

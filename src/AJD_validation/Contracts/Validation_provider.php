@@ -456,6 +456,19 @@ abstract class Validation_provider implements ValidationProviderInterface
         return $this;
     }
 
+    public function addLangDir($lang, $path, $create_write = false)
+    {
+        v::addLangDir($lang, $path, $create_write);
+
+        return $this;
+    }
+
+    public function addLangStubs($stubs)
+    {
+        v::addLangStubs($stubs);
+        
+        return $this;
+    }
 
     abstract public function register();
 }

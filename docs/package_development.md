@@ -20,6 +20,9 @@ In this document we'll see how to create package for ajd-validation
 |   +-- Custom_extension.php
 +-- Validations
 |   +-- Custom_validation.php
++-- lang
+|   +-- custom_lang.php
+|   +-- custom_lang.stubs
 +-- ValidatorProvider.php
 ```
 
@@ -39,10 +42,13 @@ In this document we'll see how to create package for ajd-validation
 |   +-- Custom_extension.php
 +-- Validations
 |   +-- Custom_validation.php
++-- lang
+|   +-- custom_lang.php
+|   +-- custom_lang.stubs
 +-- ValidatorProvider.php
 ```
 
-- Inside a package you can create your Custom Rules -> Exceptions, Filters, Validators, Macros, Extensions and Logics.
+- Inside a package you can create your Custom Rules -> Exceptions, Filters, Validators, Macros, Extensions, lang file, lang stubs file and Logics.
 	- You can read creating a custom rule class here:
 		[Adding Custom Rule](advance_usage/adding_custom_rules.md)
 	- You can read creating a custom extension class here:
@@ -532,6 +538,85 @@ class Package_extension extends Base_extension
 			])
 			->registerExtension(new \PackageAjd\Extensions\Package_extension);
 	}
+```
+
+### Registering Custom lang file
+- It is not necessary but it is recommended to set defaults first before registering custom lang file. 
+	`->setDefaults([
+		'baseDir' => __DIR__,
+		'baseNamespace' => __NAMESPACE__
+	])` 
+
+- There is only one way to register custom lang file
+	- use `->addLangDir('custom', $directory_where_lang_file_is)`
+		1. $langName = first argument is language name.
+		2. $path = second argument is the absolute path of the directory where the language file is located and it is necessary that all language file will have an `_lang` suffix so for this example `custom_lang.php` will be the filename.
+```php
+	public function register()
+	{
+		$this
+			->setDefaults([
+				'baseDir' => __DIR__,
+				'baseNamespace' => __NAMESPACE__
+			])
+			// register package's custom lang file
+			->addLangDir('custom', __DIR__.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR);
+	}
+
+	// now to use the custom lang file
+	// 1. register the package to ajd validation first
+
+	AJD_validation::addPackages([
+		\PackageAjd\PackageAjd\PackageAjdValidatorServiceProvider::class
+	]);
+
+	// 2. the set the lang file to custom
+	$v->setLang('custom');
+```
+
+### Registering Custom lang stubs
+- It is not necessary but it is recommended to set defaults first before registering custom lang stubs file. 
+	`->setDefaults([
+		'baseDir' => __DIR__,
+		'baseNamespace' => __NAMESPACE__
+	])` 
+
+- There is only one way to register custom lang stub file
+	- what are lang.stubs file this will be the template generated for custom lang file.
+	- if you want your custom rules lang to be included in the template add your custom lang stubs file. 
+	- use `->addLangStubs($path_to_lang_stubs)`
+		1. $path = first argument is the path to your custom lang stubs file.
+```php
+	public function register()
+	{
+		$this
+			->setDefaults([
+				'baseDir' => __DIR__,
+				'baseNamespace' => __NAMESPACE__
+			])
+			// register package's custom lang stubs file
+			->addLangStubs(__DIR__.DIRECTORY_SEPARATOR.'lang'.DIRECTORY_SEPARATOR.'lang.stubs');
+	} // after registering ajd validation will automatically include your lang stubs file in the template
+	
+	// example of a custom lang stubs file
+	use AJD_validation\Contracts\Abstract_exceptions as ex;
+
+	use AJD_validation\Exceptions as Assert;
+
+	$lang = [];
+
+	$lang['error_msg']  = [
+		'package_custom'		=> array(
+			ex::ERR_DEFAULT 	=> array(
+				ex::STANDARD 	=> ':field must be a custom stubs file example.'
+			),
+			ex::ERR_NEGATIVE 	=> array(
+				ex::STANDARD 	=> ':field must not be a custom stubs file example.'
+			)
+		),
+	];
+
+	return $lang;
 ```
 
 ### Adding package/s to ajd-validation

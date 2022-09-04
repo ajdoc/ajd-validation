@@ -63,14 +63,21 @@ trait AjdValExtender
 	{
 		$object = null;
 		$invokable = false;
+		$class_name_object = false;
 
 		if(is_object($class_name))
 		{
+			$class_name_object = true;
 			$qualifiedClassName = get_class($class_name);
 			$segments = explode('\\', $qualifiedClassName);
 			$raw_class_name = end($segments);
 			$raw_class_name = strtolower($raw_class_name);
 			$object = $class_name;
+
+			if(!empty($path))
+			{
+				$raw_class_name = strtolower($path);
+			}
 		}
 		else
 		{
@@ -79,9 +86,9 @@ trait AjdValExtender
 
 		$class_name = ucfirst( strtolower( $raw_class_name ) );
 
-		$args 	= [];
+		$args = [];
 
-		if(!empty($path))
+		if(!empty($path) && !$class_name_object)
 		{
 			$args[] = $path;
 		}
@@ -95,10 +102,10 @@ trait AjdValExtender
 
 		if( !IS_NULL( $namespace ) )
 		{
-			$args[] 		= $namespace;
+			$args[] = $namespace;
 		}
 
-		if( !empty( $path ) && empty( $from_framework ) )
+		if( !empty( $path ) && empty( $from_framework ) && !$class_name_object )
 		{
 			$object = $path;
 
