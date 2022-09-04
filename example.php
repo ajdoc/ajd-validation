@@ -488,10 +488,15 @@ try
 
 	// var_dump($v->pre_filter_value());
 
-		$v 
-			->respectnotempty()
-			->respectalnum('')
-			->check('respectalnum', '');
+		var_dump($v 
+			->getValidator()
+			->inverse(
+				$v->getValidator()
+				->required()
+				->minlength(2)
+			)
+			->validate('aa'));
+
 		
 		$v 
 			->required()

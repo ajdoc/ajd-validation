@@ -3,6 +3,7 @@
 require dirname( dirname(__FILE__) ).DIRECTORY_SEPARATOR.'Rules'.DIRECTORY_SEPARATOR.'All_rule.php';
 
 use AJD_validation\Rules\All_rule;
+use AJD_validation\Contracts\Abstract_invokable;
 
 class Validator extends All_rule
 {
@@ -29,7 +30,7 @@ class Validator extends All_rule
    		return static::processRules( $rule, $arguments );
    	}
 
-   	protected static function processRules( $rule, $arguments = array() )
+   	protected static function processRules( $rule, $arguments = [] )
    	{
    		$ajd_ins = static::get_ajd_instance();
    		$baseRulesPath = $ajd_ins->get_rules_path();
@@ -80,6 +81,8 @@ class Validator extends All_rule
             }
 
    			$ruleObj = $factory->rules($rulesPath, $append_rule, $arguments);
+
+            static::$ruleArguments[ spl_object_id($ruleObj) ] = $arguments;
             
    			return $ruleObj;
    		} 
@@ -115,6 +118,7 @@ class Validator extends All_rule
             if(!empty($anon_details))
             {
                 static::$anonRuleExceptions[ spl_object_id($anon_details['obj']) ] = $anon_details['exception'];
+                static::$ruleArguments[ spl_object_id($anon_details['obj']) ] = $arguments;
 
                 return $anon_details['obj'];
             }

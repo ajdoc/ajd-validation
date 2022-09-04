@@ -18,14 +18,30 @@ class Inverse_rule extends Abstract_rule
 
 	public function run( $value, $satisfier = null, $field = null, $clean_field = null )
 	{
-		$check = ( false == $this->rule->validate( $value ) );
+		$rules = $this->rule;
+
+		$name = !empty($clean_field) ? $clean_field : $this->name;
+
+		if($rules->getRules())
+		{
+			foreach($rules->getRules() as $rule)
+			{
+				if(property_exists($rule, 'inverseCheck'))
+				{
+					$rule->inverseCheck = true;
+				}
+			}
+		}
+
+		$check = ( $rules->validate( $value ) === false );
+
 		$msg = '';
 
 		if( !$check )
 		{
 			try
 			{
-				$this->setName($clean_field)->assertErr($value, true, true);
+				$this->setName($name)->assertErr($value, true, true);
 			}
 			catch( Nested_rule_exception $e )
 			{
@@ -59,13 +75,17 @@ class Inverse_rule extends Abstract_rule
     {
     	if( !$dontCheck )
     	{
+    		$args = [];
+
     		if(
     			$this instanceof Abstract_invokable
     			||
     			$this instanceof Abstract_anonymous_rule
     		)
     		{
-    			if( $this($value) ) 
+    			$args = static::$ruleArguments[\spl_object_id($this)] ?? [];
+
+    			if( $this($value, $args, $this->name) ) 
 				{
 					return true;
 				}
@@ -85,7 +105,7 @@ class Inverse_rule extends Abstract_rule
         {
             $rule = $this->processAll($rule, $value);
         }
-
+        
         throw $rule
             ->getExceptionError($value, array(), null, $override, $rule, true)
             ->setMode(Abstract_exceptions::ERR_NEGATIVE);
@@ -105,6 +125,7 @@ class Inverse_rule extends Abstract_rule
 		while( ( $current = array_shift($rules) ) ) 
 		{
 			$rule = $current;
+			$args = [];
 
 			if( !$rule instanceof All_rule ) 
 			{
@@ -117,18 +138,20 @@ class Inverse_rule extends Abstract_rule
     			$rule instanceof Abstract_anonymous_rule
 			)
 			{
-				if( !$rule( $value ) ) 
+				$args = static::$ruleArguments[\spl_object_id($rule)] ?? [];
+				
+				if( !$rule( $input, $args, $this->name ) ) 
 			 	{
 	                continue;
 	            }
 			}
 			else
 			{
-			 	if( !$rule->validate( $value ) ) 
+			 	if( !$rule->validate( $input ) ) 
 			 	{
 	                continue;
 	            }
-	         }
+	        }
 
             $rules = $rule->getRules();
 		}

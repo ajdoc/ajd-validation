@@ -157,7 +157,7 @@ abstract class Abstract_all extends Abstract_rule
         return $exceptions;
     }
 
-     protected function assertCompoundRules($compoundRules, $value, $clean_field = null, $override = false)
+    protected function assertCompoundRules($compoundRules, $value, $clean_field = null, $override = false)
     {
         $collections = $compoundRules;
         $exceptions = [];

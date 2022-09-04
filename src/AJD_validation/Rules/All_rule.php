@@ -13,13 +13,17 @@ class All_rule extends Abstract_all
 		{
 			foreach( $this->getRules() as $rule )
 			{
+				$args = [];
+
 				if(
 					$rule instanceof Abstract_invokable
 					||
 					$rule instanceof Abstract_anonymous_rule
 				)
 				{
-					if( !$rule( $value, null, $field ) )
+					$args = static::$ruleArguments[\spl_object_id($rule)] ?? [];
+
+					if( !$rule( $value, $args, $field ) )
 					{
 						return false;
 					}
@@ -43,14 +47,17 @@ class All_rule extends Abstract_all
 		{
 			foreach( $this->getRules() as $rule )
 			{
+				$args = [];
+
 				if(
 					$rule instanceof Abstract_invokable
 					||
 					$rule instanceof Abstract_anonymous_rule
 				)
 				{
+					$args = static::$ruleArguments[\spl_object_id($rule)] ?? [];
 
-					if( !$rule( $value ) )
+					if( !$rule( $value, $args ) )
 					{
 						return false;
 					}

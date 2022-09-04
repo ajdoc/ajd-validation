@@ -87,13 +87,16 @@ class One_or_rule extends Abstract_all
                 {
                     foreach( $subRule->getRules() as $rule )
                     {
+                        $args = [];
                         if(
                             $rule instanceof Abstract_invokable
                             ||
                             $rule instanceof Abstract_anonymous_rule
                         )
                         {
-                            $check = $rule( $value, null, $field );
+                            $args = static::$ruleArguments[\spl_object_id($rule)] ?? [];
+
+                            $check = $rule( $value, $args, $field );
                         }
                         else
                         {
@@ -140,13 +143,16 @@ class One_or_rule extends Abstract_all
             {
                 foreach( $rules->getRules() as $rule )
                 {
+                    $args = [];
                     if(
                         $rule instanceof Abstract_invokable
                         ||
                         $rule instanceof Abstract_anonymous_rule
                     )
                     {
-                        $check = $rule( $value, null, $field );
+                        $args = static::$ruleArguments[\spl_object_id($rule)] ?? [];
+
+                        $check = $rule( $value, $args, $field );
                     }
                     else
                     {

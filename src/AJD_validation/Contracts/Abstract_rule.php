@@ -13,6 +13,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
     protected $name;
 
     protected static $anonRuleExceptions = [];
+    protected static $ruleArguments = [];
 
 	public function __invoke($value, $satisfier = null, $field = null)
     {
@@ -83,6 +84,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         }
 
         $response = null;
+        $args = [];
 
         if(
             $this instanceof Abstract_invokable
@@ -90,7 +92,9 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
             $this instanceof Abstract_anonymous_rule
         )
         {
-            $response = $this( $value );
+            $args = static::$ruleArguments[\spl_object_id($this)] ?? [];
+
+            $response = $this( $value, $args, $this->name );
 
             if($this->inverseCheck)
             {
@@ -212,7 +216,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
 
                 $search = array_search($exceptionPath, $requiredFiles);
             
-                if( file_exists($exceptionPath) AND EMPTY( $search ) )
+                if( file_exists($exceptionPath) && EMPTY( $search ) )
                 {
                     $currentRule = $namespace.$ruleStr.'_exception';
                     $check = require $exceptionPath;
@@ -229,7 +233,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
             if($currentRule)
             {
                 $currentRule::setFromRuleName($ruleObj->getAnonName());
-                $ruleObj::getAnonExceptionMessage($currentRule);
+                $ruleObj::getAnonExceptionMessage($currentRule, $ruleObj);
                 return $currentRule;
             }
         }
