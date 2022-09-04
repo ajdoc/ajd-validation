@@ -36,17 +36,6 @@ class AJD_validation extends Base_validator
 
 	use Traits\AjdValExtender;
 
-	protected static $raw_rule = [
-		Abstract_common::LARAVEL,
-		Abstract_common::RESPECT,
-		Abstract_common::SYMFONY
-	];
-
-	protected static $method_w_args = [
-		Abstract_common::SYMFONY,
-		Abstract_common::RESPECT
-	];
-
 	protected static $ajd_prop = [
 		Abstract_common::LOG_AND => [
 			'rules' => [],
@@ -191,7 +180,7 @@ class AJD_validation extends Base_validator
 
 				static::registerPackage($packageInstance);
 
-				if(isset(static::$registeredPackaged[\spl_object_id($packageInstance)]))
+				if(isset(static::$registeredPackaged[get_class($packageInstance)]))
 				{
 					unset(static::$packagesToRegister[$package]);
 				}
@@ -4990,15 +4979,17 @@ class AJD_validation extends Base_validator
 
 		Errors::addAnonExceptions($append_rule, $exceptionObj);
 
+		$inverse = $details['details'][0];
+
 		if($rule_obj instanceof Invokable_rule_interface)
 		{
-			$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+			$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue, $inverse );
 		}
 		else
 		{
 			if(method_exists($rule_obj, 'run'))
 			{
-				$check_r = $rule_obj->run( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+				$check_r = $rule_obj->run( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue, $inverse );
 			}
 		}
 
@@ -5107,41 +5098,9 @@ class AJD_validation extends Base_validator
 		$args = $this->_process_method_args_for_framework( $from_framework, $details );
 		$method_args = $args;
 
-		if( $from_framework == Abstract_common::SYMFONY )
-		{
-			$rule = 'validate';
-		}
-		else if( $from_framework == Abstract_common::RESPECT )
-		{
-			$method_args = [];
-			$method_args[] = $orig_rule;
-
-			if( !EMPTY( $details['satisfier'] ) )
-			{
-				$method_args[] = ( is_array( $details['satisfier'] ) ) ? $details['satisfier'] : array( $details['satisfier'] );
-			}
-			else 
-			{
-				$method_args[] = $details['details'][3]['symfony_args'];
-			}
-
-			$method_args = array_merge( $method_args, static::$globalVar );
-
-			$rule = '__call';
-		}
-		
 		$method = $method_factory->rules( $details['details'][3]['class_name'], $rule );
 		
 		$passed = $method_factory->process_method( $method_args, $details['details'][3]['obj_ins'], true );
-
-		if( $from_framework == Abstract_common::SYMFONY )
-		{
-			$passed = empty( count( $passed ) ) ? true : false;
-		}
-		else if( $from_framework == Abstract_common::RESPECT )
-		{	
-			$passed = $passed->validate( $args[0] );
-		}
 
 		return $passed;
 
@@ -5173,35 +5132,13 @@ class AJD_validation extends Base_validator
 
 	private function _process_method_args_for_framework( $from_framework, $details )
 	{
-		if( !EMPTY( $from_framework ) )
-		{
-			$args 	= [
-				Abstract_common::CODEIGNITER => [
-					$details['value'], $details['satisfier'], $details['field']
-				],
-				Abstract_common::LARAVEL 	  => [
-					$details['field'], $details['value'], $details['satisfier']
-				],
-				Abstract_common::RESPECT => [
-					$details['value'], $details['satisfier'], $details['field']
-				],
-				Abstract_common::SYMFONY => [
-					$details['value'], $details['details'][3]['symfony_args']
-				]
-			];
-			
-			return $args[ $from_framework ];
-		}
-		else 
-		{
-			$origValue 	= ( ISSET( $details['origValue'] ) ) ? $details['origValue'] : NULL;	
+		$origValue = ( isset( $details['origValue'] ) ) ? $details['origValue'] : null;	
 
-			$args 	= [
-				$details['value'], $details['satisfier'], $details['field'], $origValue
-			];
+		$args = [
+			$details['value'], $details['satisfier'], $details['field'], $origValue
+		];
 
-			return $args;
-		}
+		return $args;
 		
 	}
 
@@ -5315,14 +5252,7 @@ class AJD_validation extends Base_validator
 			$class_rule = $append_rule;
 			$class_meth_call = static::$ajd_prop[ 'class_override' ][ $raw_rule ][1];
 			$class_name = $append_rule;
-			
-			if( !EMPTY( $from_framework ) )
-			{	
-				$class_rule = ( in_array( $from_framework, static::$raw_rule ) ) ? ucfirst( strtolower( $raw_append_rule ) ) : $append_rule;
-				$class_name = ( in_array( $from_framework, static::$raw_rule ) ) ? $raw_rule : $append_rule;
-				$raw_class = $class_name;
-			}
-			
+		
 			$class = static::$ajd_prop['class_override'][ $class_rule ];
 
 			if(is_string($class[0]) && !is_object($class[0]))
@@ -5343,21 +5273,6 @@ class AJD_validation extends Base_validator
 			$override = true;
 			$from_framework = static::$ajd_prop['method_override'][ $raw_rule ];
 			$method_rule = $lower_rule;
-
-			if( !EMPTY( $from_framework ) )
-			{
-				$method_override = true;
-				$method_rule = ( in_array( $from_framework, static::$raw_rule ) ) ? $raw_append_rule : $lower_rule;
-
-				if( in_array( $from_framework, static::$method_w_args ) ) 
-				{
-					$meth_arg_processor = '_process_'.$from_framework;
-
-					$args = $this->{ $meth_arg_processor }( $method_rule, static::$ajd_prop[ 'method_override' ][ $from_framework ] );
-					$symfony_args = $args['args'];
-				}
-
-			}
 
 			$obj_ins = static::$ajd_prop['method_override'][ $method_rule ];
 		}
@@ -5404,54 +5319,6 @@ class AJD_validation extends Base_validator
 		$args['symfony_args'] = $symfony_args;
 		
 		return $args;
-	}
-
-	private function _process_respect( $rule, $args )
-	{
-		return [
-			'args' => $args
-		];
-	}	
-
-	private function _process_symfony( $constraint, $args )
-	{
-		if( !ISSET( static::$cache_instance[ $constraint ] ) )
-		{
-			$classReflection = static::get_factory_instance()->get_instance( TRUE );
-			$ds = DIRECTORY_SEPARATOR;
-			$constraint = $this->remove_appended_rule( $constraint );
-			$path = null;
-
-			if( ISSET( $args['default_path'] ) AND $args['default_path'] == TRUE )
-			{
-				$path = static::getConfig();
-				$path = $path->get( 'symfony_path' ).$constraint.'.php';
-				unset( $args['default_path'] );
-			}
-
-			$classReflection->set_rules_namespace( ['Symfony\\Component\\Validator\\Constraints\\'] );
-
-			if( ISSET( $args[ 'path' ] ) )
-			{
-				$path 					= $args[ 'path' ];
-
-				unset( $args['path'] );
-			}
-
-			$obj = $classReflection->rules( $path, $constraint, $args );
-
-		}
-		else 
-		{
-			$obj = static::$cache_instance[ $constraint ];
-		}
-
-		static::$cache_instance[ $constraint ] 	= $obj;
-
-		return [
-			'args' => $obj
-		];
-
 	}
 
 	public static function addLangStubs($stubs)

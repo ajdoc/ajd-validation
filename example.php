@@ -389,7 +389,7 @@ class Custom_macro implements CanMacroInterface
 	// $v->setLang('test');
 	// die;
 	$v->setValidation('packagevalidation');
-	
+
 	$v 
 		->required()
 		->minlength(2)
@@ -417,7 +417,8 @@ try
 {
 	$v->addPackages([
 		PackageAjd\PackageValidationServiceProvider::class,
-		AjdMetadata\AjdMetadataServiceProvider::class
+		AjdMetadata\AjdMetadataServiceProvider::class,
+		AjdRespect\AjdRespectServiceProvider::class
 	]);
 	/*
 		Make anonymous class register function and extension anonymous class
@@ -486,6 +487,11 @@ try
 		->check('packagevalidation');*/
 
 	// var_dump($v->pre_filter_value());
+
+		$v 
+			->respectnotempty()
+			->respectalnum('')
+			->check('respectalnum', '');
 		
 		$v 
 			->required()

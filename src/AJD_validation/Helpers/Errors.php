@@ -794,7 +794,7 @@ EOS;
 
 				$exception_class_obj::setFromRuleName(strtolower($rule_name));
 
-				$rule::getAnonExceptionMessage($exception_class_obj);
+				$rule::getAnonExceptionMessage($exception_class_obj, $rule);
 			}
 			else
 			{

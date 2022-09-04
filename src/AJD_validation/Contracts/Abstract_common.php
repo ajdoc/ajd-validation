@@ -67,15 +67,12 @@ abstract class Abstract_common
 		$field_return[ 'orig' ] = $orig_field;
 
 		return $field_return;
-		
-
 	}
 
 	protected function invoke_function( $func, $args = array(), $event = null )
 	{
 		return call_user_func_array( $func , $args );
 	}
-
 
 	protected function check_has_pipe( $value )
 	{

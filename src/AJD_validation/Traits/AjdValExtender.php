@@ -293,10 +293,10 @@ trait AjdValExtender
 
 	public static function registerPackage(Contracts\ValidationProviderInterface $package)
 	{
-		if( !isset(static::$registeredPackaged[\spl_object_id($package)]) )
+		if( !isset(static::$registeredPackaged[get_class($package)]) )
 		{
 			$package->register();
-
+			
 			static::processMappings();
 			Helpers\AJD_filter::processMappings();
 			Helpers\When::processMappings();
@@ -308,7 +308,7 @@ trait AjdValExtender
 				static::$addValidationsMappings = array_merge(static::$addValidationsMappings, $validations);
 			}
 
-			static::$registeredPackaged[\spl_object_id($package)] = true;
+			static::$registeredPackaged[get_class($package)] = true;
 		}
 	}
 
