@@ -506,7 +506,7 @@ try
 				->alnum('*')
 			]
 		)
-		->check('respectrules', '');
+		->check('respectrules', 'a');
 
 		
 		$v 
