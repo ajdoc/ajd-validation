@@ -7,7 +7,7 @@ use AJD_validation\Vefja\Vefja;
 
 class All_rule extends Abstract_all
 {
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
 		if( !EMPTY( $this->getRules() ) )
 		{
@@ -19,22 +19,22 @@ class All_rule extends Abstract_all
 					$rule instanceof Abstract_anonymous_rule
 				)
 				{
-					if( !$rule( $value, NULL, $field ) )
+					if( !$rule( $value, null, $field ) )
 					{
-						return FALSE;
+						return false;
 					}
 				}
 				else
 				{
-					if( !$rule->run( $value, NULL, $field ) )
+					if( !$rule->run( $value, null, $field ) )
 					{
-						return FALSE;
+						return false;
 					}
 				}
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
 	public function validate( $value )
@@ -59,31 +59,31 @@ class All_rule extends Abstract_all
 				{
 					if( !$rule->validate( $value ) )
 					{
-						return FALSE;
+						return false;
 					}
 				}
 			}
 		}
 
-		return TRUE;
+		return true;
 	}
 
-	public function assertErr( $value, $override = FALSE, $inverseCheck = null )
+	public function assertErr( $value, $override = false, $inverseCheck = null )
 	{
-		$exceptions 	= $this->assertRules( $value, $override, $inverseCheck );
-		$numRules 		= count( $this->rules );
-		$numExceptions 	= count( $exceptions );
-		$summary 		= array(
-			'total' 	=> $numRules,
-			'failed'	=> $numExceptions,
-			'passed'	=> $numRules - $numExceptions
-		);
+		$exceptions = $this->assertRules( $value, $override, $inverseCheck );
+		$numRules = count( $this->rules );
+		$numExceptions = count( $exceptions );
+		$summary = [
+			'total' => $numRules,
+			'failed' => $numExceptions,
+			'passed' => $numRules - $numExceptions
+		];
 		
 		if( !EMPTY( $exceptions ) )
 		{
-			throw $this->getExceptionError( $value, $summary, NULL, $override )->setRelated( $exceptions );
+			throw $this->getExceptionError( $value, $summary, null, $override )->setRelated( $exceptions );
 		}
 
-		return TRUE;
+		return true;
 	}
 }

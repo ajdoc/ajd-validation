@@ -7,23 +7,23 @@ class Ends_with_rule extends Abstract_rule
 	public $endValue;
 	public $identical;
 
-	public function __construct( $endValue, $identical = FALSE )
+	public function __construct( $endValue, $identical = false )
 	{
-		$this->endValue 	= $endValue;
-		$this->identical 	= $identical;
+		$this->endValue = $endValue;
+		$this->identical = $identical;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 		= FALSE;
+		$check = false;
 
 		if( $this->identical )
 		{
-			$check 	= $this->validateIdentical( $value );
+			$check = $this->validateIdentical( $value );
 		}
 		else
 		{
-			$check 	= $this->validateEquals( $value );
+			$check = $this->validateEquals( $value );
 		}
 
 		return $check;
@@ -31,7 +31,7 @@ class Ends_with_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-		$check 		= $this->run( $value );
+		$check = $this->run( $value );
 
 	 	if( is_array( $check ) )
         {

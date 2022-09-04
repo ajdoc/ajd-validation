@@ -7,19 +7,19 @@ class Different_rule extends Abstract_rule
 	public $compareTo;
 	public $identical;
 
-	public function __construct($compareTo, $identical = FALSE)
+	public function __construct($compareTo, $identical = false)
 	{
-		$this->compareTo 	= $compareTo;
-		$this->identical 	= $identical;
+		$this->compareTo = $compareTo;
+		$this->identical = $identical;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 				= $this->compareTo != $value;
+		$check = $this->compareTo != $value;
 
 		if( $this->identical )
 		{
-			$check 			= $this->compareTo !== $value;
+			$check = $this->compareTo !== $value;
 		}
 
 		return $check;
@@ -27,7 +27,7 @@ class Different_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-        $check          = $this->run( $value );
+        $check = $this->run( $value );
 
         if( is_array( $check ) )
         {

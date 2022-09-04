@@ -6,9 +6,9 @@ use AJD_validation\Contracts\Rule_interface;
 
 class Key_rule extends Abstract_related
 {
-	public function __construct($relation, Rule_interface $referenceValidator = NULL, $mandatory = TRUE)
+	public function __construct($relation, Rule_interface $referenceValidator = null, $mandatory = true)
     {
-        if( !is_scalar($relation) OR '' === $relation ) 
+        if( !is_scalar($relation) || '' === $relation ) 
         {
             throw new Exception('Invalid array key name');
         }
@@ -23,7 +23,7 @@ class Key_rule extends Abstract_related
 
 	public function hasRelation($value)
 	{
-		$check 	= ( is_array($value) AND array_key_exists($this->relation, $value) );
+		$check 	= ( is_array($value) && array_key_exists($this->relation, $value) );
 		
 		return $check;
 	}

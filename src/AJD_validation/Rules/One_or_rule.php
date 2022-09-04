@@ -9,34 +9,34 @@ use AJD_validation\Contracts\Abstract_anonymous_rule;
 
 class One_or_rule extends Abstract_all
 {
-	public function run( $value, $satisfier = NULL, $field = NULL, $clean_field = NULL )
+	public function run( $value, $satisfier = null, $field = null, $clean_field = null )
 	{
-		$check 			= FALSE;
-		$append_error 	= "";
+		$check = false;
+		$append_error = "";
 
 		if( is_array( $satisfier ) )
 		{
-			if( ISSET( $satisfier[0] ) )
+			if( isset( $satisfier[0] ) )
 			{
-				$details	= $this->processRules( $satisfier[0], $value, $field, $clean_field );
+				$details = $this->processRules( $satisfier[0], $value, $field, $clean_field );
 
-				if( !EMPTY( $details['check'] ) AND in_array( TRUE,  $details['check'] ) )
+				if( !empty( $details['check'] ) && in_array( true,  $details['check'] ) )
 				{
-					$check 	= TRUE;
+					$check = true;
 				}
                 else
                 {
                     try
                     {
-                        $this->setName($clean_field)->assertErr( $value, TRUE );
+                        $this->setName($clean_field)->assertErr( $value, true );
                     }
                     catch( Abstract_exceptions $e )
                     {
-                        $append_error   = $e->getFullMessage(function($messages)
+                        $append_error = $e->getFullMessage(function($messages)
                         {
-                            $firstMessage   = str_replace('-', '', $messages[0]);
-                            $realMessage    = array();
-                            $messages[0]    = $firstMessage;
+                            $firstMessage = str_replace('-', '', $messages[0]);
+                            $realMessage = [];
+                            $messages[0] = $firstMessage;
 
                             foreach( $messages as $key => $message )
                             {
@@ -47,15 +47,15 @@ class One_or_rule extends Abstract_all
 
                                 if( $key != 0 )
                                 {
-                                    $message        = '<br/>&nbsp;&nbsp;&nbsp;&nbsp;'.$message;
+                                    $message = '<br/>&nbsp;&nbsp;&nbsp;&nbsp;'.$message;
                                 }
                                 else
                                 {
-                                    $message        = preg_replace('/^[\s]/', '', $message);   
-                                    $message        = '&nbsp;&nbsp;'.$message;
+                                    $message = preg_replace('/^[\s]/', '', $message);   
+                                    $message = '&nbsp;&nbsp;'.$message;
                                 }
 
-                                $realMessage[$key]  = $message;
+                                $realMessage[$key] = $message;
                             }
 
                             return implode('', $realMessage);
@@ -63,22 +63,21 @@ class One_or_rule extends Abstract_all
                         });
                     }
                 }
-
 			}
 		}
 
-		return array(
-			'check'		=> $check,
-			'msg'	    => $append_error
-		);
+		return [
+			'check' => $check,
+			'msg' => $append_error
+		];
 	}
 
- 	protected function processRules( $rules, $value, $field = NULL, $clean_field = NULL )
+ 	protected function processRules( $rules, $value, $field = null, $clean_field = null )
     {
-        $retArr         = array();
-        $checkRule      = array();
-        $exceptions     = array();
-        $errorMessage   = array();
+        $retArr = [];
+        $checkRule = [];
+        $exceptions = [];
+        $errorMessage = [];
 
         if( !EMPTY( $rules ) )
         {
@@ -94,25 +93,25 @@ class One_or_rule extends Abstract_all
                             $rule instanceof Abstract_anonymous_rule
                         )
                         {
-                            $check  = $rule( $value, NULL, $field );
+                            $check = $rule( $value, null, $field );
                         }
                         else
                         {
-                            $check  = $rule->run( $value, NULL, $field );
+                            $check = $rule->run( $value, null, $field );
                         }
 
                         if(is_array($check))
                         {
                             if($check['check'])
                             {
-                                $checkRule[]    = TRUE;
+                                $checkRule[] = true;
                             }
                         }
                         else
                         {
                             if( $check )
                             {
-                                $checkRule[]    = TRUE;
+                                $checkRule[] = true;
                             }
                         }
 
@@ -147,25 +146,25 @@ class One_or_rule extends Abstract_all
                         $rule instanceof Abstract_anonymous_rule
                     )
                     {
-                        $check  = $rule( $value, NULL, $field );
+                        $check = $rule( $value, null, $field );
                     }
                     else
                     {
-                        $check  = $rule->run( $value, NULL, $field );
+                        $check = $rule->run( $value, null, $field );
                     }
 
                     if(is_array($check))
                     {
                         if($check['check'])
                         {
-                            $checkRule[]    = TRUE;
+                            $checkRule[] = true;
                         }
                     }
                     else
                     {
                         if( $check )
                         {
-                            $checkRule[]    = TRUE;
+                            $checkRule[] = true;
                         }
                     }
                     
@@ -192,11 +191,11 @@ class One_or_rule extends Abstract_all
             }
         }
 
-        $retArr     = array(
-            'check'         => $checkRule,
-            'exceptions'    => $exceptions,
-            'errorMessage'  => $errorMessage
-        );
+        $retArr = [
+            'check' => $checkRule,
+            'exceptions' => $exceptions,
+            'errorMessage' => $errorMessage
+        ];
 
         return $retArr;
     }
@@ -209,11 +208,11 @@ class One_or_rule extends Abstract_all
             $this instanceof Abstract_anonymous_rule
         )
         {
-            $check              = $this( $value, array( $this->getRules() ) );
+            $check = $this( $value, [$this->getRules()] );
         }
         else
         {
-            $check              = $this->run( $value, array( $this->getRules() ) );
+            $check = $this->run( $value, [$this->getRules()] );
         }
 
         if( is_array( $check ) )
@@ -224,18 +223,18 @@ class One_or_rule extends Abstract_all
         return $check;
     }
 
-    public function assertErr($value, $override = FALSE, $inverseCheck = null)
+    public function assertErr($value, $override = false, $inverseCheck = null)
     {
-        $validators     = $this->getRules();
-        $exceptions     = $this->assertRules($value, $override, $inverseCheck);
-        $numRules       = count($validators);
-        $numExceptions  = count($exceptions);
+        $validators = $this->getRules();
+        $exceptions = $this->assertRules($value, $override, $inverseCheck);
+        $numRules = count($validators);
+        $numExceptions = count($exceptions);
 
         if($numExceptions === $numRules) 
         {
-            throw $this->getExceptionError($value, array(), NULL, $override, $this)->setRelated($exceptions);
+            throw $this->getExceptionError($value, [], null, $override, $this)->setRelated($exceptions);
         }
 
-        return TRUE;
+        return true;
     }
 }

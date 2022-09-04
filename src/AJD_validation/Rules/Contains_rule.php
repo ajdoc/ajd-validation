@@ -4,13 +4,13 @@ use AJD_validation\Contracts\Abstract_search;
 
 class Contains_rule extends Abstract_search
 {
-	public $reverse 	= TRUE;
+	public $reverse = true;
 	public $haystack;
 	public $identical;
 
-	public function __construct( $haystack = NULL, $identical = NULL )
+	public function __construct( $haystack = null, $identical = null )
 	{
-		$this->haystack 	= $haystack;
-		$this->identical 	= $identical;
+		$this->haystack = $haystack;
+		$this->identical = $identical;
 	}
 }

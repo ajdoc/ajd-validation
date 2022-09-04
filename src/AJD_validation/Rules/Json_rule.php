@@ -9,25 +9,25 @@ class Json_rule extends Abstract_rule
 	{
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 		= FALSE;
+		$check = false;
 
-	 	if( !is_string($value) OR '' === $value ) 
+	 	if( !is_string($value) || '' === $value ) 
 	 	{
-            $check 	= FALSE;
+            $check = false;
         }
 
         json_decode($value);
 
-        $check 		= (json_last_error() === JSON_ERROR_NONE);
+        $check = (json_last_error() === JSON_ERROR_NONE);
 
 		return $check;
 	}
 
 	public function validate( $value )
 	{
-		$check 			= $this->run( $value );
+		$check = $this->run( $value );
 
 		if( is_array( $check ) )
 		{

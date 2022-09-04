@@ -9,7 +9,7 @@ class Callback_rule extends Abstract_callback
 
 		array_shift( $arguments );
 
-		$this->arguments 	= $arguments;
+		$this->arguments = $arguments;
 
 		parent::__construct( $callback );
 	}

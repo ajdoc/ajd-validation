@@ -7,18 +7,18 @@ class In_rule extends Abstract_search
 	public $haystack;
 	public $identical;
 
-	public function __construct( $haystack = NULL, $identical = NULL )
+	public function __construct( $haystack = null, $identical = null )
 	{
-		$this->haystack 	= $haystack;
-		$this->identical 	= $identical;
+		$this->haystack = $haystack;
+		$this->identical = $identical;
 	}
 
-	public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = FALSE, $satisfier = NULL, $error = NULL, $value = NULL )
+	public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
     {
     	if( $jsTypeFormat == Abstract_search::CLIENT_PARSLEY ) 
         {
-        	$haystack 	= implode('|+', $this->haystack);
-        	$identical  = ( !EMPTY( $this->identical ) ) ? $this->identical : false;
+        	$haystack = implode('|+', $this->haystack);
+        	$identical = ( !EMPTY( $this->identical ) ) ? $this->identical : false;
         	
     	 	$js[$field][$rule]['rule'] =   <<<JS
                 data-parsley-inrule='$haystack'
@@ -75,7 +75,7 @@ JS;
 JS;
         }
 
-        $js                 = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
+        $js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
 
         return $js;
     }

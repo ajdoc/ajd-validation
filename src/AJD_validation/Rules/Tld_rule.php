@@ -4,7 +4,7 @@ use AJD_validation\Contracts\Abstract_search;
 
 class Tld_rule extends Abstract_search
 {
-	public $haystack 	= array(
+	public $haystack = array(
 		//generic - http://en.wikipedia.org/wiki/Generic_top-level_domain
 		'aero', 'asia', 'biz', 'cat', 'com', 'coop', 'edu', 'gov', 'info',
 		'int', 'jobs', 'mil', 'mobi', 'museum', 'name', 'net', 'org', 'post', 'pro',
@@ -110,7 +110,7 @@ class Tld_rule extends Abstract_search
 		'wf', 'ws', 'ye', 'yt', 'za', 'zm', 'zw',
 	);
 
-	public $identical 	= TRUE;
+	public $identical = true;
 
 	/*public function run( $value, $satisfier = NULL, $field = NULL )
 	{

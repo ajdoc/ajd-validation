@@ -11,15 +11,15 @@ class Alnum_rule extends Abstract_ctype
 
     protected function getRegexString()
     {
-    	$addCharReg 	= $this->processAddtionalCharRegex();
+    	$addCharReg = $this->processAddtionalCharRegex();
 
     	if( !EMPTY( $addCharReg ) )
     	{
-    		$regex 	= '/^[a-zA-Z0-9'.$addCharReg.']+$/';
+    		$regex = '/^[a-zA-Z0-9'.$addCharReg.']+$/';
     	}
     	else
     	{
-    		$regex 	= '/^[a-zA-Z0-9]+$/';
+    		$regex = '/^[a-zA-Z0-9]+$/';
     	}
 
     	return $regex;

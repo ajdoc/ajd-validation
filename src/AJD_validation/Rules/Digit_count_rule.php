@@ -14,27 +14,26 @@ class Digit_count_rule extends Abstract_rule
 			throw new Exception('Digit length must be numeric.');
 		}
 
-		$digitLength 		= $this->Fnumeric()
-								->cacheFilter('value')
-								->filterSingleValue( $digitLength, TRUE );
+		$digitLength = $this->Fnumeric()
+						->cacheFilter('value')
+						->filterSingleValue( $digitLength, true );
 
-		$this->digitLength 	= $digitLength;
+		$this->digitLength = $digitLength;
 	}
 	
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
 		if(!$this->getValidator()->digit()->validate($value))
 		{
 			return false;
 		}
 
-		$digitCount 		= strlen( preg_replace( '/[^0-9]+/', "", $value ) );
+		$digitCount = strlen( preg_replace( '/[^0-9]+/', "", $value ) );
+		$check = true;
 
-		$check 				= TRUE;
-
-		if( !EMPTY( $this->digitLength ) )
+		if( !empty( $this->digitLength ) )
 		{
-			$check 	 		= $digitCount == $this->digitLength;
+			$check = $digitCount == $this->digitLength;
 		}
 
 		return $check;
@@ -42,7 +41,7 @@ class Digit_count_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-	 	$check      = $this->run( $value );
+	 	$check = $this->run( $value );
 
         if( is_array( $check ) )
         {

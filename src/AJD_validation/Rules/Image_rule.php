@@ -8,38 +8,38 @@ class Image_rule extends Abstract_rule
 {
 	public $fileInfo;
 
-	public function __construct( finfo $fileInfo = NULL )
+	public function __construct( finfo $fileInfo = null )
 	{
 		$this->fileInfo 	= $fileInfo ?: new finfo( FILEINFO_MIME_TYPE );
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 			= FALSE;
+		$check = false;
 
 		if( $value instanceof SplFileInfo )
 		{
-			$value 		= $value->getPathname();
+			$value = $value->getPathname();
 		}
 
 		if( !is_string( $value ) )
 		{
-			$check 		= FALSE;
+			$check = false;
 		}
 
 		if( !is_file( $value ) )
 		{
-			$check 		= FALSE;
+			$check = false;
 		}
 
-		$check 			= ( 0 === @strpos( $this->fileInfo->file( $value ), 'image/' ) );
+		$check = ( 0 === @strpos( $this->fileInfo->file( $value ), 'image/' ) );
 		
 		return $check;
 	}
 
 	public function validate( $value )
 	{
-		 $check              = $this->run( $value );
+		$check = $this->run( $value );
 
         if( is_array( $check ) )
         {

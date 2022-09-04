@@ -5,19 +5,19 @@ use AJD_validation\Contracts\Rule_interface;
 
 class Dependent_rule extends Abstract_dependent
 {
-	public function __construct($dependentFields, Rule_interface $checkValidator, Rule_interface $validator, array $dependentValue = array(), array $values = array() )
+	public function __construct($dependentFields, Rule_interface $checkValidator, Rule_interface $validator, array $dependentValue = [], array $values = [] )
 	{
-		$this->dependetFields 	= $dependentFields;
-		$this->checkValidator 	= $checkValidator;
-		$this->validator 		= $validator;
-		$this->dependentValue 	= $dependentValue;
-		$this->values 			= $values;
+		$this->dependetFields = $dependentFields;
+		$this->checkValidator = $checkValidator;
+		$this->validator = $validator;
+		$this->dependentValue = $dependentValue;
+		$this->values = $values;
 
-		$this->showSubError 	= TRUE;
+		$this->showSubError = true;
 
-		if( !EMPTY( $dependentValue ) )
+		if( !empty( $dependentValue ) )
 		{
-			$this->needsComparing 	= TRUE;
+			$this->needsComparing = true;
 		}
 
 		parent::__construct( $dependentFields, $dependentValue, $values, $checkValidator, $validator );

@@ -4,28 +4,28 @@ use AJD_validation\Contracts\Abstract_rule;
 
 class No_whitespace_rule extends Abstract_rule
 {
-	public function run($value, $satisfier = NULL, $field = NULL)
+	public function run($value, $satisfier = null, $field = null)
     {
-        $check      = FALSE;
+        $check = false;
 
-    	if ( IS_NULL( $value ) ) 
+    	if ( is_null( $value ) ) 
         {
-            $check  = TRUE;
+            $check = true;
         }
 
-        if (FALSE === is_scalar( $value ) ) 
+        if (false === is_scalar( $value ) ) 
         {
-            $check  = FALSE;
+            $check = false;
         }
 
-        $check      = !preg_match('#\s#', $value);
+        $check = !preg_match('#\s#', $value);
 
         return $check;
     }
 
     public function validate( $value )
     {
-        $check      = $this->run( $value );
+        $check = $this->run( $value );
 
         if( is_array( $check ) )
         {

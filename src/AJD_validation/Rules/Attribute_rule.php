@@ -7,9 +7,9 @@ use AJD_validation\Contracts\Rule_interface;
 
 class Attribute_rule extends Abstract_related
 {
-	public function __construct($relation, Rule_interface $referenceValidator = NULL, $mandatory = TRUE)
+	public function __construct($relation, Rule_interface $referenceValidator = null, $mandatory = true)
     {
-        if( !is_scalar($relation) OR '' === $relation ) 
+        if( !is_scalar($relation) || '' === $relation ) 
         {
             throw new Exception('Invalid array key name');
         }
@@ -20,14 +20,14 @@ class Attribute_rule extends Abstract_related
 	public function getRelationValue($value)
 	{
 		$propertyReflection = new ReflectionProperty($value, $this->relation);
-		$propertyReflection->setAccessible(TRUE);
+		$propertyReflection->setAccessible(true);
         
 		return $propertyReflection->getValue($value);
 	}
 
 	public function hasRelation($value)
     {
-    	$check	= ( is_object($value) AND property_exists($value, $this->relation) );
+    	$check = ( is_object($value) && property_exists($value, $this->relation) );
 
         return $check;
     }

@@ -7,28 +7,28 @@ class Minlength_rule extends Abstract_interval
 	protected $length;
 	public function __construct($length = 0, $inclusive = true, $isString = false)
     {
-    	$this->inclusive 	= $inclusive;
-    	$this->isString 	= $isString;
-    	$this->length 		= $length;
+    	$this->inclusive = $inclusive;
+    	$this->isString = $isString;
+    	$this->length = $length;
     }
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
 		if( is_array( $satisfier ) )
 		{
-			if( ISSET( $satisfier[0] ) )
+			if( isset( $satisfier[0] ) )
 			{
-				$length 	= $satisfier[0];
+				$length = $satisfier[0];
 			}
 
-			if( ISSET( $satisfier[1] ) )
+			if( isset( $satisfier[1] ) )
 			{
 				$this->inclusive = $satisfier[1];
 			}
 		}
 		else
 		{
-			$length 	= $satisfier;
+			$length = $satisfier;
 		}
 
 		if(!isset($length))
@@ -41,55 +41,55 @@ class Minlength_rule extends Abstract_interval
 			$length = $this->length;
 		}
 
-		$forceString = FALSE;
+		$forceString = false;
 
 		if( !$this->isString )
 		{
 			if( is_numeric( $value ) )
 			{
-				$this->isNumeric 	= TRUE;
+				$this->isNumeric = true;
 			}
 			else
 			{
-				$this->isString 	= TRUE;
+				$this->isString = true;
 			}	
 		}
 		else
 		{
-			$forceString 		= TRUE;
-			$this->isNumeric 	= FALSE;
+			$forceString = true;
+			$this->isNumeric = false;
 		}
 
 		if( $forceString )
 		{
 			if ($this->inclusive) 
 			{
-				$check 		= strlen( $value ) >= $this->filterInterval( $length );
+				$check = strlen( $value ) >= $this->filterInterval( $length );
 			}
 			else
 			{
-				$check 		= strlen( $value ) > $this->filterInterval( $length );
+				$check = strlen( $value ) > $this->filterInterval( $length );
 			}
 		}
 		else
 		{
 			if ($this->inclusive) 
 			{
-	            $check 		= $this->filterInterval( $value ) >= $this->filterInterval( $length );
+	            $check = $this->filterInterval( $value ) >= $this->filterInterval( $length );
 	        }
 	        else
 	        {
-				$check 		= $this->filterInterval( $value ) > $this->filterInterval( $length );
+				$check = $this->filterInterval( $value ) > $this->filterInterval( $length );
 			}
 		}
 
-		$response 		= array(
-			'check' 	=> $check
-		);
+		$response = [
+			'check' => $check
+		];
 
 		if( $this->isString )
 		{
-			$response['append_error']	= 'character(s)';
+			$response['append_error'] = 'character(s)';
 		}
 
 		return $response;
@@ -97,9 +97,8 @@ class Minlength_rule extends Abstract_interval
 
 	public function validate( $value )
 	{
-		$satisfier 	= array();
-
-		$check 		= $this->run( $value, $satisfier );
+		$satisfier = [];
+		$check = $this->run( $value, $satisfier );
 
 		if( is_array( $check ) )
 		{
@@ -110,7 +109,7 @@ class Minlength_rule extends Abstract_interval
 	}
 
 
-	public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = FALSE, $satisfier = NULL, $error = NULL, $value = NULL )
+	public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
 	{
 		if( $jsTypeFormat == Abstract_interval::CLIENT_PARSLEY ) 
         {
@@ -124,7 +123,7 @@ JS;
 
 		}
 
-		$js                 = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
+		$js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
 		
         return $js;
 	}

@@ -7,35 +7,33 @@ class Amount_rule extends Abstract_rule
 {
 	public $decimalPlace;
 
-	public function __construct( $decimalPlace = NULL ) 
+	public function __construct( $decimalPlace = null ) 
 	{
-		$this->decimalPlace 	= $decimalPlace;
+		$this->decimalPlace = $decimalPlace;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$value 	= $this->Famount()
+		$value = $this->Famount()
 					->cacheFilter('value')
-					->filterSingleValue( $value, TRUE );
+					->filterSingleValue( $value, true );
 
-		$check 	= FALSE;
+		$check 	= false;
 
 		if( !EMPTY( $satisfier ) )
 		{
-			$this->decimalPlace 	= ( is_array( $satisfier ) ) ? $satisfier[0] : $satisfier;
-
-			$valueDec 				= strlen(substr(strrchr($value, "."), 1));
-
-			$check 					= ( is_numeric( $value ) AND $valueDec == $this->decimalPlace );
+			$this->decimalPlace = ( is_array( $satisfier ) ) ? $satisfier[0] : $satisfier;
+			$valueDec = strlen(substr(strrchr($value, "."), 1));
+			$check = ( is_numeric( $value ) && $valueDec == $this->decimalPlace );
 
 			if( $check )
 			{
-				$value 	= round($value, $this->decimalPlace, PHP_ROUND_HALF_UP);
+				$value = round($value, $this->decimalPlace, PHP_ROUND_HALF_UP);
 			}
 		}
 		else
 		{
-			$check 		= is_numeric( $value );
+			$check = is_numeric( $value );
 		}
 
 		return $check;
@@ -43,9 +41,9 @@ class Amount_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-		$satisfier 		= array( $this->decimalPlace );
+		$satisfier = [$this->decimalPlace];
 
-		$check 			= $this->run( $value, $satisfier );
+		$check = $this->run( $value, $satisfier );
 
 		if( is_array( $check ) )
 		{

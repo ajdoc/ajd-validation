@@ -46,7 +46,6 @@ class NotPawnedVerifier implements Uncompromised_interface
 
 			if(!EMPTY($resultsFilter))
 			{
-
 				foreach($resultsFilter as $line)
 				{
 					[$hashSuffix, $count] = explode(':', $line);

@@ -11,19 +11,16 @@ class Length_rule extends Abstract_rule
 
 	protected $validator;
 
-	public function __construct($minValue = NULL, $maxValue = NULL, $inclusive = TRUE)
+	public function __construct($minValue = null, $maxValue = null, $inclusive = true)
 	{
-		$this->minValue 	= $minValue;
-		$this->maxValue 	= $maxValue;
-		$this->inclusive 	= $inclusive;
-		$this->validator 	= $this->getValidator();
-		$validator2 		= $this->getValidator();
-		
-		$numeric 			= $validator2->numeric();
-
-		$nullType 			= $validator2->null_type();
-
-		$paramsValid 		= $this->validator->one_or( $numeric, $nullType );
+		$this->minValue = $minValue;
+		$this->maxValue = $maxValue;
+		$this->inclusive = $inclusive;
+		$this->validator = $this->getValidator();
+		$validator2 = $this->getValidator();
+		$numeric = $validator2->numeric();
+		$nullType = $validator2->null_type();
+		$paramsValid = $this->validator->one_or( $numeric, $nullType );
 
 		if( !$paramsValid->validate($minValue) )
 		{
@@ -35,7 +32,7 @@ class Length_rule extends Abstract_rule
 			throw new Exception(sprintf('%s is not a valid numeric length', $maxValue));
 		}
 
-		if( !IS_NULL( $minValue ) AND !IS_NULL( $maxValue ) AND $minValue > $maxValue )
+		if( !is_null( $minValue ) && !is_null( $maxValue ) && $minValue > $maxValue )
 		{
 			throw new Exception(
 				sprintf('%s cannot be less than %s for validation', $minValue, $maxValue)
@@ -44,23 +41,23 @@ class Length_rule extends Abstract_rule
 
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check_arr 	= (is_array($value)) ? false : true;
+		$check_arr = (is_array($value)) ? false : true;
 		
-		$check 		= FALSE;
-		$length 	= $this->Fextract_length()
+		$check = false;
+		$length = $this->Fextract_length()
 					->cacheFilter('value')
 					->filterSingleValue( $value, true, $check_arr );
 
-		$check 		= ( $this->validateMin( $length ) AND $this->validateMax($length) );
+		$check = ( $this->validateMin( $length ) && $this->validateMax($length) );
 
 		return $check;
 	}
 
 	public function validate( $value )
     {
-    	$check              = $this->run( $value );
+    	$check = $this->run( $value );
 
         if( is_array( $check ) )
         {
@@ -72,9 +69,9 @@ class Length_rule extends Abstract_rule
 
 	protected function validateMin($length)
 	{
-		if( IS_NULL( $this->minValue ) )
+		if( is_null( $this->minValue ) )
 		{
-			return TRUE;
+			return true;
 		}
 
 		if( $this->inclusive )
@@ -87,9 +84,9 @@ class Length_rule extends Abstract_rule
 
 	protected function validateMax($length)
 	{
-		if( IS_NULL( $this->maxValue ) )
+		if( is_null( $this->maxValue ) )
 		{
-			return TRUE;
+			return true;
 		}
 		
 		if( $this->inclusive )

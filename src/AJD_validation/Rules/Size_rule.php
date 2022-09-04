@@ -14,47 +14,47 @@ class Size_rule extends Abstract_rule
 
 	public function __construct($size)
 	{
-		$size 			= $this->Fnumeric()
-	                        ->cacheFilter( 'value' )
-	                        ->filterSingleValue( $size, TRUE );
+		$size = $this->Fnumeric()
+                ->cacheFilter( 'value' )
+                ->filterSingleValue( $size, true );
 
         if( !is_numeric( $size ) )	                      
         {
         	throw new Exception('Size must be numeric.');
         }
 
-		$this->size 	= $size;
+		$this->size = $size;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
 		if( is_numeric( $value ) )
 		{
-			$this->isNumeric 	= TRUE;
+			$this->isNumeric = true;
 		}
-		else if( is_array( $value ) OR is_object( $value ) )
+		else if( is_array( $value ) || is_object( $value ) )
 		{
-			$this->isArray 		= TRUE;
+			$this->isArray = true;
 		}
 		else
 		{
-			$this->isString 	= TRUE;
+			$this->isString = true;
 		}
 
-		$check_arr 		= is_array($value) ? false : true;
+		$check_arr = is_array($value) ? false : true;
 
-		$countVal 		= $this->Fsize_count()
-	                        ->cacheFilter( 'value' )
-	                        ->filterSingleValue( $value, true, $check_arr );
+		$countVal = $this->Fsize_count()
+                    ->cacheFilter( 'value' )
+                    ->filterSingleValue( $value, true, $check_arr );
 
-	    $check 			= $countVal == $this->size;
+	    $check = $countVal == $this->size;
 
 	    return $check;
 	}
 
 	public function validate( $value )
 	{
-		$check 			= $this->run( $value );
+		$check = $this->run( $value );
 
 		if( is_array( $check ) )
 		{

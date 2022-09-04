@@ -4,15 +4,15 @@ use AJD_validation\Contracts\Abstract_rule;
 
 class File_rule extends Abstract_rule
 {
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
 		if( $value instanceof \SplFileInfo )
 		{
-			$check 		= $value->isFile();
+			$check = $value->isFile();
 		}
 		else
 		{
-			$check 		= ( is_string( $value ) AND is_file( $value ) );
+			$check = ( is_string( $value ) && is_file( $value ) );
 		}
 
 		return $check;
@@ -20,7 +20,7 @@ class File_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-	 	$check              = $this->run( $value );
+	 	$check = $this->run( $value );
 
         if( is_array( $check ) )
         {

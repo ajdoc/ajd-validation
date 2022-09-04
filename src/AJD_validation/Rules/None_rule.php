@@ -9,45 +9,44 @@ use AJD_validation\Contracts\Abstract_anonymous_rule;
 
 class None_rule extends Abstract_all
 {
-	public function run( $value, $satisfier = NULL, $field = NULL, $clean_field = NULL )
+	public function run( $value, $satisfier = null, $field = null, $clean_field = null )
 	{
-		$check 			= TRUE;
-		$append_error 	= "";
+		$check = true;
+		$append_error = "";
 
 		if( is_array( $satisfier ) )
 		{
 			if( ISSET( $satisfier[0] ) )
 			{
-				$details	= $this->processRules( $satisfier[0], $value, $field, $clean_field );
+				$details = $this->processRules( $satisfier[0], $value, $field, $clean_field );
                 
-				if( !EMPTY( $details['check'] ) AND in_array( TRUE, $details['check'] ) )
+				if( !empty( $details['check'] ) && in_array( true, $details['check'] ) )
 				{
-					$check 	= FALSE;
+					$check = false;
 				}
 
 				if( !EMPTY( $details['exceptions'] ) )
 				{
-					$append_error 	= implode('', $details['errorMessage']);
-					$append_error 	= rtrim( $append_error, '<br/>' );
+					$append_error = implode('', $details['errorMessage']);
+					$append_error = rtrim( $append_error, '<br/>' );
 				}
-
 			}
 		}
 
-		return array(
-			'check'			=> $check,
-			'append_error'	=> '<br/>'.$append_error
-		);
+		return [
+			'check' => $check,
+			'append_error' => '<br/>'.$append_error
+		];
 	}
 
- 	protected function processRules( $rules, $value, $field = NULL, $clean_field = NULL )
+ 	protected function processRules( $rules, $value, $field = null, $clean_field = null )
     {
-        $retArr         = array();
-        $checkRule      = array();
-        $exceptions     = array();
-        $errorMessage   = array();
+        $retArr = [];
+        $checkRule = [];
+        $exceptions = [];
+        $errorMessage = [];
 
-        if( !EMPTY( $rules ) )
+        if( !empty( $rules ) )
         {
             if( is_array( $rules ) )
             {
@@ -61,39 +60,39 @@ class None_rule extends Abstract_all
                             $rule instanceof Abstract_anonymous_rule
                         )
                         {
-                            $check  = $rule( $value, NULL, $field );    
+                            $check = $rule( $value, null, $field );    
                         }
                         else
                         {
-                            $check  = $rule->run( $value, NULL, $field );       
+                            $check = $rule->run( $value, null, $field );       
                         }
 
                         if(is_array($check))
                         {
                             if($check['check'])
                             {
-                                $checkRule[]    = TRUE;
+                                $checkRule[] = true;
                             }
                         }
                         else
                         {
                             if( $check )
                             {
-                                $checkRule[]    = TRUE;
+                                $checkRule[] = true;
                             }
                         }
                         
-                        $exception          = $this->getExceptionError($value, array(), $rule, false, $rule);
-                        $exceptions[]       = $exception;
+                        $exception = $this->getExceptionError($value, [], $rule, false, $rule);
+                        $exceptions[] = $exception;
                         if( $exception instanceof Nested_rule_exception )
                         {
-                            $error              = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.str_replace(array(':field'), array($clean_field), $exception->getFullMessage()).'<br/>';
+                            $error = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.str_replace([':field'], [$clean_field], $exception->getFullMessage()).'<br/>';
                         }
                         else
                         {
-                            $error              = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.str_replace(array(':field'), array($clean_field), $exception->getExceptionMessage()).'<br/>';
+                            $error = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.str_replace([':field'], [$clean_field], $exception->getExceptionMessage()).'<br/>';
                         }
-                        $errorMessage[]     = $error;
+                        $errorMessage[] = $error;
                     }
                 }
             }
@@ -107,50 +106,50 @@ class None_rule extends Abstract_all
                         $rule instanceof Abstract_anonymous_rule
                     )
                     {
-                        $check  = $rule( $value, NULL, $field );
+                        $check = $rule( $value, null, $field );
                     }
                     else
                     {
-                        $check  = $rule->run( $value, NULL, $field );
+                        $check = $rule->run( $value, null, $field );
                     }
                     
                     if(is_array($check))
                     {
                         if($check['check'])
                         {
-                            $checkRule[]    = TRUE;
+                            $checkRule[] = true;
                         }
                     }
                     else
                     {
                         if( $check )
                         {
-                            $checkRule[]    = TRUE;
+                            $checkRule[] = true;
                         }
                     }
                     
-                    $exception          = $this->getExceptionError($value, array(), $rule, false, $rule);
-                    $exceptions[]       = $exception;
+                    $exception = $this->getExceptionError($value, array(), $rule, false, $rule);
+                    $exceptions[] = $exception;
 
                     if( $exception instanceof Nested_rule_exception )
                     {
-                        $error              = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.str_replace(array(':field'), array($clean_field), $exception->getFullMessage()).'<br/>';
+                        $error = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.str_replace([':field'], [$clean_field], $exception->getFullMessage()).'<br/>';
                     }
                     else
                     {
-                        $error              = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.str_replace(array(':field'), array($clean_field), $exception->getExceptionMessage()).'<br/>';
+                        $error = '&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- '.str_replace([':field'], [$clean_field], $exception->getExceptionMessage()).'<br/>';
                     }
 
-                    $errorMessage[]     = $error;
+                    $errorMessage[] = $error;
                 }
             }
         }
 
-        $retArr     = array(
-            'check'         => $checkRule,
-            'exceptions'    => $exceptions,
-            'errorMessage'  => $errorMessage
-        );
+        $retArr = [
+            'check' => $checkRule,
+            'exceptions' => $exceptions,
+            'errorMessage' => $errorMessage
+        ];
 
         return $retArr;
     }
@@ -163,11 +162,11 @@ class None_rule extends Abstract_all
             $this instanceof Abstract_anonymous_rule
         )
         {
-            $check              = $this( $value, array( $this->getRules() ) );
+            $check = $this( $value, [$this->getRules()] );
         }
         else
         {
-            $check              = $this->run( $value, array( $this->getRules() ) );
+            $check = $this->run( $value, [$this->getRules()] );
         }
 
         if( is_array( $check ) )
@@ -178,17 +177,17 @@ class None_rule extends Abstract_all
         return $check;
     }
 
-    public function assertErr($value, $override = FALSE, $inverseCheck = null)
+    public function assertErr($value, $override = false, $inverseCheck = null)
     {
-        $exceptions     = $this->assertRules($value, $override);
-        $numRules       = count($this->getRules());
-        $numExceptions  = count($exceptions);
+        $exceptions = $this->assertRules($value, $override);
+        $numRules = count($this->getRules());
+        $numExceptions = count($exceptions);
 
         if($numRules !== $numExceptions) 
         {
-            throw $this->getExceptionError($value, array(), NULL, $override, $this)->setRelated($exceptions);
+            throw $this->getExceptionError($value, [], null, $override, $this)->setRelated($exceptions);
         }
-
-        return TRUE;
+        
+        return true;
     }
 }

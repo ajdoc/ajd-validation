@@ -6,34 +6,33 @@ use AJD_validation\Contracts\Abstract_rule;
 
 class Leap_year_rule extends Abstract_rule
 {
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 		= FALSE;
-		$check_date = TRUE;
+		$check = false;
+		$check_date = true;
 
 		if( is_numeric( $value ) )
 		{
-			$value 	= ( int ) $value;
+			$value = ( int ) $value;
 		}
 		else if( is_string( $value ) )
 		{
-			$value 	= ( int ) date( 'Y', strtotime( $value ) );
+			$value = ( int ) date( 'Y', strtotime( $value ) );
 		}
 		else if( $value instanceof DateTime )   
 		{
-			$value 	= ( int ) $value->format('Y');
+			$value = ( int ) $value->format('Y');
 		}
 		else
 		{
-			$check 	= FALSE;
-			$check_date = FALSE;
+			$check = false;
+			$check_date = false;
 		}
 
 		if( $check_date )
 		{
-			$date 		= strtotime( sprintf('%d-02-29', $value ) );
-
-			$check 		= ( bool ) date('L', $date);
+			$date = strtotime( sprintf('%d-02-29', $value ) );
+			$check = ( bool ) date('L', $date);
 		}
 
 		return $check;
@@ -41,7 +40,7 @@ class Leap_year_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-		$check 		= $this->run( $value );
+		$check = $this->run( $value );
 
 		if( is_array( $check ) )
 		{

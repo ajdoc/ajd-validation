@@ -8,24 +8,24 @@ class Mime_type_upload_rule extends Abstract_rule
 {
 	public $mimeTypes;
 	private $fileInfo;
-    protected $fileType         = '';
-    protected $allowedTypes     = '';
+    protected $fileType = '';
+    protected $allowedTypes = '';
     protected $inputFile;
     protected $tmpName;
     protected $ignoreMime;
 
-	public function __construct($mimeTypes, $inputFile, $tmpName, $ignoreMime = FALSE, finfo $fileInfo = null)
+	public function __construct($mimeTypes, $inputFile, $tmpName, $ignoreMime = false, finfo $fileInfo = null)
     {
 		$this->mimeTypes = $mimeTypes;
-		$this->fileInfo  = $fileInfo ?: new finfo(FILEINFO_MIME_TYPE);
+		$this->fileInfo = $fileInfo ?: new finfo(FILEINFO_MIME_TYPE);
         $this->inputFile = $inputFile;
-        $this->tmpName  = $tmpName;
+        $this->tmpName = $tmpName;
         $this->ignoreMime = $ignoreMime;
 
         $this->setAllowedTypes($this->mimeTypes);
     }
 
-    public function getExtension($filename, $file_ext_tolower = FALSE)
+    public function getExtension($filename, $file_ext_tolower = false)
     {
         $x = explode('.', $filename);
 
@@ -83,20 +83,20 @@ class Mime_type_upload_rule extends Abstract_rule
                     }
                     else
                     {
-                        $_suhosin_func_blacklist = array();
+                        $_suhosin_func_blacklist = [];
                     }
                 }
 
-                return ! in_array($function_name, $_suhosin_func_blacklist, TRUE);
+                return ! in_array($function_name, $_suhosin_func_blacklist, true);
             }
 
-            return FALSE;
+            return false;
         }
     // }
 
     public function setAllowedTypes($types)
     {
-        $this->allowedTypes = (is_array($types) OR $types === '*')
+        $this->allowedTypes = (is_array($types) || $types === '*')
             ? $types
             : explode('|', $types);
     }
@@ -158,7 +158,7 @@ class Mime_type_upload_rule extends Abstract_rule
                 {
                     $mime = @fread($proc, 512);
                     @pclose($proc);
-                    if ($mime !== FALSE)
+                    if ($mime !== false)
                     {
                         $mime = explode("\n", trim($mime));
                         if (preg_match($regexp, $mime[(count($mime) - 1)], $matches))
@@ -183,58 +183,57 @@ class Mime_type_upload_rule extends Abstract_rule
         $this->fileType = $file['type'];
     }
 
-    public function run( $value, $satisfier = NULL, $field = NULL )
+    public function run( $value, $satisfier = null, $field = null )
     {
-    	$check 		= FALSE;
+    	$check = false;
 
-        $extension  = $this->getExtension($value);
+        $extension = $this->getExtension($value);
 
         $this->fileMimeType($this->inputFile);
        
         if ($this->allowedTypes === '*')
         {
             // $check  = TRUE;
-            return TRUE;
+            return true;
         }
 
-        if( EMPTY($this->allowedTypes) OR !is_array($this->allowedTypes) )
+        if( empty($this->allowedTypes) || !is_array($this->allowedTypes) )
         {
             // $check  = FALSE;
-            return FALSE;
+            return false;
         }
 
         
         $ext = strtolower(ltrim($extension, '.'));
         
-        if ( ! in_array($ext, array_keys( $this->allowedTypes ), TRUE))
+        if (!in_array($ext, array_keys( $this->allowedTypes ), true))
         {
             // $check  = FALSE;
-            return FALSE;
+            return false;
         }
 
-        if (in_array($ext, array('gif', 'jpg', 'jpeg', 'jpe', 'png'), TRUE) && @getimagesize($this->tmpName) === FALSE)
+        if (in_array($ext, array('gif', 'jpg', 'jpeg', 'jpe', 'png'), true) && @getimagesize($this->tmpName) === false)
         {
-
             // $check  = FALSE;
-            return FALSE;
+            return false;
         }
 
-        $mimes  = $this->mimeTypes;
+        $mimes = $this->mimeTypes;
 
-        if (ISSET($mimes[$ext]))
+        if (isset($mimes[$ext]))
         {
 
             return is_array($mimes[$ext])
-                ? in_array($this->fileType, $mimes[$ext], TRUE)
+                ? in_array($this->fileType, $mimes[$ext], true)
                 : ($mimes[$ext] === $this->fileType);
         }
 
-        return FALSE;
+        return false;
     }
 
     public function validate( $value )
     {
-    	$check              = $this->run( $value );
+    	$check = $this->run( $value );
 
         if( is_array( $check ) )
         {

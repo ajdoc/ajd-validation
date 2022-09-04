@@ -11,21 +11,21 @@ class Age_rule extends Abstract_interval
 	public $minAge;
     public $maxAge;
 
-    public function __construct( $minAge = NULL, $maxAge = NULL, $inclusive = true )
+    public function __construct( $minAge = null, $maxAge = null, $inclusive = true )
     {
-    	$this->minAge 	= $minAge;
-    	$this->maxAge 	= $maxAge;
+    	$this->minAge = $minAge;
+    	$this->maxAge = $maxAge;
     	$this->inclusive = $inclusive;
     }  
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$this->value 	= $value;
-		$this->field 	= $field;
+		$this->value = $value;
+		$this->field = $field;
 
 		if( EMPTY( $satisfier ) )
 		{
-			return FALSE;
+			return false;
 		}
 
 		/*if( $this->minAge AND !$this->maxAge )
@@ -52,30 +52,30 @@ class Age_rule extends Abstract_interval
 		{
 			if( 
 				( 
-					ISSET( $satisfier[0] ) 
-					AND !EMPTY( $satisfier[0] )
+					isset( $satisfier[0] ) 
+					&& !empty( $satisfier[0] )
 				)
-				AND 
+				&& 
 				(
-					ISSET( $satisfier[1] )  
-					AND !EMPTY( $satisfier[1] )
+					isset( $satisfier[1] )  
+					&& !empty( $satisfier[1] )
 				)
 			)
 			{
-				$minCheck 	= $this->setMinAge( $satisfier[0] );
-				$maxCheck 	= $this->setMaxAge( $satisfier[1] );
+				$minCheck = $this->setMinAge( $satisfier[0] );
+				$maxCheck = $this->setMaxAge( $satisfier[1] );
 				
-				return ( $minCheck AND $maxCheck );
+				return ( $minCheck && $maxCheck );
 			}
 			else if(  
 				( 
-					!ISSET( $satisfier[0] )
-					OR EMPTY( $satisfier[0] )
+					!isset( $satisfier[0] )
+					|| empty( $satisfier[0] )
 				)
-				AND 
+				&& 
 				(
-					ISSET( $satisfier[1] )
-					AND !EMPTY( $satisfier[1] )
+					isset( $satisfier[1] )
+					&& !empty( $satisfier[1] )
 				)
 			)
 			{
@@ -105,9 +105,9 @@ class Age_rule extends Abstract_interval
 
 	public function validate( $value )
 	{
-		$satisfier 	= array( $this->minAge, $this->maxAge );
+		$satisfier = array( $this->minAge, $this->maxAge );
 
-		$check 		= $this->run( $value, $satisfier );
+		$check = $this->run( $value, $satisfier );
 
 		if( is_array( $check ) )
 		{
@@ -128,24 +128,24 @@ class Age_rule extends Abstract_interval
     {
     	// $this->maxAge = $maxAge;
 
-    	if( NULL === $maxAge ) 
+    	if( null === $maxAge ) 
     	{
             return;
         }
 
         if( is_numeric( $this->value ) )
         {
-        	$minDate 	= $maxAge;
+        	$minDate = $maxAge;
         }
         else
         {
-	        $minDate 	= $this->createDateTimeFromAge($maxAge);
+	        $minDate = $this->createDateTimeFromAge($maxAge);
 	        $minDate->setTime(0, 0, 0);
 	    }
 
-        $minLen 	= Vefja::instance('AJD_validation\\Rules\\Maxlength_rule', array($this->inclusive));
+        $len = Vefja::instance('AJD_validation\\Rules\\Maxlength_rule', [$this->inclusive]);
 
-        $check = $minLen->run( $this->value, $minDate, $this->field );
+        $check = $len->run( $this->value, $minDate, $this->field );
 
         if(is_array($check))
         {
@@ -161,24 +161,24 @@ class Age_rule extends Abstract_interval
     {
     	// $this->minAge = $minAge;
 
-	  	if( NULL === $minAge ) 
+	  	if( null === $minAge ) 
 	  	{
             return;
         }
 
         if( is_numeric( $this->value ) )
         {
-        	$maxDate 	= $minAge;
+        	$maxDate = $minAge;
         }
         else
         {
-	     	$maxDate 	= $this->createDateTimeFromAge($minAge);
+	     	$maxDate = $this->createDateTimeFromAge($minAge);
 	        $maxDate->setTime(23, 59, 59);
 	    }
 
-        $maxLen 	= Vefja::instance('AJD_validation\\Rules\\Minlength_rule', array($this->inclusive));
+        $len = Vefja::instance('AJD_validation\\Rules\\Minlength_rule', [$this->inclusive]);
 
-        $check = $maxLen->run( $this->value, $maxDate, $this->field );
+        $check = $len->run( $this->value, $maxDate, $this->field );
 
         if(is_array($check))
         {

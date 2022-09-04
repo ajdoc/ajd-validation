@@ -7,36 +7,36 @@ use AJD_validation\Contracts\Abstract_rule;
 
 class Date_rule extends Abstract_rule
 {
-    public $format  = NULL;
+    public $format = null;
 
-    public function __construct( $format = NULL )
+    public function __construct( $format = null )
     {
-        $this->format   = $format;
+        $this->format = $format;
     }
 
-    public function run($value, $satisfier = NULL, $field = NULL)
+    public function run($value, $satisfier = null, $field = null)
     {
-        $format     = $this->format;
+        $format = $this->format;
 
-        $check      = FALSE;
+        $check = false;
 
         if( $value instanceof DateTimeInterface
-            OR $value instanceof DateTime
+            || $value instanceof DateTime
         ) 
         {
-            $check  = TRUE;
+            $check = true;
         }
 
         if( !is_scalar($value) ) 
         {
-            $check  = FALSE;
+            $check = false;
         }
 
         $valueString = (string) $value;
 
-        if( EMPTY( $satisfier ) OR IS_NULL( $satisfier) ) 
+        if( empty( $satisfier ) || is_null( $satisfier) ) 
         {
-            $check  = FALSE !== strtotime($valueString);
+            $check = false !== strtotime($valueString);
         }
 
         $exceptionalFormats = [
@@ -49,16 +49,16 @@ class Date_rule extends Abstract_rule
             $format = $exceptionalFormats[$this->format];
         }
         
-        $info   = date_parse_from_format($format, $valueString);
+        $info = date_parse_from_format($format, $valueString);
 
-        $check  = ($info['error_count'] === 0 && $info['warning_count'] === 0);
+        $check = ($info['error_count'] === 0 && $info['warning_count'] === 0);
 
         return $check;
     }
 
     public function validate( $value )
     {
-        $check          = $this->run( $value );
+        $check = $this->run( $value );
 
         if( is_array( $check ) )
         {
@@ -108,7 +108,7 @@ JS;
 JS;
         }
 
-        $js                 = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
+        $js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
 
         return $js;
     }

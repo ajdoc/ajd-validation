@@ -15,33 +15,33 @@ class Mime_type_rule extends Abstract_rule
 		$this->fileInfo = $fileInfo ?: new finfo(FILEINFO_MIME_TYPE);
     }
 
-    public function run( $value, $satisfier = NULL, $field = NULL )
+    public function run( $value, $satisfier = null, $field = null )
     {
-    	$check 		= FALSE;
+    	$check = false;
 
     	if( $value instanceof SplFileInfo )
     	{
-    		$value 	= $value->getPathname();
+    		$value = $value->getPathname();
     	}
 
     	if( !is_string( $value ) )
     	{
-    		$check 	= FALSE;
+    		$check 	= false;
     	}
 
     	if( !is_file( $value ) )  
     	{
-    		$check 	= FALSE;
+    		$check 	= false;
     	}
 
-    	$check 		= ( $this->fileInfo->file( $value ) == $this->mimetype );
+    	$check = ( $this->fileInfo->file( $value ) == $this->mimetype );
 
     	return $check;
     }
 
     public function validate( $value )
     {
-    	$check              = $this->run( $value );
+    	$check = $this->run( $value );
 
         if( is_array( $check ) )
         {

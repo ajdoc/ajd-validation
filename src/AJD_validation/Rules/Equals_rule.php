@@ -7,19 +7,19 @@ class Equals_rule extends Abstract_rule
 
 	public function __construct($compareto)
 	{
-		$this->compareto 	= $compareto;
+		$this->compareto = $compareto;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 		= $value == $this->compareto;
+		$check = $value == $this->compareto;
 		
 		return $check;
 	}
 
 	public function validate( $value )
 	{
-	 	$check              = $this->run( $value );
+	 	$check = $this->run( $value );
 
         if( is_array( $check ) )
         {

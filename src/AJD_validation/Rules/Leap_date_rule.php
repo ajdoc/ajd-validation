@@ -6,20 +6,20 @@ use AJD_validation\Contracts\Abstract_rule;
 
 class Leap_date_rule extends Abstract_rule
 {
-	protected $format 	= 'Y-m-d';
+	protected $format = 'Y-m-d';
 
 	public function __construct( $format = 'Y-m-d' )
 	{
-		$this->format 	= $format;
+		$this->format = $format;
 
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 		= FALSE;
-		$date 		= NULL;
+		$check = false;
+		$date = null;
 
-		if( !EMPTY( $satisfier ) )
+		if( !empty( $satisfier ) )
 		{
 			if( is_array( $satisfier ) )
 			{
@@ -38,20 +38,20 @@ class Leap_date_rule extends Abstract_rule
 
 		if( is_string( $value ) )
 		{
-			$date 	= DateTime::createFromFormat($this->format, $value);
+			$date = DateTime::createFromFormat($this->format, $value);
 		}
 		else if( $value instanceof DateTime )   
 		{
-			$date 	= $value;
+			$date = $value;
 		}
 		else
 		{
-			$check 	= FALSE;
+			$check = false;
 		}
 
 		if( !EMPTY( $date ) )
 		{
-			$check 		= $date->format('m-d') == '02-29';
+			$check = $date->format('m-d') == '02-29';
 		}
 
 		return $check;
@@ -59,9 +59,9 @@ class Leap_date_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-		$satisfier 		= array( $this->format );
+		$satisfier = [$this->format];
 
-		$check 			= $this->run( $value, $satisfier );
+		$check = $this->run( $value, $satisfier );
 
 		if( is_array( $check ) )
 		{

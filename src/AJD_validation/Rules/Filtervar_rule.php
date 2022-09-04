@@ -5,9 +5,9 @@ class Filtervar_rule extends Abstract_filter_validate
 {
 	public function __construct()
 	{
-		$arguments 			= func_get_args();
+		$arguments = func_get_args();
 
-		$this->arguments 	= $arguments;
+		$this->arguments = $arguments;
 
 		parent::__construct();
 	}

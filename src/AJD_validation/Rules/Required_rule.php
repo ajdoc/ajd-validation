@@ -4,37 +4,37 @@ use AJD_validation\Contracts\Abstract_rule;
 
 class Required_rule extends Abstract_rule
 {
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{   
-		$check 		= FALSE;
+		$check = false;
         
 		if( is_numeric( $value ) ) 
 		{
-            $check 	= $value != 0;
+            $check = $value != 0;
         }
 
         if( is_string( $value ) ) 
         {
             $value = $this->Ftrim()
-            			->cacheFilter('value')
-            			->filterSingleValue( $value, TRUE );
+        			 ->cacheFilter('value')
+        			 ->filterSingleValue( $value, true );
         }
 
         if ($value instanceof stdClass) 
         {
-             $value = $this->Fstd_to_array()
-            			->cacheFilter('value')
-            			->filterSingleValue( $value, TRUE );
+            $value = $this->Fstd_to_array()
+        			 ->cacheFilter('value')
+        			 ->filterSingleValue( $value, true );
         }
 
-        $check 	= ( !EMPTY( $value ) );
+        $check = ( !empty( $value ) );
 
 		return $check;
 	}
 
     public function validate( $value )
     {
-        $check      = $this->run( $value );
+        $check = $this->run( $value );
 
         if( is_array( $check ) )
         {
@@ -44,7 +44,7 @@ class Required_rule extends Abstract_rule
         return $check;
     }
 
-    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = FALSE, $satisfier = NULL, $error = NULL, $value = NULL )
+    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
     {
         if( $jsTypeFormat == Abstract_rule::CLIENT_PARSLEY ) 
         {
@@ -57,7 +57,7 @@ JS;
 JS;
         }
 
-        $js                 = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
+        $js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
 
         return $js;
     }

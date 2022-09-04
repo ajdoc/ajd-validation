@@ -8,12 +8,12 @@ class Regex_rule extends Abstract_regex
 
 	public function __construct($regex)
 	{
-		$this->regex 	= $regex;
+		$this->regex = $regex;
 		// parent::__construct($regex);
 	}
 
 	protected function getRegex()
     {
-    	return 	'/'.$this->regex.'/';
+    	return '/'.$this->regex.'/';
     }
 }

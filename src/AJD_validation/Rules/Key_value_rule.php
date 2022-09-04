@@ -15,45 +15,41 @@ class Key_value_rule extends Abstract_rule
 	public $baseKey;
 	public $formatBaseKey;
 
-	public function __construct( array $satisifer = array() )
+	public function __construct( array $satisifer = [] )
 	{
-
-        $formatBaseKey      = null;
-
-		$formatComparekey 	= $this->format_field_name( $satisifer[0] );
+        $formatBaseKey = null;
+		$formatComparekey = $this->format_field_name( $satisifer[0] );
 
         if(isset($satisifer[2]))
         {
-            $formatBaseKey      = $this->format_field_name( $satisifer[2] );
+            $formatBaseKey = $this->format_field_name( $satisifer[2] );
         }
 
-		$this->comparedKey 		= $formatComparekey['orig'];
+		$this->comparedKey = $formatComparekey['orig'];
 		$this->formatComparekey = $formatComparekey['clean'];
-		$this->ruleName 		= $satisifer[1];
+		$this->ruleName = $satisifer[1];
 
         if(!empty($formatBaseKey))
         {
-            $this->baseKey          = $formatBaseKey['orig'];
-            $this->formatBaseKey    = $formatComparekey['clean'];    
+            $this->baseKey = $formatBaseKey['orig'];
+            $this->formatBaseKey = $formatComparekey['clean'];    
         }
 	}
 
 	private function getRule( $value )
 	{
-		if( is_array( $value ) AND !ISSET( $value[ $this->comparedKey ] ) )
+		if( is_array( $value ) && !ISSET( $value[ $this->comparedKey ] ) )
 		{
 			throw $this->getExceptionError( $this->formatComparekey );
 		}
-
         
-		if( is_array( $value ) AND !ISSET( $value[ $this->baseKey ] ) )
+		if( is_array( $value ) && !ISSET( $value[ $this->baseKey ] ) )
 		{
 			throw $this->getExceptionError( $this->formatBaseKey );
 		}
 
 		try
 		{
-
             $keyValue = $this->comparedKey;
 
             if(!empty($this->baseKey))
@@ -68,13 +64,13 @@ class Key_value_rule extends Abstract_rule
                 $realValue = [$value[$keyValue]];
             }
             
-			$rule 		= Validator::__callStatic($this->ruleName, $realValue );
+			$rule = Validator::__callStatic($this->ruleName, $realValue );
 
 			$rule->setName($this->formatComparekey);
 		}
 		catch( Abstract_exceptions $e )
 		{
-			throw $this->getExceptionError( $value, array( 'component' => TRUE ), NULL, TRUE );
+			throw $this->getExceptionError( $value, array( 'component' => true ), null, true );
 		}
 
 		return $rule;
@@ -82,7 +78,7 @@ class Key_value_rule extends Abstract_rule
 
 	private function overwriteExceptionParams(Abstract_exceptions $exception)
     {
-    	$params 		= array();
+    	$params = [];
 
         $keyValue = $this->comparedKey;
 
@@ -103,7 +99,7 @@ class Key_value_rule extends Abstract_rule
 
     	if( $this->comparedKey )
     	{
-    		$params['field'] 	= $this->comparedKey;
+    		$params['field'] = $this->comparedKey;
     	}
 
 	 	$exception->configure($params);
@@ -111,13 +107,12 @@ class Key_value_rule extends Abstract_rule
         return $exception;
     }
 
-    public function assertErr($value, $override = FALSE, $inverseCheck = false)
+    public function assertErr($value, $override = false, $inverseCheck = false)
     {
-        $rule 	= $this->getRule($value);
+        $rule = $this->getRule($value);
 
         try 
         {
-
             if(!isset($value[$this->comparedKey]))
             {
                 $realValue = null;    
@@ -134,38 +129,36 @@ class Key_value_rule extends Abstract_rule
             throw $this->overwriteExceptionParams($e);
         }
 
-        return TRUE;
+        return true;
     }
 
-    public function run( $value, $satisifer = NULL, $field = NULL, $clean_field = NULL, $origValue = NULL )
+    public function run( $value, $satisifer = null, $field = null, $clean_field = null, $origValue = null )
    	{   		
-   		$check 			= FALSE;
-   		$append_error	= '';
+   		$check = false;
+   		$append_error = '';
 
    		try
    		{
-
             $realValue = $value;
 
-            if( !is_array( $value ) AND !EMPTY( $origValue ) )
+            if( !is_array( $value ) && !EMPTY( $origValue ) )
             {
                 $realValue = $origValue;
             }
             
-   			$rule 	= $this->getRule($realValue);
+   			$rule = $this->getRule($realValue);
             $valueReal = null;
 
             if(isset($realValue[$this->comparedKey]))
             {
-                
                 $valueReal = $realValue[$this->comparedKey];
             }
    			
-   			$check 	= $rule->run( $valueReal, $satisifer, $field, $clean_field );
+   			$check = $rule->run( $valueReal, $satisifer, $field, $clean_field );
             
    			if( is_array( $check ) )
 	        {
-	            $check 	= $check['check'];
+	            $check = $check['check'];
 	        }
 
             if(!isset($realValue[$this->comparedKey]))
@@ -175,26 +168,26 @@ class Key_value_rule extends Abstract_rule
 
 	        if( !$check )
 	        {
-	        	$this->assertErr($value, TRUE);
+	        	$this->assertErr($value, true);
 	        }
    		}
    		catch (Abstract_exceptions $e) 
         {
-        	$append_error 	= $e->findMessages(array($this->ruleName.'_rule_exception'));
+        	$append_error = $e->findMessages([$this->ruleName.'_rule_exception']);
         }
 
-        if( !EMPTY( $append_error ) )
+        if( !empty( $append_error ) )
         {
-        	$append_error 	= $append_error[$this->ruleName.'_rule_exception'];
+        	$append_error = $append_error[$this->ruleName.'_rule_exception'];
         }
 
-        $result 			= array(
-        	'check'			=> $check
-        );
+        $result = [
+        	'check' => $check
+        ];
 
-        if( !EMPTY( $this->ruleName ) )
+        if( !empty( $this->ruleName ) )
         {
-        	$result['msg'] 	= $append_error;
+        	$result['msg'] = $append_error;
         }
 
         return $result;
@@ -202,7 +195,7 @@ class Key_value_rule extends Abstract_rule
 
    	public function validate( $value )
     {
-        $check              = $this->run( $value );
+        $check = $this->run( $value );
 
         if( is_array( $check ) )
         {

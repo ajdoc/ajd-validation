@@ -9,25 +9,25 @@ class Date_after_rule extends Abstract_date
 	{
 		$paramValidator = $this->getValidator()->required();
 
-		if( !ISSET( $options[0] ) OR !$paramValidator->validate( $options[0] ) )
+		if( !ISSET( $options[0] ) || !$paramValidator->validate( $options[0] ) )
 		{
 			throw new Exception('Date Comparison is required.');
 		}
 
-		$compareDate 	= $options[0];
-		$dateFormat 	= NULL;
+		$compareDate = $options[0];
+		$dateFormat = null;
 
-		if( ISSET( $options[1] ) AND !EMPTY( $options[1] ) )
+		if( isset( $options[1] ) && !empty( $options[1] ) )
 		{
 			$dateFormat = $options[1];
 		}
 		
-		$operator 		= '>=';
+		$operator = '>=';
 
-		if( ISSET( $options[2] ) AND !EMPTY( $options[2] ) )
+		if( isset( $options[2] ) && !empty( $options[2] ) )
 		{
-			$operator			= '>';
-			$this->inclusive 	= TRUE;
+			$operator = '>';
+			$this->inclusive = true;
 		}
 		
 		parent::__construct( $compareDate, $dateFormat, $operator );

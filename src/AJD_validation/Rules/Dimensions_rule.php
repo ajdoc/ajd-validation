@@ -5,7 +5,7 @@ use SplFileInfo;
 
 class Dimensions_rule extends Abstract_rule
 {
-	public $options 	= array();
+	public $options = [];
 
 	public $width;
 	public $height;
@@ -17,56 +17,56 @@ class Dimensions_rule extends Abstract_rule
 
 	protected $validator;
 
-	public function __construct( array $options, $width, $height, $maxHeight = NULL, $maxWidth = NULL, $ratio = NULL )
+	public function __construct( array $options, $width, $height, $maxHeight = null, $maxWidth = null, $ratio = null )
 	{
-		$origOptions 		= $options;
-		$options 			= $this->Fnumeric()
-									->cacheFilter('width')
-									->cacheFilter('height')
-									->cacheFilter('maxHeight')
-									->cacheFilter('maxWidth')
-									->cacheFilter('minHeight')
-									->cacheFilter('minWidth')
-									->filterValues($options);
+		$origOptions = $options;
+		$options = $this->Fnumeric()
+					->cacheFilter('width')
+					->cacheFilter('height')
+					->cacheFilter('maxHeight')
+					->cacheFilter('maxWidth')
+					->cacheFilter('minHeight')
+					->cacheFilter('minWidth')
+					->filterValues($options);
 
-		$this->options 		= $options;
+		$this->options = $options;
 
-		if( ISSET( $options['width'] ) )
+		if( isset( $options['width'] ) )
 		{
-			$this->width 	= $options['width'];
+			$this->width = $options['width'];
 		}
 
-		if( ISSET( $options['height'] ) )
+		if( isset( $options['height'] ) )
 		{
-			$this->height 	= $options['height'];
+			$this->height = $options['height'];
 		}
 
-		if( ISSET( $options['maxHeight'] ) )
+		if( isset( $options['maxHeight'] ) )
 		{
 			$this->maxHeight = $options['maxHeight'];
 		}
 
-		if( ISSET( $options['maxWidth'] ) )
+		if( isset( $options['maxWidth'] ) )
 		{
 			$this->maxWidth = $options['maxWidth'];
 		}
 
-		if( ISSET( $options['minWidth'] ) )
+		if( isset( $options['minWidth'] ) )
 		{
 			$this->minWidth = $options['minWidth'];
 		}
 
-		if( ISSET( $options['minHeight'] ) )
+		if( isset( $options['minHeight'] ) )
 		{
 			$this->minHeight = $options['minHeight'];
 		}
 		
-		if( ISSET( $origOptions['ratio'] ) )
+		if( isset( $origOptions['ratio'] ) )
 		{
-			$this->ratio 	= $origOptions['ratio'];
+			$this->ratio = $origOptions['ratio'];
 		}
 
-		if( !EMPTY( $options ) )
+		if( !empty( $options ) )
 		{
 			foreach( $options as $key => $value )
 			{
@@ -82,60 +82,60 @@ class Dimensions_rule extends Abstract_rule
 			}
 		}
 
-		$this->validator 	= $this->getValidator();
+		$this->validator = $this->getValidator();
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$checkFileExistsAndImage 	= $this->validator
-										->file()
-										->file_exists()
-										->image()
-										->validate( $value );
+		$checkFileExistsAndImage = $this->validator
+									->file()
+									->file_exists()
+									->image()
+									->validate( $value );
 
-		$check 						= FALSE;
+		$check = false;
 
-		$width 						= 0;
-		$height 					= 0;
+		$width = 0;
+		$height = 0;
 
 		if( $checkFileExistsAndImage )
 		{
 			if( $value instanceof \SplFileInfo )
 			{
-				$value 				= $value->getPathname();
+				$value = $value->getPathname();
 			}
 
 			if( !$sizeDetails = @getimagesize($value) )
 			{
-				$check 				= FALSE;
+				$check = false;
 
 				return $check;
 			}
 
-			list($width, $height) 	= $sizeDetails;
+			list($width, $height) = $sizeDetails;
 		}
 		else
 		{
 			if( is_array( $value ) )
 			{
-				$width 				= ( ISSET( $value[0] ) ) ? $value[0] : 0;
-				$height 			= ( ISSET( $value[1] ) ) ? $value[1] : 0;
+				$width = ( isset( $value[0] ) ) ? $value[0] : 0;
+				$height = ( isset( $value[1] ) ) ? $value[1] : 0;
 			}
 			else
 			{
-				$width 				= $value;
-				$height 			= 0;
+				$width = $value;
+				$height = 0;
 			}
 		}
 
-		$check 						= ( $this->dimensionBasicCheck( $width, $height ) OR $this->ratioCheck( $width, $height ) );
+		$check = ( $this->dimensionBasicCheck( $width, $height ) || $this->ratioCheck( $width, $height ) );
 
 		return $check;
 	}
 
 	public function validate( $value ) 
 	{
-		 $check              = $this->run( $value );
+		 $check = $this->run( $value );
 
         if( is_array( $check ) )
         {
@@ -149,25 +149,25 @@ class Dimensions_rule extends Abstract_rule
 	{
 		if( EMPTY( $this->ratio ) )
 		{
-			return FALSE;
+			return false;
 		}
 
-		list($numerator, $denominator) 	= array_replace(
+		list($numerator, $denominator) = array_replace(
 		    array(1, 1), array_filter(sscanf($this->ratio, '%f/%d'))
 		);
 
-		$precision 						= 1 / ( max($width, $height) + 1 );
+		$precision = 1 / ( max($width, $height) + 1 );
 		
 		return abs($numerator / $denominator - $width / $height) > $precision;
 	}
 
 	protected function dimensionBasicCheck( $width, $height )
 	{
-		return ( !EMPTY( $this->width ) AND $width != $this->width ) OR 
-				( !EMPTY( $this->minWidth ) AND $this->minWidth > $width ) OR 
-				( !EMPTY( $this->maxWidth ) AND $this->maxWidth < $width ) OR 
-				( !EMPTY( $this->height ) AND $this->height != $height ) OR 
-				( !EMPTY( $this->minHeight ) AND $this->minHeight > $height ) OR 
-				( !EMPTY( $this->maxHeight ) AND $this->maxHeight < $height );
+		return ( !empty( $this->width ) && $width != $this->width ) || 
+				( !empty( $this->minWidth ) && $this->minWidth > $width ) || 
+				( !empty( $this->maxWidth ) && $this->maxWidth < $width ) || 
+				( !empty( $this->height ) && $this->height != $height ) || 
+				( !empty( $this->minHeight ) && $this->minHeight > $height ) || 
+				( !empty( $this->maxHeight ) && $this->maxHeight < $height );
 	}
 }

@@ -5,31 +5,31 @@ use AJD_validation\Contracts\Abstract_rule;
 
 class Url_rule extends Abstract_rule
 {
-	const VERY_BASIC 	= 'verybasic';
+	const VERY_BASIC = 'verybasic';
 
-	public $schemes 	= array();
+	public $schemes = [];
 	public $removeVeryBasic;
 
-	public function __construct($schemes = NULL)
+	public function __construct($schemes = null)
 	{
-		$this->schemes 	= $schemes;
+		$this->schemes = $schemes;
 
 		if( !EMPTY( $schemes ) )
 		{
 			if( in_array(self::VERY_BASIC, $schemes) )
 			{
-				$this->removeVeryBasic 	= TRUE;
+				$this->removeVeryBasic = true;
 			}
 		}
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$checkArr 		= array();
+		$checkArr = [];
 
-		if( EMPTY( $this->schemes ) )
+		if( empty( $this->schemes ) )
 		{
-			$check 		= $this->validateCommonScheme( $value );
+			$check = $this->validateCommonScheme( $value );
 		}
 		else
 		{
@@ -41,21 +41,21 @@ class Url_rule extends Abstract_rule
 				{
 					if( $this->{$method}($value) ) 
 					{
-						$checkArr[] = TRUE;
+						$checkArr[] = true;
 					}
 				}
 				else if( $this->validateCommonScheme( $value, $scheme ) ) 
 				{
-					$checkArr[] 	= TRUE;
+					$checkArr[] = true;
 				}
 			}
 
-			$check 		= FALSE;
+			$check = false;
 		}
 
-		if( !EMPTY( $checkArr ) )
+		if( !empty( $checkArr ) )
 		{
-			$check 		= !in_array( FALSE, $checkArr );
+			$check = !in_array( false, $checkArr );
 		}
 		
 		return $check;
@@ -63,7 +63,7 @@ class Url_rule extends Abstract_rule
 
  	public function validate( $value )
     {
-    	$check              = $this->run( $value );
+    	$check = $this->run( $value );
 
         if( is_array( $check ) )
         {
@@ -74,13 +74,13 @@ class Url_rule extends Abstract_rule
     }
 
 
-    protected function validateCommonScheme($value, $scheme = NULL)
+    protected function validateCommonScheme($value, $scheme = null)
     {
-    	$check 		= ( $this->validateBasic( $value ) AND (bool) preg_match("/^\w+:\/\//i", $value) );
+    	$check = ( $this->validateBasic( $value ) && (bool) preg_match("/^\w+:\/\//i", $value) );
 
-    	if( !EMPTY( $scheme ) ) 
+    	if( !empty( $scheme ) ) 
     	{
-    		$check 	= ( $this->validateBasic($value) AND (bool) preg_match("/^{$scheme}:\/\//", $value) );
+    		$check = ( $this->validateBasic($value) && (bool) preg_match("/^{$scheme}:\/\//", $value) );
     	}
 
     	return $check;
@@ -88,30 +88,30 @@ class Url_rule extends Abstract_rule
 
  	protected function validateBasic($value)
     {
-    	$check 		= filter_var($value, FILTER_VALIDATE_URL) !== FALSE;
+    	$check = filter_var($value, FILTER_VALIDATE_URL) !== false;
 
         return $check;
     }
 
 	protected function validateMailtoScheme($value)
 	{
-		$check 	= ( $this->validateBasic($value) AND preg_match("/^mailto:/", $value) );
+		$check = ( $this->validateBasic($value) && preg_match("/^mailto:/", $value) );
 
 		return $check;
 	}
 
 	protected function validateVerybasicScheme($value)
 	{
-		$pattern 		= '/(?:https?:\/\/)?(?:[a-zA-Z0-9.-]+?\.(?:com|net|org|gov|edu|mil)|\d+\.\d+\.\d+\.\d+)/';
+		$pattern = '/(?:https?:\/\/)?(?:[a-zA-Z0-9.-]+?\.(?:com|net|org|gov|edu|mil)|\d+\.\d+\.\d+\.\d+)/';
 
-		$check 			= (bool) preg_match($pattern, $value);
+		$check = (bool) preg_match($pattern, $value);
 
 		return $check;
 	}
 
 	protected function validateJdbcScheme($value)
 	{
-		$check 	= ( (bool) preg_match("/^jdbc:\w+:\/\//", $value) );
+		$check = ( (bool) preg_match("/^jdbc:\w+:\/\//", $value) );
 
 		return $check;
 	}

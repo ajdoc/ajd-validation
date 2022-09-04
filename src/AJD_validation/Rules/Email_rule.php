@@ -11,7 +11,7 @@ class Email_rule extends Abstract_compound
 
 	public $ruleOptions = [
 		'showSubError' => false,
-		'useDns' 	=> false
+		'useDns' => false
 	];
 
 	public function __construct($ruleOptions = null)
@@ -61,6 +61,5 @@ class Email_rule extends Abstract_compound
 		{
 			return $ruleV->getCLientSideFormat($field, $rule, $jsTypeFormat, $clientMessageOnly, $satisfier, $error, $value);
 		}
-		
 	}
 }

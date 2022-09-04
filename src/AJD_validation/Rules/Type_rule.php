@@ -5,26 +5,26 @@ use AJD_validation\Contracts\Abstract_rule;
 class Type_rule extends Abstract_rule
 {
 	public $type;
-	public $validType 	= array(
-		'array' 		=> 'array',
-		'bool' 			=> 'boolean',
-		'boolean' 		=> 'boolean',
-		'callable' 		=> 'callable',
-		'double' 		=> 'double',
-		'float' 		=> 'double',
-		'int' 			=> 'integer',
-		'integer' 		=> 'integer',
-		'null' 			=> 'NULL',
-		'object' 		=> 'object',
-		'resource' 		=> 'resource',
-		'string' 		=> 'string'
-	);
+	public $validType = [
+		'array' => 'array',
+		'bool' => 'boolean',
+		'boolean' => 'boolean',
+		'callable' => 'callable',
+		'double' => 'double',
+		'float' => 'double',
+		'int' => 'integer',
+		'integer' => 'integer',
+		'null' => 'NULL',
+		'object' => 'object',
+		'resource' => 'resource',
+		'string' => 'string'
+	];
 
-	protected $callableName 	= array('callable');
+	protected $callableName = ['callable'];
 
 	public function __construct( $type )
 	{
-		$lowerType 		= strtolower( $type );
+		$lowerType = strtolower( $type );
 
 		if( !ISSET( $this->validType[ $type ] ) )
 		{
@@ -33,21 +33,21 @@ class Type_rule extends Abstract_rule
 			);
 		}
 
-		$this->type 	= $type;
+		$this->type = $type;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 			= FALSE;
-		$lowerType 		= strtolower( $this->type );
+		$check = false;
+		$lowerType = strtolower( $this->type );
 
 		if( in_array( $lowerType, $this->callableName ) )
 		{
-			$check 		= is_callable( $value );
+			$check = is_callable( $value );
 		}
 		else
 		{
-			$check 		= ( $this->validType[$lowerType] === gettype( $value ) );
+			$check = ( $this->validType[$lowerType] === gettype( $value ) );
 		}
 
 		return $check;
@@ -55,7 +55,7 @@ class Type_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-		$check              = $this->run( $value );
+		$check = $this->run( $value );
 
         if( is_array( $check ) )
         {

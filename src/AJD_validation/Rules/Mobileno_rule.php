@@ -4,13 +4,13 @@ use AJD_validation\Contracts\Abstract_regex;
 
 class Mobileno_rule extends Abstract_regex
 {
-	public $startNo 	= FALSE;
+	public $startNo = false;
 
-	public function __construct($additionalChars = '', $startNo = FALSE)
+	public function __construct($additionalChars = '', $startNo = false)
 	{
 		parent::__construct($additionalChars);
 
-		$this->startNo 	= $startNo;
+		$this->startNo = $startNo;
 	}
 
 	protected function getRegex()

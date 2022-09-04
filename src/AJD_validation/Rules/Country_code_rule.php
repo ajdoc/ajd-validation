@@ -5,16 +5,16 @@ use AJD_validation\Contracts\Abstract_rule;
 
 class Country_code_rule extends Abstract_rule
 {
-	const ALPHA2 	= 'alpha-2';
-	const ALPHA3 	= 'alpha-3';
-	const NUMERIC 	= 'numeric';
+	const ALPHA2 = 'alpha-2';
+	const ALPHA3 = 'alpha-3';
+	const NUMERIC = 'numeric';
 
 	/**
      * @link http://download.geonames.org/export/dump/countryInfo.txt
      *
      * @var array
      */
-    protected $countryCodes 	= array(
+    protected $countryCodes = array(
 		array('AD', 'AND', '020'), // Andorra
 		array('AE', 'ARE', '784'), // United Arab Emirates
 		array('AF', 'AFG', '004'), // Afghanistan
@@ -274,29 +274,29 @@ class Country_code_rule extends Abstract_rule
 
 	public function __construct($set = self::ALPHA2)
     {
-		$index 			= array_search($set, self::getSets(), TRUE);
+		$index = array_search($set, self::getSets(), true);
 
 		if(FALSE === $index) 
 		{
 			throw new Exception(sprintf('"%s" is not a valid country set for ISO 3166-1', $set));
 		}
 
-		$this->set 		= $set;
-        $this->index 	= $index;
+		$this->set = $set;
+        $this->index = $index;
     }
 
 	public static function getSets()
 	{
-		return array(
+		return [
             self::ALPHA2,
             self::ALPHA3,
             self::NUMERIC,
-        );
+        ];
 	}
 
 	private function getCountryCodes($index)
     {
-    	$countryCodes 		= array();
+    	$countryCodes = [];
 
 		foreach($this->countryCodes as $country) 
 		{
@@ -308,9 +308,9 @@ class Country_code_rule extends Abstract_rule
 
 	public function run( $value, $satisfier = NULL, $field = NULL )
 	{
-		$countryCodes 	= $this->getCountryCodes($this->index);
+		$countryCodes = $this->getCountryCodes($this->index);
 
-		$check 			= in_array(
+		$check = in_array(
 			strtoupper( $value ),
 			$countryCodes,
 			TRUE
@@ -321,7 +321,7 @@ class Country_code_rule extends Abstract_rule
 
 	public function validate( $value )
     {
-        $check              = $this->run( $value );
+        $check = $this->run( $value );
 
         if( is_array( $check ) )
         {

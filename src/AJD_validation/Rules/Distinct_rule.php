@@ -8,46 +8,45 @@ class Distinct_rule extends Abstract_rule
 {
 	public $origData;
 
-	public function __construct( $origData = array() )
+	public function __construct( $origData = [] )
 	{
-		$this->origData 	= $origData;
+		$this->origData = $origData;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL, $clean_field = NULL, $origData = NULL )
+	public function run( $value, $satisfier = null, $field = null, $clean_field = null, $origData = null )
 	{
-		$check 		= FALSE;
-		$subCheck 	= FALSE;
+		$check = false;
+		$subCheck = false;
 
-		if( !EMPTY( $origData ) )
+		if( !empty( $origData ) )
 		{
-			$this->origData 	= $origData;
+			$this->origData = $origData;
 		}
 		
-		if( is_array( $this->origData ) AND !EMPTY( $this->origData ) )
+		if( is_array( $this->origData ) && !empty( $this->origData ) )
 		{
 			$checkValidator = false;
 			if(!empty($field))
 			{
-				$pattern 			= str_replace('\*', '[^.]+', preg_quote($field, '#'));
+				$pattern = str_replace('\*', '[^.]+', preg_quote($field, '#'));
 
-				$validator 			= $this->getValidator();
-				$paramValidator 	= $validator->contains('.');
-				$checkValidator 	= $paramValidator->validate($field);
+				$validator = $this->getValidator();
+				$paramValidator = $validator->contains('.');
+				$checkValidator = $paramValidator->validate($field);
 			}
 			
 			if( $checkValidator )
 			{
-				$data 				= Array_helper::where(Array_helper::dot($this->origData), function ($value, $key) use ($field, $pattern) 
+				$data = Array_helper::where(Array_helper::dot($this->origData), function ($value, $key) use ($field, $pattern) 
 				{
-					
 	            	return $key != $field;
 	        	});
 
-	        	$subCheck 	= ( !in_array( $value, array_values($data) ) );
+	        	$subCheck = ( !in_array( $value, array_values($data) ) );
 	        }
 	        else
 	        {
-	        	$checks 	= array();
+	        	$checks = [];
 
 	        	if(is_array($value))
 	        	{
@@ -66,21 +65,21 @@ class Distinct_rule extends Abstract_rule
 		        	{
 	        			if( $val == $value )
 		        		{
-		        			$checks[] 	= TRUE;
+		        			$checks[] = true;
 		        		}	
 		        	}
 
-		        	$subCheck 	= ( count( $checks ) == 1 );
+		        	$subCheck = ( count( $checks ) == 1 );
 		        }
 	        }
 			
 			if( !EMPTY( $value ) )
 			{
-        		$check 			= $subCheck;
+        		$check = $subCheck;
         	}
         	else
         	{
-        		$check 			= TRUE;
+        		$check = true;
         	}
         	
 		}
@@ -104,7 +103,7 @@ class Distinct_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-		$check 					= $this->run( $value );
+		$check = $this->run( $value );
 
 		if( is_array( $check ) )
 		{

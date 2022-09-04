@@ -39,9 +39,9 @@ class Key_nested_rule extends Abstract_related
 
     private function getValueFromObject($object, $property)
     {
-    	if( EMPTY($property) OR !property_exists($object, $property) ) 
+    	if( EMPTY($property) || !property_exists($object, $property) ) 
     	{
-            $message 	= sprintf('Cannot select the property %s from the given object', $this->relation);
+            $message = sprintf('Cannot select the property %s from the given object', $this->relation);
 
             throw new Exception($message);
         }
@@ -51,7 +51,7 @@ class Key_nested_rule extends Abstract_related
 
     private function getValue($value, $key)
     {
-    	if ( is_array($value) OR $value instanceof ArrayAccess) 
+    	if ( is_array($value) || $value instanceof ArrayAccess) 
     	{
 			return $this->getValueFromArray($value, $key);
         }
@@ -75,12 +75,12 @@ class Key_nested_rule extends Abstract_related
 			throw new Exception($message);
 		}
 
-		$keys 		= $this->getRelationPieces();
-		$value 		= $value;
+		$keys = $this->getRelationPieces();
+		$value = $value;
 
 		while ( !IS_NULL( $key = array_shift($keys) ) ) 
 		{
-			$value 	= $this->getValue($value, $key);
+			$value = $this->getValue($value, $key);
 		}
 
 		return $value;

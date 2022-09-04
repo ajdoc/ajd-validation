@@ -8,7 +8,7 @@ class Fiberize_rule extends Abstract_invokable
     {
     }
 
-	public function __invoke($value, $satisfier = NULL, $field = NULL)
+	public function __invoke($value, $satisfier = null, $field = null)
     {
         return true;
     }

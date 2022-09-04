@@ -7,23 +7,23 @@ class Starts_with_rule extends Abstract_rule
 	public $startValue;
 	public $identical;
 
-	public function __construct($startValue, $identical = FALSE)
+	public function __construct($startValue, $identical = false)
 	{
-		$this->startValue 	= $startValue;
-		$this->identical 	= $identical;
+		$this->startValue = $startValue;
+		$this->identical = $identical;
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 		= FALSE;
+		$check = false;
 
 		if( $this->identical )
 		{
-			$check 	= $this->validateIdentical( $value );
+			$check = $this->validateIdentical( $value );
 		}
 		else
 		{
-			$check 	= $this->validateEquals( $value );
+			$check = $this->validateEquals( $value );
 		}
 
 		return $check;
@@ -31,7 +31,7 @@ class Starts_with_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-		$check 		= $this->run( $value );
+		$check = $this->run( $value );
 
 	 	if( is_array( $check ) )
         {

@@ -11,16 +11,16 @@ class Uncompromised_rule extends Abstract_rule
 
 	public $checkType;
 	public $threshold;
-	public $args 	= [];
+	public $args = [];
 
-	public $useType = NULL;
+	public $useType = null;
 
 	public function __construct($threshold = 0, $checkType = 'pwned')
 	{
 		$this->checkType = $checkType;
 		$this->threshold = $threshold;
 
-		$this->args[] 	= $this->threshold;
+		$this->args[] = $this->threshold;
 
 		if( ISSET( $this->type[$this->checkType] ) )
 		{
@@ -28,27 +28,25 @@ class Uncompromised_rule extends Abstract_rule
 		}
 	}
 
-	public function run( $value, $satisfier = NULL, $field = NULL )
+	public function run( $value, $satisfier = null, $field = null )
 	{
-		$check 	= FALSE;
+		$check = false;
 
-		if( !EMPTY( $this->useType ) )
+		if( !empty( $this->useType ) )
 		{
 			if( class_exists($this->useType) )
 			{
 				$reflection = new \ReflectionClass($this->useType);	
-				$valid 		= ( $reflection->isSubclassOf(Uncompromised_interface::class) && !$reflection->isAbstract() );
+				$valid = ( $reflection->isSubclassOf(Uncompromised_interface::class) && !$reflection->isAbstract() );
 				
 				if( $valid )
 				{
-					$getConstructor 	= $reflection->getConstructor();
-					$resolve 			=  (bool) $getConstructor ? $reflection->newInstanceArgs( $this->args ) : $reflection->newInstanceWithoutConstructor();
+					$getConstructor = $reflection->getConstructor();
+					$resolve =  (bool) $getConstructor ? $reflection->newInstanceArgs( $this->args ) : $reflection->newInstanceWithoutConstructor();
 
-					$check 				= $resolve->verify($value);
-				}
-				
+					$check = $resolve->verify($value);
+				}	
 			}
-			
 		}
 
 		return $check;
@@ -56,7 +54,7 @@ class Uncompromised_rule extends Abstract_rule
 
 	public function validate( $value )
 	{
-		$check 			= $this->run( $value);
+		$check = $this->run( $value);
 
 		if( is_array( $check ) )
 		{
