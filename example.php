@@ -497,6 +497,17 @@ try
 			)
 			->validate('aa'));
 
+		$v
+			
+			->respectnoneof(
+			[
+				$v->getRespectValidator()
+				->NotEmpty()
+				->alnum('*')
+			]
+		)
+		->check('respectrules', '');
+
 		
 		$v 
 			->required()
