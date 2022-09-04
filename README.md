@@ -38,6 +38,10 @@ Aj Doc (thedoctorisin17@gmail.com)
 	- [Custom validation](docs/custom_validations.md)
 	- [Package Development](docs/package_development.md)
 
+## Packages
+* [AJD Validation metadata](https://github.com/ajdoc/ajd-validation-metadata)
+* [AJD Validation respect adapter](https://github.com/ajdoc/ajd-validation-respect-adapter)
+
 ## Acknowledgments
 
 Inspiration, code snippets, etc.
