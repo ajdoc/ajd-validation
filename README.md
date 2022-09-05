@@ -39,6 +39,7 @@ Aj Doc (thedoctorisin17@gmail.com)
 	- [Package Development](docs/package_development.md)
 
 ## Packages
+* [AJD Validation additonal rules](https://github.com/ajdoc/ajd-validation-additional-rules)
 * [AJD Validation metadata](https://github.com/ajdoc/ajd-validation-metadata)
 * [AJD Validation respect adapter](https://github.com/ajdoc/ajd-validation-respect-adapter)
 
