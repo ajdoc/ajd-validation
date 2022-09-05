@@ -418,7 +418,8 @@ try
 	$v->addPackages([
 		PackageAjd\PackageValidationServiceProvider::class,
 		AjdMetadata\AjdMetadataServiceProvider::class,
-		AjdRespect\AjdRespectServiceProvider::class
+		AjdRespect\AjdRespectServiceProvider::class,
+		AjdAddRules\AjdAdditionalRulesServiceProvider::class
 	]);
 	/*
 		Make anonymous class register function and extension anonymous class
@@ -487,6 +488,10 @@ try
 		->check('packagevalidation');*/
 
 	// var_dump($v->pre_filter_value());
+
+		/*$v->subdivision_code('PH')->check('subdivision_code_field', '1');
+
+		var_dump($v->getValidator()->subdivision_code('PH')->validate('1'));*/
 
 		var_dump($v 
 			->getValidator()
