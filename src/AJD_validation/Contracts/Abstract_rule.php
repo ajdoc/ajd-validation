@@ -244,7 +244,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         return [];
     }
 
-    protected function processJsArr( array $js, $field, $rule, $clientMessageOnly = false )
+    public function processJsArr( array $js, $field, $rule, $clientMessageOnly = false )
     {
         $newJsFormat = '';
         $newJsArr = [
@@ -253,7 +253,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
 
         if( $clientMessageOnly )
         {
-            if( ISSET( $js[$field][$rule][$clientMessageOnly] ) )
+            if( isset( $js[$field][$rule][$clientMessageOnly] ) )
             {
                 $newJsFormat = $js[$field][$rule][$clientMessageOnly];
             }
@@ -264,7 +264,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         }
         else
         {
-            if( ISSET($js[$field][$rule]['js']) )
+            if( isset($js[$field][$rule]['js']) )
             {
                 $newJsArr['customJS'] .= $js[$field][$rule]['js'];
                 unset($js[$field][$rule]['js']);

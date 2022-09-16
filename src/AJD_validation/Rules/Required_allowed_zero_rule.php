@@ -15,9 +15,16 @@ class Required_allowed_zero_rule extends Abstract_rule
 
         if( is_string( $value ) ) 
         {
-            $value = $this->Ftrim()
-        			 ->cacheFilter('value')
-        			 ->filterSingleValue( $value, true );
+            if( $value === '0' )
+            {
+                settype($value, 'int');
+            }
+            else
+            {
+                $value = $this->Ftrim()
+                            ->cacheFilter('value')
+            			 ->filterSingleValue( $value, true );
+            }
         }
 
         if ($value instanceof stdClass) 

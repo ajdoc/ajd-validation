@@ -11,7 +11,7 @@ class Array_helper
 		return $check;
 	}
 
-	public static function get($array, $key, $default = NULL)
+	public static function get($array, $key, $default = null)
     {
     	if( !static::accessible( $array ) )
     	{
@@ -28,9 +28,9 @@ class Array_helper
 			return $array[$key];
 		}
 
-		if( strpos($key, '.') === FALSE) 
+		if( strpos($key, '.') === false) 
 		{
-			return ( ISSET( $array[$key]  ) ) ? $array[$key]  : Abstract_common::invokeClosure($default);
+			return ( isset( $array[$key]  ) ) ? $array[$key]  : Abstract_common::invokeClosure($default);
 		}
 
 		foreach (explode('.', $key) as $segment)
@@ -61,7 +61,7 @@ class Array_helper
 		{
 			$key = array_shift($keys);
 
-			if ( !ISSET( $array[$key] ) OR !is_array( $array[$key] ) ) 
+			if ( !isset( $array[$key] ) || !is_array( $array[$key] ) ) 
 			{
 				$array[$key] = [];
 			}
@@ -86,7 +86,7 @@ class Array_helper
 
 	public static function add($array, $key, $value)
 	{
-		if( IS_NULL( static::get($array, $key) ) ) 
+		if( is_null( static::get($array, $key) ) ) 
 		{
 		    static::set($array, $key, $value);
 		}
@@ -96,7 +96,7 @@ class Array_helper
 
 	public static function dot($array, $prepend = '')
     {
-        $results = array();
+        $results = [];
 
         foreach ($array as $key => $value) 
         {
@@ -113,7 +113,7 @@ class Array_helper
         return $results;
     }
 
-    public static function dataSet(&$target, $key, $value, $overwrite = TRUE)
+    public static function dataSet(&$target, $key, $value, $overwrite = true)
     {
     	$segments = ( is_array( $key ) ) ? $key : explode('.', $key);
 
@@ -150,7 +150,7 @@ class Array_helper
 
     			static::dataSet( $target[$segment], $segments, $value, $overwrite );
     		}
-    		else if( $overwrite OR !static::exists( $target, $segment ) )
+    		else if( $overwrite || !static::exists( $target, $segment ) )
     		{
     			$target[$segment] = $value;
     		}
@@ -166,14 +166,14 @@ class Array_helper
 
     			static::dataSet( $target->{$segment}, $segments, $value, $overwrite );
     		}
-    		elseif( $overwrite OR !ISSET( $target->{$segment} ) ) 
+    		elseif( $overwrite || !ISSET( $target->{$segment} ) ) 
     		{
                 $target->{$segment} = $value;
             }
     	}
     	else
     	{
-    		$target = array();
+    		$target = [];
 
     		if( $segments )
     		{
@@ -197,7 +197,7 @@ class Array_helper
 
         $key = ( is_array( $key ) ) ? $key : explode('.', $key);
 
-        while( !IS_NULL( $segment = array_shift( $key ) ) ) 
+        while( !is_null( $segment = array_shift( $key ) ) ) 
         {
         	if( $segment === '*' )
         	{
@@ -211,11 +211,11 @@ class Array_helper
         		return ( in_array('*', $key ) ) ? static::collapse($result) : $result;
         	}
 
-        	if( static::accessible( $target ) AND static::exists( $target, $segment ) )
+        	if( static::accessible( $target ) && static::exists( $target, $segment ) )
         	{
         		$target = $target[$segment];
         	}
-        	else if( is_object( $target ) AND ISSET( $target->{ $segment } ) )
+        	else if( is_object( $target ) && ISSET( $target->{ $segment } ) )
         	{
         		$target = $target->{ $segment };
         	}
@@ -255,7 +255,7 @@ class Array_helper
     	{
     		$itemValue = static::dataGet($item, $value);
 
-    		if( IS_NULL($key) ) 
+    		if( is_null($key) ) 
     		{
     			$results[] = $itemValue;
     		}
@@ -279,7 +279,7 @@ class Array_helper
     {
         $value = ( is_string($value) ) ? explode('.', $value) : $value;
 
-        $key = ( IS_NULL($key) OR is_array($key) ) ? $key : explode('.', $key);
+        $key = ( is_null($key) || is_array($key) ) ? $key : explode('.', $key);
 
         return [$value, $key];
     }

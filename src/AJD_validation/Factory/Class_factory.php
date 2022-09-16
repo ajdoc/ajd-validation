@@ -83,7 +83,7 @@ class Class_factory implements Factory_interface
 		array_unshift( $this->filter_namespace, $filter_namespace );
 	}
 
-	public function rules( $rules_path = NULL, $rule_name = null, $args = [], $filter = FALSE, array $globalVar = [])
+	public function rules( $rules_path = null, $rule_name = null, $args = [], $filter = false, array $globalVar = [])
 	{
 		$namespaces = ( $filter ) ? $this->get_filter_namespace() : $this->get_rules_namespace();
 
@@ -135,7 +135,7 @@ class Class_factory implements Factory_interface
 					$class_prefix = $class_name;
 				}
 				
-				if( !empty( $rules_path ) AND !class_exists( $class_prefix ) )
+				if( !empty( $rules_path ) && !class_exists( $class_prefix ) )
 				{
 					if(is_string($rules_path) && !is_object($rules_path))
 					{

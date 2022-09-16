@@ -804,55 +804,26 @@ class When extends AJD_validation
 
 		if( !$forJs )
 		{
-			if( !EMPTY( static::$constraintStorageName ) )
+			if(!empty($curr_field))
 			{
-				if(!empty($curr_field))
+				if(!is_null($this->currentRuleKey))
 				{
-					if(!is_null($this->currentRuleKey))
-					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] = $curr_field.'-|'.$event;
-					}
-					else
-					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field.'-|'.$rule][] = $curr_field.'-|'.$event;
-					}
+					static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] = $curr_field.'-|'.$event;
 				}
 				else
 				{
-					if(!is_null($this->currentRuleKey))
-					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][$this->currentRuleKey][] = $event;	
-					}
-					else
-					{
-						static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$rule][] = $event;	
-					}
+					static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][] = $curr_field.'-|'.$event;
 				}
-				
 			}
 			else
-			{
-				if(!empty($curr_field))
+			{	
+				if(!is_null($this->currentRuleKey))
 				{
-					if(!is_null($this->currentRuleKey))
-					{
-						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][$this->currentRuleKey][] = $curr_field.'-|'.$event;
-					}
-					else
-					{
-						static::$ajd_prop['events'][$eventType][$curr_field.'-|'.$rule][] = $curr_field.'-|'.$event;
-					}
+					static::$ajd_prop['events'][$eventType][$rule][$this->currentRuleKey][] = $event;
 				}
 				else
-				{	
-					if(!is_null($this->currentRuleKey))
-					{
-						static::$ajd_prop['events'][$eventType][$rule][$this->currentRuleKey][] = $event;
-					}
-					else
-					{
-						static::$ajd_prop['events'][$eventType][$rule][] = $event;	
-					}
+				{
+					static::$ajd_prop['events'][$eventType][$rule][] = $event;	
 				}
 			}
 		}

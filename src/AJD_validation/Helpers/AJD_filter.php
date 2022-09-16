@@ -124,11 +124,11 @@ class AJD_filter extends Base_validator
 				{
 					if( $pre_fil ) 
 					{
-						$value = ( ISSET( static::$pre_filter_value[ $field ] ) ) ? static::$pre_filter_value[ $field ] : static::$value;
+						$value = ( isset( static::$pre_filter_value[ $field ] ) ) ? static::$pre_filter_value[ $field ] : static::$value;
 					} 
 					else 
 					{
-						$value = ( ISSET( static::$filter_value[ $field ] ) ) ? static::$filter_value[ $field ] : static::$value;	
+						$value = ( isset( static::$filter_value[ $field ] ) ) ? static::$filter_value[ $field ] : static::$value;	
 					}
 				}
 
@@ -184,7 +184,7 @@ class AJD_filter extends Base_validator
 		$lower_filter = strtolower($class_filt);
 		$filter_path = $this->get_filter_path().$class_filt.'.php';
 
-		if( !EMPTY( static::$addFilterDirectory ) )
+		if( !empty( static::$addFilterDirectory ) )
 		{
 			foreach( static::$addFilterDirectory as $classPath )
 			{
@@ -288,7 +288,7 @@ class AJD_filter extends Base_validator
 				$this->_appendFilterNameSpace( $class_factory );
 			}
 
-			$classArgs = ( IS_NULL( $satisfier ) ) ? array() : $satisfier;
+			$classArgs = ( is_null( $satisfier ) ) ? [] : $satisfier;
 			
 			if( !is_array( $classArgs ) )
 			{

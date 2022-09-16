@@ -42,7 +42,7 @@ Trait Events_dispatcher_trait
 			];
 		}
 
-		$eventArr 	= explode('-|', $event);
+		$eventArr = explode('-|', $event);
 		
 		if(isset($eventArr[1]))
 		{
@@ -52,15 +52,23 @@ Trait Events_dispatcher_trait
 		}
 		else
 		{
-			$event 	= $eventArr[0];
+			$event = $eventArr[0];
 		}
 
 		if(!empty($field))
 		{
 			$this->field = $field;
 		}
+
+		if(!empty(static::$fibers[$event]) && $event == static::$FIBER)
+		{
+			static::$fibers[$event] = array_merge_recursive(static::$fibers[$event], $fibers);
+		}
+		else
+		{
+			static::$fibers[$event] = $fibers;	
+		}
 		
-		static::$fibers[$event] = $fibers;
 		$this->events[] = $event;
 		$this->event = strtolower( $event );
 		$this->ajd = $ajd;
@@ -96,20 +104,24 @@ Trait Events_dispatcher_trait
 			{
 				foreach($rulesk as $ruleKey => $rules)
 				{
-					foreach($rules as $rule => $value)
+					foreach($rules as $rule => $values)
 					{
-						$paramaters_sub = [];
+						foreach($values as $valKey => $value)
+						{
+							$paramaters_sub = [];
 
-						$fiber = $value;
-						
-						$paramaters_sub[] = $this->ajd;
-						$paramaters_sub[] = $fiber['fiber'];
-						$paramaters_sub[] = $field;
-						$paramaters_sub[] = $ruleKey;
-						$paramaters_sub[] = $fiber['fiber_suspend_val'];
-						$paramaters_sub[] = $rule;
-						
-						call_user_func_array($func, $paramaters_sub);
+							$fiber = $value;
+							
+							$paramaters_sub[] = $this->ajd;
+							$paramaters_sub[] = $fiber['fiber'];
+							$paramaters_sub[] = $field;
+							$paramaters_sub[] = $ruleKey;
+							$paramaters_sub[] = $fiber['fiber_suspend_val'];
+							$paramaters_sub[] = $rule;
+							$paramaters_sub[] = $valKey;
+							
+							call_user_func_array($func, $paramaters_sub);
+						}
 					}
 				}
 			}

@@ -4,25 +4,25 @@ use AJD_validation\Constants\Lang;
 
 class Required_rule_exception extends Abstract_exceptions
 {
-	public static $defaultMessages 	= array(
-		 self::ERR_DEFAULT 			=> array(
-		 	self::STANDARD 			=> 'The :field field is required',
-		 ),
-		  self::ERR_NEGATIVE 		=> array(
-            self::STANDARD 			=> 'The :field field is not required.',
-        )
-	);
+	public static $defaultMessages = [
+		 self::ERR_DEFAULT => [
+		 	self::STANDARD => 'The :field field is required',
+		 ],
+		  self::ERR_NEGATIVE => [
+            self::STANDARD => 'The :field field is not required.',
+        ]
+	];
 
-	public static $localizeMessage 	= [
+	public static $localizeMessage = [
 		Lang::FIL => [
-			self::ERR_DEFAULT 			=> array(
-			 	self::STANDARD 			=> 'The :field field ay kelangan',
-			 ),
-			  self::ERR_NEGATIVE 		=> array(
-	            self::STANDARD 			=> 'The :field field ay hindi kelangan.',
-	        ),
+			self::ERR_DEFAULT => [
+			 	self::STANDARD => 'The :field field ay kelangan',
+			 ],
+			  self::ERR_NEGATIVE => [
+        		self::STANDARD => 'The :field field ay hindi kelangan.',
+	        ],
 		]
 	];
 
-	public static $localizeFile 	= 'required_rule_err';
+	public static $localizeFile = 'required_rule_err';
 }

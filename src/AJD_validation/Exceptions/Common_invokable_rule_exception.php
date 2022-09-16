@@ -4,27 +4,27 @@ use AJD_validation\Constants\Lang;
 
 class Common_invokable_rule_exception extends Abstract_exceptions
 {
-	public static $defaultMessages 	= array(
-		 self::ERR_DEFAULT 			=> array(
-		 	self::STANDARD 			=> 'The :field field is correct',
-		 ),
-		  self::ERR_NEGATIVE 		=> array(
-            self::STANDARD 			=> 'The :field field is not correct.',
-        )
-	);
+	public static $defaultMessages 	= [
+		 self::ERR_DEFAULT => [
+		 	self::STANDARD => 'The :field field is correct',
+		 ],
+		  self::ERR_NEGATIVE => [
+            self::STANDARD => 'The :field field is not correct.',
+        ]
+	];
 
-	public static $localizeMessage 	= [
+	public static $localizeMessage = [
 		Lang::FIL => [
-			self::ERR_DEFAULT 			=> array(
-			 	self::STANDARD 			=> 'The :field field ay mali',
-			 ),
-			  self::ERR_NEGATIVE 		=> array(
-	            self::STANDARD 			=> 'The :field field ay hindi mali.',
-	        ),
+			self::ERR_DEFAULT => [
+			 	self::STANDARD => 'The :field field ay mali',
+			 ],
+			  self::ERR_NEGATIVE => [
+	            self::STANDARD => 'The :field field ay hindi mali.',
+	        ],
 		]
 	];
 
-	public static $localizeFile 	= 'common_invokable_rule_err';
+	public static $localizeFile = 'common_invokable_rule_err';
 
 	public function setMessage(array $message = [])
 	{
@@ -64,7 +64,6 @@ class Common_invokable_rule_exception extends Abstract_exceptions
 			($this->hasParam('inverse') && $this->getParam('inverse') && $check)
 		)
 		{
-			
 			return $this->setMessage($messages);
 		}
 	}

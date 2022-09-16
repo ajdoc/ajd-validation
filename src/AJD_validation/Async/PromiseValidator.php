@@ -6,6 +6,7 @@ use AJD_validation\Async\PromiseHelpers;
 use AJD_validation\Async\Promise;
 use AJD_validation\Traits\Events_dispatcher_trait;
 use AJD_validation\Async\FailedPromise;
+use AJD_validation\Async\ValidationResult;
 
 use \Closure;
 
@@ -17,6 +18,8 @@ class PromiseValidator extends Promise
 	protected $Vfield;
 	protected $fields = [];
 	private $value;
+    protected $validationResult;
+    protected $resolverPass;
 
 	public function __construct(callable $resolver = null, callable $cancel = null, array $errors = [], $fiber = null, $value = null, $field = null)
     {
@@ -29,7 +32,6 @@ class PromiseValidator extends Promise
     	{
     		parent::__construct($resolver, $cancel);	
     	}
-    	
 
     	if(!empty($fiber))
     	{
@@ -80,5 +82,25 @@ class PromiseValidator extends Promise
     public function catch(callable $catch)
     {
 		return PromiseHelpers::catch($catch);
+    }
+
+    public function setValidationResult($validationResult)
+    {
+        $this->validationResult = $validationResult;
+    }
+
+    public function getValidationResult()
+    {
+        if(empty($this->validationResult))
+        {
+            return null;
+        }
+
+        if(is_array($this->validationResult) && !$this->validationResult instanceof ValidationResult)
+        {
+            $this->validationResult = new ValidationResult(null, null, $this->validationResult);    
+        }
+
+        return $this->validationResult;
     }
 }

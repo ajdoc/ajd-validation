@@ -49,10 +49,11 @@ class PromiseValue implements Promise_interface
         {
             return;
         }
-
+        
         $result = $onFulfilled($this->value);
-
-        if ($result instanceof Promise_interface) {
+        
+        if ($result instanceof Promise_interface) 
+        {
             $result->done();
         }
     }

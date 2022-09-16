@@ -16,6 +16,7 @@ use AJD_validation\Contracts\Abstract_exceptions;
 use AJD_validation\Contracts\Abstract_anonymous_rule;
 use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 use AJD_validation\Contracts\CanMacroInterface;
+use AJD_validation\Combinators;
 
 enum Status : string
 {
@@ -382,6 +383,8 @@ class Custom_macro implements CanMacroInterface
 	// $v->addLangStubs(__DIR__.DIRECTORY_SEPARATOR.'addLang.stubs');
 	// $v->addLangDir('test', __DIR__,true);
 
+	$customError = '';
+
 	$v->addPackages([
 		PackageAjd\PackageValidationServiceProvider::class
 	]);
@@ -390,20 +393,162 @@ class Custom_macro implements CanMacroInterface
 	// die;
 	$v->setValidation('packagevalidation');
 
-	$v 
+	$vvv1 = null;
+
+	$vvv1 = $v 
 		->required()
 		->minlength(2)
 		// ->useValidation(\PackageAjd\Validations\PackageValidation::class)
 		// ->useValidation('packagevalidation')
 		// ->customAction()
-		->check('packagevalidation')
+		->check('packagevalidation', '')
 		->customAction()
 		->getPromise()
-		->otherwise(function()
+		->getValidationResult();
+
+	$v1 = $vvv1->getValidationDefinition();
+		
+	$vvv1->mapErrors(function($messages, $self)
 		{
-			echo 'failed';
+			$mm = '';
+			$mArr = [];
+			foreach($messages as $rule => $mess)
+			{
+				foreach($mess as $k => $m)
+				{
+					$mm .= '&nbsp;- '.$m.' Custom error new my gad wut<br>';
+
+					// $self->overrideErrorMessage($mm, $rule, $k);
+				}
+			}
+
+			return $self->throwErrors($mm);
 		})
+		->otherwise(function($e) use (&$customError)
+		{
+			$customError .= $e->getMessage();
+
+			echo $customError.'&nbsp;- test sa promise my gut.</br>';
+		});
+
+		$vv1 = $v1()->check('ss')
+		->getPromise()
+		->getValidationResult()
 		;
+
+		
+
+		$v2 = $v 
+			->required()
+			->check('aa')
+			->getPromise()
+			->getValidationResult()
+			;
+
+		$comb = new Combinators\Combinator(
+			$v->required()->minlength(2)->setUpValidation('field1'), 
+			$v->required()->minlength(3)->setUpValidation('field2'), 
+			$v->required()->setUpValidation('field3')
+		);
+			
+		// $v3 = $comb->setCombineErrorMessage('aa')->check(['fieldcom' => ['', '']], 'fieldcom')->getValidationResult();
+				
+		// $v3->getValidationDefinition()()->check('aass');
+
+		$comb2 = new Combinators\Combinator(
+			$comb,
+			$v->required()->check('field5')->getPromise()->getValidationResult()
+		);
+
+		// $v33 = $comb2->check('aaa');
+
+		// $v33 = $comb2->assocSequence([
+		// 	'field5' => 'a',
+		// 	'field1' => 'aa',
+		// 	'field2' => ''
+		// ]);
+
+		// $comb2->sequence('');
+
+		// $v333 = $v33->getValidationResult()->getValidationDefinition();
+
+		// $v333()->check('helooer', 'a');
+		// $v33->getValidationResult()->getValidationDefinition()()->check('me3', '');
+
+	// $v5 = $v 
+	// 		->Srequired(null, AJD_validation::LOG_OR)
+	// 			->field('fieldgr1')
+	// 			->field('fieldgr2')->minlength(2)
+	// 		->eSrequired()
+	// 		->checkGroup(
+	// 			[
+	// 				'fieldgr1' => '',
+	// 				'fieldgr2' => ''
+	// 			]
+	// 		)
+	// 		->getPromise()
+	// 		->getValidationResult()
+	// 		;
+
+		
+		// echo '<pre>';
+		// $v5->getValidationDefinition()()->check('aasexs', '');
+
+		// $v->trigger('esx');
+
+	$v->setMiddleWare('test_middleware2', function( $ajd, $func, $args )
+	{
+		echo 'middleware 2';
+		
+		return $func($ajd, $args);
+		
+	});
+
+	$v->trigger('esx');
+
+	$v7 = $v
+			
+			->Ftest()
+			->required(null, '@custom_error_Field', '#client_testmedad', '#clientmessageonly')->on('esx')->publishFail('req', function()
+			{
+				echo 'required';
+			})
+			->minlength(2, '#client_testmedad')->sometimes('sometimes', null, true )->publishFail('minlenght_fiale', function()
+			{
+				echo 'failed';
+			})
+
+			->check('testmedad', '')
+			->getPromise()
+			->getValidationResult();
+
+		$v7
+			->getValidationDefinition()()->middleware('test_middleware2', 'testmedad2', '');
+
+			echo '<pre>';
+			print_r($v->filter_value());
+			print_r($v->pre_filter_value());
+			print_r($v->getClientSide());
+	// $arr_ch = $v 
+	// 	->required()
+	// 	->digit()
+	// 	->checkArr('arr.*', [
+	// 		'arr' => [
+	// 			'arr1' => [
+	// 				'sub_arr' => 'a',
+	// 				'sub_arr2' => ['', '']
+	// 			],
+	// 			'arr2' => []
+	// 		]
+	// 	])
+	// 	->getPromise()
+	// 	->getValidationResult();
+
+	// echo '<pre>';
+	// print_r($arr_ch);
+	$v 
+			->required()
+			->check('exa');
 
 	$v->assert();
 }
@@ -493,7 +638,168 @@ try
 
 		var_dump($v->getValidator()->subdivision_code('PH')->validate('1'));*/
 
-		var_dump($v 
+		/*$vva = $v 
+			->required(null, '#client_setup1')
+			->setUpValidation('setup1')
+			->getValidationDefinition();
+
+		$vva()->minlength(2, false, false, '#client_real_fieldaa')->check('real_fieldaa', '');*/
+
+		/*echo '<pre>';
+		print_r($v->getClientSide());*/
+
+		$resultStorage = [];
+
+		$resultStorage = $v 
+			->any(
+				$v->required()
+					->check('any11', 'a'),
+
+				$v->required()
+					->minlength(2)
+					->check('any12', ['any12'=>['ee', 'a']]),
+
+				$v->required()
+					->check('any13', ''),
+			)->getValidationResult()->mapErrors(function($errors)
+			{
+				echo '<pre>';
+				print_r($errors);
+				return $errors;
+			})->getValue($resultStorage);
+/*
+		$groupCh = $v->Srequired(null, AJD_validation::LOG_OR)
+								->Sminlength(2)
+									->field('fielggggr1')
+									->field('fielggggr2')
+								->eSminlength()
+							->eSrequired()
+							->checkGroup(
+								[
+									'fielggggr1' => 'a',
+									'fielggggr2' => 'aa'
+								]
+							)
+							->getValidationResult()
+							->mapErrors(function($errors)
+							{
+								echo '<pre>';
+								print_r($errors);
+								return $errors;
+							});
+		$resultStorage = $groupCh->getValue($resultStorage);*/
+
+		/*$resultStorage = $v->required()
+		->minlength(2)
+		->checkArr('arr.*', [
+			'arr' => [
+				'arr1' => [
+					'sub_arr' => 'aas',
+					'sub_arr2' => ['aax', 'baa']
+				],
+				'arr2' => 'aae'
+			]
+		])->getValidationResult()
+		->mapErrors(function($errors)
+		{
+			return $errors;
+		})
+		->getValue($resultStorage);*/
+
+		$resultStorage = $v 
+			->combinator(
+				$v 
+					->required()
+					->digit()
+					->setUpValidation('field11'),
+
+				$v 
+					->required()
+					->minlength(3)
+					->setUpValidation('field22'),
+
+				$v 
+					->required()
+					->minlength(3)
+					->setUpValidation('field33'),
+				$v 
+					->required()
+					
+					->setUpValidation('field44')
+			)
+			->assocSequence([
+				
+				'group1' => [
+					'field11' => '',
+					'field22' => '',
+				],
+				'group2' => [
+					'field33' => '',
+				],
+				'groups3' => [
+					'field44' => ''
+				]
+				
+			])
+			->getValidationResult()
+			->mapErrors(function($errors)
+			{
+				echo '<pre>';
+				print_r($errors);
+				return $errors;
+			})
+			->getValue($resultStorage);
+
+		$resultStorage = $v 
+			->fiberize()
+			->required()
+				// ->suspend()
+				->sometimes(function($value, $satisfier, $orig_field, $arrKey)
+				{
+					return $arrKey == 0;
+				})
+			->email()->sometimes()
+			->distinct()->sometimes()
+
+			->check('emailmulti|He', 
+				[
+					'emailmulti' => ['a@test.com', 'ae@t.com', 'ae@t.coma']
+				]
+			)
+			/*->fiber(function($ajd, $fiber)
+			{
+				if($fiber->isSuspended())
+				{
+					$fiber->resume();					
+				}
+			})*/
+			->fails(function()
+			{
+				echo 'emails fails';
+			})
+			->passed(function()
+			{
+				echo 'emails passed';
+			})
+			->getValidationResult()->mapErrors(function($messages)
+			{
+				echo '<pre>';
+				print_r($messages);
+				return $messages;
+			})
+			->castValueTo('double')
+			->getValue($resultStorage)
+			;
+
+		$resultStorage = $v 
+			->required_allowed_zero()
+			// ->minlength(2)
+			->check('testvalue', '0  a')
+			->getValidationResult()->castValueTo('boolean')->getValue($resultStorage);
+			echo '<pre>';
+		print_r($resultStorage);
+
+		/*var_dump($v 
 			->getValidator()
 			->inverse(
 				$v->getValidator()
@@ -511,7 +817,7 @@ try
 				->alnum('*')
 			]
 		)
-		->check('respectrules', 'a');
+		->check('respectrules', 'a');*/
 
 		
 		$v 
@@ -651,6 +957,28 @@ try
 	// ->printCollectedData()
 	;
 
+	/*$v::registerCustomClientSide('email', function(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	{
+		if( static::$jsTypeFormat == static::$ruleObj::CLIENT_PARSLEY ) 
+        {
+	 		$js[$field][$rule]['rule'] =   <<<JS
+	            data-parsley-type="emailaass"
+JS;
+
+			$js[$field][$rule]['message'] = <<<JS
+                data-parsley-type-message="$error"
+JS;
+
+		}
+
+		$js = static::$ruleObj->processJsArr( $js, $field, $rule, static::$clientMessageOnly );
+		
+        return $js;
+	}, 'emailse');*/
+
+	$v 
+		->email(['showSubError' => false, 'useDns' => false], '#client_emailse')
+		->check('emailse', 'a@');
 
 	$v 
 		->email(['showSubError' => false, 'useDns' => false], '#client_new_email')
@@ -1147,10 +1475,13 @@ try
 				echo '<pre>';
 				var_dump($field);
 				var_dump($rule);
-				$fiber->resume(function() use($rule)
+				if($fiber->isSuspended())
 				{
-					echo $rule;
-				});
+					$fiber->resume(function() use($rule)
+					{
+						echo $rule;
+					});
+				}
 
 			})
 			->fiber(function($ajd, $fiber, $field, $rule, $val)
@@ -1647,32 +1978,6 @@ try
 	$v->macro('test_macro')->check('macro', '');*/
 
 	// Or you can use this syntax
-
-	$v->storeConstraintTo('group1')
-			->Ftest( array(), true )
-			->Fadd_aes_decrypt('aa', true)
-
-				->cacheFilter('group1')
-			  ->required()
-			  
-			  ->maxlength(30)
-		->endstoreConstraintTo();
-
-	$v->storeConstraintTo('group2')
-		// ->Ftest( array(), true )
-		  ->required()
-		  ->minlength(2)
-		  
-	->endstoreConstraintTo();
-
-
-	$v->useConstraintStorage('group1')->check('storage1', ['storage1' => ['s', 'exx']]);
-
-	$v->useConstraintStorage('group2')->alpha()->check('storage2', '')
-	;
-
-	$v->useConstraintStorage('group1')->digit()->check('storage3', '')
-	;
 
 	var_dump($v->pre_filter_value());
 	var_dump($v->filter_value());

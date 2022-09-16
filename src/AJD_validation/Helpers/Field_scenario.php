@@ -9,7 +9,7 @@ class Field_scenario extends AJD_validation
 
 	public function __construct( $field_name = null )
 	{
-		if( !EMPTY( $field_name ) )
+		if( !empty( $field_name ) )
 		{
 			$this->field_name = $field_name;
 		}
@@ -22,18 +22,11 @@ class Field_scenario extends AJD_validation
 		$logic = static::$ajd_prop[ 'current_logic' ];
 		$curr_field = static::$ajd_prop[ 'current_field' ];
 
-		if( !EMPTY( $scenario ) )
+		if( !empty( $scenario ) )
 		{
-			if( !EMPTY( $curr_field ) )
+			if( !empty( $curr_field ) )
 			{
-				if( !EMPTY( static::$constraintStorageName ) )
-				{
-					static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'scenarios' ][ $scenario ][] = $this->field_name;
-				}
-				else
-				{
-					static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'scenarios' ][ $scenario ][] = $this->field_name;
-				}
+				static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'scenarios' ][ $scenario ][] = $this->field_name;
 			}
 		}
 
@@ -47,21 +40,14 @@ class Field_scenario extends AJD_validation
 		
 		$rule = static::$ajd_prop['current_rule'];
 
-		if( !EMPTY( $ruleOverride ) )
+		if( !empty( $ruleOverride ) )
 		{
 			$rule = $ruleOverride;
 		}
 		
-		if( !EMPTY( $curr_field ) )
+		if( !empty( $curr_field ) )
 		{ 
-			if( !EMPTY( static::$constraintStorageName ) )
-			{
-				static::$ajd_prop[static::$constraintStorageName][ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'sometimes' ][ $this->field_name ] = $sometimes;
-			}
-			else
-			{
-				static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'sometimes' ][ $this->field_name ] = $sometimes;
-			}
+			static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'sometimes' ][ $this->field_name ] = $sometimes;
 		}
 
 		return $this;
@@ -82,18 +68,11 @@ class Field_scenario extends AJD_validation
 
 			if( !$forJs )
 			{
-				if( !EMPTY( static::$constraintStorageName ) )
-				{
-					static::$ajd_prop[static::$constraintStorageName]['events'][$eventType][$curr_field][] = $curr_field.'-|'.$event;
-				}
-				else
-				{
-					static::$ajd_prop['events'][$eventType][$curr_field][] = $curr_field.'-|'.$event;
-				}
+				static::$ajd_prop['events'][$eventType][$curr_field][] = $curr_field.'-|'.$event;
 			}
 		}
 
-		if( !EMPTY( $this->when ) )
+		if( !empty( $this->when ) )
 		{
 			return $this->when;
 		}

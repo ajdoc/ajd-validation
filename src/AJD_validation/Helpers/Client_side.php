@@ -1,7 +1,12 @@
 <?php namespace AJD_validation\Helpers;
 
 use Exception;
-use AJD_validation\Contracts\Base_validator;
+use Closure;
+
+use AJD_validation\Contracts\{
+	Base_validator, AbstractClientSide
+};
+
 use AJD_validation\AJD_validation;
 
 class Client_side extends Base_validator
@@ -14,13 +19,109 @@ class Client_side extends Base_validator
 		self::PARSLEY
 	];
 
+	protected static $clientSidePath;
+	protected static $clientSideSuffix = 'ClientSide';
+
 	protected $cacheInstance = [];	
 
 	protected $ajd;
 
+	protected $clientSideNamespace = ['AJD_validation\\ClientSide\\'];
+
+	protected static $customClientSide = [];
+	protected static $defaultField = 'DefaultField';
+
+	public function getClientSidePath()
+	{
+		static::$clientSidePath = dirname( dirname( __FILE__ ) ).self::DS.'ClientSide'.self::DS;
+
+		return static::$clientSidePath;
+	}
+
+	public function generateClassDetails($rule)
+	{
+		$classClientSide = \ucfirst( \strtolower( $rule ) );
+		$classPath = $this->getClientSidePath().$classClientSide.static::$clientSideSuffix.'.php';
+
+		return [
+			'classPath' => $classPath,
+			'isClass' => file_exists($classPath),
+			'className' => $classClientSide.static::$clientSideSuffix
+		];
+	}
+
+	public function loadClientSideFile($classPath, $className)
+	{
+		foreach($this->clientSideNamespace as $namespace)
+		{
+			$realClassName = $namespace.$className;
+			
+			if( !empty( $classPath ) && !class_exists( $realClassName ) )
+			{
+				if(is_string($classPath) && !is_object($classPath))
+				{
+					$requiredFiles = get_included_files();
+
+					$classPath = str_replace(array('\\\\', '//'), [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $classPath);
+					
+					$search = array_search($classPath, $requiredFiles);
+
+					if( empty( $search ) )
+					{
+						$clientSeq = require $classPath;	
+					}
+				}
+			}
+
+			if(is_string($classPath) && !is_object($classPath))
+			{
+				return [
+					'className' => $realClassName,
+					'classExists' => class_exists($realClassName)
+				];
+			}
+		}
+	}
+
 	public static function addJSvalidationLibrary( $jsValidationLibrary )
 	{
 		static::$validJs[] 	= $jsValidationLibrary;
+	}
+
+	public static function registerCustomClientSide($forRuleName, CLosure $registration, $field = null)
+	{
+		$anon = new class() extends AbstractClientSide {
+
+			protected static $registration;
+
+			public static function bootAnonymous(Closure $registration)
+			{
+				$self = new self;
+				$registration = $registration->bindTo($self, self::class);
+
+				static::$registration = $registration;
+			}
+
+			public static function getCLientSideFormat(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+			{
+				if(empty(static::$registration))
+				{
+					return [];
+				}
+
+				$closure = static::$registration;
+
+				$arguments = array_merge(func_get_args(), []);
+				
+				return call_user_func_array($closure, $arguments);
+			}
+		};
+
+		$anon::bootAnonymous($registration);
+
+		$field = $field ?: static::$defaultField;
+
+		static::$customClientSide[$forRuleName][$field] = $anon;
 	}
 
 	public function __construct( $js_rules = [], AJD_validation $ajd = null, $jsTypeFormat = self::PARSLEY )
@@ -66,26 +167,77 @@ class Client_side extends Base_validator
 
 					$cus_err = ( $this->isset_empty( $satisfier, 1 ) ) ? $satisfier[1]['custom_error'] : [];
 
-					$clientMessageOnly = ( ISSET( $satisfier[0]['client_message_only'] ) ) ? $satisfier[0]['client_message_only'] : false;
+					$clientMessageOnly = ( isset( $satisfier[0]['client_message_only'] ) ) ? $satisfier[0]['client_message_only'] : false;
 
 					$ucFirstRule = ucfirst( $rule_name );
 
 					$errors = $this->js_errors( $clean_rule, $rule_name, $field, null, $satis, $cus_err, $ucFirstRule );
 
-					if( ISSET( $this->cacheInstance[$field_arr['orig']][ $ucFirstRule ] ) )
+					if( isset( $this->cacheInstance[$field_arr['orig']][ $ucFirstRule ] ) )
 					{
 						$instance = $this->cacheInstance[$field_arr['orig']][ $ucFirstRule ];
 
 						$field_or = $this->remove_number_sign( $field_arr['orig'] );
-						
-						$jsFormat = $instance->getCLientSideFormat( $field_or, $clean_rule, $jsTypeFormat, $clientMessageOnly, $satis, $errors );
 
+						$classDetails = [];
+
+						$runClass = false;
+						$fieldSet = false;
+
+						if(isset(static::$customClientSide[$clean_rule]))
+						{
+							$anonField = static::$customClientSide[$clean_rule];
+							$anonClass = $anonField[static::$defaultField] ?? null;
+							
+							if(isset($anonField[$field_or]))
+							{
+								$anonClass = $anonField[$field_or];
+							}
+
+							if(!empty($anonClass))
+							{
+								$anonClass::boot($instance, $jsTypeFormat, $clientMessageOnly);
+
+								$jsFormat = $anonClass::getCLientSideFormat($field_or, $clean_rule, $satis, $errors, null);
+
+								$fieldSet = true;
+							}
+							else
+							{
+								$runClass = true;
+							}
+						}
+
+						if( (!isset(static::$customClientSide[$clean_rule]) || $runClass) && !$fieldSet )
+						{
+							$classDetails = $this->generateClassDetails($clean_rule);
+						}
+
+						if(!empty($classDetails) && $classDetails['isClass'] && !$fieldSet)
+						{
+							$loadedDetails = $this->loadClientSideFile($classDetails['classPath'], $classDetails['className']);
+							
+							if($loadedDetails['classExists'])
+							{
+								$loadedDetails['className']::boot($instance, $jsTypeFormat, $clientMessageOnly);
+
+								$jsFormat = $loadedDetails['className']::getCLientSideFormat($field_or, $clean_rule, $satis, $errors, null);
+							}
+						}
+						else
+						{
+							if(!$fieldSet)
+							{
+								$jsFormat = $instance->getCLientSideFormat( $field_or, $clean_rule, $jsTypeFormat, $clientMessageOnly, $satis, $errors );
+							}
+						}
+						
 						if( !empty( $jsFormat ) )
 						{
 							static::$js_validation_rules = array_merge_recursive( static::$js_validation_rules, $jsFormat );
 						}
 					}
-					else if( method_exists( $this , $rule_name ) ) 
+					else if( method_exists( $this, $rule_name ) ) 
 					{
 						$field_or = $this->remove_number_sign( $field_arr['orig'] );
 

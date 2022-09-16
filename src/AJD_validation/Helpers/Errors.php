@@ -396,6 +396,12 @@ EOS;
 
 		foreach( static::$validation_err_msg as $key => $value ) 
 		{
+			if(is_string($value))
+			{
+				$msg[] = $value;
+				continue;
+			}
+
 			$len = ( int )count( $value );
 
 			for( $i = 0; $i < $len; $i++ ) 
@@ -428,13 +434,13 @@ EOS;
 			}
 		}
 		
-		if( !EMPTY( $keys ) ) 
+		if( !empty( $keys ) ) 
 		{
-			if( ISSET( $msg[ $keys ] ) ) $msg = $msg[ $keys ];
+			if( isset( $msg[ $keys ] ) ) $msg = $msg[ $keys ];
 
-			if( !IS_NULL( $err_key ) )
+			if( !is_null( $err_key ) )
 
-				if( ISSET( $msg[ $err_key ] ) ) $msg = $msg[ $err_key ];
+				if( isset( $msg[ $err_key ] ) ) $msg = $msg[ $err_key ];
 		}
 
 		return $msg;
@@ -472,6 +478,12 @@ EOS;
 
 				foreach( $err_msg as $field => $rules )
 				{	
+					if(is_string($rules))
+					{
+						$str .= $this->start_delimiter.$rules.$this->end_delimiter;
+						continue;
+					}
+
 					$currRule = current( $rules );
 					$currRuleKey = key( $rules );
 
@@ -500,6 +512,12 @@ EOS;
 				// $err_msg = $this->flattened_array( $err_msg );
 				foreach( $err_msg as $field => $rules ) 
 				{
+					if(is_string($rules))
+					{
+						$str .= $this->start_delimiter.$rules.$this->end_delimiter;
+						continue;
+					}
+					
 					$currRule = current( $rules );
 					
 					foreach( $rules as $rule )
