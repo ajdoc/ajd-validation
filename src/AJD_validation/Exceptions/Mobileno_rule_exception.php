@@ -12,7 +12,7 @@ class Mobileno_rule_exception extends Alpha_rule_exception
             self::STANDARD => ':field must not be a valid mobile number.',
             self::EXTRA => ':field must be a valid mobile number and "{additionalChars}."',
         ],
-    );
+    ];
 
     public static $localizeFile = 'mobile_no_rule_err';     
 }

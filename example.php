@@ -977,6 +977,9 @@ JS;
 	}, 'emailse');*/
 
 	$v 
+		->required_allowed_zero(null, '#client_emailse')
+		->in(['a', 'b'], false, '#client_emailse')
+		->date('Y-m-d', '#client_emailse')
 		->email(['showSubError' => false, 'useDns' => false], '#client_emailse')
 		->check('emailse', 'a@');
 

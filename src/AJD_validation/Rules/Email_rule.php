@@ -51,15 +51,4 @@ class Email_rule extends Abstract_compound
 
     	parent::__construct(...$this->emailValidators);
     }
-
-
-    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
-	{
-		$rules = $this->baseEmailValidator->getRules();
-
-		foreach($rules as $ruleV)
-		{
-			return $ruleV->getCLientSideFormat($field, $rule, $jsTypeFormat, $clientMessageOnly, $satisfier, $error, $value);
-		}
-	}
 }

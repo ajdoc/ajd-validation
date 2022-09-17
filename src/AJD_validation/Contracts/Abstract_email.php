@@ -233,23 +233,4 @@ class Abstract_email extends Abstract_rule
     {
     	return ( is_string($value) AND filter_var($value, FILTER_VALIDATE_EMAIL) );
     }
-
-    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
-	{
-		if( $jsTypeFormat == Abstract_rule::CLIENT_PARSLEY ) 
-        {
-	 		$js[$field][$rule]['rule'] =   <<<JS
-	            data-parsley-type="email"
-JS;
-
-			$js[$field][$rule]['message'] = <<<JS
-                data-parsley-type-message="$error"
-JS;
-
-		}
-
-		$js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
-		
-        return $js;
-	}
 }

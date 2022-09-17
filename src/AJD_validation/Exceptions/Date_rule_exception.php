@@ -14,7 +14,7 @@ class Date_rule_exception extends Abstract_exceptions
             self::STANDARD => ':field must not be a valid date',
             self::FORMAT => ':field must not be a valid date in the format: {format}.',
         ],
-    );
+    ];
 
     public static $localizeFile = 'date_rule_err';
 

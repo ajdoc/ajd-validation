@@ -12,7 +12,7 @@ class Key_nested_rule_exception extends Attribute_rule_exception
             self::NOT_PRESENT => 'Items for key chain :field must not be present.',
             self::INVALID => 'Key chain :field must not be valid.'
         ],
-    );
+    ];
 
     public static $localizeFile = 'key_nested_rule_err';
 }

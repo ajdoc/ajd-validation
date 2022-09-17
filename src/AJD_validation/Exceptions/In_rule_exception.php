@@ -8,7 +8,7 @@ class In_rule_exception extends Abstract_exceptions
             self::STANDARD => ':field must be in {haystack}.',
         ],
         self::ERR_NEGATIVE => [
-         self::STANDARD => ':field must not be in {haystack}.',
+            self::STANDARD => ':field must not be in {haystack}.',
         ],
     ];
 

@@ -10,7 +10,7 @@ class None_rule_exception extends Nested_rule_exception
         self::ERR_NEGATIVE => [
             self::STANDARD => 'All of these rules must pass for :field.',
         ],
-    );
+    ];
 
     public static $localizeFile = 'none_rule_err';
 }

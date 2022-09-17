@@ -10,7 +10,7 @@ class Json_rule_exception extends Abstract_exceptions
         self::ERR_NEGATIVE => [
             self::STANDARD => ':field must not be a valid JSON string.',
         ],
-    );
+    ];
 
     public static $localizeFile = 'json_rule_err';
 }

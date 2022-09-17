@@ -9,7 +9,7 @@ class Even_rule_exception extends Abstract_exceptions
 		],
 		self::ERR_NEGATIVE => [
 			self::STANDARD => ':field must not be an even number.'
-		]
+		],
 	];
 
 	public static $localizeFile = 'even_rule_err';

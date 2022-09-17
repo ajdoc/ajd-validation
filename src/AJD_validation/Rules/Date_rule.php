@@ -67,49 +67,4 @@ class Date_rule extends Abstract_rule
 
         return $check;
     }
-
-    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = FALSE, $satisfier = NULL, $error = NULL, $value = NULL )
-    {
-        if( $jsTypeFormat == Abstract_rule::CLIENT_PARSLEY ) 
-        {
-           /* $haystack   = implode('|+', $this->haystack);
-            $identical  = ( !EMPTY( $this->identical ) ) ? $this->identical : false;*/
-            
-            $js[$field][$rule]['rule'] =   <<<JS
-                data-parsley-$rule='true'
-                
-JS;
-            $js[$field][$rule]['message'] =   <<<JS
-                    data-parsley-$rule-message='$error'
-JS;
-            $js[$field][$rule]['js'] =   <<<JS
-
-                window.Parsley.addValidator('$rule', {
-                    validate: function(value, requirement, obj) {
-
-                        var msg = $(obj.element).attr('data-parsley-$rule-message');
-                        var timestamp = Date.parse(value);
-
-                        if( isNaN(timestamp) )
-                        {
-                            return $.Deferred().reject(msg);
-                        }
-                        else
-                        {
-                            return true;
-                        }
-
-                        return isNaN(timestamp) ? false : true;
-                },
-                messages: {
-                    en: '$error'
-                }
-            });
-JS;
-        }
-
-        $js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
-
-        return $js;
-    }
 }

@@ -50,23 +50,5 @@ class Required_allowed_zero_rule extends Abstract_rule
 
         return $check;
     }
-
-    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
-    {
-        if( $jsTypeFormat == Abstract_rule::CLIENT_PARSLEY ) 
-        {
-            $js[$field][$rule]['rule'] =   <<<JS
-                data-parsley-required="true"
-JS;
-
-            $js[$field][$rule]['message'] = <<<JS
-                data-parsley-required-message="$error"
-JS;
-        }
-
-        $js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
-
-        return $js;
-    }
 }
 

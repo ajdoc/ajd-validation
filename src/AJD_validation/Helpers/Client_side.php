@@ -31,6 +31,17 @@ class Client_side extends Base_validator
 	protected static $customClientSide = [];
 	protected static $defaultField = 'DefaultField';
 
+	protected static $commonClientSideClass = 'AjdCommon';
+
+	protected static $requiredRules = [
+		'required', 'required_allowed_zero'
+	];
+
+	protected static $rulesCommonClass = [
+		'required_allowed_zero', 'required', 'email', 'in', 'date', 
+		'regex', 'alpha', 'alnum'
+	];
+
 	public function getClientSidePath()
 	{
 		static::$clientSidePath = dirname( dirname( __FILE__ ) ).self::DS.'ClientSide'.self::DS;
@@ -40,7 +51,15 @@ class Client_side extends Base_validator
 
 	public function generateClassDetails($rule)
 	{
-		$classClientSide = \ucfirst( \strtolower( $rule ) );
+		if(in_array($rule, static::$rulesCommonClass, true))
+		{
+			$classClientSide = static::$commonClientSideClass;
+		}
+		else
+		{
+			$classClientSide = \ucfirst( \strtolower( $rule ) );	
+		}
+		
 		$classPath = $this->getClientSidePath().$classClientSide.static::$clientSideSuffix.'.php';
 
 		return [
@@ -149,13 +168,18 @@ class Client_side extends Base_validator
 
 				$field_arr = $this->format_field_name( $clean_field );
 
-				$this->processDefaultRequiredFormat( $jsTypeFormat, $field_arr['orig'] );
-				
-				if( in_array( 'required_rule', array_keys( $rules ) ) )
+				$keyRules = array_keys( $rules );
+
+				$this->processDefaultRequiredFormat( $jsTypeFormat, $field_arr['orig'], $keyRules );				
+
+				foreach( static::$requiredRules as $requiredRule )
 				{
-					if( isset( static::$js_validation_rules[$field_arr['orig']] ) )
+					if( in_array( $requiredRule.'_rule', $keyRules, true ) )
 					{
-						unset( static::$js_validation_rules[$field_arr['orig']]['required'] );
+						if( isset( static::$js_validation_rules[$field_arr['orig']] ) )
+						{
+							unset( static::$js_validation_rules[$field_arr['orig']][$requiredRule] );
+						}
 					}
 				}
 
@@ -248,13 +272,30 @@ class Client_side extends Base_validator
 		}
 	}
 
-	protected function processDefaultRequiredFormat( $jsTypeFormat, $field )
+	protected function processDefaultRequiredFormat( $jsTypeFormat, $field, array $rules = [] )
 	{
 		if( $jsTypeFormat == self::PARSLEY )
 		{
-			static::$js_validation_rules[$field]['required'] 	= <<<JS
-				data-parsley-required="false"
+			$required = 'required';
+			$checkArr = [];
+
+			foreach( static::$requiredRules as $requiredRule )
+			{
+				if(in_array($requiredRule.'_rule', $rules, true))
+				{
+					$checkArr[] = false;
+
+					$required = $requiredRule;
+				}
+			}
+
+			if(!in_array(false, $checkArr))
+			{
+
+				static::$js_validation_rules[$field][$required] 	= <<<JS
+					data-parsley-required="false"
 JS;
+			}
 		}
 	}	
 
