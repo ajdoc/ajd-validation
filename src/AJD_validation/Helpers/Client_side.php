@@ -38,8 +38,12 @@ class Client_side extends Base_validator
 	];
 
 	protected static $rulesCommonClass = [
-		'required_allowed_zero', 'required', 'email', 'in', 'date', 
-		'regex', 'alpha', 'alnum'
+		'required', 'required_allowed_zero', // required base rules
+		'email', 'base_email', 'rfc_email', 'spoof_email', 'no_rfc_email', 'dns_email', // email base rules
+		'in', 'date', 'multiple', // rules with client side support
+		'alpha', 'alnum', 'digit', // ctype rules
+		'regex', 'mac_address', 'consonant', 'mobileno', 'phone', 'vowel', // regex rules
+		'maxlength', 'minlength' // length based rules
 	];
 
 	public function getClientSidePath()
@@ -49,11 +53,12 @@ class Client_side extends Base_validator
 		return static::$clientSidePath;
 	}
 
-	public function generateClassDetails($rule)
+	public function generateClassDetails($rule, $jsTypeFormat = self::PARSLEY)
 	{
 		if(in_array($rule, static::$rulesCommonClass, true))
 		{
-			$classClientSide = static::$commonClientSideClass;
+			$jsTypeFormat = \ucfirst( \strtolower( $jsTypeFormat ) );	
+			$classClientSide = $jsTypeFormat.static::$commonClientSideClass;
 		}
 		else
 		{
@@ -234,7 +239,7 @@ class Client_side extends Base_validator
 
 						if( (!isset(static::$customClientSide[$clean_rule]) || $runClass) && !$fieldSet )
 						{
-							$classDetails = $this->generateClassDetails($clean_rule);
+							$classDetails = $this->generateClassDetails($clean_rule, $jsTypeFormat);
 						}
 
 						if(!empty($classDetails) && $classDetails['isClass'] && !$fieldSet)

@@ -46,29 +46,4 @@ class Multiple_rule extends Abstract_rule
 
         return $check;
     }
-
-    public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
-    {
-    	if( $jsTypeFormat == Abstract_rule::CLIENT_PARSLEY ) 
-        {
-        	 $js[$field][$rule]['rule'] =   <<<JS
-                data-parsley-multipleof="$this->multipleof"
-JS;
-			 $js[$field][$rule]['js'] =   <<<JS
-				window.Parsley.addValidator('multipleof', {
-					validateNumber: function(value, requirement) {
-						return value % requirement === 0;
-				},
-				requirementType: 'integer',
-				messages: {
-					en: '$error'
-				}
-			});
-JS;
-        }
-
-        $js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
-
-        return $js;
-    }
 }

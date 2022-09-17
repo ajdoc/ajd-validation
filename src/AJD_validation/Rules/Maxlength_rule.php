@@ -107,23 +107,5 @@ class Maxlength_rule extends Abstract_interval
 
 		return $check;
 	}
-
-	public function getCLientSideFormat( $field, $rule, $jsTypeFormat, $clientMessageOnly = false, $satisfier = null, $error = null, $value = null )
-	{
-		if( $jsTypeFormat == Abstract_interval::CLIENT_PARSLEY ) 
-        {
-	 		$js[$field][$rule]['rule'] =   <<<JS
-	            data-parsley-maxlength="{$satisfier[0]}"
-JS;
-			$js[$field][$rule]['message'] = <<<JS
-                data-parsley-maxlength-message="$error"
-JS;
-
-		}
-
-		$js = $this->processJsArr( $js, $field, $rule, $clientMessageOnly );
-		
-        return $js;
-	}
 }
 

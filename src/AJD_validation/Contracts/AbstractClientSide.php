@@ -10,6 +10,38 @@ class AbstractClientSide implements ClientSideInterface
 	protected static $jsTypeFormat;
 	protected static $clientMessageOnly;
 
+	protected static $relatedEmailRules = [
+		'email', 'base_email', 'rfc_email', 'spoof_email', 'no_rfc_email', 'dns_email'
+	];
+
+	protected static $relatedRequiredRules = [
+		'required', 'required_allowed_zero'
+	];
+
+	protected static $relatedInRule = [
+		'in'
+	];
+
+	protected static $relatedDateRule = [
+		'date'
+	];
+
+	protected static $relatedMultipleOf = [
+		'multiple'
+	];
+
+	protected static $relatedRegex = [
+		'regex', 'mac_address', 'consonant', 'mobileno', 'phone', 'vowel', // regex rules
+	];
+
+	protected static $relatedCtype = [
+		'alpha', 'alnum', 'digit', // ctype rules
+	];
+
+	protected static $relatedLength = [
+		'maxlength', 'minlength'
+	];
+
 	public static function boot(Rule_interface $ruleObj, string $jsTypeFormat, bool $clientMessageOnly = false)
 	{
 		static::$ruleObj = $ruleObj;
