@@ -1770,7 +1770,7 @@ $v->assert();
 	- [Filters](docs/filters/)
 	- [Advance Usage](docs/advance_usage/)
 	- [Custom validation](docs/custom_validations.md)
-	- [Client Side](advance_usage/client_side.md)
+	- [Client Side](docs/advance_usage/client_side.md)
 	- [Package Development](docs/package_development.md)
 	- [Alternative Usage](alternative_usage.md)
 	
