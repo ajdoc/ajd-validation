@@ -424,7 +424,7 @@ $v2()->check('field2', '');
 
 $v1()->digit()->check('field3', '');
 ```
-- We could reuse the rule definition by using `$v->setUpValidation((optional)'[unique-identfier]')->getValidationDefinition()` storing it in a variable the calling the variable like function the chain as shown in the example above.
+- We could reuse the rule definition by using `$v->setUpValidation((optional)'[unique-identfier]')->getValidationDefinition()` storing it in a variable then calling the variable like function the chain as shown in the example above.
 - We could define another rule definition not in the storage for a specific field like in 'field3'.
 
 ## Any 
