@@ -1653,7 +1653,7 @@ Array
 */
 ```
 - You can read more about client side here: 
-	- [Client Side](advance_usage/client_side.md)
+	- [Client Side](docs/advance_usage/client_side.md)
 
 ## The Validator Object
 - To get the validator object use:
@@ -1672,8 +1672,8 @@ $v->getValidator()->required()->assertErr(''); // throws an Exception
 	* `->assertErr(mixed $value)` method which will throw an Exception if the rule or rules validation fails
 	* This object works similarly with [respect/validation](https://github.com/Respect/Validation)
 	* This is useful for other rules and when using inside `->sometimes()` method
-		- [Rules](rules/)
-		- `->sometimes()` - [Scenarios](advance_usage/scenarios.md)
+		- [Rules](docs/rules/)
+		- `->sometimes()` - [Scenarios](docs/advance_usage/scenarios.md)
 
 ## An Advance example
 - Let's say you're validating inputs of email but only the first input must be required, All must be a valid email address and must not repeat and you want to run valid email validation and not repeating validation if the user inputs a value. Then you want to change field name 'email' to 'Emails'
@@ -1772,7 +1772,7 @@ $v->assert();
 	- [Custom validation](docs/custom_validations.md)
 	- [Client Side](docs/advance_usage/client_side.md)
 	- [Package Development](docs/package_development.md)
-	- [Alternative Usage](alternative_usage.md)
+	- [Alternative Usage](docs/alternative_usage.md)
 	
 
 ## Packages
