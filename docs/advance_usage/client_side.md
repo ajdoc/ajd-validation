@@ -327,6 +327,7 @@ $v->required(null, '#client_email')
 
 ## Practical Example
 - Let's say you want to render your validation definition so that it must be somehow sync with the client side.
+- Example using inside a framework.
 
 ```php
 use AJD_validation\AJD_validation;
