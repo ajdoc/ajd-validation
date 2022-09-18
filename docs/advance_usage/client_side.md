@@ -403,8 +403,10 @@ class PostController
 
 
 // in the view you if you are using parsley js
-<input type="text" name="firstname" <?php echo $client['firstname'] ?>>
-<input type="text" name="email" <?php echo $client['firstname'] ?>>
+<form id="yourform">
+	<input type="text" name="firstname" <?php echo $client['firstname'] ?>>
+	<input type="text" name="email" <?php echo $client['firstname'] ?>>
+</form>
 
 <script>
 <?php echo $client['customJs'] ?>
