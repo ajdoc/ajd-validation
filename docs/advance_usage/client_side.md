@@ -405,7 +405,7 @@ class PostController
 // in the view you if you are using parsley js
 <form id="yourform">
 	<input type="text" name="firstname" <?php echo $client['firstname'] ?>>
-	<input type="text" name="email" <?php echo $client['firstname'] ?>>
+	<input type="text" name="email" <?php echo $client['email'] ?>>
 </form>
 
 <script>
