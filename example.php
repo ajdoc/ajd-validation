@@ -47,6 +47,13 @@ $v
 	->addFilterNamespace('CustomFilters\\');
 
 $v
+	->addClientSideDirectory(__DIR__.DIRECTORY_SEPARATOR.'CustomClientSide'.DIRECTORY_SEPARATOR)
+	->addClientSideNamespace('CustomClientSide\\');
+
+/*require __DIR__.DIRECTORY_SEPARATOR.'CustomClientSide'.DIRECTORY_SEPARATOR.'Folder_custom_client_side.php';
+$v->registerClientSideMapping(['folder_custom' => \CustomClientSide\Folder_custom_client_side::class]);*/
+
+$v
 	->when(true)
 	->addLogicClassPath(__DIR__.DIRECTORY_SEPARATOR.'CustomLogics'.DIRECTORY_SEPARATOR)
 	->addLogicNamespace('CustomLogics\\')
@@ -240,6 +247,25 @@ class Custom_extension extends Base_extension
 
 			return $this;
 		};
+	}
+
+	public function getClientSides()
+	{
+		return [
+			'custom_validation' => [
+				'clientSide' => function(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+				{
+					$js[$field][$rule]['rule'] =   <<<JS
+	            		data-parsley-$rule="emailaass"
+JS;
+
+					$js[$field][$rule]['message'] = <<<JS
+                		data-parsley-$rule-message="$error"
+JS;
+					return $js;
+				}
+			]
+		];
 	}
 
 	protected $metadatatest = 'a';
@@ -977,7 +1003,10 @@ JS;
 	}, 'emailse');*/
 
 	$v 
+		->package(null, '#client_emailse')
 		
+		->custom_validation(null, '#client_emailse')
+		->folder_custom(null, '#client_emailse')
 		->email(['showSubError' => false, 'useDns' => false], '#client_emailse')
 		->check('emailse', 'a@');
 
@@ -985,7 +1014,7 @@ JS;
 		->email(['showSubError' => false, 'useDns' => false], '#client_new_email')
 		->check('new_email', 'a@');
 
-	var_dump($v->getClientSide());
+	var_dump($v->getClientSide(true));
 	
 
 	$v

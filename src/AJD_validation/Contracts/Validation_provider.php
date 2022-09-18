@@ -7,6 +7,7 @@ use AJD_validation\AJD_validation as v;
 use AJD_validation\Helpers\Rules_map;
 use AJD_validation\Helpers\Filters_map;
 use AJD_validation\Helpers\LogicsAddMap;
+use AJD_validation\Helpers\Client_side;
 
 use AJD_validation\Contracts\Rule_interface;
 use AJD_validation\Contracts\Exception_interface;
@@ -14,6 +15,7 @@ use AJD_validation\Contracts\Extension_interface;
 use AJD_validation\Contracts\Filter_interface;
 use AJD_validation\Contracts\Logic_interface;
 use AJD_validation\Contracts\Validation_interface;
+use AJD_validation\Contracts\ClientSideInterface;
 
 abstract class Validation_provider implements ValidationProviderInterface
 {
@@ -31,12 +33,16 @@ abstract class Validation_provider implements ValidationProviderInterface
     protected static $defaultValidationsDir = '/Validations';
     protected static $defaultValidationsNamespace = '\\Validations';
 
+    protected static $defaultClientSideDir = '/ClientSide';
+    protected static $defaultClientSideNamespace = '\\ClientSide';
+
     protected static $defaults = [
         'baseDir' => '',
         'baseNamespace' => ''
     ];
 
     protected static $validationsCollection = [];
+    protected static $clientSideCollection = [];
 
     private function getAjdInstance()
     {
@@ -46,6 +52,11 @@ abstract class Validation_provider implements ValidationProviderInterface
     public static function getValidationsCollection()
     {
         return static::$validationsCollection;
+    }
+
+    public static function getClientSideCollection()
+    {
+        return static::$clientSideCollection;
     }
 
     public function setDefaults(array $defaults)
@@ -84,7 +95,6 @@ abstract class Validation_provider implements ValidationProviderInterface
         $baseNamespace          = $this->getDefault('baseNamespace');
 
     	$rulesDir = static::processDefaults(static::$defaultRulesDir, DIRECTORY_SEPARATOR);
-
     	$rulesNamespace = static::processDefaults(static::$defaultRulesNamespace, '\\');
 
     	v::addRuleDirectory($dir.$rulesDir)
@@ -99,12 +109,24 @@ abstract class Validation_provider implements ValidationProviderInterface
         $baseNamespace          = $this->getDefault('baseNamespace');
 
         $filtersDir = static::processDefaults(static::$defaultFiltersDir, DIRECTORY_SEPARATOR);
-        
-
         $filtersNamespace = static::processDefaults(static::$defaultFiltersNamespace, '\\');
         
         v::addFilterDirectory($dir.$filtersDir)
             ->addFilterNamespace($baseNamespace.$filtersNamespace);
+
+        return $this;
+    }
+
+    public function registerClientSides()
+    {
+        $dir                    = $this->getDefault('baseDir');
+        $baseNamespace          = $this->getDefault('baseNamespace');
+
+        $clientSideDir = static::processDefaults(static::$defaultClientSideDir, DIRECTORY_SEPARATOR);
+        $clientSideNamespace = static::processDefaults(static::$defaultClientSideNamespace, '\\');
+        
+        v::addClientSideDirectory($dir.$clientSideDir)
+            ->addClientSideNamespace($baseNamespace.$clientSideNamespace);
 
         return $this;
     }
@@ -115,9 +137,7 @@ abstract class Validation_provider implements ValidationProviderInterface
         $baseNamespace          = $this->getDefault('baseNamespace');
 
         $logicsDir = static::processDefaults(static::$defaultLogicsDir, DIRECTORY_SEPARATOR);
-
         $logicsNamespace = static::processDefaults(static::$defaultLogicsNamespace, '\\');
-
         
         v::whenInstance()
             ->addLogicClassPath($dir.$logicsDir)
@@ -239,14 +259,37 @@ abstract class Validation_provider implements ValidationProviderInterface
         return $this;
     }
 
+    public function registerClientSideMapping(array $mappings)
+    {
+        foreach($mappings as $signature => $clientSides)
+        {
+            if(is_array($clientSides))
+            {
+                foreach($clientSides as $clientSide)
+                {
+                    static::$clientSideCollection[$signature] = $clientSide;
+                }
+            }
+            else
+            {
+                static::$clientSideCollection[$signature] = $clientSides;
+            }
+        }
+        
+        return $this;
+    }
 
     public function getValidationsMappingDirectory($validationsDir = null)
     {
         return $this->tryMappingDirectory(null, null, null, null, $validationsDir)['validations'];
     }
 
+    public function getClientSideMappingDirectory($clientSideDir = null)
+    {
+        return $this->tryMappingDirectory(null, null, null, null, null, $clientSideDir)['clientSide'];
+    }
 
-    public function tryMappingDirectory($rulesDir = null, $exceptionsDir = null, $filtersDir = null, $logicsDir = null, $validationsDir = null)
+    public function tryMappingDirectory($rulesDir = null, $exceptionsDir = null, $filtersDir = null, $logicsDir = null, $validationsDir = null, $clientSideDir = null)
     {
         $relateMappping = [];
         $mappings = [];
@@ -254,6 +297,7 @@ abstract class Validation_provider implements ValidationProviderInterface
         $filtersMapping = [];
         $logicsMapping = [];
         $validationsMapping = [];
+        $clientSideMapping = [];
 
         try
         {
@@ -279,6 +323,8 @@ abstract class Validation_provider implements ValidationProviderInterface
 
             $validationsDir     = static::processDefaults(static::$defaultValidationsDir, DIRECTORY_SEPARATOR, $validationsDir);
 
+            $clientSideDir     = static::processDefaults(static::$defaultClientSideDir, DIRECTORY_SEPARATOR, $clientSideDir);
+
             $allFiles = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($dir));
             $phpFiles = new \RegexIterator($allFiles, '/\.php$/');
 
@@ -287,6 +333,7 @@ abstract class Validation_provider implements ValidationProviderInterface
             $filtersDirClean = str_replace(['/', '\\'], '', $filtersDir);
             $logicsDirClean = str_replace(['/', '\\'], '', $logicsDir);
             $validationsDirClean = str_replace(['/', '\\'], '', $validationsDir);
+            $clientSideDirClean = str_replace(['/', '\\'], '', $clientSideDir);
 
             foreach ($phpFiles as $phpFile) 
             {
@@ -356,6 +403,10 @@ abstract class Validation_provider implements ValidationProviderInterface
                 {
                     $validationsMapping = $this->processClassMapping($phpFile, $baseNamespace, $validationsDirClean, [$this, 'createSignature'], Validation_interface::class, $validationsMapping);
                 }
+                else if($lastSegment == $clientSideDirClean)
+                {
+                    $clientSideMapping = $this->processClassMapping($phpFile, $baseNamespace, $clientSideDirClean, [$this, 'createClientSideSignature'], ClientSideInterface::class, $clientSideMapping);
+                }
             }
             
             foreach($mappings as $signature => $maps)
@@ -378,7 +429,8 @@ abstract class Validation_provider implements ValidationProviderInterface
             'rules_exceptions' => $relateMappping,
             'filters' => $filtersMapping,
             'logics' => $logicsMapping,
-            'validations' => $validationsMapping
+            'validations' => $validationsMapping,
+            'clientSide' => $clientSideMapping
         ];
 
     }
@@ -435,6 +487,17 @@ abstract class Validation_provider implements ValidationProviderInterface
         return $signature;
     }
 
+    protected function createClientSideSignature($qualifiedClass)
+    {
+        $class   = explode('\\', $qualifiedClass);
+        $class   = end($class);
+
+        $signature = mb_strtolower($class);
+        $signature = str_replace([Client_side::$clientSideSuffix, Client_side::$altClientSideSuffix], '', $signature);
+
+        return $signature;
+    }
+
     public function registerExtension(Extension_interface $extension)
     {
         v::registerExtension($extension);
@@ -467,6 +530,13 @@ abstract class Validation_provider implements ValidationProviderInterface
     {
         v::addLangStubs($stubs);
         
+        return $this;
+    }
+
+    public function addJSvalidationLibrary($jsValidationLibrary)
+    {
+        v::addJSvalidationLibrary($jsValidationLibrary);
+
         return $this;
     }
 

@@ -59,6 +59,20 @@ trait AjdValExtender
 		return static::get_ajd_instance();
 	}
 
+	public static function addClientSideNamespace( $namespace )
+	{
+		Helpers\Client_side::addNamespace( $namespace );
+
+		return static::get_ajd_instance();
+	}
+
+	public static function addClientSideDirectory( $directory )
+	{
+		Helpers\Client_side::addDirectory( $directory );
+
+		return static::get_ajd_instance();
+	}
+
 	public static function registerClass( $class_name, array $messages = [], array $passArgs = [], $path = null, $class_method = 'run', $namespace = null, $anonymousWay = true, $from_framework = null )
 	{
 		$object = null;
@@ -248,7 +262,6 @@ trait AjdValExtender
 		static::init_extensions(true);
 	}
 
-
 	public static function registerRulesMappings(array $mappings)
 	{
 		foreach($mappings as $rule => $exception)
@@ -267,6 +280,23 @@ trait AjdValExtender
 		Helpers\AJD_filter::registerFiltersMappings($mappings);
 
         return static::get_ajd_instance();
+	}
+
+	public static function registerClientSideMapping(array $mappings)
+	{
+		Helpers\Client_side::addMappings($mappings);
+
+        return static::get_ajd_instance();
+	}
+
+	public static function registerCustomClientSide($forRuleName, \CLosure $registration, $field = null)
+	{
+		Helpers\Client_side::registerCustomClientSide($forRuleName, $registration, $field);
+	}
+
+	public static function addJSvalidationLibrary($jsValidationLibrary)
+	{
+		Helpers\Client_side::addJSvalidationLibrary($jsValidationLibrary);	
 	}
 
 	public static function registerLogicsMappings(array $mappings)
@@ -302,10 +332,16 @@ trait AjdValExtender
 			Helpers\When::processMappings();
 
 			$validations = $package::getValidationsCollection();
-
+			$clientSides = $package::getClientSideCollection();
+			
 			if(!empty($validations))
 			{
 				static::$addValidationsMappings = array_merge(static::$addValidationsMappings, $validations);
+			}
+
+			if(!empty($clientSides))
+			{
+				static::registerClientSideMapping($clientSides);
 			}
 
 			static::$registeredPackaged[get_class($package)] = true;

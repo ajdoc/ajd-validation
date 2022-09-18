@@ -66,6 +66,14 @@ interface Extension_interface
      */
 	public function getAnonClass();
 
+    /**
+     * Returns an array of key value pair of rule => ['clientSide' => \Closure, (optional)'field' => 'specificFieldName'].
+     *
+     * @return array
+     *
+     */
+    public function getClientSides();
+
 	/**
      * Returns an array of method name to be made as a macro.
      *

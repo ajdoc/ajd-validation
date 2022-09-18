@@ -68,9 +68,9 @@ class AJD_filter extends Base_validator
 		return $this;
 	}
 
-	public function addFilterDirectory( $namespace )
+	public function addFilterDirectory( $directory )
 	{
-		array_push( static::$addFilterDirectory, $namespace );
+		array_push( static::$addFilterDirectory, $directory );
 
 		return $this;
 	}

@@ -141,7 +141,7 @@ class Class_factory implements Factory_interface
 					{
 						$requiredFiles = get_included_files();
 
-						$rules_path = str_replace(array('\\\\', '//'), [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $rules_path);
+						$rules_path = str_replace(['\\', '/'], [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $rules_path);
 						
 						$search = array_search($rules_path, $requiredFiles);
 						

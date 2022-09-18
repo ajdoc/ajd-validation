@@ -15,7 +15,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
     protected static $anonRuleExceptions = [];
     protected static $ruleArguments = [];
 
-	public function __invoke($value, $satisfier = null, $field = null)
+    public function __invoke($value, $satisfier = null, $field = null)
     {
         return $this->run($value, $satisfier, $field);
     }
@@ -32,16 +32,16 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         return $this;
     }
 
- 	public function getExceptionError($value, array $extraParams = [], $rule = null, $overrideName = false, $ruleObj = null, $inverse = false)
+    public function getExceptionError($value, array $extraParams = [], $rule = null, $overrideName = false, $ruleObj = null, $inverse = false)
     {
-    	$currentClass = $this;
-    	$currentObj = $this;
+        $currentClass = $this;
+        $currentObj = $this;
         
-    	if( !EMPTY( $rule ) )
-    	{
-    		$currentClass = $rule;
-    		$currentObj = $rule;
-    	}
+        if( !EMPTY( $rule ) )
+        {
+            $currentClass = $rule;
+            $currentObj = $rule;
+        }
 
         $exception = $this->createException($rule, $ruleObj);
         $name = $this->name ?: Errors::stringify($value);
@@ -168,21 +168,21 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         throw $exceptions;
     }
 
- 	protected function createException($rule = null, $ruleObj = null)
+    protected function createException($rule = null, $ruleObj = null)
     {
         $err = static::get_errors_instance();
         $ruleStr = null;
 
-    	if( !EMPTY( $rule ) )
-    	{
-    		$currentRule = get_class( $rule );
+        if( !EMPTY( $rule ) )
+        {
+            $currentRule = get_class( $rule );
             $ruleStr = get_class( $rule );
-    	}
-    	else
-    	{
-     		$currentRule = get_called_class();
+        }
+        else
+        {
+            $currentRule = get_called_class();
             $ruleStr = get_called_class();
-     	}
+        }
 
         $currentRule = str_replace('\\Rules\\', '\\Exceptions\\', $currentRule);
         $currentRule .= '_exception';
@@ -248,7 +248,9 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
     {
         $newJsFormat = '';
         $newJsArr = [
-            'customJS' => ''
+            'customJS' => '',
+            'clientSideJson' => [],
+            'clientSideJsonMessages' => []
         ];
 
         if( $clientMessageOnly )
@@ -264,17 +266,36 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         }
         else
         {
+            if( isset($js['clientSideJson'][$field][$rule]) )
+            {
+                $newJsArr['clientSideJson'] = array_merge($newJsArr['clientSideJson'], $js['clientSideJson']);
+
+                unset($js['clientSideJson'][$field][$rule]);
+            }
+
+            if( isset($js['clientSideJsonMessages'][$field][$rule]) )
+            {
+                $newJsArr['clientSideJsonMessages'] = array_merge($newJsArr['clientSideJsonMessages'], $js['clientSideJsonMessages']);
+                unset($js['clientSideJsonMessages'][$field][$rule]);
+            }
+
             if( isset($js[$field][$rule]['js']) )
             {
                 $newJsArr['customJS'] .= $js[$field][$rule]['js'];
                 unset($js[$field][$rule]['js']);
             }
 
-            $newJsFormat = implode(' ', $js[$field][$rule]);
+            if(isset($js[$field][$rule]))
+            {
+                $newJsFormat = implode(' ', $js[$field][$rule]);
+            }
         }
 
-        $newJsArr[$field][$rule] = $newJsFormat;
-
+        if(!empty($newJsFormat))
+        {
+            $newJsArr[$field][$rule] = $newJsFormat;
+        }
+        
         return $newJsArr;
     }
 }

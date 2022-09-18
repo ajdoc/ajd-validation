@@ -28,12 +28,12 @@ abstract class Base_extension implements Extension_interface
 
 	public function getRules()
 	{
-		return array();
+		return [];
 	}
 
 	public function getRuleMessages()
 	{
-		return array();
+		return [];
 	}
 
 	public function runRules( $rule, $value, $satisfier, $field )
@@ -44,23 +44,23 @@ abstract class Base_extension implements Extension_interface
 		}
 		else 
 		{	
-			return call_user_func_array( $rule , array( $value, $satisfier, $field ) );
+			return call_user_func_array( $rule , [$value, $satisfier, $field] );
 		}
 	}
 
 	public function getMiddleWares()
 	{
-		return array();
+		return [];
 	}
 
 	public function getFilters()
 	{
-		return array();
+		return [];
 	}
 
 	public function getLogics()
 	{
-		return array();
+		return [];
 	}
 
 	public function getAnonClass()
@@ -69,6 +69,11 @@ abstract class Base_extension implements Extension_interface
 	}
 
 	public function getMacros()
+	{
+		return [];
+	}
+
+	public function getClientSides()
 	{
 		return [];
 	}

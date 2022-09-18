@@ -871,11 +871,6 @@ class AJD_validation extends Base_validator
 		return static::get_ajd_instance();
 	}
 
-	public static function registerCustomClientSide($forRuleName, \CLosure $registration, $field = null)
-	{
-		Client_side::registerCustomClientSide($forRuleName, $registration, $field);
-	}
-
 	public static function getClientSide( $perField = true, $format = Client_side::PARSLEY )
 	{
 		$ajdIns = static::get_ajd_instance();
@@ -3785,6 +3780,23 @@ class AJD_validation extends Base_validator
 			foreach( $extension->getMiddleWares() as $name => $func )
 			{	
 				static::$middleware[ $name ][ 'func' ] = $func;
+			}
+
+			foreach( $extension->getClientSides() as $ruleName => $configs )
+			{
+				if(!isset($configs['clientSide']) || empty($configs['clientSide']))
+				{
+					continue;
+				}
+
+				$specificField = null;
+
+				if(isset($configs['field']) && !empty($configs['field']))
+				{
+					$specificField = $configs['field'];
+				}
+
+				static::registerCustomClientSide($ruleName, $configs['clientSide'], $specificField);
 			}
 
 			$anons = $extension->getAnonClass();

@@ -12,7 +12,14 @@ class ParsleyAjdCommonClientSide extends AbstractClientSide
 
 	public static function commonClientSide(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
 	{
+		$js = [];
+		
 		$js = static::{static::$jsTypeFormat.'Common'}($field, $rule, $satisfier, $error, $value);
+
+		if(empty($js))
+		{
+			return $js;
+		}
 
 		$js = static::$ruleObj->processJsArr( $js, $field, $rule, static::$clientMessageOnly );
 		

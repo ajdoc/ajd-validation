@@ -39,7 +39,7 @@ class AbstractClientSide implements ClientSideInterface
 	];
 
 	protected static $relatedLength = [
-		'maxlength', 'minlength'
+		'maxlength', 'minlength', 'min', 'max'
 	];
 
 	public static function boot(Rule_interface $ruleObj, string $jsTypeFormat, bool $clientMessageOnly = false)

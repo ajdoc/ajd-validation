@@ -12,21 +12,24 @@ use AJD_validation\AJD_validation;
 class Client_side extends Base_validator
 {
 	const PARSLEY = 'parsley';
+	const JQ_VALIDATION = 'jqvalidation';
 
 	protected static $js_rules;
 	protected static $js_validation_rules = [];
 	protected static $validJs = [
-		self::PARSLEY
+		self::PARSLEY,
+		self::JQ_VALIDATION
 	];
 
 	protected static $clientSidePath;
-	protected static $clientSideSuffix = 'ClientSide';
+	public static $clientSideSuffix = 'ClientSide';
+	public static $altClientSideSuffix = '_client_side';
 
 	protected $cacheInstance = [];	
 
 	protected $ajd;
 
-	protected $clientSideNamespace = ['AJD_validation\\ClientSide\\'];
+	protected static $clientSideNamespace = ['AJD_validation\\ClientSide\\'];
 
 	protected static $customClientSide = [];
 	protected static $defaultField = 'DefaultField';
@@ -37,6 +40,10 @@ class Client_side extends Base_validator
 		'required', 'required_allowed_zero'
 	];
 
+	protected static $minMaxlengthRules = [
+		'minlength', 'maxlength'
+	];
+
 	protected static $rulesCommonClass = [
 		'required', 'required_allowed_zero', // required base rules
 		'email', 'base_email', 'rfc_email', 'spoof_email', 'no_rfc_email', 'dns_email', // email base rules
@@ -45,6 +52,25 @@ class Client_side extends Base_validator
 		'regex', 'mac_address', 'consonant', 'mobileno', 'phone', 'vowel', // regex rules
 		'maxlength', 'minlength' // length based rules
 	];
+
+	protected static $addDirectory = [];
+
+	protected static $addMappings = [];
+
+	public static function addNamespace( $namespace )
+	{
+		array_push( static::$clientSideNamespace, $namespace );
+	}
+
+	public static function addDirectory( $directory )
+	{
+		array_push( static::$addDirectory, $directory );
+	}
+
+	public static function addMappings( array $mappings )
+	{
+		static::$addMappings = array_merge(static::$addMappings, $mappings);
+	}
 
 	public function getClientSidePath()
 	{
@@ -64,19 +90,49 @@ class Client_side extends Base_validator
 		{
 			$classClientSide = \ucfirst( \strtolower( $rule ) );	
 		}
-		
+
+		$fullClassClientSide = $classClientSide.static::$clientSideSuffix;
 		$classPath = $this->getClientSidePath().$classClientSide.static::$clientSideSuffix.'.php';
+
+		if(!file_exists($classPath))
+		{
+			$classPath = $this->getClientSidePath().$classClientSide.static::$altClientSideSuffix.'.php';
+			$fullClassClientSide = $classClientSide.static::$altClientSideSuffix;
+		}
+		
+		if( !empty( static::$addDirectory ) )
+		{
+			foreach( static::$addDirectory as $pathClass )
+			{
+				$pathHolder = $pathClass.$classClientSide.static::$clientSideSuffix.'.php';
+				$pathHolderAlt = $pathClass.$classClientSide.static::$altClientSideSuffix.'.php';
+
+				if( file_exists( $pathHolder ) )
+				{
+					$classPath = $pathHolder;
+				}
+				else
+				{
+					if(file_exists($pathHolderAlt))
+					{
+						$classPath = $pathHolderAlt;
+					}
+				}
+			}
+		}
 
 		return [
 			'classPath' => $classPath,
 			'isClass' => file_exists($classPath),
-			'className' => $classClientSide.static::$clientSideSuffix
+			'className' => $fullClassClientSide
 		];
 	}
 
 	public function loadClientSideFile($classPath, $className)
 	{
-		foreach($this->clientSideNamespace as $namespace)
+		$fullClassName = $className;
+
+		foreach(static::$clientSideNamespace as $namespace)
 		{
 			$realClassName = $namespace.$className;
 			
@@ -86,24 +142,33 @@ class Client_side extends Base_validator
 				{
 					$requiredFiles = get_included_files();
 
-					$classPath = str_replace(array('\\\\', '//'), [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $classPath);
+					$classPath = str_replace(['\\', '/'], [DIRECTORY_SEPARATOR, DIRECTORY_SEPARATOR], $classPath);
 					
 					$search = array_search($classPath, $requiredFiles);
 
 					if( empty( $search ) )
 					{
-						$clientSeq = require $classPath;	
+						if(file_exists($classPath))
+						{
+							$clientSeq = require $classPath;		
+						}
 					}
 				}
 			}
 
-			if(is_string($classPath) && !is_object($classPath))
+			if(class_exists($realClassName))
 			{
-				return [
-					'className' => $realClassName,
-					'classExists' => class_exists($realClassName)
-				];
+				$fullClassName = $realClassName;
+				continue;
 			}
+		}
+
+		if(is_string($classPath) && !is_object($classPath))
+		{
+			return [
+				'className' => $fullClassName,
+				'classExists' => class_exists($fullClassName)
+			];
 		}
 	}
 
@@ -242,13 +307,62 @@ class Client_side extends Base_validator
 							$classDetails = $this->generateClassDetails($clean_rule, $jsTypeFormat);
 						}
 
+						$realKeyCheck = $clean_rule;
+
+						if(!empty(static::$addMappings) && in_array($clean_rule, static::$rulesCommonClass, true))
+						{
+							$jsTypeFormat = \strtolower( $jsTypeFormat );	
+							$classClientSide = \strtolower($jsTypeFormat.static::$commonClientSideClass.static::$clientSideSuffix);
+							$altClassClientSide = \strtolower($jsTypeFormat.static::$commonClientSideClass.static::$altClientSideSuffix);
+							
+							 if(isset(static::$addMappings[$classClientSide]))
+							 {
+							 	$realKeyCheck = $classClientSide;
+							 }
+							 else if(isset(static::$addMappings[$altClassClientSide]))
+							 {
+							 	$realKeyCheck = $altClassClientSide;
+							 }
+						}
+						
+						if(!empty($classDetails) && !$classDetails['isClass'])
+						{
+							if(!empty(static::$addMappings))
+							{
+								if(isset(static::$addMappings[$realKeyCheck]))
+								{
+									$classDetails['isClass'] = true;
+								}
+							}
+						}
+
 						if(!empty($classDetails) && $classDetails['isClass'] && !$fieldSet)
 						{
 							$loadedDetails = $this->loadClientSideFile($classDetails['classPath'], $classDetails['className']);
+
+							if(!$loadedDetails['classExists'])
+							{
+								if(!empty(static::$addMappings))
+								{
+									if(isset(static::$addMappings[$realKeyCheck]))
+									{
+										$loadedDetails['classExists'] = class_exists(static::$addMappings[$realKeyCheck]);
+										$loadedDetails['className'] = static::$addMappings[$realKeyCheck];
+									}
+								}
+							}
 							
 							if($loadedDetails['classExists'])
 							{
 								$loadedDetails['className']::boot($instance, $jsTypeFormat, $clientMessageOnly);
+
+								if($jsTypeFormat == self::JQ_VALIDATION && in_array($clean_rule, static::$minMaxlengthRules, true))
+								{
+									if(!$satis[2])
+									{
+										$clean_rule = str_replace('length', '', $clean_rule);
+									}
+								}
 
 								$jsFormat = $loadedDetails['className']::getCLientSideFormat($field_or, $clean_rule, $satis, $errors, null);
 							}
@@ -341,12 +455,30 @@ JS;
 
 	public function get_js_validations($perField = false)
 	{
+		$arrExemptKey = ['clientSideJson', 'clientSideJsonMessages'];
 		if( $perField )
 		{
 			$newArr = [];
 			
 			foreach( static::$js_validation_rules as $field => $rules )
 			{
+				if(in_array($field, $arrExemptKey))
+				{
+					$fieldJson = $field;
+
+					if($field == 'clientSideJson')
+					{
+						$fieldJson = 'rules';
+					}
+					else if($field == 'clientSideJsonMessages')
+					{
+						$fieldJson = 'messages';
+					}
+
+					$newArr[$fieldJson] = $rules;
+					continue;
+				}
+
 				$newArr[$field] = '';
 
 				if( is_array($rules) )
