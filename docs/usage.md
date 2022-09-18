@@ -906,7 +906,64 @@ echo '<pre>';
 		)
 	*/
 ```
-6. Check if the validation is valid.
+
+6. Casting the valid value/values to a specific type.
+```php
+use AJD_validation\AJD_validation;
+
+$v1 = $v
+	->required()
+	->minlength(2)
+	->check('field1', 'aa')
+	->getValidationResult()
+	->castValueTo('int')
+	->getFieldValue();
+
+	print_r($v1);
+	/*
+		prints to 
+		Array ( [0] => 0 )
+	*/
+
+	$result1 = $v
+	->required()
+	->minlength(2, true, true)
+	->check('field1', '2022-01-01')
+	->getValidationResult();
+
+	$v1 = $result1->getValidationDefinition();
+
+	$result1->castValueTo('DateTime')->getValue($storage);
+
+	$v1()->check('field2', '')
+		->getValidationResult()
+		->getValue($storage);
+
+	$v1()->check('field3', 'true')
+		->getValidationResult()
+		->castValueTo('bool')
+		->getValue($storage);
+
+	print_r($storage);
+
+	/*
+		prints 
+		Array
+		(
+		    [field1] => DateTime Object
+		        (
+		            [date] => 2022-01-01 00:00:00.000000
+		            [timezone_type] => 3
+		            [timezone] => Europe/Berlin
+		        )
+
+		    [field3] => 1
+		)
+	*/
+
+```
+
+7. Check if the validation is valid.
 - Use `->isValid() : bool`
 ```php
 use AJD_validation\AJD_validation;

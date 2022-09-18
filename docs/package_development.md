@@ -20,6 +20,8 @@ In this document we'll see how to create package for ajd-validation
 |   +-- Custom_extension.php
 +-- Validations
 |   +-- Custom_validation.php
++-- ClientSide
+|   +-- Custom_client_side.php
 +-- lang
 |   +-- custom_lang.php
 |   +-- custom_lang.stubs
@@ -42,13 +44,15 @@ In this document we'll see how to create package for ajd-validation
 |   +-- Custom_extension.php
 +-- Validations
 |   +-- Custom_validation.php
++-- ClientSide
+|   +-- Custom_client_side.php
 +-- lang
 |   +-- custom_lang.php
 |   +-- custom_lang.stubs
 +-- ValidatorProvider.php
 ```
 
-- Inside a package you can create your Custom Rules -> Exceptions, Filters, Validators, Macros, Extensions, lang file, lang stubs file and Logics.
+- Inside a package you can create your Custom Rules -> Exceptions, Filters, Validators, Macros, Extensions, Client Sides, lang file, lang stubs file and Logics.
 	- You can read creating a custom rule class here:
 		[Adding Custom Rule](advance_usage/adding_custom_rules.md)
 	- You can read creating a custom extension class here:
@@ -62,6 +66,8 @@ In this document we'll see how to create package for ajd-validation
 		[Filters](filters.md)
 	- You can read creating a custom logics class here:
 		[When](advance_usage/when.md)
+	- You can read creating a custom client side class here:
+		[When](advance_usage/client_side.md)
 
 ## Validator Provider
 - All package must have a validator provider class which extends to `\AJD_validation\Contracts\Validation_provider.php`.
@@ -222,6 +228,46 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 	}
 ```
 
+### Registering Client Sides
+- Before registering any Client Sides one must 
+	`->setDefaults([
+		'baseDir' => __DIR__,
+		'baseNamespace' => __NAMESPACE__
+	])` 
+
+- There are two ways to register Client Sides 
+	- use `->registerClientSides()` if you are using folder structure `2` and is not using any autoloading. This will automatically register Client Sides under ClientSides Directory
+```php
+	public function register()
+	{
+		$this
+			->setDefaults([
+				'baseDir' => __DIR__,
+				'baseNamespace' => __NAMESPACE__
+			])
+			->registerClientSides();
+	}
+```
+	- use `->registerClientSideMapping([ClientSideInterface::class])` if you want to register an array of client sides classes and is using autloading.
+```php
+	public function register()
+	{
+		$this
+			->setDefaults([
+				'baseDir' => __DIR__,
+				'baseNamespace' => __NAMESPACE__
+			])
+			// manual registering of client sides
+			->registerClientSideMapping([
+				ClientSides\Package_client_side::class
+			])
+
+			// use this if you want the provider to try and get all the client sides under ClientSides directory 
+
+			->registerClientSideMapping($this->getClientSideMappingDirectory());
+	}
+```
+
 ### Registering Custom Validations
 - Before registering any Validations one must 
 	`->setDefaults([
@@ -325,8 +371,8 @@ class Package_macro implements CanMacroInterface
 		'baseDir' => __DIR__,
 		'baseNamespace' => __NAMESPACE__
 	])` 
-- Custom Extension is a way to add Rules,Exceptions,Filters,Logics and Macros in one class.
-- It is recommended to add Rules,Exceptions,Filters,Logics and Macros by clasess.
+- Custom Extension is a way to add Rules,Exceptions,Filters,Logics,Client Sides and Macros in one class.
+- It is recommended to add Rules,Exceptions,Filters,Logics,Client Sides and Macros by clasess.
 - To register an extension use `->registerExtension(new \AJD_validation\Contracts\Base_extension $extension)`.
 - You can read more about extension class here:
 	[Adding Custom Rule](advance_usage/adding_custom_rules.md)
@@ -526,6 +572,27 @@ class Package_extension extends Base_extension
 
 			return $this;
 		};
+	}
+
+	public function getClientSides()
+	{
+		return [
+			'custom_validation' => [
+				'clientSide' => function(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+				{
+					$js[$field][$rule]['rule'] =   <<<JS
+	            		data-parsley-$rule="emailaass"
+JS;
+
+					$js[$field][$rule]['message'] = <<<JS
+                		data-parsley-$rule-message="$error"
+JS;
+					return $js;
+				},
+				// optional
+				'field' => 'specific_field'
+			]
+		];
 	}
 }
 

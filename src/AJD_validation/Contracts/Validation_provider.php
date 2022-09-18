@@ -33,8 +33,8 @@ abstract class Validation_provider implements ValidationProviderInterface
     protected static $defaultValidationsDir = '/Validations';
     protected static $defaultValidationsNamespace = '\\Validations';
 
-    protected static $defaultClientSideDir = '/ClientSide';
-    protected static $defaultClientSideNamespace = '\\ClientSide';
+    protected static $defaultClientSideDir = '/ClientSides';
+    protected static $defaultClientSideNamespace = '\\ClientSides';
 
     protected static $defaults = [
         'baseDir' => '',
