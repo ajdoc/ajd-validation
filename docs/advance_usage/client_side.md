@@ -380,6 +380,23 @@ class PostController
 			throw $e;
 		}
 	}
+
+	public function create()
+	{
+		$msg = '';
+		try
+		{
+			$params = $_POST;
+
+			$this->validate($params);
+		}
+		catch(\Exception $e)
+		{
+			$msg = $e->getMessage();
+		}
+
+		return response(['msg' => $msg]);
+	}
 }
 
 
