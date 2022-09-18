@@ -381,6 +381,7 @@ class PostController
 		}
 	}
 
+	/*Will also validate when create endpoint is called*/
 	public function create()
 	{
 		$msg = '';
