@@ -561,6 +561,7 @@ JS;
                 data-parsley-$rule-message="$error"
 JS;
 
+			// if you want customJs
 			$js[$field][$rule]['js'] = <<<JS
                 function myCustomJsForTheJsLibrary()
                 {
@@ -575,7 +576,7 @@ JS;
         return $js;
 	});
 
-/*this will override the default parsley validation for email rule*/
+/*this will create client side for folder_custom rule*/
 
 $v->folder_custom(1, '#client_email')
 ->check('email', '');
