@@ -1329,6 +1329,7 @@ $v->assert();
 **Do note that all combinators returns a promise in which you could also get validation result through `->getValidationResult()`.**
 
 ## The Client Side Component
+- **Do note that AJD validation doesn't have a real client side/javascript version, it just somewhat sync/port some of its built in rules to the client side thru server side rendering. Currently it does not have support for javascript frameworks like Vue,React,Svelte and the like but this component gives you the ability to create/support such framework. Maybe thru sending the validation array as json response.**
 - **Do note client side component currently supports this libraries.**
 	- [jqueryvalidation.js](https://jqueryvalidation.org/documentation/)
 	- [parsley.js](https://parsleyjs.org/)

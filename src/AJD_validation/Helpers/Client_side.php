@@ -493,6 +493,10 @@ JS;
 						$newArr[$field] .= $rule.' ';
 					}
 				}
+				else
+				{
+					$newArr[$field] .= $rules;
+				}
 			}
 			
 			return $newArr;

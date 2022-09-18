@@ -267,6 +267,23 @@ class PackageAjdValidatorServiceProvider extends Validation_provider
 			->registerClientSideMapping($this->getClientSideMappingDirectory());
 	}
 ```
+#### Registering new JsValidationLibrary for client side
+- Before registering any new JsValidationLibrary one must 
+	`->setDefaults([
+		'baseDir' => __DIR__,
+		'baseNamespace' => __NAMESPACE__
+	])` 
+```php
+	public function register()
+	{
+		$this
+			->setDefaults([
+				'baseDir' => __DIR__,
+				'baseNamespace' => __NAMESPACE__
+			])
+			->addJSvalidationLibrary('myjs');
+	}
+```
 
 ### Registering Custom Validations
 - Before registering any Validations one must 
@@ -594,7 +611,6 @@ JS;
 			]
 		];
 	}
-}
 
 	public function register()
 	{
