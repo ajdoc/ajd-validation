@@ -115,6 +115,19 @@ $v->required(null, '#client_email')
 <input type="text" <?php echo $clientSide['email'] ?> name="email">
 ```
 
+- Including the message only for parsley validation
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v 
+	->required(null, '#client_email', '#client_message_only')
+	->check('email', '');
+
+	// This will just include "data-parsley-required-message="The Email field is required" in the array
+```
+
 2. JqueryValidation example
 ```php
 use AJD_validation\AJD_validation
@@ -191,19 +204,6 @@ $v->required(null, '#client_email')
 	*/
 
 		return $client
-```
-
-- Including the message only for parsley validation
-```php
-use AJD_validation\AJD_validation;
-
-$v = new AJD_validation;
-
-$v 
-	->required(null, '#client_email', '#client_message_only')
-	->check('email', '');
-
-	// This will just include "data-parsley-required-message="The Email field is required" in the array
 ```
 
 - To use with jqueryvalidation
