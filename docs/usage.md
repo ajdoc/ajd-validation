@@ -406,23 +406,25 @@ use AJD_validation\AJD_validation;
 
 $v = new AJD_validation;
 
-$v->storeConstraintTo('group1')
+$v1 = $v
 	->required()
 	->minlength(3)
 	->maxlength(30)
-->endstoreConstraintTo();
+	->setUpValidation()
+	->getValidationDefinition();
 
-$v->storeConstraintTo('group2')
-	->required()
-  	->minlength(2)
-->endstoreConstraintTo();
+$v2 = $v
+			->required()
+  		->minlength(2)
+  		->setUpValidation()
+			->getValidationDefinition();
 
-$v->useConstraintStorage('group1')->check('field1', 'e');
-$v->useConstraintStorage('group2')->check('field2', '');
+$v1()->check('field1', 'e');
+$v2()->check('field2', '');
 
-$v->useConstraintStorage('group1')->digit()->check('field3', '');
+$v1()->digit()->check('field3', '');
 ```
-- We store rule definition `required`, `minlength`, `maxlength` in storage `group1` and we could reuse the rule definition by using `$v->useContraintStorage('group1')`
+- We store rule definition `required`, `minlength`, `maxlength` in storage `group1` and we could reuse the rule definition by using `$v->setUpValidation((optional)'[unique-identfier]')->getValidationDefinition()`
 - We could define another rule definition not in the storage for a specific field like in 'field3'.
 
 ## Any 
@@ -615,6 +617,956 @@ $v
 ```
 - `$v->triggerWhen(bool|callable|\AJD_validation\Helpers\Logics_map|\AJD_validation\Contracts\Validator)` 
 
+## The Validation Result Object
+- The Validation Result is an object in which it is possible to get the validation results such as errors, values, the validation definition and also allows to do some processings on the results:
+
+1. To get the Validation Result 
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+// 1 During setup
+$v 
+	->required()
+	->setUpValidation() // returns validation result object
+
+// 2 after validation
+$v 
+	->required()
+	->minlength(2)
+	->check('field1', '')
+	->getValidationResult() // returns validation result object
+```
+
+2. Mapping Errors
+- Use `->mapErrors(\Closure(string $errors, self $that) : array)` 
+- `mapErrors` will only trigger if validation fails
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$v
+	->required()
+	->minlength(2)
+	->check('field1', '')
+	->getValidationResult()
+	->mapErrors(function($errors, $self)
+	{
+		echo '<pre>';
+		print_r($errors);
+		return $errors;
+	});
+
+	// prints 
+	/*
+	Array
+	(
+	    [required] => Array
+	        (
+	            [0] => The Field1 field is required
+	        )
+
+	    [minlength] => Array
+	        (
+	            [0] => Field1 must be greater than or equal to 2. character(s). 
+	        )
+
+	)
+	*/
+```
+- Overriding Message in `mapErrors`
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$v
+	->required()
+	->minlength(2)
+	->check('field1', '')
+	->getValidationResult()
+	->mapErrors(function($errors, $self)
+	{
+		$mm = '';
+		$mArr = [];
+		foreach($errors as $rule => $mess)
+		{
+			foreach($mess as $k => $m)
+			{
+				$mm .= '&nbsp;- '.$m.' Custom error new<br>';
+
+				$self->overrideErrorMessage($mm, $rule, $k);
+			}
+		}
+		return $errors;
+	});
+
+	// prints errors
+	/*
+	All of the required rules must pass for "Field1".
+  -  - The Field1 field is required Custom error new
+ - Field1 must be greater than or equal to 2. character(s). Custom error new
+	*/
+```
+- Throwing Error in `mapErrors`
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$v
+	->required()
+	->minlength(2)
+	->check('field1', '')
+	->getValidationResult()
+	->mapErrors(function($errors, $self)
+	{
+		$mm = '';
+		$mArr = [];
+		foreach($errors as $rule => $mess)
+		{
+			foreach($mess as $k => $m)
+			{
+				$mm .= '&nbsp;- '.$m.' Custom error new<br>';
+
+				$self->overrideErrorMessage($mm, $rule, $k);
+			}
+		}
+		
+		return $self->throwErrors($mm);
+	})->otherwise(function($e)
+	{
+		echo $e->getMessage().'from otherwise throw';
+	});
+
+	// prints errors
+	/*
+	- The Field1 field is required Custom error new
+ 	- Field1 must be greater than or equal to 2. character(s). Custom error new
+		from otherwise throw
+	*/
+```
+
+3. Mapping Values
+- Use `->mapValue(\Closurea(mixed $values, self $that) : mixed)`
+- `mapValue` will only trigger if validation passes
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$v
+	->required()
+	->minlength(2)
+	->check('field1', 'aa')
+	->getValidationResult()
+	->mapValue(function($value, $self)
+	{
+		echo '<pre>';
+		print_r($value);
+		return $value;
+	});
+
+	// prints value
+	/*
+	Array
+	(
+	    [0] => aa
+	)
+	*/
+
+// Do some processing
+echo '<pre>';
+print_r($v
+	->required()
+	->minlength(2)
+	->check('field1', 'aa')
+	->getValidationResult()
+	->mapValue(function($value, $self)
+	{
+		
+		return ['field1' => $value[0]];
+	})->getFieldValue()); 
+/*
+	returns 
+	Array
+	(
+	    [field1] => aa
+	)
+*/
+```
+- Forward Resolution
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$v
+	->required()
+	->minlength(2)
+	->check('field1', 'aa')
+	->getValidationResult()
+	->mapValue(function($value, $self)
+	{
+		
+		$val = ['field1' => $value[0]];
+
+		return \AJD_validation\Async\PromiseHelpers::resolve($val);
+	})->done(function($value)
+	{
+		print_r($value);
+	})->then(function($v)
+	{
+		echo 'test forward resolution'.var_export($v, true);
+	});
+/*
+	prints 
+	Array
+	(
+	    [field1] => aa
+	)
+	test forward resolutionarray (
+	  'field1' => 'aa',
+	)
+*/
+```
+
+4. Getting The Field Value
+- Use `->getFieldValue() : mixed`
+- `getFieldValue` will only trigger if validation passes
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$v1 = $v
+	->required()
+	->minlength(2)
+	->check('field1', 'aa')
+	->getValidationResult()
+	->getFieldValue();
+
+	print_r($v1);
+/*
+	prints/returns
+	Array
+	(
+	    [0] => aa
+	)
+*/
+
+// if validation fails
+
+$v1 = $v
+	->required()
+	->minlength(2)
+	->check('field1', '')
+	->getValidationResult()
+	->getFieldValue();
+
+	print_r($v1);
+/*
+	prints/returns
+	Array
+	()
+*/
+```
+
+5. getting all the valid values
+- Use `->getValue(array &$storage) : array`
+- `getValue` will only trigger if validation passes
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+echo '<pre>';
+
+	$result1 = $v
+	->required()
+	->minlength(2)
+	->check('field1', 'a1')
+	->getValidationResult();
+
+	$v1 = $result1->getValidationDefinition();
+
+	$result1->getValue($storage);
+
+	$v1()->check('field2', '')
+		->getValidationResult()
+		->getValue($storage);
+
+	$v1()->check('field3', 'a3')
+		->getValidationResult()
+		->getValue($storage);
+
+	print_r($storage);
+	/*
+		In the above example only 'field1' and 'field3' was included in the storage because 'field2' fails.
+	*/
+	/*
+		prints
+		Array
+		(
+		    [field1] => a1
+		    [field3] => a3
+		)
+	*/
+```
+6. Check if the validation is valid.
+- Use `->isValid() : bool`
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$result1 = $v
+	->required()
+	->minlength(2)
+	->check('field1', 'a1')
+	->getValidationResult()
+	->isValid();
+	
+	var_dump($result1);
+
+	/*
+		prints/returns
+		bool(true)
+	*/
+```
+
+## The Combinators
+- Combinators will allow you to combine field-rule validation definition which will also allow to create an error message for the combined validation definition, will allow to check the set of rules in sequence, will allow to check the set of field-rule in sequence, which will allow to check the combined validation definition associatively.:
+
+1. Combining Field Rule definition
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+// first way
+$combined = $v->combinator(
+		$v->required()
+		->minlength(2)
+		->check('field1', '')
+		->getValidationResult(),
+
+		$v->required()
+		->minlength(3)
+		->check('field2', '')
+		->getValidationResult(),		
+	);
+
+	var_dump($combined->check('')
+	->getValidationResult()
+	->isValid()); // returns/prints false
+
+	// prints error
+	/*
+		All of the required rules must pass for "Field1".
+		  - The Field1 field is required
+		  - Field1 must be greater than or equal to 2. character(s).
+		All of the required rules must pass for "Field2".
+		  - The Field2 field is required
+		  - Field2 must be greater than or equal to 3. character(s).
+	*/
+
+	// second way
+  // only difference from the first way is that with this way it won't run the validation and remove error message.
+  $combined = $v->combinator(
+		$v->required()
+		->minlength(2)
+		->setUpValidation('field1'),
+
+		$v->required()
+		->minlength(3)
+		->setUpValidation('field2'),		
+	);
+
+	var_dump($combined->check('')
+	->getValidationResult()
+	->isValid()); // returns/prints false
+
+	// prints error
+	/*
+		All of the required rules must pass for "Field1".
+		  - The Field1 field is required
+		  - Field1 must be greater than or equal to 2. character(s).
+		All of the required rules must pass for "Field2".
+		  - The Field2 field is required
+		  - Field2 must be greater than or equal to 3. character(s).
+	*/
+
+```
+
+2. Combining Error messages for combined field rule validation.
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+$combined = $v->combinator(
+	$v->required()
+	->minlength(2)
+	->setUpValidation('field1'),
+
+	$v->required()
+	->minlength(3)
+	->setUpValidation('field2'),		
+);
+
+$combined->setCombineErrorMessage('field 1 and field 2 is required and field 1 min length is 2 while field 2 min length is 3.')->check('');
+
+$v->assert();
+
+// prints error
+	/*
+		field 1 and field 2 is required and field 1 min length is 2 while field 2 min length is 3.
+	*/
+
+```
+
+3. Array Values for combined validation
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+$combined = $v->combinator(
+	$v->required()
+	->minlength(2)
+	->setUpValidation('field1'),
+
+	$v->required()
+	->minlength(3)
+	->setUpValidation('field2'),		
+);
+
+$combined->check(['fieldcom' => ['', '']], 'fieldcom');
+
+$v->assert();
+// prints error
+/*
+All of the required rules must pass for "Field1".
+  - The Field1 field is required at row 1.
+  - The Field1 field is required at row 2.
+  - Field1 must be greater than or equal to 2. character(s). at row 1.
+  - Field1 must be greater than or equal to 2. character(s). at row 2.
+All of the required rules must pass for "Field2".
+  - The Field2 field is required at row 1.
+  - The Field2 field is required at row 2.
+  - Field2 must be greater than or equal to 3. character(s). at row 1.
+  - Field2 must be greater than or equal to 3. character(s). at row 2.
+*/
+```
+
+4. Combining with another combinator
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+$combined = $v->combinator(
+	$v->required()
+	->minlength(2)
+	->setUpValidation('field1'),
+
+	$v->required()
+	->minlength(3)
+	->setUpValidation('field2'),		
+);
+
+$combined2 = $v->combinator(
+	$combined,
+	$v->required()
+		->email()
+		->setUpValidation('field3')
+);
+
+$combined2->check(['fieldcom' => ['', '']], 'fieldcom');
+
+$v->assert();
+// prints error
+/*
+All of the required rules must pass for "Field1".
+  - The Field1 field is required at row 1.
+  - The Field1 field is required at row 2.
+  - Field1 must be greater than or equal to 2. character(s). at row 1.
+  - Field1 must be greater than or equal to 2. character(s). at row 2.
+All of the required rules must pass for "Field2".
+  - The Field2 field is required at row 1.
+  - The Field2 field is required at row 2.
+  - Field2 must be greater than or equal to 3. character(s). at row 1.
+  - Field2 must be greater than or equal to 3. character(s). at row 2.
+*/
+```
+
+5. Checking Combined Validation in sequence
+- This means that if the first validation passes it will go to the next validation
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+$combined = $v->combinator(
+	$v->required()
+	->minlength(2)
+	->setUpValidation('field1'),
+
+	$v->required()
+	->minlength(3)
+	->setUpValidation('field2'),		
+);
+
+$combined->sequence('');
+
+$v->assert();
+// prints error
+/*
+	All of the required rules must pass for "Field1".
+  - The Field1 field is required
+  - Field1 must be greater than or equal to 2. character(s).
+*/
+
+$combined = $v->combinator(
+	$v->required()
+	->minlength(2)
+	->setUpValidation('field1'),
+
+	$v->required()
+	->minlength(3)
+	->setUpValidation('field2'),		
+);
+
+$combined->sequence('aa');
+
+$v->assert();
+// prints error
+/*
+	All of the required rules must pass for "Field2".
+  - Field2 must be greater than or equal to 3. character(s).
+*/
+```
+
+6. Checking Combined Validation in association.
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$combined = $v->combinator(
+	$v->required()
+	->minlength(2)
+	->setUpValidation('field1'),
+
+	$v->required()
+	->minlength(3)
+	->setUpValidation('field2'),		
+);
+
+$combined->associative([
+	'field1' => 'aa',
+	'field2' => ''
+]);
+
+$v->assert();
+
+// prints error
+/*
+	All of the required rules must pass for "Field2".
+  - The Field2 field is required
+  - Field2 must be greater than or equal to 3. character(s).
+*/
+```
+
+7. Checking Combined Validation in association and in sequence.
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$combined = $v->combinator(
+	$v->required()
+	->minlength(2)
+	->setUpValidation('field1'),
+
+	$v->required()
+	->minlength(3)
+	->setUpValidation('field2'),		
+);
+
+$combined->assocSequence([
+	'field1' => '',
+	'field2' => ''
+]);
+
+$v->assert();
+
+// prints error
+/*
+	All of the required rules must pass for "Field1".
+  - The Field1 field is required
+  - Field1 must be greater than or equal to 2. character(s).
+*/
+
+$combined->assocSequence([
+	'field1' => 'aa',
+	'field2' => ''
+]);
+
+$v->assert();
+
+// prints error
+/*
+	All of the required rules must pass for "Field2".
+  - The Field2 field is required
+  - Field2 must be greater than or equal to 3. character(s).
+*/
+```
+
+8. Checking Combined Validation in association and in grouped sequence.
+- This will be useful for a multi step form.
+```php
+use AJD_validation\AJD_validation;
+$v = new AJD_validation;
+
+$combined = $v->combinator(
+		$v->required()
+		->minlength(2)
+		->setUpValidation('field1'),
+
+		$v->required()
+		->minlength(3)
+		->setUpValidation('field2'),		
+
+		$v->required()
+		->minlength(5)
+		->setUpValidation('field3'),	
+	);
+
+	$combined->assocSequence([
+		
+		'basic_info_group' => [
+			'field1' => '',
+			'field2' => ''
+		],
+		'account_details_group' => [
+			'field3' => ''
+		]
+	
+	]);
+
+$v->assert();
+
+// prints error
+/*
+	All of the required rules must pass for "Field1".
+  - The Field1 field is required
+  - Field1 must be greater than or equal to 2. character(s).
+	All of the required rules must pass for "Field2".
+  - The Field2 field is required
+  - Field2 must be greater than or equal to 3. character(s).
+*/
+
+$combined->assocSequence([
+		
+		'basic_info_group' => [
+			'field1' => 'aa',
+			'field2' => 'aaa'
+		],
+		'account_details_group' => [
+			'field3' => ''
+		]
+	
+	]);
+
+$v->assert();
+// prints error
+/*
+	All of the required rules must pass for "Field3".
+  - The Field3 field is required
+  - Field3 must be greater than or equal to 5. character(s).
+*/
+```
+**Do note that all combinators returns a promise in which you could also get validation result through `->getValidationResult()`.**
+
+## The Client Side Component
+- **Do note client side component currently supports this libraries.**
+	- [jqueryvalidation.js](https://jqueryvalidation.org/documentation/)
+	- [parsley.js](https://parsleyjs.org/)
+
+- **Do note client side component only supports the following built in rules.**
+```php
+$rulesClass = [
+	'required', 'required_allowed_zero', // required base rules
+	'email', 'base_email', 'rfc_email', 'spoof_email', 'no_rfc_email', 'dns_email', // email base rules
+	'in', 'date', 'multiple', // rules with client side support
+	'alpha', 'alnum', 'digit', // ctype rules
+	'regex', 'mac_address', 'consonant', 'mobileno', 'phone', 'vowel', // regex rules
+	'maxlength', 'minlength' // length based rules
+];
+```
+- To use the client side component
+- Client Side Component defaults to parsley.js
+- One must be familiar of the arguments the different rules are requiring so please read first [Rules](rules/).
+- `#client_[must_be_the_same_with_the_field_name]` 
+	- e.g. `$v->required(null, '#client_field1')->check('field1', '');`
+
+```php
+use AJD_validation\AJD_validation
+$v = new AJD_validation;
+
+$v->required(null, '#client_email')
+	->email([], '#client_email')
+	->in(['a@test.com', 'b@test.com'], '#client_email')
+	->check('email', '');
+
+	$clientSide = $v->getClientSide();
+
+	echo '<pre>';
+	print_r($clientSide);
+
+	/*
+		prints 
+		Array
+		(
+		     [customJS] =>   
+				 	function inRuleArray(value, haystack, identical)
+				 	{
+				 		for (var i in haystack) 
+				 		{ 
+				 			if( identical )
+				 			{
+				 				if (haystack[i] === value) return true; 
+				 			}
+				 			else
+				 			{
+				 				if (haystack[i] == value) return true; 
+				 			}
+				 		}
+
+				 		return false;
+				 	}
+
+					window.Parsley.addValidator('inrule', {
+						validate: function(value, requirement, obj) {
+							var arr 		= requirement.split('|+');
+							var identical 	= false;
+							var elem 	= $(obj.element);
+						 	var msg 	= $(obj.element).attr('data-parsley-in-message');
+							
+							if( elem.attr('data-parsley-inrule-identical') )
+							{
+								identical 	= true;
+							}
+
+							var check 	= inRuleArray(value, arr, identical);
+
+							if( !check )
+							{
+								return $.Deferred().reject(msg);
+							}
+
+							return inRuleArray(value, arr, identical);
+					},
+					messages: {
+						en: 'Email must be in { "a@test.com", "b@test.com" }.'
+					}
+				}); 
+		    [rules] => Array
+		        (
+		        )
+
+		    [messages] => Array
+		        (
+		        )
+
+		    [email] =>                 data-parsley-required="true" 				data-parsley-required-message="The Email field is required" 	            data-parsley-type="email" 				data-parsley-type-message="The Email field must be a valid email." 
+		)
+	*/
+
+		return $clientSide;
+```
+- To use with parsley
+```html
+
+<script type="text/javascript">
+	$(function()
+	{
+		<?php echo $clientSide['customJs'] ?>
+	});
+</script>
+
+<input type="text" <?php echo $clientSide['email'] ?> name="email">
+```
+
+2. JqueryValidation example
+```php
+use AJD_validation\AJD_validation
+
+$v = new AJD_validation;
+
+$v->required(null, '#client_email')
+	->email([], '#client_email')
+	->in(['a@test.com', 'b@test.com'], '#client_email')
+	->check('email', '');
+
+	echo '<pre>';
+	$client = $v->getClientSide(true, \AJD_validation\Helpers\Client_side::JQ_VALIDATION);
+	print_r($client);
+
+	// prints
+	/*
+		Array
+		(
+		    [customJS] =>   
+				 	function inRuleArray(value, haystack, identical)
+				 	{
+				 		for (var i in haystack) 
+				 		{ 
+				 			if( identical )
+				 			{
+				 				if (haystack[i] === value) return true; 
+				 			}
+				 			else
+				 			{
+				 				if (haystack[i] == value) return true; 
+				 			}
+				 		}
+
+				 		return false;
+				 	}
+
+				 	jQuery.validator.addMethod('in', function(value, element, params) 
+					{
+						var arr 		= params[0].split('|+');
+						var identical 	= params[1] || false;
+
+						return this.optional(element) || inRuleArray(value, arr, identical);
+
+					}, 'Email must be in { "a@test.com", "b@test.com" }.'); 
+		    [rules] => Array
+		        (
+		            [email] => Array
+		                (
+		                    [required] => 1
+		                    [email] => 1
+		                    [in] => Array
+		                        (
+		                            [0] => a@test.com|+b@test.com
+		                            [1] => true
+		                        )
+
+		                )
+
+		        )
+
+		    [messages] => Array
+		        (
+		            [email] => Array
+		                (
+		                    [required] => The Email field is required
+		                    [email] => The Email field must be a valid email.
+		                    [in] => Email must be in { "a@test.com", "b@test.com" }.
+		                )
+
+		        )
+
+		)
+	*/
+
+		return $client
+```
+- To use with jqueryvalidation
+```html
+<?php 
+	$clientSide = $client;
+
+	unset($clientSide['customJS']);
+?>
+
+<script type="text/javascript">
+	$().ready(function() {
+
+		<?php 
+			if(!empty($client['customJS']))
+			{
+				echo $client['customJS'];
+			}
+		?>
+
+		$('#yourForm').validate(<?php echo json_encode($clientSide) ?>);
+	});
+</script>
+```
+
+3. Client Side per rules
+```php
+use AJD_validation\AJD_validation;
+
+$v->required(null, '#client_email')
+	->email([], '#client_email')
+	->check('email', '');
+
+	echo '<pre>';
+	print_r($v->getClientSide(false));
+/*
+	prints
+Array
+(
+    [customJS] => Array
+        (
+            [0] => 
+            [1] => 
+            [2] => 
+		 	function inRuleArray(value, haystack, identical)
+		 	{
+		 		for (var i in haystack) 
+		 		{ 
+		 			if( identical )
+		 			{
+		 				if (haystack[i] === value) return true; 
+		 			}
+		 			else
+		 			{
+		 				if (haystack[i] == value) return true; 
+		 			}
+		 		}
+
+		 		return false;
+		 	}
+
+			window.Parsley.addValidator('inrule', {
+				validate: function(value, requirement, obj) {
+					var arr 		= requirement.split('|+');
+					var identical 	= false;
+					var elem 	= $(obj.element);
+				 	var msg 	= $(obj.element).attr('data-parsley-in-message');
+					
+					if( elem.attr('data-parsley-inrule-identical') )
+					{
+						identical 	= true;
+					}
+
+					var check 	= inRuleArray(value, arr, identical);
+
+					if( !check )
+					{
+						return $.Deferred().reject(msg);
+					}
+
+					return inRuleArray(value, arr, identical);
+			},
+			messages: {
+				en: 'Email must be in { "a@test.com", "b@test.com" }.'
+			}
+		});
+        )
+
+    [clientSideJson] => Array
+        (
+        )
+
+    [clientSideJsonMessages] => Array
+        (
+        )
+
+    [email] => Array
+        (
+            [required] =>                 data-parsley-required="true" 				data-parsley-required-message="The Email field is required"
+            [email] => 	            data-parsley-type="email" 				data-parsley-type-message="The Email field must be a valid email."
+            [in] =>                 data-parsley-inrule='a@test.com|+b@test.com'
+                data-parsley-inrule-identical='true' 				data-parsley-in-message="Email must be in { "a@test.com", "b@test.com" }."
+        )
+
+)
+
+*/
+```
+- You can read more about client side here: 
+	- [Client Side](advance_usage/client_side.md)
+
 ## The Validator Object
 - To get the validator object use:
 ```php
@@ -635,6 +1587,95 @@ $v->getValidator()->required()->assertErr(''); // throws an Exception
 		- [Rules](rules/)
 		- `->sometimes()` - [Scenarios](advance_usage/scenarios.md)
 
+## An Advance example
+- Let's say you're validating inputs of email but only the first input must be required, All must be a valid email address and must not repeat and you want to run valid email validation and not repeating validation if the user inputs a value. Then you want to change field name 'email' to 'Emails'
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v->required()
+	->sometimes(function($value, $satisfier, $orig_field, $arrKey)
+	{
+		return $arrKey == 0;
+	})
+	->email()->sometimes()
+  ->distinct()->sometimes()
+  ->check('email|Emails', [
+  	'email' => ['', '', '']
+  ]);
+
+
+/*prints error
+	All of the required rules must pass for "Emails".
+  - The Emails field is required at row 1.
+*/
+
+$v->required()
+	->sometimes(function($value, $satisfier, $orig_field, $arrKey)
+	{
+		return $arrKey == 0;
+	})
+	->email()->sometimes()
+  ->distinct()->sometimes()
+  ->check('email|Emails', [
+  	'email' => ['a', '', '']
+  ]);
+
+/*prints error
+	All of the required rules must pass for "Emails".
+  - The Emails field must be a valid email. at row 1.
+*/
+
+$v->required()
+	->sometimes(function($value, $satisfier, $orig_field, $arrKey)
+	{
+		return $arrKey == 0;
+	})
+	->email()->sometimes()
+  ->distinct()->sometimes()
+  ->check('email|Emails', [
+  	'email' => ['a@t.com', 'a', 's']
+  ]);
+/*prints error
+	All of the required rules must pass for "Emails".
+  - The Emails field must be a valid email. at row 2.
+  - The Emails field must be a valid email. at row 3.
+*/
+
+$v->required()
+	->sometimes(function($value, $satisfier, $orig_field, $arrKey)
+	{
+		return $arrKey == 0;
+	})
+	->email()->sometimes()
+  ->distinct()->sometimes()
+  ->check('email|Emails', [
+  	'email' => ['a@t.com', 'a@t.com', 's']
+  ]);
+/*prints error
+	All of the required rules must pass for "Emails".
+  - The Emails has a duplicate value. at row 1.
+  - The Emails has a duplicate value. at row 2.
+  - The Emails field must be a valid email. at row 3.
+*/
+
+$v->required()
+	->sometimes(function($value, $satisfier, $orig_field, $arrKey)
+	{
+		return $arrKey == 0;
+	})
+	->email()->sometimes()
+  ->distinct()->sometimes()
+  ->check('email|Emails', [
+  	'email' => ['a@t.com', 'b@t.com', 's@t.com']
+  ]);
+/*prints none, validation passes
+*/
+
+$v->assert();
+```
+
 See also:
 
 - [Filter Usage](filters.md)
@@ -642,3 +1683,4 @@ See also:
 - [Rules](rules/)
 - [Filters](filters/)
 - [Alternative Usage](alternative_usage.md)
+- [Client Side](advance_usage/client_side.md)

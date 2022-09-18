@@ -501,12 +501,12 @@ abstract class AbstractCombinators implements CombinatorsInterface
 		return $this->sequence($value, null, $check_arr, true);
 	}
 
-	protected function createFieldGroupings(array $validations, array $value, $associative = true)
+	protected function createFieldGroupings(array $validations, $value = null, $associative = true)
 	{
 		$groupValidations = [];
 		$checkValue = false;
 
-		if( $associative )
+		if( $associative && is_array($value) )
 		{
 			$valuesDot = Array_helper::dot($value);
 			$valueKeys = array_keys($valuesDot);

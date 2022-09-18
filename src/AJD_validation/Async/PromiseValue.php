@@ -56,6 +56,8 @@ class PromiseValue implements Promise_interface
         {
             $result->done();
         }
+
+        return $this;
     }
 
     public function otherwise(callable $onRejected)

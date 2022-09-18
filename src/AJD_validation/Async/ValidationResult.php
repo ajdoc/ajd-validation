@@ -521,4 +521,14 @@ class ValidationResult extends Promise
         
         return $validContent;
     }
+
+    /**
+     * @param array $storage
+     * @param bool $append
+     * @return mixed
+     */
+    public function getFieldValue(array &$storage = [], $append = false)
+    {
+        return $this->getValue($storage, $append);
+    }
 }
