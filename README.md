@@ -1675,6 +1675,208 @@ $v->getValidator()->required()->assertErr(''); // throws an Exception
 		- [Rules](docs/rules/)
 		- `->sometimes()` - [Scenarios](docs/advance_usage/scenarios.md)
 
+## Conditionals
+- Use this if you want to conditionally run a rule or a field-rule validation without breaking the chain.
+- `->given(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is true it will run the callback or continue the chain.
+- `->otherwise(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is false it will run the callback or continue the chain.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v ->required()
+	->given(false)
+		->minlength(2)
+	->check('field1', '');
+/*
+	prints error
+	All of the required rules must pass for "Field1".
+  	- The Field1 field is required
+*/
+
+$v ->required()
+	->given(true)
+		->minlength(2)
+	->check('field1', '');
+
+/*
+	prints error
+	All of the required rules must pass for "Field1".
+  - The Field1 field is required
+  - Field1 must be greater than or equal to 2. character(s).
+*/
+
+$v ->required()
+	->otherwise(function()
+	{
+		return true;
+	})
+		->minlength(2)
+	->check('field1', '');
+/*
+	prints error
+	All of the required rules must pass for "Field1".
+  	- The Field1 field is required
+*/
+
+$v ->required()
+	->otherwise(function()
+	{
+		return false;
+	})
+		->minlength(2)
+	->check('field1', '');
+
+/*
+	prints error
+	All of the required rules must pass for "Field1".
+	  - The Field1 field is required
+	  - Field1 must be greater than or equal to 2. character(s).
+*/
+```
+
+2. Conditionally assigning rules.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v
+->given(true, 
+	function($ajd)
+	{
+		$ajd->required();
+	},
+	function($ajd)
+	{
+		$ajd->minlength(2);
+	}
+)->check('field1', '');
+
+/*
+	prints error
+	All of the required rules must pass for "Field1".
+  	- The Field1 field is required
+*/
+
+$v
+->given(false, 
+	function($ajd)
+	{
+		$ajd->required();
+	},
+	function($ajd)
+	{
+		$ajd->minlength(2);
+	}
+)->check('field1', '');
+
+/*
+	prints error
+	All of the required rules must pass for "Field1".
+  	- Field1 must be greater than or equal to 2. character(s).
+*/
+```
+3. Conditionally running validations with events/promise example. 
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$v->given(true, function($ajd)
+	{
+		return $ajd->required()->check('field1', '');
+	},
+	function($ajd)
+	{
+		return $ajd->required()->check('field2', '');
+	}
+)
+->passed(function()
+{
+	echo 'passed event ';
+})
+->fails(function($ajd, $field)
+	{
+		echo $field.' fails event <br/>';
+	})
+->done(function()
+{
+	echo 'promise resolved';
+})
+->otherwise(function()
+{
+	echo 'promise rejected <br/>';
+});
+/*
+	prints error
+	field1 fails event
+	promise rejected
+	All of the required rules must pass for "Field1".
+	  - The Field1 field is required
+*/
+
+$v->given(false, function($ajd)
+	{
+		return $ajd->required()->check('field1', '');
+	},
+	function($ajd)
+	{
+		return $ajd->required()->check('field2', '');
+	}
+)
+->passed(function()
+{
+	echo 'passed event ';
+})
+->fails(function($ajd, $field)
+{
+	echo $field.' fails event <br/>';
+})
+->done(function()
+{
+	echo 'promise resolved';
+})
+->otherwise(function()
+{
+	echo 'promise rejected <br/>';
+});
+
+/*
+	prints error
+	field2 fails event
+	promise rejected
+	All of the required rules must pass for "Field2".
+	  - The Field2 field is required
+*/
+```
+
+4. Using with Validator Object
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$result = $v 
+		->getValidator()
+		->given(false)
+			->email()
+		->given(true)
+			->minlength(50)
+		->validate('a@t.com'); // returns false because it evaluated minlength(50) only
+
+$result = $v 
+		->getValidator()
+		->given(true)
+			->email()
+		->given(false)
+			->minlength(50)
+		->validate('a@t.com'); // returns true because it evaluated email only and value is a valid email.
+
+```
+
+
+
 ## An Advance example
 - Let's say you're validating inputs of email but only the first input must be required, All must be a valid email address and must not repeat and you want to run valid email validation and not repeating validation if the user inputs a value. Then you want to change field name 'email' to 'Emails'
 ```php

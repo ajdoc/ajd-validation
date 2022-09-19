@@ -31,6 +31,7 @@ class AJD_validation extends Base_validator
 	}
 
 	use Traits\AjdValExtender;
+	use Traits\Conditionable;
 
 	protected static $ajd_prop = [
 		Abstract_common::LOG_AND => [

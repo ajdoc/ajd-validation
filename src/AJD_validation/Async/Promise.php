@@ -84,6 +84,8 @@ class Promise implements Promise_interface
             $promise
                 ->done($onFulfilled, $onRejected);
         };
+
+        return $this;
     }
 
     public function otherwise(callable $onRejected)
