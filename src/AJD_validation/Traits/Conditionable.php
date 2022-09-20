@@ -49,7 +49,7 @@ trait Conditionable
      * @param  callabel|null $default
      * @return $this|TUnlessReturnType
      */
-    public function otherwise($value = null, callable $callback = null, callable $default = null)
+    public function unless($value = null, callable $callback = null, callable $default = null)
     {
     	$this->falsy = true;
 

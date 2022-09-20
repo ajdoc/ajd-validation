@@ -1678,7 +1678,7 @@ $v->getValidator()->required()->assertErr(''); // throws an Exception
 ## Conditionals
 - Use this if you want to conditionally run a rule or a field-rule validation without breaking the chain.
 - `->given(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is true it will run the callback or continue the chain.
-- `->otherwise(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is false it will run the callback or continue the chain.
+- `->unless(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is false it will run the callback or continue the chain.
 ```php
 use AJD_validation\AJD_validation;
 
@@ -1707,7 +1707,7 @@ $v ->required()
 */
 
 $v ->required()
-	->otherwise(function()
+	->unless(function()
 	{
 		return true;
 	})
@@ -1720,7 +1720,7 @@ $v ->required()
 */
 
 $v ->required()
-	->otherwise(function()
+	->unless(function()
 	{
 		return false;
 	})
@@ -1874,8 +1874,6 @@ $result = $v
 		->validate('a@t.com'); // returns true because it evaluated email only and value is a valid email.
 
 ```
-
-
 
 ## An Advance example
 - Let's say you're validating inputs of email but only the first input must be required, All must be a valid email address and must not repeat and you want to run valid email validation and not repeating validation if the user inputs a value. Then you want to change field name 'email' to 'Emails'

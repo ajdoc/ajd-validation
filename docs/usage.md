@@ -1648,7 +1648,7 @@ $v->getValidator()->required()->assertErr(''); // throws an Exception
 ## Conditionals
 - Use this if you want to conditionally run a rule or a field-rule validation without breaking the chain.
 - `->given(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is true it will run the callback or continue the chain.
-- `->otherwise(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is false it will run the callback or continue the chain.
+- `->unless(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is false it will run the callback or continue the chain.
 ```php
 use AJD_validation\AJD_validation;
 
@@ -1677,7 +1677,7 @@ $v ->required()
 */
 
 $v ->required()
-	->otherwise(function()
+	->unless(function()
 	{
 		return true;
 	})
@@ -1690,7 +1690,7 @@ $v ->required()
 */
 
 $v ->required()
-	->otherwise(function()
+	->unless(function()
 	{
 		return false;
 	})
