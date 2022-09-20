@@ -23,7 +23,7 @@ trait Conditionable
      * @param  callabel|null $default
      * @return $this|TWhenReturnType
      */
-    public function given($value = null, callable $callback = null, callable $default = null)
+    public function runif($value = null, callable $callback = null, callable $default = null)
     {
     	$this->falsy = false;
 
@@ -49,7 +49,7 @@ trait Conditionable
      * @param  callabel|null $default
      * @return $this|TUnlessReturnType
      */
-    public function unless($value = null, callable $callback = null, callable $default = null)
+    public function runelse($value = null, callable $callback = null, callable $default = null)
     {
     	$this->falsy = true;
 

@@ -1677,15 +1677,15 @@ $v->getValidator()->required()->assertErr(''); // throws an Exception
 
 ## Conditionals
 - Use this if you want to conditionally run a rule or a field-rule validation without breaking the chain.
-- `->given(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is true it will run the callback or continue the chain.
-- `->unless(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is false it will run the callback or continue the chain.
+- `->runif(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is true it will run the callback or continue the chain.
+- `->runelse(bool|Closure $condtion, callable $callback = null, callable $default = null)` - if condition is false it will run the callback or continue the chain.
 ```php
 use AJD_validation\AJD_validation;
 
 $v = new AJD_validation;
 
 $v ->required()
-	->given(false)
+	->runif(false)
 		->minlength(2)
 	->check('field1', '');
 /*
@@ -1695,7 +1695,7 @@ $v ->required()
 */
 
 $v ->required()
-	->given(true)
+	->runif(true)
 		->minlength(2)
 	->check('field1', '');
 
@@ -1707,7 +1707,7 @@ $v ->required()
 */
 
 $v ->required()
-	->unless(function()
+	->runelse(function()
 	{
 		return true;
 	})
@@ -1720,7 +1720,7 @@ $v ->required()
 */
 
 $v ->required()
-	->unless(function()
+	->runelse(function()
 	{
 		return false;
 	})
@@ -1742,7 +1742,7 @@ use AJD_validation\AJD_validation;
 $v = new AJD_validation;
 
 $v
-->given(true, 
+->runif(true, 
 	function($ajd)
 	{
 		$ajd->required();
@@ -1760,7 +1760,7 @@ $v
 */
 
 $v
-->given(false, 
+->runif(false, 
 	function($ajd)
 	{
 		$ajd->required();
@@ -1783,7 +1783,7 @@ use AJD_validation\AJD_validation;
 
 $v = new AJD_validation;
 
-$v->given(true, function($ajd)
+$v->runif(true, function($ajd)
 	{
 		return $ajd->required()->check('field1', '');
 	},
@@ -1816,7 +1816,7 @@ $v->given(true, function($ajd)
 	  - The Field1 field is required
 */
 
-$v->given(false, function($ajd)
+$v->runif(false, function($ajd)
 	{
 		return $ajd->required()->check('field1', '');
 	},
@@ -1859,17 +1859,17 @@ $v = new AJD_validation;
 
 $result = $v 
 		->getValidator()
-		->given(false)
+		->runif(false)
 			->email()
-		->given(true)
+		->runif(true)
 			->minlength(50)
 		->validate('a@t.com'); // returns false because it evaluated minlength(50) only
 
 $result = $v 
 		->getValidator()
-		->given(true)
+		->runif(true)
 			->email()
-		->given(false)
+		->runif(false)
 			->minlength(50)
 		->validate('a@t.com'); // returns true because it evaluated email only and value is a valid email.
 
