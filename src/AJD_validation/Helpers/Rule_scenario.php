@@ -1,6 +1,9 @@
 <?php namespace AJD_validation\Helpers;
 
-use AJD_validation\Contracts\Abstract_common;
+use AJD_validation\Contracts\{ 
+	Abstract_compound, Abstract_sequential, Abstract_common
+};
+
 use AJD_validation\Helpers\When;
 use AJD_validation\AJD_validation;
 
@@ -257,6 +260,48 @@ class Rule_scenario extends AJD_validation
 		{
 			return $this;
 		}
+	}
+
+	public function getInstance()
+	{
+		$ruleKey = $this->getCurrentRuleKey();
+
+		$ruleObj = (!empty($this->when)) ? $this->when : $this;
+
+		$dontRunIn = [Abstract_compound::class, Abstract_sequential::class];
+
+		if(isset(static::$currRuleDetails['details'][$ruleKey]) && !empty(static::$currRuleDetails['details'][$ruleKey]))
+		{
+			$details = [
+				'details' => static::$currRuleDetails['details'][$ruleKey]
+			];
+
+			$details['satisfier'] = $details['details'][3]['class_args'];
+			$details['value'] = null;
+			$details['clean_field'] = null;
+			$details['field'] = null;
+
+			$details['dontRunValdidationIn'] = $dontRunIn;
+			
+			$ruleDetails = $this->{$details['details'][2]}($details);
+
+			$ruleObj = $ruleDetails;
+			
+			if(isset($ruleDetails['rule_obj']) && !empty($ruleDetails['rule_obj']))
+			{
+				$ruleObj = $ruleDetails['rule_obj'];
+				if(!empty($this->when))
+				{
+					$ruleObj->setWhenInstance($this->when);
+				}
+
+				static::$cacheSceneInstance[$details['details'][1]][$ruleKey] = $ruleObj;
+			}
+		}		
+
+		static::$currRuleDetails = [];
+		
+		return $ruleObj;
 	}
 
 	public function suspend($ruleOverride = null, $forJs = false)

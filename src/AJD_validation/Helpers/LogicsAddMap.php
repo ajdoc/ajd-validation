@@ -77,4 +77,10 @@ final class LogicsAddMap implements LogicsMappingInterface
     {
     	return self::$map;
     }
+
+    public static function flush()
+    {
+        self::$status = [];
+        self::$map = [];
+    }
 }

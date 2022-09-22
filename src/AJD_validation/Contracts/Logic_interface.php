@@ -11,4 +11,6 @@ interface Logic_interface
 	public function __isset($name);
 
 	public function checkDbInstance($db, $obj = null);
+
+	public function getLogicValue($value = null, array $paramaters = []);
 }

@@ -358,6 +358,8 @@ trait AjdValExtender
 
 			Factory\Class_factory::addRulesMappings($mappings);
 			Helpers\Errors::addRulesMappings($mappings);
+
+			Helpers\Rules_map::flush();
 		}
 	}
 

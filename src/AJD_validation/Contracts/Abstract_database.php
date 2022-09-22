@@ -29,6 +29,11 @@ abstract class Abstract_database extends Abstract_rule
 	protected $callableQueryConfig;
 	protected $reverseCheck = false;
 
+	protected $currentQuery;
+	protected $setQuery;
+
+	protected $retryConfig = [];
+
 	public $table;
 	public $primary_id;
 
@@ -133,32 +138,32 @@ abstract class Abstract_database extends Abstract_rule
 	{
 		$config = [];
 		
-		if( ISSET( $this->config[ self::TABLE_STR ] ) )
+		if( isset( $this->config[ self::TABLE_STR ] ) )
 		{
 			$config[ self::TABLE_STR ] = $this->config[ self::TABLE_STR ];
 		}
 
-		if( ISSET( $this->config[ self::PRIMARY_ID_STR ] ) )
+		if( isset( $this->config[ self::PRIMARY_ID_STR ] ) )
 		{
 			$config[ self::PRIMARY_ID_STR ]	= $this->config[ self::PRIMARY_ID_STR ];
 		}
 
-		if( ISSET( $this->config[ self::AES_DECRYPT_STR ] ) )
+		if( isset( $this->config[ self::AES_DECRYPT_STR ] ) )
 		{
 			$config[ self::AES_DECRYPT_STR ] = $this->config[ self::AES_DECRYPT_STR ];
 		}
 
-		if( ISSET( $this->config[ self::EXCLUDE_ID ] ) )
+		if( isset( $this->config[ self::EXCLUDE_ID ] ) )
 		{
 			$config[ self::EXCLUDE_ID ] = $this->config[ self::EXCLUDE_ID ];
 		}
 
-		if( ISSET( $this->config[ self::EXCLUDE_VALUE ] ) )
+		if( isset( $this->config[ self::EXCLUDE_VALUE ] ) )
 		{
 			$config[ self::EXCLUDE_VALUE ] = $this->config[ self::EXCLUDE_VALUE ];
 		}
 
-		if( ISSET( $this->config[ self::EXCLUDE_VALUE ] ) )
+		if( isset( $this->config[ self::EXCLUDE_VALUE ] ) )
 		{
 			$config[ self::EXCLUDE_VALUE ] = $this->config[ self::EXCLUDE_VALUE ];
 		}
@@ -166,37 +171,37 @@ abstract class Abstract_database extends Abstract_rule
 		if(is_array($queryConfig))
 		{
 
-			if( ISSET( $this->queryConfig[ self::TABLE_STR ] ) )
+			if( isset( $this->queryConfig[ self::TABLE_STR ] ) )
 			{
 				$config[ self::TABLE_STR ] = $this->queryConfig[ self::TABLE_STR ];
 			}
 
-			if( ISSET( $this->queryConfig[ self::PRIMARY_ID_STR ] ) )
+			if( isset( $this->queryConfig[ self::PRIMARY_ID_STR ] ) )
 			{
 				$config[ self::PRIMARY_ID_STR ]	= $this->queryConfig[ self::PRIMARY_ID_STR ];
 			}
 
-			if( ISSET( $this->queryConfig[ self::AES_DECRYPT_STR ] ) )
+			if( isset( $this->queryConfig[ self::AES_DECRYPT_STR ] ) )
 			{
 				$config[ self::AES_DECRYPT_STR ] = $this->queryConfig[ self::AES_DECRYPT_STR ];
 			}
 
-			if( ISSET( $this->queryConfig[ self::EXCLUDE_ID ] ) )
+			if( isset( $this->queryConfig[ self::EXCLUDE_ID ] ) )
 			{
 				$config[ self::EXCLUDE_ID ] = $this->queryConfig[ self::EXCLUDE_ID ];
 			}
 
-			if( ISSET( $this->queryConfig[ self::EXCLUDE_VALUE ] ) )
+			if( isset( $this->queryConfig[ self::EXCLUDE_VALUE ] ) )
 			{
 				$config[ self::EXCLUDE_VALUE ] = $this->queryConfig[ self::EXCLUDE_VALUE ];
 			}
 
-			if( ISSET( $this->queryConfig[ self::CALLABLE_QUERY_STR ] ) )
+			if( isset( $this->queryConfig[ self::CALLABLE_QUERY_STR ] ) )
 			{
 				$config[ self::CALLABLE_QUERY_STR ] = $this->queryConfig[ self::CALLABLE_QUERY_STR ];
 			}
 
-			if( ISSET( $this->queryConfig[ self::JUST_INSTANCE_STR ] ) )
+			if( isset( $this->queryConfig[ self::JUST_INSTANCE_STR ] ) )
 			{
 				$config[ self::JUST_INSTANCE_STR ] = $this->queryConfig[ self::JUST_INSTANCE_STR ];
 			}
@@ -216,7 +221,7 @@ abstract class Abstract_database extends Abstract_rule
 		}
 		else
 		{
-			if( !EMPTY( $queryConfig ) && is_array( $queryConfig ) )
+			if( !empty( $queryConfig ) && is_array( $queryConfig ) )
 			{
 				$config = array_merge( $config, $queryConfig );
 			}
@@ -298,7 +303,7 @@ abstract class Abstract_database extends Abstract_rule
 			$connection = $config[ self::CONNECTION_STR ];
 		}
 
-		if( !EMPTY( $connection ) )
+		if( !empty( $connection ) )
 		{
 			$optionArr = $config;
 			$optionArr['connection'] = $connection;
@@ -355,6 +360,7 @@ abstract class Abstract_database extends Abstract_rule
 	{
 		$check = false;
 		$result = null;
+		$appendMsg = '';
 
 		if( 
 			isset($this->queryConfig[self::LOGICS_MAP_STR]) 
@@ -421,21 +427,33 @@ abstract class Abstract_database extends Abstract_rule
 
 			$aes_decrypt = ( isset( $this->queryConfig[ self::AES_DECRYPT_STR ] ) ) ? $this->queryConfig[ self::AES_DECRYPT_STR ] : '';
 			
-			if( !empty( $this->db ) && !empty( $value ) )
+			if( !empty( $this->db )  )
 			{
-
-				$qb = $this->db
+				if(empty($this->setQuery))
+				{
+					$qb = $this->db
 						->select( "COUNT(".$id.") as check_id" )
 						->from( $table );
 
-				if( !empty( $aes_decrypt ) )
-				{
-					$id = $this->Fadd_aes_decrypt($aes_decrypt)
-                        	->cacheFilter( 'value' )
-	                        ->filterSingleValue( $id, true );
-	            }
+					if( !empty( $aes_decrypt ) )
+					{
+						$id = $this->Fadd_aes_decrypt($aes_decrypt)
+					        	->cacheFilter( 'value' )
+					            ->filterSingleValue( $id, true );
+					}
+		       	}
 
-				$qb->where( $id, $value );
+		       	if(!empty($value))
+		       	{
+		       		if(!empty($this->setQuery))
+		       		{
+		       			$this->setQuery->where( $id, $value );
+		       		}
+		       		else
+		       		{
+		       			$qb->where( $id, $value );	
+		       		}
+		       	}
 
 				if( 
 					( 
@@ -450,20 +468,91 @@ abstract class Abstract_database extends Abstract_rule
 
 				)
 				{
-					$qb->where( $this->queryConfig[ self::EXCLUDE_ID ], '!=', $this->queryConfig[ self::EXCLUDE_VALUE ] );
+					if(empty($this->setQuery))
+					{
+						$qb->where( $this->queryConfig[ self::EXCLUDE_ID ], '!=', $this->queryConfig[ self::EXCLUDE_VALUE ] );
+					}
 				}
+
+				$realQb = !empty($this->setQuery) ? $this->setQuery : $qb;
 
 				if( !empty( $this->callableQueryConfig ) )
 				{
-					$args = [$qb, $this->db, $value];
-					$qb = call_user_func_array($this->callableQueryConfig, $args);
+					$args = [$realQb, $this->db, $value];
+					$realQb = call_user_func_array($this->callableQueryConfig, $args);
+				}
+
+				$this->currentQuery = $realQb;
+			}
+			/*$result = $realQb->debug();
+			var_dump($result);*/
+			if(!empty($this->retryConfig) && !empty($value))
+			{
+				$times = $this->retryConfig['times'] ?? 3;
+				$sleep 	= $this->retryConfig['sleep'] ?? 0;
+				$whenCallback = $this->retryConfig['when'] ?? null;
+				$attempt = 0;
+
+				$callback = $this->retryConfig['callback'] ?? function($attempts, $realQb, $db, $paramsHolder) use(&$attempt)
+				{
+					$newQuery = $db->new_query($db);
+					$newQuery = $newQuery->applyBindings($realQb);
+					$newQuery->applyParams($paramsHolder);
+					$result = null;
+					
+					try
+					{
+						$result = (isset($newQuery)) ? $newQuery->fetchColumn() : null;		
+					}
+					catch(\PDOException $e)
+					{
+						throw $e;
+					}
+
+					$attempt = $attempts;
+					
+					if(empty($result))
+					{
+						throw new \Exception('Empty result retrying ('.$attempts.').');
+					}
+					
+					return $result;
+				};
+
+				$db = $this->db;
+				$paramsHolder = $realQb->getParams();
+
+				try
+				{
+					$result = static::retry($times, function($attempts) use ($callback, $realQb, $db, $paramsHolder)
+					{
+						return $callback($attempts, $realQb, $db, $paramsHolder);
+					}, $sleep, $whenCallback);
+					
+				}
+				catch(\PDOException $e)
+				{
+					$result = null;
+				}
+				catch(\Exception $e)
+				{
+					$result = null;
+				}
+
+				if(!empty($attempt))
+				{
+					$appendMsg = 'With '.$attempt.' retry/retries';
+				}
+
+				$realQb->reset_query();
+			}
+			else
+			{
+				if(!empty($value))
+				{
+					$result = (isset($realQb)) ? $realQb->fetchColumn() : null;
 				}
 			}
-			
-			$result = (isset($qb)) ? $qb->fetchColumn() : null;
-
-			/*$result 	= $qb->debug();
-			var_dump($result);*/
 		}
 
 		if( empty( $result ) )
@@ -474,8 +563,30 @@ abstract class Abstract_database extends Abstract_rule
 		{
 			$check = ( $this->reverseCheck ) ? false : true;
 		}
+		
+		return [
+			'check' => $check,
+			'append_error' => $appendMsg
+		];
+	}
 
-		return $check;
+	public function query(callable $callback)
+	{
+		$qb = $callback($this->currentQuery, $this->db);
+
+		if(!empty($qb))
+		{
+			$this->setQuery = $qb;
+		}
+
+		return $this->getReturn();
+	}
+
+	public function retryDb(array $retryConfig)
+	{
+		$this->retryConfig = $retryConfig;
+
+		return $this->getReturn();
 	}
 
 	public function validate( $value )

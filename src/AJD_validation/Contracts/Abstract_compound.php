@@ -34,6 +34,20 @@ class Abstract_compound extends Abstract_all
 		$this->rules = $rules;
 	}
 
+    public function appendRules(Abstract_all ...$rules)
+    {
+        $this->rules = array_merge($this->rules, $rules);
+
+        return $this->getReturn();
+    }
+
+    public function overrideRules(Abstract_all ...$rules)
+    {
+        $this->rules = $rules;
+
+        return $this->getReturn();
+    }
+
 	/**
 	* Run all the validation rules
 	*/
@@ -41,7 +55,7 @@ class Abstract_compound extends Abstract_all
     {
     	$check = false;
 		$append_error = "";
-
+        
 		$collectionExceptions = $this->assertCompoundRules($this->rules, $value, $clean_field, true, true);
         $check = ($this->inverseCheck) ? false : true;
 

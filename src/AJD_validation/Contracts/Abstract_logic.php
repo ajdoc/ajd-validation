@@ -46,4 +46,9 @@ abstract class Abstract_logic implements Logic_interface
 
    		return ( $db instanceof $objCheck || $db instanceof $objCheckDbHelper );
    	}
+
+    public function getLogicValue($value = null, array $paramaters = [])
+    {
+        return [];
+    }
 }

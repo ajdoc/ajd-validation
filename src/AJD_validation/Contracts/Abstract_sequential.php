@@ -27,6 +27,20 @@ class Abstract_sequential extends Abstract_all
 		$this->sequentialRules = $rules;
 	}
 
+    public function appendRules(Abstract_all ...$rules)
+    {
+        $this->sequentialRules = array_merge($this->sequentialRules, $rules);
+
+        return $this->getReturn();
+    }
+
+    public function overrideRules(Abstract_all ...$rules)
+    {
+        $this->sequentialRules = $rules;
+
+        return $this->getReturn();
+    }
+
 	/**
 	* Run all the validation rules
 	*/

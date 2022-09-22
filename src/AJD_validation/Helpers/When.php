@@ -78,6 +78,8 @@ class When extends AJD_validation
 			static::$addLogicsMappings = array_merge(static::$addLogicsMappings, $mappings);
 
 			Class_factory::addLogicsMappings($mappings);
+
+			LogicsAddMap::flush();
 		}
 	}
 
@@ -249,7 +251,7 @@ class When extends AJD_validation
 		$options['extensionTests'] = $extensionTests;
 		$classArgs = $this->classArgs;
 
-		if( !EMPTY( $options['arguments'] ) )
+		if( !empty( $options['arguments'] ) )
 		{
 			$classArgs = array_merge( $options['arguments'], $classArgs );
 		}
@@ -378,25 +380,36 @@ class When extends AJD_validation
 		}
 
 		$clean_rule = $this->ajd->clean_rule_name( $rule );
-
 		$this->whenRuleName = $clean_rule['rule'];
+
 		return $this;
 	}
 
-	protected function processCustomTest( $value, array $paramaters = [] )
+	protected function processCustomTest( $value, array $paramaters = [], $forGetValues = false )
 	{
-		if( !EMPTY( $this->customTest ) )
+		$logicValues = [];
+
+		if( !empty( $this->customTest ) )
 		{
 			foreach( $this->customTest as $test )
 			{
 				if( is_array( $test ) ) 
 				{
-					if( ISSET( $test['extensionObj'] ) )
+					if( isset( $test['extensionObj'] ) )
 					{
 						if( !$this->processCustomExtensionTest( $value, $test, $paramaters ) )
 						{
-							return false;
+							if(!$forGetValues)
+							{
+								return false;	
+							}
 						}
+
+						if($forGetValues)
+						{
+							$logicValues = array_merge($logicValues, []);	
+						}
+						
 					}
 				}
 				else
@@ -411,13 +424,23 @@ class When extends AJD_validation
 
 					if( !$test->logic( $value ) )
 					{
-						return false;
+						if(!$forGetValues)
+						{
+							return false;
+						}
+					}
+
+					if($forGetValues)
+					{
+						$logicValue = $test->getLogicValue($value, $paramaters);
+						$logicValue = (!is_array($logicValue)) ? [$logicValue] : $logicValue;
+						$logicValues = array_merge($logicValues, $logicValue);	
 					}
 				}
 			}
 		}
 
-		return true;
+		return (!$forGetValues) ? true : $logicValues;
 	}
 
 	protected function processCustomExtensionTest( $value, $test, array $paramaters = [] )
@@ -458,6 +481,11 @@ class When extends AJD_validation
 		}
 
 		return $this->processCustomTest($value, $paramaters);
+	}
+
+	public function getValues($value = null, array $paramaters = [])
+	{
+		return $this->processCustomTest($value, $paramaters, true);
 	}
 
 	public function endgiven( $field, $value = null, $operator = null, $check_arr = true, $customMesage = [] )
@@ -682,6 +710,8 @@ class When extends AJD_validation
 		$this->currRule = $rule;
 		$this->currLogic = $logic;
 
+		$this->currentRuleKey = $this->currentRuleKey + 1;
+
 		if( $this->_check_given() ) 
 		{
 			$addRule = $this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
@@ -711,6 +741,8 @@ class When extends AJD_validation
 	{
 		$this->currRule = $rule;
 		$this->currLogic = $logic;
+
+		$this->currentRuleKey = $this->currentRuleKey + 1;
 
 		if( !$this->_check_given() ) 
 		{
@@ -769,6 +801,13 @@ class When extends AJD_validation
 
 		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this, $this->currentRuleKey )->sometimes( $sometimes );
 	}	
+
+	public function getInstance()
+	{
+		$clean_rule = $this->ajd->clean_rule_name( $this->currRule );
+		
+		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this, $this->currentRuleKey )->getInstance();
+	}
 
 	/*public static function bail()
 	{

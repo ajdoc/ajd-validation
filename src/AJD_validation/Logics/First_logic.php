@@ -14,4 +14,11 @@ class First_logic extends Abstract_logic
 	{
 		return $this->test;
 	}
+
+	public function getLogicValue($value = null, array $paramaters = [])
+	{
+		return [
+			'first_logic' => $this->test
+		];
+	}
 }

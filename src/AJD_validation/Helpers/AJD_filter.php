@@ -51,6 +51,8 @@ class AJD_filter extends Base_validator
 			static::$addFiltersMappings = array_merge(static::$addFiltersMappings, $mappings);
 
 			Class_factory::addFiltersMappings($mappings);
+
+			Filters_map::flush();
 		}
 	}
 

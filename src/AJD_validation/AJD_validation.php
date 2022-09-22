@@ -129,6 +129,9 @@ class AJD_validation extends Base_validator
 
 	protected static $globalUseValidation = null;
 
+	protected static $currRuleDetails = [];
+	protected static $cacheSceneInstance = [];
+
 	public static function get_ajd_instance()
 	{
 		if( is_null( static::$ajd_ins ) ) 
@@ -682,7 +685,11 @@ class AJD_validation extends Base_validator
 			'client_message_only' => $clientMessageOnly
 		];
 
-		$currentRuleKey = static::plotValidationDetails( $args );
+		$plotDetails = static::plotValidationDetails( $args );
+
+		$currentRuleKey = $plotDetails['currentRuleKey'];
+
+		static::$currRuleDetails = $plotDetails['currDetails'];
 
 		return static::get_scene_ins( $clean_rule['rule'], $logic, true, null, $currentRuleKey );
 	}
@@ -704,13 +711,24 @@ class AJD_validation extends Base_validator
 		$clientMessageOnly = $args['client_message_only'];
 
 		$rulesStorage = [];
+		$currDetails = [];
 
 		if( !empty( $curr_field ) )
 		{
+			$currentRuleKeyCurrField = null;
+
+			$rulesStorage = static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'rules' ];
+
+			if(!empty($rulesStorage))
+			{
+				$rulesKeysCurrField = array_keys($rulesStorage);
+				$currentRuleKeyCurrField = end($rulesKeysCurrField);
+			}
+
 			$key_value = [
 				'rules' => $clean_rule['rule'],
 				'satisfier' => $satis,
-				'details' => [ $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'] ],
+				'details' => [ $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'], $currentRuleKeyCurrField ],
 			];
 
 			$constraintName = null;
@@ -720,11 +738,8 @@ class AJD_validation extends Base_validator
 				static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ $key ][] = $value;
 			}
 
-			$currentRuleKeyCurrField = null;
-
 			// static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ] 									= array();
-			
-			$rulesStorage = static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'rules' ];
+		
 
 			static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filters' ][] = null;
 			static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'filter_satis' ][] = null;
@@ -734,13 +749,6 @@ class AJD_validation extends Base_validator
 			{
 				static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'scenarios' ] 								= array();
 			}*/
-
-			$currentRuleKeyCurrField = null;
-			if(!empty($rulesStorage))
-			{
-				$rulesKeysCurrField = array_keys($rulesStorage);
-				$currentRuleKeyCurrField = end($rulesKeysCurrField);
-			}
 
 			if(!is_null($currentRuleKeyCurrField))
 			{	
@@ -762,6 +770,8 @@ class AJD_validation extends Base_validator
 					static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ][ 'cus_err' ][ $clean_rule[ 'rule' ] ] = $custom_err;	
 				}
 			}
+
+			$currDetails = static::$ajd_prop[ 'fields' ][ $curr_logic ][ $curr_field ][ $logic ];
 		}
 		else 
 		{
@@ -769,15 +779,15 @@ class AJD_validation extends Base_validator
 
 			$rulesStorage = static::$ajd_prop[ $logic ][ 'rules' ];
 
-			static::$ajd_prop[ $logic ][ 'satisfier' ][] = $satis;
-			static::$ajd_prop[ $logic ][ 'details' ][] = [ $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'] ];
-
 			$currentRuleKeyCurr = null;
 			if(!empty($rulesStorage))
 			{
 				$rulesKeysCurr = array_keys($rulesStorage);
 				$currentRuleKeyCurr = end($rulesKeysCurr);
 			}
+
+			static::$ajd_prop[ $logic ][ 'satisfier' ][] = $satis;
+			static::$ajd_prop[ $logic ][ 'details' ][] = [ $clean_rule['check'], $append_rule, $rule_kind['rule_kind'], $rule_kind['args'], $rule_kind['lower_rule'], $currentRuleKeyCurr ];
 
 			if(!is_null($currentRuleKeyCurr))
 			{
@@ -802,6 +812,8 @@ class AJD_validation extends Base_validator
 					static::$ajd_prop[ $logic ][ 'cus_err' ][ $rule_name ] = $custom_err;
 				}
 			}
+
+			$currDetails = static::$ajd_prop[ $logic ];
 		}
 
 		if(!empty($rulesStorage))
@@ -830,7 +842,10 @@ class AJD_validation extends Base_validator
 			}
 		}
 
-		return $currentRuleKey;
+		return [
+			'currDetails' => $currDetails,
+			'currentRuleKey' => $currentRuleKey
+		];
 	}
 
 	public static function addOrRule( $rule, $satis = null, $custom_err = null, $client_side = null )
@@ -4050,6 +4065,7 @@ class AJD_validation extends Base_validator
 		static::$ajd_prop['grouping_queue'] = null;
 		static::$ajd_prop['cache_groupings'] = null;	
 		static::$ajd_prop['setUpFrom'] = null;
+		static::$cacheSceneInstance = [];
 
 		$this->resetValidationResult();
 		
@@ -4874,7 +4890,7 @@ class AJD_validation extends Base_validator
 		$this->check_cond = true;
 	}
 
-	private function _process_extension( $details )
+	protected function _process_extension( $details )
 	{	
 		$extension_rule = static::$ajd_prop[ 'extension_rule' ][ $details['details'][4] ];
 
@@ -4891,7 +4907,7 @@ class AJD_validation extends Base_validator
 		return $extension_result;
 	}
 
-	private function _process_anon_class($details)
+	protected function _process_anon_class($details)
 	{
 		$raw_append_rule = $details['details'][3]['raw_append_rule'];
 		$append_rule = $details['details'][3]['append_rule'];
@@ -4907,7 +4923,11 @@ class AJD_validation extends Base_validator
 		}
 		
 		static::$cache_instance[ $append_rule ] = $rule_obj;
-		static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
+
+		if(isset($details['orig_field']))
+		{
+			static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
+		}
 
 		$check_r = false;
 
@@ -4915,15 +4935,20 @@ class AJD_validation extends Base_validator
 
 		$inverse = $details['details'][0];
 
-		if($rule_obj instanceof Invokable_rule_interface)
+		$details = $this->checkDontRunValidationIn($details, $rule_obj);
+
+		if(!isset($details['dontRunValdidation']) || empty($details['dontRunValdidation']))
 		{
-			$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue, $inverse );
-		}
-		else
-		{
-			if(method_exists($rule_obj, 'run'))
+			if($rule_obj instanceof Invokable_rule_interface)
 			{
-				$check_r = $rule_obj->run( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue, $inverse );
+				$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue, $inverse );
+			}
+			else
+			{
+				if(method_exists($rule_obj, 'run'))
+				{
+					$check_r = $rule_obj->run( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue, $inverse );
+				}
 			}
 		}
 
@@ -4933,7 +4958,7 @@ class AJD_validation extends Base_validator
 		];
 	}
 
-	private function _process_class( $details )
+	protected function _process_class( $details )
 	{
 		$append_rule = $details['details'][3]['raw_class'];
 		$rule_details = $details['details'];
@@ -4944,8 +4969,9 @@ class AJD_validation extends Base_validator
 		{
 			unset( static::$cache_instance[ $append_rule ] );
 		}
-		/*if( !ISSET( static::$cache_instance[ $append_rule ] ) )
-		{*/
+		
+		if( !isset( static::$cacheSceneInstance[ $append_rule ][ $details['details'][5] ] ) )
+		{
 			$class_factory = static::get_factory_instance()->get_instance( true );
 
 			if( $this->isset_null( $rule_details[3], 'namespace' ) )
@@ -4962,14 +4988,18 @@ class AJD_validation extends Base_validator
 			$class_args = $details[ 'details' ][3][ 'class_args' ];
 			
 			$rule_obj = $class_factory->rules( $rule_details[3]['rules_path'], $append_rule, $class_args, false, static::$globalVar );
-		/*}
-		else 
+		}
+		else
 		{
-			$rule_obj 			= static::$cache_instance[ $append_rule ];
-		}*/
+			$rule_obj = static::$cacheSceneInstance[ $append_rule ][ $details['details'][5] ];
+			unset(static::$cacheSceneInstance[ $append_rule ][ $details['details'][5] ]);
+		}
 		
 		static::$cache_instance[ $append_rule ] = $rule_obj;
-		static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
+		if(isset($details['orig_field']))
+		{
+			static::$cacheByFieldInstance[$details['orig_field']][$append_rule] = $rule_obj;
+		}
 
 		$check_r = false;
 
@@ -4991,15 +5021,20 @@ class AJD_validation extends Base_validator
 				}
 			}
 
-			if($rule_obj instanceof Invokable_rule_interface)
+			$details = $this->checkDontRunValidationIn($details, $rule_obj);
+
+			if(!isset($details['dontRunValdidation']) || empty($details['dontRunValdidation']))
 			{
-				$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
-			}
-			else
-			{
-				if(method_exists($rule_obj, $details[ 'details' ][3][ 'class_meth_call' ]))
+				if($rule_obj instanceof Invokable_rule_interface)
 				{
-					$check_r = $rule_obj->{ $details[ 'details' ][3][ 'class_meth_call' ] }( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+					$check_r = $rule_obj( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+				}
+				else
+				{
+					if(method_exists($rule_obj, $details[ 'details' ][3][ 'class_meth_call' ]))
+					{
+						$check_r = $rule_obj->{ $details[ 'details' ][3][ 'class_meth_call' ] }( $details['value'], $details['satisfier'], $details['field'], $details['clean_field'], $origValue );
+					}
 				}
 			}
 		}
@@ -5010,6 +5045,23 @@ class AJD_validation extends Base_validator
 		];
 	}
 
+	protected function checkDontRunValidationIn($details, $rule_obj)
+	{
+		if(isset($details['dontRunValdidationIn']) && !empty($details['dontRunValdidationIn']))
+		{
+			foreach($details['dontRunValdidationIn'] as $class)
+			{
+				if($rule_obj instanceof $class)
+				{
+					$details['dontRunValdidation'] = true;
+					break;
+				}
+			}
+		}
+
+		return $details;
+	}
+
 	private function _appendRuleNameSpace( $classFactory )
 	{
 		foreach( static::$addRuleNamespace as $ruleNamespace )
@@ -5018,7 +5070,7 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	private function _process_method( $details )
+	protected function _process_method( $details )
 	{
 		$method_args = [];
 
@@ -5040,7 +5092,7 @@ class AJD_validation extends Base_validator
 
 	}
 
-	private function _process_function( $details )
+	protected function _process_function( $details )
 	{
 		$passed 			= false;
 		$funct_factory 		= static::get_factory_instance()->get_instance( false, true );

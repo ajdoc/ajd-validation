@@ -198,4 +198,43 @@ trait AjdValidationMacro
 
     	return $this;
     }
+
+    /**
+     * Retry an operation a given number of times.
+     *
+     * @param  int  $times
+     * @param  callable  $callback
+     * @param  int  $sleepMilliseconds
+     * @param  callable|null  $when
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    public static function retry($times, callable $callback, $sleepMilliseconds = 0, $when = null)
+    {
+        $attempts = 0;
+
+        beginning:
+        $attempts++;
+        $times--;
+
+        try 
+        {
+    		return $callback($attempts);
+        } 
+        catch (\Exception $e) 
+        {
+            if($times < 1 || ( $when && !$when($e) ) ) 
+            {
+                throw $e;
+            }
+
+            if($sleepMilliseconds) 
+            {
+                usleep($sleepMilliseconds * 1000);
+            }
+
+            goto beginning;
+        }
+    }
 }

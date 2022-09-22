@@ -604,8 +604,6 @@ try
 	$extension 	= new Custom_extension;
 	$v->registerExtension($extension);
 
-	
-
 	$v->registerAnonClass(
 
 		new class() extends Abstract_anonymous_rule

@@ -77,4 +77,10 @@ final class Filters_map implements FiltersMappingInterface
     {
     	return self::$map;
     }
+
+    public static function flush()
+    {
+        self::$status = [];
+        self::$map = [];
+    }
 }

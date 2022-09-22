@@ -11,4 +11,6 @@ interface Mapping_interface
 	public static function getMappings();
 
 	public static function unregister($value);
+
+	public static function flush();
 }

@@ -90,4 +90,10 @@ final class Rules_map implements RulesMappingInterface
     {
     	return self::$map;
     }
+
+    public static function flush()
+    {
+        self::$status = [];
+        self::$map = [];
+    }
 }

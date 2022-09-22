@@ -280,7 +280,7 @@ class Database
             }
 
         } 
-        catch( PDOException $e ) 
+        catch( \PDOException $e ) 
         {
             throw $e;
         }
@@ -304,8 +304,16 @@ class Database
         return $flat_arr;
     }
 
-    protected function new_query()
+    public function new_query(Database $db = null)
     {
+        if(!empty($db))
+        {
+            if($db->getPdo() instanceof PDO)
+            {
+                return new static($db->getPdo());
+            }
+        }
+
         return new static( $this->connection, $this->dbuser, $this->dbpass, $this->dboptions );
     }   
 
@@ -415,6 +423,26 @@ class Database
         static::$params[] = $value;
 
         return $this;
+    }
+
+    public function getTable()
+    {
+        return $this->table;
+    }
+
+    public function getTableJoin()
+    {
+        return static::$table_join;
+    }
+
+    public function getDistinct()
+    {
+        return $this->distinct;
+    }
+
+    public function getParams()
+    {
+        return static::$params;
     }
 
     public function bindValues( array $values )
@@ -954,28 +982,28 @@ class Database
     {
         $query = $this->build_query();
         
-        return  $this->execute_query( $query, static::$params, FALSE )->fetchAll( $config );
+        return $this->execute_query( $query, static::$params, FALSE )->fetchAll( $config );
     }
 
     public function fetch( $config = PDO::FETCH_ASSOC )
     {
         $query = $this->build_query();
 
-        return  $this->execute_query( $query, static::$params, FALSE )->fetch( $config );
+        return $this->execute_query( $query, static::$params, FALSE )->fetch( $config );
     }
 
     public function fetchObject()
     {
         $query = $this->build_query();
 
-        return  $this->execute_query( $query, static::$params, FALSE )->fetchObject();        
+        return $this->execute_query( $query, static::$params, FALSE )->fetchObject();        
     }
 
     public function fetchColumn()
     {
         $query = $this->build_query();
 
-        return  $this->execute_query( $query, static::$params, FALSE )->fetchColumn();        
+        return $this->execute_query( $query, static::$params, FALSE )->fetchColumn();        
     }
 
     public function fetchAllJson()
@@ -1011,6 +1039,29 @@ class Database
         $query = $this->build_query();
 
         return  $this->execute_query( $query, static::$params, FALSE )->rowCount();        
+    }
+
+    public function getAllBinding()
+    {
+        return $this->bindings;
+    }
+
+    public function applyBindings(Database $fromDb)
+    {
+        $this->bindings = array_merge_recursive($this->bindings, $fromDb->getAllBinding());
+
+        $this->table = $fromDb->getTable();
+
+        static::$table_join = $fromDb->getTableJoin();
+
+        $this->distinct = $fromDb->getDistinct();
+        
+        return $this;
+    }
+
+    public function applyParams(array $params)
+    {
+        static::$params = $params;
     }
 
     protected function generate_sql_func_regex()

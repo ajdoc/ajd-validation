@@ -11,6 +11,7 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
     public $inverseCheck;
 
     protected $name;
+    protected $whenInstance;
 
     protected static $anonRuleExceptions = [];
     protected static $ruleArguments = [];
@@ -18,6 +19,21 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
     public function __invoke($value, $satisfier = null, $field = null)
     {
         return $this->run($value, $satisfier, $field);
+    }
+
+    public function setWhenInstance($whenInstance)
+    {
+        $this->whenInstance = $whenInstance;
+    }
+
+    public function getReturn()
+    {
+        if(!empty($this->whenInstance))
+        {
+            return $this->whenInstance;
+        }
+
+        return $this;
     }
 
     public function getName()
