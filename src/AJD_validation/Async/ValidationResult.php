@@ -7,10 +7,13 @@ use AJD_validation\Async\PromiseHelpers;
 use AJD_validation\Async\Promise;
 use AJD_validation\Async\FailedPromise;
 use AJD_validation\Async\Promise_interface;
+use AJD_validation\Traits\Conditionable;
 use \Closure;
 
 class ValidationResult extends Promise
 {
+    use Conditionable;
+       
     private $ajd;
     private $field;
     private $cleanField;
@@ -27,12 +30,12 @@ class ValidationResult extends Promise
 
     private $spl_object_id;
 
-	public function __construct(callable $resolver = null, callable $cancel = null, $validationResult = null, $field = null)
+    public function __construct(callable $resolver = null, callable $cancel = null, $validationResult = null, $field = null)
     {
-    	if($resolver)
-    	{
-    		parent::__construct($resolver, $cancel);	
-    	}
+        if($resolver)
+        {
+            parent::__construct($resolver, $cancel);    
+        }
 
         $this->validationResult = $validationResult;
 
@@ -97,7 +100,7 @@ class ValidationResult extends Promise
      */
     public function catch(callable $catch)
     {
-		return PromiseHelpers::catch($catch);
+        return PromiseHelpers::catch($catch);
     }
 
     /**
