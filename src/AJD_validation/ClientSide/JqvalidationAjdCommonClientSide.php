@@ -5,12 +5,12 @@ use AJD_validation\Contracts\AbstractClientSide;
 
 class JqvalidationAjdCommonClientSide extends AbstractClientSide
 {
-	public static function getCLientSideFormat(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	public static function getCLientSideFormat(string $field, string $rule, $satisfier = null, string $error = null,  $value = null)
 	{
 		return static::commonClientSide($field, $rule, $satisfier, $error, $value);
 	}
 
-	public static function commonClientSide(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	public static function commonClientSide(string $field, string $rule, $satisfier = null, string $error = null,  $value = null)
 	{
 		$js = [];
 
@@ -26,7 +26,7 @@ class JqvalidationAjdCommonClientSide extends AbstractClientSide
         return $js;
 	}
 
-	protected static function jqvalidationCommon(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	protected static function jqvalidationCommon(string $field, string $rule,  $satisfier = null, string $error = null,  $value = null)
 	{
 		$relateRegex = array_merge(static::$relatedRegex, static::$relatedCtype);
 
@@ -103,7 +103,7 @@ class JqvalidationAjdCommonClientSide extends AbstractClientSide
 		return $js;
 	}
 
-	protected static function jqvalidationInCustomJsCommon(array $js, string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	protected static function jqvalidationInCustomJsCommon(array $js, string $field, string $rule, $satisfier = null, string $error = null,  $value = null)
 	{
 		$js[$field][$rule]['js'] =   <<<JS
 
@@ -136,7 +136,7 @@ JS;
 		return $js;
 	}
 
-	protected static function jqvalidationMultipleOfCustomJsCommon(array $js, string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	protected static function jqvalidationMultipleOfCustomJsCommon(array $js, string $field, string $rule, $satisfier = null, string $error = null,  $value = null)
 	{
 		$js[$field][$rule]['js'] =   <<<JS
 
@@ -148,7 +148,7 @@ JS;
 		return $js;
 	}
 
-	protected static function jqvalidationRegexCustomJsCommon(array $js, string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	protected static function jqvalidationRegexCustomJsCommon(array $js, string $field, string $rule, $satisfier = null, string $error = null,  $value = null)
 	{
 		$js[$field][$rule]['js'] =   <<<JS
 

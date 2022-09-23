@@ -49,7 +49,7 @@ class AbstractClientSide implements ClientSideInterface
 		static::$clientMessageOnly = $clientMessageOnly;
 	}
 
-	public static function getCLientSideFormat(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	public static function getCLientSideFormat(string $field, string $rule, $satisfier = null, string $error = null, $value = null)
 	{
 		return [];
 	}

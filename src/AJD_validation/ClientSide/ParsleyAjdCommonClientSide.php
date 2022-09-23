@@ -5,12 +5,12 @@ use AJD_validation\Contracts\AbstractClientSide;
 
 class ParsleyAjdCommonClientSide extends AbstractClientSide
 {
-	public static function getCLientSideFormat(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	public static function getCLientSideFormat(string $field, string $rule, $satisfier = null, string $error = null, $value = null)
 	{
 		return static::commonClientSide($field, $rule, $satisfier, $error, $value);
 	}
 
-	public static function commonClientSide(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	public static function commonClientSide(string $field, string $rule, $satisfier = null, string $error = null, $value = null)
 	{
 		$js = [];
 		
@@ -26,7 +26,7 @@ class ParsleyAjdCommonClientSide extends AbstractClientSide
         return $js;
 	}
 
-	protected static function parsleyCommon(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	protected static function parsleyCommon(string $field, string $rule, $satisfier = null, string $error = null, $value = null)
 	{
 		$typedRule = [];
 		$typedRule = array_merge($typedRule, static::$relatedDateRule);
@@ -39,7 +39,7 @@ class ParsleyAjdCommonClientSide extends AbstractClientSide
                 data-parsley-required="true"
 JS;
 			$js[$field][$rule]['message'] = <<<JS
-				data-parsley-required-message="$error"
+				data-parsley-required-message='$error'
 JS;
 		}
 		else if( in_array( $rule, static::$relatedEmailRules, true ) )
@@ -49,7 +49,7 @@ JS;
 	            data-parsley-type="email"
 JS;
 			$js[$field][$rule]['message'] = <<<JS
-				data-parsley-type-message="$error"
+				data-parsley-type-message='$error'
 JS;
 
 		}
@@ -59,7 +59,7 @@ JS;
 	            data-parsley-$rule="{$satisfier[0]}"
 JS;
 			$js[$field][$rule]['message'] = <<<JS
-                data-parsley-$rule-message="$error"
+                data-parsley-$rule-message='$error'
 JS;
 		}
 		else if(in_array( $rule, $typedRule, true ))
@@ -69,7 +69,7 @@ JS;
                 
 JS;
 			$js[$field][$rule]['message'] = <<<JS
-				data-parsley-$rule-message="$error"
+				data-parsley-$rule-message='$error'
 JS;
 
 		}
@@ -113,7 +113,7 @@ JS;
                 data-parsley-inrule-identical='$identical'
 JS;
 			$js[$field][$rule]['message'] = <<<JS
-				data-parsley-$rule-message="$error"
+				data-parsley-$rule-message='$error'
 JS;
 
 		}
@@ -141,7 +141,7 @@ JS;
 		return $js;
 	}
 
-	protected static function parsleyInCustomJsCommon(array $js, string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	protected static function parsleyInCustomJsCommon(array $js, string $field, string $rule, $satisfier = null, string $error = null,  $value = null)
 	{
 		$js[$field][$rule]['js'] =   <<<JS
 
@@ -191,7 +191,7 @@ JS;
 		return $js;
 	}
 
-	protected static function parsleyDateCustomJsCommon(array $js, string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	protected static function parsleyDateCustomJsCommon(array $js, string $field, string $rule, $satisfier = null, string $error = null,  $value = null)
 	{
 		$js[$field][$rule]['js'] =   <<<JS
 
@@ -220,7 +220,7 @@ JS;
 		return $js;
 	}
 
-	protected static function parsleyMultipleOfCustomJsCommon(array $js, string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	protected static function parsleyMultipleOfCustomJsCommon(array $js, string $field, string $rule, $satisfier = null, string $error = null,  $value = null)
 	{
 		$js[$field][$rule]['js'] =   <<<JS
 			window.Parsley.addValidator('multipleof', {
@@ -236,7 +236,7 @@ JS;
 		return $js;
 	}
 
-	protected static function parsleyRegexCustomJsCommon(array $js, string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+	protected static function parsleyRegexCustomJsCommon(array $js, string $field, string $rule, $satisfier = null, string $error = null,  $value = null)
 	{
 		$js[$field][$rule]['js'] =   <<<JS
 

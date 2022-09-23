@@ -8,5 +8,5 @@ interface ClientSideInterface
 {
 	public static function boot(Rule_interface $ruleObj, string $jsTypeFormat, bool $clientMessageOnly = false);
 
-	public static function getCLientSideFormat(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null);
+	public static function getCLientSideFormat(string $field, string $rule, $satisfier = null, string $error = null, $value = null);
 }
