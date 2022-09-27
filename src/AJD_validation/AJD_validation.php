@@ -2388,9 +2388,14 @@ class AJD_validation extends Base_validator
 		return $object;
 	}
 
-	public function setUpValidation($field = null, $logic = Abstract_common::LOG_AND, $group = null)
+	public function each(array $rules, $context = null)
 	{
-		if(empty($field))
+		return new Combinators\Each($rules, $context);
+	}
+
+	public function setUpValidation($field = null, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null)
+	{
+		if(is_null($field))
 		{
 			$orig_field = 'spl_object_id##'; 
 			$field_arr = [
