@@ -5088,12 +5088,19 @@ class AJD_validation extends Base_validator
 			$returnValue['check'] = $check_r;
 		}
 
-		if(!isset($returnValue['append_error']))
+		if(!empty($customError['appendError']))
 		{
-			$returnValue['append_error'] = $customError['appendError'];
+			if(!isset($returnValue['append_error']))
+			{
+				$returnValue['append_error'] = $customError['appendError'];
+			}
+			else
+			{
+				$returnValue['append_error'] = $returnValue['append_error'].' '.$customError['appendError'];	
+			}
 		}
 
-		if(!isset($returnValue['msg']))
+		if(!empty($customError['overrideError']))
 		{
 			$returnValue['msg'] = $customError['overrideError'];
 		}

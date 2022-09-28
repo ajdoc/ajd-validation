@@ -2133,6 +2133,46 @@ All of the required rules must pass for "Second.0.0".
 - Since `Second.1.0` == `yes` and `First.1.0` is zero we print error.
 - Since `Secnod.0.0` == `0` we print error.
 
+4. Appending error
+- Useful when you want to show on which row the error happened.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+$v->each([
+	function($ajd, $val, $field)
+	{
+		$options = $this->getOptions();
+
+		return $ajd->required()
+						->getInstance()
+						->setCustomErrorMessage([
+							'appendError' => 'at row '.($options['cnt'] + 1)
+						])
+					->minlength(2)
+						->getInstance()
+						->setCustomErrorMessage([
+							'appendError' => 'at row '.($options['cnt'] + 1)
+						])
+					->check('test.'.$field, $val);
+	}
+])
+->check([
+'', '', ''
+]); // prints error
+/*
+All of the required rules must pass for "Test.0".
+  - The Test.0 field is required at row 1. 
+  - Test.0 must be greater than or equal to 2. character(s) at row 1. 
+All of the required rules must pass for "Test.1".
+  - The Test.1 field is required at row 2. 
+  - Test.1 must be greater than or equal to 2. character(s) at row 2. 
+All of the required rules must pass for "Test.2".
+  - The Test.2 field is required at row 3. 
+  - Test.2 must be greater than or equal to 2. character(s) at row 3. 
+*/
+```
+
 ## An Advance example
 - Let's say you're validating inputs of email but only the first input must be required, All must be a valid email address and must not repeat and you want to run valid email validation and not repeating validation if the user inputs a value. Then you want to change field name 'email' to 'Emails'
 ```php
