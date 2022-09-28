@@ -14,6 +14,9 @@ final class Each
 	protected $rules;
 	protected $context;
 	protected $ajd;
+	protected $options;
+	protected $parentObject;
+	protected $origValue;
 
 	protected static $defaultParentErrorMessage = [];
 
@@ -29,8 +32,10 @@ final class Each
 		return $this->context;
 	}
 
-	public function check(array $values, $parentField = null)
+	public function check(array $values, $parentField = null, array $cachedValue = [])
 	{
+		$this->setOrigValue( $cachedValue ?: $values );
+
 		$promises = $this->processRules($values, $parentField);
 
 		if(empty($promises))
@@ -194,6 +199,14 @@ final class Each
 				{
 					$checkArr = false;
 				}
+
+				$this->setOptions([
+					'realField' => $realField,
+					'cnt' => $cnt,
+					'ruleIndex' => $ruleIndex,
+					'values' => $values,
+					'parentField' => $parentField
+				]);
 				
 				if( $rule instanceof Closure ) 
 				{
@@ -203,12 +216,12 @@ final class Each
 
 					if(!empty($result))
 					{
-						$promises = $this->processRuleType($result, $field, $realField, $val, $checkArr, $promises);
+						$promises = $this->processRuleType($result, $field, $realField, $val, $checkArr, $values, $promises);
 					}
 				}
 				else
 				{
-					$promises = $this->processRuleType($rule, $field, $realField, $val, $checkArr, $promises);
+					$promises = $this->processRuleType($rule, $field, $realField, $val, $checkArr, $values, $promises);
 				}
 			}
 
@@ -218,7 +231,7 @@ final class Each
 		return $promises;
 	}
 
-	protected function processRuleType($rule, $field, $realField, $val, $checkArr, array $promises = [])
+	protected function processRuleType($rule, $field, $realField, $val, $checkArr, array $values = [], array $promises = [])
 	{
 		if($rule instanceof ValidationResult)
 		{
@@ -246,7 +259,8 @@ final class Each
 		{
 			if(is_array($val))
 			{
-				$result = $rule->check($val, $field);
+				$rule->setParent($this);
+				$result = $rule->check($val, $field, $this->origValue ?: $values);
 
 				if(!empty($result))
 				{
@@ -261,5 +275,41 @@ final class Each
 		}
 
 		return $promises;
+	}
+
+	public function setOptions(array $options)
+	{
+		$this->options = $options;
+
+		return $this;
+	}
+
+	public function getOptions()
+	{
+		return $this->options;
+	}
+
+	public function setParent(Each $instance)
+	{
+		$this->parentObject = $instance;
+
+		return $this;
+	}
+
+	public function getParent() : Each
+	{
+		return $this->parentObject;
+	}
+
+	public function setOrigValue(array $values)
+	{
+		$this->origValue = $values;
+
+		return $this;
+	}
+
+	public function getOrigValue()
+	{
+		return $this->origValue;
 	}
 }

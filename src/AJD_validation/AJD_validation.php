@@ -4957,6 +4957,8 @@ class AJD_validation extends Base_validator
 			}
 		}
 
+		$check_r = $this->processAbstractRuleCustomErrorMessage($rule_obj, $check_r);
+
 		return [
 			'check' => $check_r,
 			'rule_obj' => $rule_obj
@@ -5044,10 +5046,59 @@ class AJD_validation extends Base_validator
 			}
 		}
 
+		$check_r = $this->processAbstractRuleCustomErrorMessage($rule_obj, $check_r);
+
 		return [
 			'check' => $check_r,
 			'rule_obj' => $rule_obj
 		];
+	}
+
+	protected function processAbstractRuleCustomErrorMessage($rule_obj, $check_r)
+	{
+		if(!$rule_obj)
+		{
+			return $check_r;
+		}
+
+		$check = $check_r;
+
+		if(is_array($check_r))
+		{
+			$check = $check_r['check'];
+		}
+
+		if($check)
+		{
+			return $check_r;
+		}
+
+		$customError = $rule_obj->getCustomErrorMessage();
+		
+		if(empty($customError))
+		{
+			return $check_r;
+		}
+
+		$returnValue = $check_r;
+
+		if(!is_array($check_r))
+		{
+			$returnValue = [];
+			$returnValue['check'] = $check_r;
+		}
+
+		if(!isset($returnValue['append_error']))
+		{
+			$returnValue['append_error'] = $customError['appendError'];
+		}
+
+		if(!isset($returnValue['msg']))
+		{
+			$returnValue['msg'] = $customError['overrideError'];
+		}
+
+		return $returnValue;
 	}
 
 	protected function checkDontRunValidationIn($details, $rule_obj)

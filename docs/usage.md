@@ -1844,6 +1844,293 @@ $result = $v
 		->validate('a@t.com'); // returns true because it evaluated email only and value is a valid email.
 
 ```
+## Each
+
+1. Use this if you want to manually traverse and apply the validation on a simple or nested array.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$arr = [
+	'first' => '',
+	'second' => [
+		'third' => '',
+		'fourth' => [
+			'',
+			''
+		],
+		'fifth' => [
+			'sixth'  => '',
+			'seventh' => ''
+		]
+	]
+];
+
+$v->each([
+	$v 
+		->required()
+		->minlength(2)
+		->setUpValidation('first'),
+
+	$v 
+		->is_array()
+		->setUpValidation('second'),
+
+	$v->each(
+		[
+			$v 
+				->required()
+				->minlength(3)
+				->setUpValidation('third'),
+
+			$v 
+				->is_array()
+				->setUpValidation('fourth'),
+
+			$v
+				->each([
+					$v 
+						->required()
+						->setUpValidation('0'),
+
+					$v 
+						->required()
+						->minlength(4)
+						->setUpValidation('1'),
+				]),
+
+			$v 
+				->is_array()
+				->setUpValidation('fifth'),
+
+			$v->each([
+				$v->required()
+					->digit()
+					->setUpValidation('sixth'),
+
+				$v->required()
+					->email()
+					->setUpValidation('seventh')
+			])
+		]
+	)
+])->check($arr); //prints error 
+/*
+All of the required rules must pass for "First".
+  - The First field is required.
+  - First must be greater than or equal to 2. character(s). 
+All of the required rules must pass for "Second.third".
+  - The Second.third field is required.
+  - Second.third must be greater than or equal to 3. character(s). 
+All of the required rules must pass for "Fourth.0".
+  - The Fourth.0 field is required.
+  - Fourth.0 must be greater than or equal to 2. character(s). 
+All of the required rules must pass for "Fourth.1".
+  - The Fourth.1 field is required.
+  - Fourth.1 must be greater than or equal to 2. character(s). 
+All of the required rules must pass for "Fifth.sixth".
+  - The Fifth.sixth field is required.
+  - Fifth.sixth must contain only digits (0-9).
+All of the required rules must pass for "Fifth.seventh".
+  - The Fifth.seventh field is required.
+  - The Fifth.seventh field must be a valid email.
+*/
+```
+- `$v->setUpValidation('same_array_key_on_array')` name must have the corresponding array key on the array.
+- every time you call/nest `$v->each()` it will traverse down a level on the array.
+
+2. Using closures inside `$v->each()`.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$arr = [
+	'first' => '',
+	'second' => [
+		'third' => '',
+		'fourth' => [
+			'',
+			''
+		],
+		'fifth' => [
+			'sixth'  => '',
+			'seventh' => ''
+		]
+	]
+];
+
+$v->each([
+	$v 
+		->required()
+		->minlength(2)
+		->setUpValidation('first'),
+
+	$v 
+		->is_array()
+		->setUpValidation('second'),
+
+	$v->each(
+		[
+			$v 
+				->required()
+				->minlength(3)
+				->setUpValidation('third'),
+
+			$v 
+				->is_array()
+				->setUpValidation('fourth'),
+
+			$v
+			->each([
+				function($ajd, $val, $field)
+				{
+					$options = $this->getOptions();
+					$parentField = $options['parentField'];
+					$realField = $options['realField'];
+					
+					if($parentField == 'fourth')
+					{
+						return $ajd 
+						->required()
+						->minlength(2)
+						->check($realField, $val);
+					}
+				}
+			]),
+
+			$v 
+				->is_array()
+				->setUpValidation('fifth'),
+
+			$v->each([
+				$v->required()
+					->digit()
+					->setUpValidation('sixth'),
+
+				$v->required()
+					->email()
+					->setUpValidation('seventh')
+			])
+		]
+	)
+])->check($arr); //prints error
+/*
+All of the required rules must pass for "First".
+  - The First field is required.
+  - First must be greater than or equal to 2. character(s). 
+All of the required rules must pass for "Second.third".
+  - The Second.third field is required.
+  - Second.third must be greater than or equal to 3. character(s). 
+All of the required rules must pass for "Fourth.0".
+  - The Fourth.0 field is required.
+  - Fourth.0 must be greater than or equal to 2. character(s). 
+All of the required rules must pass for "Fourth.1".
+  - The Fourth.1 field is required.
+  - Fourth.1 must be greater than or equal to 2. character(s). 
+All of the required rules must pass for "Fifth.sixth".
+  - The Fifth.sixth field is required.
+  - Fifth.sixth must contain only digits (0-9).
+All of the required rules must pass for "Fifth.seventh".
+  - The Fifth.seventh field is required.
+  - The Fifth.seventh field must be a valid email.
+*/
+```
+- Using closure will automatically iterate the array on that level.
+- Closures will receive 
+	1. `$ajd` - \AJD_validation\AJD_validation instance.
+	2. `$val` - current array value.
+	3. `$field` - current array key.
+- Closures can return 
+	1. `$v->each()` which is a `\AJD_validation\Combinators\Each` instance.
+	2. `$v->required()->check()` which is  `\AJD_validation\Asycn\PromiseValidator` instance.
+	3. `$v->required()->setUpValidation('same_array_key_on_array')` which is  `\AJD_validation\Asycn\ValidationResult` instance.
+- inside a Closure you could use the following method
+	1. `$this->getParent()` which will return the parent `\AJD_validation\Combinators\Each` instance.
+	2. `$this->getOptions()` which will return an array of useful variables.
+		- `$realField` - the concatenated field name of `parent field/parent array key.'.'.current field/current array key.`
+		- `$cnt` - the current index of the array.
+		- `$ruleIndex` - the current rule index.
+		- `$values` - the parent array.
+		- `$parentField` - the parent array key/field.
+
+3. Example of using closure for auto iteration and some conditional validation.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$arr2 = [
+		'first' => [
+			[
+				'0',
+				'0'
+			],
+			[
+				'0'
+			]
+		],
+		'second' => [
+			[
+				'',
+				'no'
+			],
+			[
+				'yes'
+			]
+		]
+	];
+
+$v->each([
+	function($ajd, $val, $field)
+	{
+		return $ajd
+			->required()
+			->is_array()
+			->check($field, $val, false);
+	},
+	$v->each([
+		function($ajd, $val, $field)
+		{
+			if(is_array($val))
+			{
+				return $ajd->each([function($ajd, $val, $field)
+				{
+					$firstParent = $this->getParent()->getOptions()['parentField'];
+					$parentOpt = $this->getParent()->getOptions();
+					$parentCnt = $parentOpt['cnt'];
+					$option = $this->getOptions();
+					$cnt = $option['cnt'];
+					$realField = $option['realField'];
+					$arr2 = $this->getOrigValue();
+
+					$checkSecond = $arr2['second'][$parentCnt][$cnt];
+			
+					return $ajd->required()
+								->sometimes(function() use($checkSecond, $firstParent)
+								{
+									return $checkSecond == 'yes' || $firstParent == 'second';
+								})
+								->check($firstParent.'.'.$realField, $val);
+					
+				}]);
+			}
+		}
+	])
+])->check($arr2); // prints error
+/*
+All of the required rules must pass for "First.1.0".
+  - The First.1.0 field is required.
+All of the required rules must pass for "Second.0.0".
+  - The Second.0.0 field is required.
+*/
+```
+- On the first rule/closure we are simply  validating if array keys `first` and `second` are indeed an array and are not empty.
+- On the next rule/closure we go one level down and now iterating the two arrays in `first` and `second`
+- Inside the rule/closure we again go one level down if `$val` is an array using `$v->each()` and now iterating inside the two array for each `first` and `second`. Inside this level we then stated that we would require each element if `second` array values is `yes` or if that element comes from `second` array.
+- Since `Second.1.0` == `yes` and `First.1.0` is zero we print error.
+- Since `Secnod.0.0` == `0` we print error.
 
 ## An Advance example
 - Let's say you're validating inputs of email but only the first input must be required, All must be a valid email address and must not repeat and you want to run valid email validation and not repeating validation if the user inputs a value. Then you want to change field name 'email' to 'Emails'

@@ -12,13 +12,31 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
 
     protected $name;
     protected $whenInstance;
+    protected $customErrorMessage  = [
+        'appendError' => '',
+        'overrideError' => ''
+    ];
 
     protected static $anonRuleExceptions = [];
     protected static $ruleArguments = [];
 
+
     public function __invoke($value, $satisfier = null, $field = null)
     {
         return $this->run($value, $satisfier, $field);
+    }
+
+    public function setCustomErrorMessage(array $customErrorMessage)
+    {
+        $this->customErrorMessage['appendError'] = $customErrorMessage['appendError'] ?? '';
+        $this->customErrorMessage['overrideError'] = $customErrorMessage['overrideError'] ?? '';
+
+        return $this->getReturn();
+    }
+
+    public function getCustomErrorMessage()
+    {
+        return $this->customErrorMessage;
     }
 
     public function setWhenInstance($whenInstance)
