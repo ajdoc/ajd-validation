@@ -664,7 +664,7 @@ class Package_client_side extends AbstractClientSide
 {
 	public static function getCLientSideFormat(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
 	{
-		if(static::$jsTypeFormat == \AJD_validationa\Helpers\Client_side::CLIENT_PARSLEY)
+		if(static::$jsTypeFormat == \AJD_validation\Helpers\Client_side::CLIENT_PARSLEY)
 		{
 			$js[$field][$rule]['rule'] =   <<<JS
                 data-parsley-$rule="true"
@@ -673,7 +673,7 @@ JS;
 				data-parsley-$rule-message="$error"
 JS;
 		}
-		else if(static::$jsTypeFormat == \AJD_validationa\Helpers\Client_side::JQ_VALIDATION)
+		else if(static::$jsTypeFormat == \AJD_validation\Helpers\Client_side::JQ_VALIDATION)
 		{
 			$js['clientSideJson'][$field][$rule] = true;
 			$js['clientSideJsonMessages'][$field][$rule] = $error;
@@ -681,7 +681,7 @@ JS;
 
 		// if you want to create a custom js see the documentation for the current jquery validation in use e.g
 
-		if(static::$jsTypeFormat == \AJD_validationa\Helpers\Client_side::CLIENT_PARSLEY)
+		if(static::$jsTypeFormat == \AJD_validation\Helpers\Client_side::CLIENT_PARSLEY)
 		{
 			$js[$field][$rule]['js'] =   <<<JS
 			window.Parsley.addValidator('multipleof', {
@@ -695,7 +695,7 @@ JS;
 		});
 JS;
 		}
-		else if(static::$jsTypeFormat == \AJD_validationa\Helpers\Client_side::JQ_VALIDATION)
+		else if(static::$jsTypeFormat == \AJD_validation\Helpers\Client_side::JQ_VALIDATION)
 		{
 			$js[$field][$rule]['js'] =   <<<JS
 
