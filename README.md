@@ -2124,30 +2124,31 @@ $v->each([
 	$v->each([
 		function($ajd, $val, $field)
 		{
-			if(is_array($val))
-			{
-				return $ajd->each([function($ajd, $val, $field)
-				{
-					$firstParent = $this->getParent()->getOptions()['parentField'];
-					$parentOpt = $this->getParent()->getOptions();
-					$parentCnt = $parentOpt['cnt'];
-					$option = $this->getOptions();
-					$cnt = $option['cnt'];
-					$realField = $option['realField'];
-					$arr2 = $this->getOrigValue();
+			return $ajd
+			->required()
+			->is_array()
+			->check($field, $val, false);
+		},
+		$v->each([function($ajd, $val, $field)
+		{
+			$firstParent = $this->getParent()->getOptions()['parentField'];
+			$parentOpt = $this->getParent()->getOptions();
+			$parentCnt = $parentOpt['cnt'];
+			$option = $this->getOptions();
+			$cnt = $option['cnt'];
+			$realField = $option['realField'];
+			$arr2 = $this->getOrigValue();
 
-					$checkSecond = $arr2['second'][$parentCnt][$cnt];
+			$checkSecond = $arr2['second'][$parentCnt][$cnt];
+		
+			return $ajd->required()
+						->sometimes(function() use($checkSecond, $firstParent)
+						{
+							return $checkSecond == 'yes' || $firstParent == 'second';
+						})
+						->check($firstParent.'.'.$realField, $val);
 			
-					return $ajd->required()
-								->sometimes(function() use($checkSecond, $firstParent)
-								{
-									return $checkSecond == 'yes' || $firstParent == 'second';
-								})
-								->check($firstParent.'.'.$realField, $val);
-					
-				}]);
-			}
-		}
+		}])
 	])
 ])->check($arr2); // prints error
 /*
@@ -2158,8 +2159,8 @@ All of the required rules must pass for "Second.0.0".
 */
 ```
 - On the first rule/closure we are simply  validating if array keys `first` and `second` are indeed an array and are not empty.
-- On the next rule/closure we go one level down and now iterating the two arrays in `first` and `second`
-- Inside the rule/closure we again go one level down if `$val` is an array using `$v->each()` and now iterating inside the two array for each `first` and `second`. Inside this level we then stated that we would require each element if `second` array values is `yes` or if that element comes from `second` array.
+- On the next rule/closure we go one level down and now iterating the two arrays in `first` and `second` and again validating if they are indeed an array and are not empty.
+- On the next rule/closure we again go one level down using `$v->each()` and now iterating inside the two array for each `first` and `second`. Inside this level we then stated that we would require each element if `second` array values is `yes` or if that element comes from `second` array.
 - Since `Second.1.0` == `yes` and `First.1.0` is zero we print error.
 - Since `Secnod.0.0` == `0` we print error.
 
