@@ -2176,16 +2176,16 @@ $v->each([
 		$options = $this->getOptions();
 
 		return $ajd->required()
-						->getInstance()
-						->setCustomErrorMessage([
-							'appendError' => 'at row '.($options['cnt'] + 1)
-						])
-					->minlength(2)
-						->getInstance()
-						->setCustomErrorMessage([
-							'appendError' => 'at row '.($options['cnt'] + 1)
-						])
-					->check('test.'.$field, $val);
+				->getInstance()
+				->setCustomErrorMessage([
+					'appendError' => 'at row '.($options['cnt'] + 1)
+				])
+			->minlength(2)
+				->getInstance()
+				->setCustomErrorMessage([
+					'appendError' => 'at row '.($options['cnt'] + 1)
+				])
+			->check('test.'.$field, $val);
 	}
 ])
 ->check([
