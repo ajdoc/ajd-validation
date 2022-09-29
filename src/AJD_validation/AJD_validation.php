@@ -9,12 +9,12 @@ use AJD_validation\Contracts\{
 
 use AJD_validation\Helpers\{ 
 	When, Database, Client_side, Errors, Array_helper, Validation_helpers,
-	Db_instance, Logics_map, Group_sequence
+	Db_instance, Logics_map, Group_sequence, TriggerWhen
 };
 
 use AJD_validation\Async\{ 
 	PromiseValidator, PromiseHelpers, FailedPromise, ValidationResult,
-	TriggerWhen, Promise_interface, DeferredValidator
+	Promise_interface, DeferredValidator
 };
 
 use AJD_validation\Combinators\{ 
@@ -4279,6 +4279,8 @@ class AJD_validation extends Base_validator
 
 		$err = static::get_errors_instance($singleton);
 
+		$formatter = $details['formatter'][ $details['rule'] ][$details['details'][5]] ?? null;
+		
 		$errors = $err->get_errors();
 
 		$called_class = ( isset( $details['details'][1] ) ) ? $details['details'][1] : null;
@@ -4297,7 +4299,7 @@ class AJD_validation extends Base_validator
 			$rule_obj = $details['rule_obj'];
 		}
 		
-		$errors = $err->processExceptions( $details['rule'], $called_class, $rule_instance, $details['satisfier'], $details['value'], $inverse, $errors, $rule_obj );
+		$errors = $err->processExceptions( $details['rule'], $called_class, $rule_instance, $details['satisfier'], $details['value'], $inverse, $errors, $rule_obj, $formatter );
 		
 		$errors = $this->format_errors( $details['rule'], $details['details'][1], $details['clean_field'], $details['value'], $details['satisfier'], $errors['errors'], $cus_err, $check_arr, $err, $key, $append_err, $inverse );
 		
@@ -4624,6 +4626,11 @@ class AJD_validation extends Base_validator
 					if( isset( $pass_check['append_error'] ) && !empty( $pass_check['append_error'] ) )
 					{
 						$details['append_error'][ $details['rule'] ] = $pass_check['append_error'];
+					}
+
+					if( isset( $pass_check['formatter'] ) && !empty( $pass_check['formatter'] ) )
+					{
+						$details['formatter'][ $details['rule'] ][$details['details'][5]] = $pass_check['formatter'];
 					}
 
 					if( isset( $pass_check['val'] ) )
@@ -5103,6 +5110,11 @@ class AJD_validation extends Base_validator
 		if(!empty($customError['overrideError']))
 		{
 			$returnValue['msg'] = $customError['overrideError'];
+		}
+
+		if(!empty($customError['formatter']))
+		{
+			$returnValue['formatter'] = $customError['formatter'];
 		}
 
 		return $returnValue;
