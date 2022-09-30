@@ -18,9 +18,19 @@ abstract class AbstractCombinators implements CombinatorsInterface
 	protected static $dontRunCheck = false;
 	protected static $defaultGroup = 'defaultGroup';
 
-	public function __construct(Promise_interface|CombinatorsInterface ...$validations)
+	public function __construct(...$validations)
 	{
-		$this->validations = $validations;
+		foreach($validations as $validation)
+		{
+			if($validation instanceof Promise_interface || $validation instanceof CombinatorsInterface)
+			{
+				$this->validations[] = $validation;	
+			}
+			else 
+			{
+				throw new InvalidArgumentException('Combinator muste be a \AJD_validation\Async\Promise_interface or \AJD_validation\Combinators\CombinatorsInterface');
+			}
+		}
 	}
 
 	public static function dontRunCheck($check = true)
