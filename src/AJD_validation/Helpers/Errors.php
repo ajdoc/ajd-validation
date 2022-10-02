@@ -726,7 +726,7 @@ EOS;
 		return $newMessage;
 	}
 
-	public function processExceptions( $rule_name, $called_class, $rule_instance, $satisfier, $values, $inverse, array $errors, $passRuleObj = null  )
+	public function processExceptions( $rule_name, $called_class, $rule_instance, $satisfier, $values, $inverse, array $errors, $passRuleObj = null, $formatter = null, array $extraOptions = [] )
 	{
 		$exception_class = $this->exceptionNamespace.$called_class.'_exception';
 		$qualified_exception_class = $exception_class;
@@ -859,6 +859,18 @@ EOS;
 					else
 					{
 						$message = $exception_class_obj->getExceptionMessage();
+					}
+
+					if(!empty($formatter))
+					{
+						$formatter->appendOptions($extraOptions);
+						$formatField = $extraOptions['clean_field'] ?? $extraOptions['orig_field'] ?? null;
+						$formatterResult = $formatter->format($message, $exceptionObj, $formatField, $satisfier, $values);
+
+						if(!empty($formatterResult))
+						{
+							$message = $formatterResult;
+						}
 					}
 					
 					$errors[$rule_name] = $message;

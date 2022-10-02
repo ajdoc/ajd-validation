@@ -246,6 +246,32 @@ $v = new AJD_validation;
 
 But if the validation passes any of the rules defined it will not output error. Basically this definition meant if any of the rules passes field passes.
 
+## Passing multiple fields
+- Usefult when some fields have the same validation definition
+- You can pass an array of fields in check where the validation will try to find and map the field to the value if the value is a key value pair array. If the value is not an array it will just repeat the validation for the fields.
+- **Do note this will combine both the promise and validation result for all the fields so if one the field fails the promise and validation result fails.**
+
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+
+$arr3 = ['field1' => '', 'field2' => ''];
+ 
+$v11 = $v
+		->required()
+		->minlength(2)
+		->check(['field1', 'field2'], $arr3); //prints error
+/*
+All of the required rules must pass for "Test.2".
+  - This Test.2 is required at row 3.
+  - Test.2 must be greater than or equal to 2. character(s) at row 3. 
+All of the required rules must pass for "Field2".
+  - The Field2 field is required
+  - Field2 must be greater than or equal to 2. character(s). 
+*/
+```
+
 ## Basic customization of error message
 	
 If for instance you want to customize the error message per error message this could be achived by `->[rulename](null, '@custom_error_Place your custom error message here')`
@@ -267,6 +293,207 @@ All of the required rules must pass for "Middlename2".
   - Middlename2 must be greater than or equal to 2. character(s). 
   - Middlename2 must contain only digits (0-9).
   - "b" is the value for middlename2 to be accpted.
+```
+
+### Error Customization
+- We can customize error per rule by using:
+	- `$v->required()
+		->getInstance()
+		->setCustomErrorMessage([
+			'overrideError' => 'override message'
+			'appendError' => 'appended message',
+		]);
+	`
+1. using `appendError` will append a message to the default error message.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+$v->required()
+	->getInstance()
+	->setCustomErrorMessage([
+		'appendError' => 'appended message',
+	])
+	->check('test_format', [ 'test_format' => ['', '']]); //prints error
+/*
+All of the required rules must pass for "Test format".
+  - The Test format field is required appended message.  at row 1.
+  - The Test format field is required appended message.  at row 2.
+*/
+```
+2. using `overrideError` will override the default error message.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+$v->required()
+	->getInstance()
+	->setCustomErrorMessage([
+		'overrideError' => 'override message',
+	])
+	->check('test_format', [ 'test_format' => ['', '']]); //prints error
+/*
+All of the required rules must pass for "Test format".
+  - override message at row 1.
+  - override message at row 2.
+*/
+```
+3. Combining `appendError` and `overrideError`.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+$v->required()
+	->getInstance()
+	->setCustomErrorMessage([
+		'overrideError' => 'override message',
+		'appendError' => 'appended message',
+	])
+	->check('test_format', [ 'test_format' => ['', '']]); //prints error
+/*
+All of the required rules must pass for "Test format".
+  - override message appended message.  at row 1.
+  - override message appended message.  at row 2.
+*/
+```
+4. When defining `@custom_error_[message]` `overrideError` will not be used.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+$v->required()
+	->getInstance()
+	->setCustomErrorMessage([
+		'overrideError' => 'override message',
+		'appendError' => 'appended message',
+	])
+	->check('test_format', [ 'test_format' => ['', '']]); //prints error
+/*
+All of the required rules must pass for "Test format".
+  - Custom error message. appended message.  at row 1.
+  - Custom error message. appended message.  at row 2.
+*/
+```
+
+#### Using formatter to customize error message
+- We can customize error using formater per rule by using:
+	- `$v->required()
+		->getInstance()
+		->setFormatter(\Closure|\AJD_validation\Formatter\FormatterInterface::class, optional $formatterOptions);
+	`
+- `\Closure` and `(\AJD_validation\Formatter\FormatterInterface::class)->format()` will receive
+	- `string $message` - The default rule error message.
+	- `\AJD_validation\Contracts\Abstract_exceptions::class $exception` - The rule exception class.
+	- `string $field = null` - the current field.
+	- `array $satisfier = null` - the rule satisfier.
+	- `mixed $value = null` - the current value given.
+- `\Closure` and `(\AJD_validation\Formatter\FormatterInterface::class)->format()` could access additional formatterOptions thru `$this->getOptions()`
+- Default options are:
+	- `string cus_err` - The `@custom_error_[message]` passed.
+	- `int valueKey` - The current index of the value.
+	- `string clean_field` - The current formatted field name.
+	- `string orig_field` - The current pre formatted field name.
+
+1. `\Closure` example.
+```php
+use AJD_validation\AJD_validation;
+
+$v = new AJD_validation;
+$v->required()
+	->getInstance()
+	->setFormatter(function($message, $exceptionObj, $field, $satisfier = null, $value = null)
+	{
+		$realMessage = $this->getOptions()['cus_err'] ?: $message;
+		
+		return $realMessage.' custom at '.$this->getOptions()['valueKey'] + 1;
+	})
+	->check('test_format', [ 'test_format' => ['', '']]); //prints error
+/*
+All of the required rules must pass for "Test format".
+  - The Test format field is required custom at 1 at row 1.
+  - The Test format field is required custom at 2 at row 2.
+*/
+```
+2. Using `Formatter Class` with Formatter Options and `$satisfier` example.
+```php
+use AJD_validation\AJD_validation;
+
+namespace AJD_validation\Formatter;
+
+use AJD_validation\Formatter\AbstractFormatter;
+use AJD_validation\Contracts\Abstract_exceptions;
+
+class RequiredFormatter extends AbstractFormatter
+{
+	public function format(string $messages, Abstract_exceptions $exception, $field = null, $satisfier = null, $value = null)
+	{
+		$options = $this->getOptions();
+		$cnt = $options['valueKey'] ?? 0;
+
+		$satis_str = $satisfier[0] ?? '';
+		
+		$cnt = $cnt + 1;
+		$addtional_option = $options['addtional'] ?? '';
+		
+		$message = 'This :field is required at row {cnt} with a satisfier of. '.$satis_str.' '.$addtional_option.'.';
+		$message = $exception->replaceErrorPlaceholder(['cnt' => $cnt], $message);
+
+		return $message;
+	}
+}
+
+$v = new AJD_validation;
+$v->required(1)
+	->getInstance()
+	->setFormatter(\AJD_validation\Formatter\RequiredFormatter::class, ['addtional' => 'addtional'])
+	->check('test_format', [ 'test_format' => ['', '']]); //prints error
+/*
+All of the required rules must pass for "Test format".
+  - This Test format is required at row 1 with a satisfier of. 1 addtional. at row 1.
+  - This Test format is required at row 2 with a satisfier of. 1 addtional. at row 2.
+*/
+```
+3. Combining with `appnedError`.
+```php
+use AJD_validation\AJD_validation;
+
+namespace AJD_validation\Formatter;
+
+use AJD_validation\Formatter\AbstractFormatter;
+use AJD_validation\Contracts\Abstract_exceptions;
+
+class RequiredFormatter extends AbstractFormatter
+{
+	public function format(string $messages, Abstract_exceptions $exception, $field = null, $satisfier = null, $value = null)
+	{
+		$options = $this->getOptions();
+		$cnt = $options['valueKey'] ?? 0;
+
+		$satis_str = $satisfier[0] ?? '';
+		
+		$cnt = $cnt + 1;
+		$addtional_option = $options['addtional'] ?? '';
+		
+		$message = 'This :field is required at row {cnt} with a satisfier of. '.$satis_str.' '.$addtional_option.'.';
+		$message = $exception->replaceErrorPlaceholder(['cnt' => $cnt], $message);
+
+		return $message;
+	}
+}
+
+$v = new AJD_validation;
+$v->required(1)
+	->getInstance()
+	->setFormatter(\AJD_validation\Formatter\RequiredFormatter::class, ['addtional' => 'addtional'])
+	->setCustomErrorMessage([
+		'appendError' => 'append message'
+	])
+	->check('test_format', [ 'test_format' => ['', '']]); //prints error
+/*
+All of the required rules must pass for "Test format".
+  - This Test format is required at row 1 with a satisfier of. 1 addtional. append message.  at row 1.
+  - This Test format is required at row 2 with a satisfier of. 1 addtional. append message.  at row 2.
+*/
 ```
 
 ## Set error messages language

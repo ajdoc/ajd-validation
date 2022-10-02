@@ -2,9 +2,17 @@
 
 use AJD_validation\Contracts\Rule_interface;
 use AJD_validation\AJD_validation;
-use AJD_validation\Contracts\Abstract_invokable;
-use AJD_validation\Contracts\Abstract_anonymous_rule;
+use AJD_validation\Contracts\{
+    Abstract_invokable, Abstract_anonymous_rule, Abstract_exceptions
+};
+
 use AJD_validation\Helpers\Errors;
+use AJD_validation\Formatter\{
+    FormatterInterface, AbstractFormatter
+};
+
+use Closure;
+use ReflectionClass;
 
 abstract class Abstract_rule extends AJD_validation implements Rule_interface
 {
@@ -14,7 +22,9 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
     protected $whenInstance;
     protected $customErrorMessage  = [
         'appendError' => '',
-        'overrideError' => ''
+        'overrideError' => '',
+        'formatter' => null,
+        'formatterOptions' => []
     ];
 
     protected static $anonRuleExceptions = [];
@@ -30,8 +40,71 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
     {
         $this->customErrorMessage['appendError'] = $customErrorMessage['appendError'] ?? '';
         $this->customErrorMessage['overrideError'] = $customErrorMessage['overrideError'] ?? '';
+        $this->customErrorMessage['formatterOptions'] = $customErrorMessage['formatterOptions'] ?? [];
+
+        if(isset($customErrorMessage['formatter']) && !empty($customErrorMessage['formatter']))
+        {
+            $formatter = $customErrorMessage['formatter'];
+
+            if(is_string($formatter))
+            {
+                $reflectFormatter = new ReflectionClass($formatter);
+
+                $interfaces  = array_keys($reflectFormatter->getInterfaces());
+
+                if(in_array(FormatterInterface::class, $interfaces, true))
+                {
+                    $this->customErrorMessage['formatter'] = new $formatter;
+                }
+            }
+            else if($formatter instanceof Closure)
+            {
+                $this->customErrorMessage['formatter'] = $this->createFormatter($formatter);
+            }
+            else if($formatter instanceof FormatterInterface)
+            {
+                $this->customErrorMessage['formatter'] = $formatter;   
+            }
+
+            $this->customErrorMessage['formatter']->setOptions($this->customErrorMessage['formatterOptions']);
+        }
 
         return $this->getReturn();
+    }
+
+    public function setFormatter($formatter, array $formatterOptions = [])
+    {
+        return $this->setCustomErrorMessage([
+            'formatter' => $formatter,
+            'formatterOptions' => $formatterOptions
+        ]);
+    }
+
+    public function createFormatter(Closure $formatter)
+    {
+        $anonClassFormatter = new class($formatter) extends AbstractFormatter
+        {
+            protected $formatter;
+
+            public function __construct($formatter)
+            {
+                $this->formatter = $formatter;
+            }
+
+            public function format(string $messages, Abstract_exceptions $exception, $field = null, $satisfier = null, $value = null)
+            {
+                if(empty($this->formatter))
+                {
+                    return null;
+                }
+
+                $closure = $this->formatter->bindTo($this, self::class);
+
+                return \call_user_func_array($closure, func_get_args());
+            }
+        };
+
+        return $anonClassFormatter;
     }
 
     public function getCustomErrorMessage()

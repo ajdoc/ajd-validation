@@ -1159,6 +1159,11 @@ class AJD_validation extends Base_validator
 			static::$ajd_prop['fiber_suspend'] = $ajd_prop['fiber_suspend'];	
 		}
 
+		if(isset($ajd_prop['cacheSceneInstance']) && !empty($ajd_prop['cacheSceneInstance']))
+		{
+			static::$cacheSceneInstance = $ajd_prop['cacheSceneInstance'];	
+		}
+
 		return $this;
 	}
 
@@ -2139,14 +2144,8 @@ class AJD_validation extends Base_validator
 		}
 	}
 
-	public function check( $field, $value = null, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $dontReset = false, $origValue = null, $function = null, $dontResetGrouping = false )
+	protected function checkifFieldArray($field, $value = null, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $dontReset = false, $origValue = null, $function = null, $dontResetGrouping = false, $fieldIsArray = false)
 	{
-		$validation = $this->processGlobalValidation('check', $field, $value, $check_arr);
-
-		if($validation)
-		{
-			return $validation;
-		}
 		
 		$that = $this;
 		$checkFiber = class_exists('Fiber');
@@ -2192,8 +2191,148 @@ class AJD_validation extends Base_validator
 
 		static::$ajd_prop['makeAsync'] = false;
 
-		return $that->createCheckPromiseValidator($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync);
+		return $that->createCheckPromiseValidator($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $fieldIsArray);
+	}
+
+	public function check( $field, $value = null, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $dontReset = false, $origValue = null, $function = null, $dontResetGrouping = false )
+	{
+		$validation = $this->processGlobalValidation('check', $field, $value, $check_arr);
+
+		if($validation)
+		{
+			return $validation;
+		}
+
+		if(!is_array($field))
+		{
+			return $this->checkifFieldArray($field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $function, $dontResetGrouping);
+		}
+
+		$promises = [];
+		$arrayKeys = array_keys($field);
+		$endIndex = end($arrayKeys);
+		$firsIndex = reset($arrayKeys);
+		$fistValResult = null;
+
+		foreach($field as $index => $field)
+		{
+			$dontReset = true;
+
+			if($endIndex == $index)
+			{
+				$dontReset = false;
+			}
+			
+			$promiseOrVal = $this->checkifFieldArray($field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $function, $dontResetGrouping, true);	
+
+			if(method_exists($promiseOrVal, 'getPromise'))
+			{
+				$promise = $promiseOrVal->getPromise();
+			}
+			else
+			{
+				$promise = $promiseOrVal;
+			}
+
+			if($firsIndex == $index)
+			{
+				$firsValResult = $promise->getValidationResult();
+
+				$firsValResult = $firsValResult->mapErrors(function($messages, $self)
+				{
+					return Combinators\Each::commonFirstValMapErrors($messages, $self);
+				});
+
+				$firsValResult = $firsValResult->mapValue(function($value, $self)
+				{
+					$field = $self->getField();
+
+					return Combinators\Each::commonMapValues($value, $field);
+				});
+			}
+			else
+			{
+				if(!empty($firsValResult))
+				{
+					$validationResult = $promise->getValidationResult();
+
+					$firsValResult = $firsValResult
+					->join(
+						$validationResult,
+						function($valueA, $valueB) use($field)
+						{
+							$valueBProcess = Combinators\Each::commonMapValues($valueB, $field);
+							
+							return array_merge($valueA, $valueBProcess);
+						},
+						function($errorsA, $errorsB) use($field)
+						{
+							if(!empty($errorsB))
+							{
+								$errorsBMain = [
+									$field => $errorsB
+								];
+
+								return array_merge($errorsA, $errorsBMain);
+							}
+
+							return $errorsA;
+						}
+					);
+				}
+			}
+
+			if($firsValResult)
+			{
+				$ajdProp = $firsValResult->getAjdProp();
+
+				if($dontReset)
+				{
+					if(isset($ajdProp['cacheSceneInstance']) && !empty($ajdProp['cacheSceneInstance']))
+					{
+						static::$cacheSceneInstance = $ajdProp['cacheSceneInstance'];	
+					}
+				}
+
+				$ajdProp['setUpFrom'] = $field;
+
+				if(isset($ajdProp['setUpFrom']) && !empty($ajdProp['setUpFrom']))
+				{
+					static::$ajd_prop['setUpFrom'] = $ajdProp['setUpFrom'];	
+				}
+			}
+
+			$promises[] = $promise;
+		}
 		
+		static::$ajd_prop['setUpFrom'] = null;
+
+		$allPromise = PromiseHelpers::all($promises);
+
+		$obs = static::get_observable_instance();
+
+		$obs->attach_observer( 'passed', $allPromise, array( $this ) );
+		$obs->attach_observer( 'fails', $allPromise, array( $this ) );
+
+		$isValid = true;
+
+		$allPromise->then(function() use(&$obs)
+		{
+			$obs->notify_observer( 'passed' );
+		},
+		function() use(&$obs, &$isValid)
+		{
+			$isValid = false;
+			$obs->notify_observer( 'fails' );
+		});
+
+		if(!empty($firsValResult))
+		{
+			$firsValResult = $firsValResult->setIsValid($isValid);
+			$allPromise->setValidationResult($firsValResult);
+		}
+
+		return $allPromise;
 	}
 
 	private function setPromiseError($ajd, $field, $target)
@@ -2435,6 +2574,7 @@ class AJD_validation extends Base_validator
 		$this->validationResult[$orig_field]['ajd_prop']['events'] = static::$ajd_prop['events'];
 		$this->validationResult[$orig_field]['ajd_prop']['js_rule'] = static::$ajd_prop['js_rule'];
 		$this->validationResult[$orig_field]['ajd_prop']['fiber_suspend'] = static::$ajd_prop['fiber_suspend'];
+		$this->validationResult[$orig_field]['ajd_prop']['cacheSceneInstance'] = static::$cacheSceneInstance;
 	}
 
 	private function setUpConfigValidationResult($orig_field, array $field_arr, $logic)
@@ -2446,11 +2586,12 @@ class AJD_validation extends Base_validator
 			'value' => [],
 			'errors' => [],
 			'valid' => null,
-			'ajd_prop' => []
+			'ajd_prop' => [],
+			'cacheSceneInstance' => []
 		];
 	}
 
-	private function _fiberize_check($field, $value = null, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $dontReset = false, $origValue = null, $fiberize = false, $promise = null, $dontResetGrouping = false)
+	private function _fiberize_check($field, $value = null, $check_arr = true, $logic = Abstract_common::LOG_AND, $group = null, $dontReset = false, $origValue = null, $fiberize = false, $promise = null, $dontResetGrouping = false, $fieldIsArray = false)
 	{
 		$prop_or = [];
 		$prop_and = [];
@@ -2718,7 +2859,7 @@ class AJD_validation extends Base_validator
 			}
 		}
 
-		if( EMPTY( $origValue ) )
+		if( empty( $origValue ) )
 		{
 			$origValue = (!is_null($real_value_before_filter)) ? $real_value_before_filter : $value;
 		}
@@ -4298,8 +4439,20 @@ class AJD_validation extends Base_validator
 		{
 			$rule_obj = $details['rule_obj'];
 		}
-		
-		$errors = $err->processExceptions( $details['rule'], $called_class, $rule_instance, $details['satisfier'], $details['value'], $inverse, $errors, $rule_obj, $formatter );
+
+		$extraOptions = [
+			'cus_err' => $cus_err[ $details['rule'] ] ?? '',
+			'valueKey' => $key,
+			'clean_field' => $details['clean_field'],
+			'orig_field' => $details['orig_field']
+		];
+
+		$errors = $err->processExceptions( $details['rule'], $called_class, $rule_instance, $details['satisfier'], $details['value'], $inverse, $errors, $rule_obj, $formatter, $extraOptions );
+
+		if(!empty($formatter))
+		{
+			$cus_err = [];
+		}
 		
 		$errors = $this->format_errors( $details['rule'], $details['details'][1], $details['clean_field'], $details['value'], $details['satisfier'], $errors['errors'], $cus_err, $check_arr, $err, $key, $append_err, $inverse );
 		
@@ -4395,6 +4548,7 @@ class AJD_validation extends Base_validator
 		$ob = static::get_observable_instance();
 		$passed = true;
 
+		$details['valueKey'] = $key ?? 0;
 		$extra_args['pass_arr'] = [];
 		$real_val = $details['value'];
 		$details['append_error'][ $details['rule'] ] = '';
@@ -4598,7 +4752,7 @@ class AJD_validation extends Base_validator
 					}
 
 					if(
-						$details['details'][2] == '_process_class'
+						( $details['details'][2] == '_process_class' || $details['details'][2] == '_process_anon_class' )
 						&& is_array($pass_check)
 					)
 					{
@@ -5005,8 +5159,25 @@ class AJD_validation extends Base_validator
 		}
 		else
 		{
+			$checkVal = true;
+
+			if(!is_null($origValue) && is_array($origValue))
+			{
+				$origValueKeys = array_keys($origValue);
+				$lastKey = end($origValueKeys);
+
+				if($lastKey != $details['valueKey'])
+				{
+					$checkVal = false;
+				}
+			}
+
 			$rule_obj = static::$cacheSceneInstance[ $append_rule ][ $details['details'][5] ];
-			unset(static::$cacheSceneInstance[ $append_rule ][ $details['details'][5] ]);
+
+			if($checkVal)
+			{
+				unset(static::$cacheSceneInstance[ $append_rule ][ $details['details'][5] ]);	
+			}
 		}
 		
 		static::$cache_instance[ $append_rule ] = $rule_obj;
@@ -5433,7 +5604,7 @@ class AJD_validation extends Base_validator
 		return $groupings;
 	}
 
-	protected function forwardToCheck($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $target, $resolve, $reject)
+	protected function forwardToCheck($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $target, $resolve, $reject, $fieldIsArray)
 	{
 		$target->setField($formatField['orig']);
 
@@ -5444,7 +5615,7 @@ class AJD_validation extends Base_validator
 			$promise = null;
 		}
 		
-		$fiberize_check = $that->_fiberize_check($field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $checkAsync, $promise, $dontResetGrouping);
+		$fiberize_check = $that->_fiberize_check($field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $checkAsync, $promise, $dontResetGrouping, $fieldIsArray);
 
 		try 
 		{
@@ -5462,28 +5633,28 @@ class AJD_validation extends Base_validator
         }
 	}
 
-	protected function createCheckPromiseValidator($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync = false)
+	protected function createCheckPromiseValidator($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync = false, $fieldIsArray = false)
 	{
-		return (static function() use ($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync)
+		return (static function() use ($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $fieldIsArray)
 		{
 			$mainFiber = null;
 
-			$promise = new PromiseValidator(function(callable $resolve, callable $reject, $target) use ($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, &$mainFiber)
+			$promise = new PromiseValidator(function(callable $resolve, callable $reject, $target) use ($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $fieldIsArray, &$mainFiber)
 			{
 				if($checkAsync)
 				{
-					$mainFiber = new \Fiber(function() use ($func, $resolve, $reject, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $target, $checkAsync, &$mainFiber)
+					$mainFiber = new \Fiber(function() use ($func, $resolve, $reject, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $target, $checkAsync, $fieldIsArray, &$mainFiber)
 					{
 						\Fiber::suspend();
 
-						return $that->forwardToCheck($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $target, $resolve, $reject);
+						return $that->forwardToCheck($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $target, $resolve, $reject, $fieldIsArray);
 					});
 
 					$target->setFiber($mainFiber);
 				}
 				else
 				{
-					return $that->forwardToCheck($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $target, $resolve, $reject);
+					return $that->forwardToCheck($func, $that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $target, $resolve, $reject, $fieldIsArray);
 				}
 			},
 			function () use (&$mainFiber) 
@@ -5497,6 +5668,6 @@ class AJD_validation extends Base_validator
 			
 			return $promise;
 
-		})($that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync);
+		})($that, $field, $value, $check_arr, $logic, $group, $dontReset, $origValue, $dontResetGrouping, $formatField, $checkAsync, $fieldIsArray);
 	}
 }

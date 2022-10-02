@@ -2,9 +2,10 @@
 
 namespace AJD_validation\Combinators;
 
-use AJD_validation\Async\ValidationResult;
-use AJD_validation\Async\PromiseHelpers;
-use AJD_validation\Async\Promise_interface;
+use AJD_validation\Async\{ 
+	Promise_interface, ValidationResult, PromiseHelpers
+};
+
 use AJD_validation\AJD_validation as v;
 use AJD_validation\Helpers\Array_helper;
 use Closure;
@@ -74,7 +75,7 @@ final class Each
 		return $allPromise;
 	}
 
-	public function commonFirstValMapErrors($messages, $self)
+	public static function commonFirstValMapErrors($messages, $self)
 	{
 		$field = $self->getField();
 		
@@ -90,7 +91,7 @@ final class Each
 		}
 	}
 
-	protected function commonMapValues($value, $field)
+	public static function commonMapValues($value, $field)
 	{
 		if(!is_array($value))
 		{
