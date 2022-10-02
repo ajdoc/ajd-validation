@@ -253,7 +253,7 @@ $v = new AJD_validation;
 	$v 
 	->minlength(2)
 	->digit()
-	->compare('==', 'b', '@custom_error_"b" is the value for middlename2 to be accpted.')
+	->compare('==', 'b', '@custom_error_"b" is the value for middlename2 to be accepted.')
 	->check('middlename2', 'a');
 
 ```
@@ -262,7 +262,7 @@ The rule compare will have this output error
 All of the required rules must pass for "Middlename2".
   - Middlename2 must be greater than or equal to 2. character(s). 
   - Middlename2 must contain only digits (0-9).
-  - "b" is the value for middlename2 to be accpted.
+  - "b" is the value for middlename2 to be accepted.
 ```
 
 ### Error Customization
