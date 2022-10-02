@@ -233,9 +233,9 @@ $v11 = $v
 		->minlength(2)
 		->check(['field1', 'field2'], $arr3); //prints error
 /*
-All of the required rules must pass for "Test.2".
-  - This Test.2 is required at row 3.
-  - Test.2 must be greater than or equal to 2. character(s) at row 3. 
+All of the required rules must pass for "Field1".
+  - The Field1 field is required
+  - Field1 must be greater than or equal to 2. character(s). 
 All of the required rules must pass for "Field2".
   - The Field2 field is required
   - Field2 must be greater than or equal to 2. character(s). 
