@@ -217,7 +217,7 @@ $v = new AJD_validation;
 But if the validation passes any of the rules defined it will not output error. Basically this definition meant if any of the rules passes field passes.
 
 ## Passing multiple fields
-- Usefult when some fields have the same validation definition
+- Useful when some fields have the same validation definition
 - You can pass an array of fields in check where the validation will try to find and map the field to the value if the value is a key value pair array. If the value is not an array it will just repeat the validation for the fields.
 - **Do note this will combine both the promise and validation result for all the fields so if one the field fails the promise and validation result fails.**
 
