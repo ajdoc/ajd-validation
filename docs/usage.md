@@ -244,7 +244,7 @@ All of the required rules must pass for "Field2".
 
 ## Basic customization of error message
 	
-If for instance you want to customize the error message per error message this could be achived by `->[rulename](null, '@custom_error_Place your custom error message here')`
+If for instance you want to customize the error message per rule this could be achived by `->[rulename](null, '@custom_error_Place your custom error message here')`
 ```php
 use AJD_validation\AJD_validation;
 
