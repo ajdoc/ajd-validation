@@ -361,7 +361,7 @@ All of the required rules must pass for "Test format".
 use AJD_validation\AJD_validation;
 
 $v = new AJD_validation;
-$v->required()
+$v->required(null, '@custom_error_Custom error message')
 	->getInstance()
 	->setCustomErrorMessage([
 		'overrideError' => 'override message',
