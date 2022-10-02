@@ -2256,21 +2256,23 @@ class AJD_validation extends Base_validator
 				{
 					$validationResult = $promise->getValidationResult();
 
+					$realField = $validationResult->getField();
+
 					$firsValResult = $firsValResult
 					->join(
 						$validationResult,
-						function($valueA, $valueB) use($field)
+						function($valueA, $valueB) use($realField)
 						{
-							$valueBProcess = Combinators\Each::commonMapValues($valueB, $field);
+							$valueBProcess = Combinators\Each::commonMapValues($valueB, $realField);
 							
 							return array_merge($valueA, $valueBProcess);
 						},
-						function($errorsA, $errorsB) use($field)
+						function($errorsA, $errorsB) use($realField)
 						{
 							if(!empty($errorsB))
 							{
 								$errorsBMain = [
-									$field => $errorsB
+									$realField => $errorsB
 								];
 
 								return array_merge($errorsA, $errorsBMain);
@@ -2294,7 +2296,7 @@ class AJD_validation extends Base_validator
 					}
 				}
 
-				$ajdProp['setUpFrom'] = $field;
+				$ajdProp['setUpFrom'] = $firsValResult->getField();
 
 				if(isset($ajdProp['setUpFrom']) && !empty($ajdProp['setUpFrom']))
 				{
