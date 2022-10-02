@@ -1387,16 +1387,21 @@ $combined2->check(['fieldcom' => ['', '']], 'fieldcom');
 $v->assert();
 // prints error
 /*
+All of the required rules must pass for "Field3".
+  - The Field3 field is required at row 1.
+  - The Field3 field is required at row 2.
+  - The Field3 field must be a valid email. at row 1.
+  - The Field3 field must be a valid email. at row 2.
 All of the required rules must pass for "Field1".
   - The Field1 field is required at row 1.
   - The Field1 field is required at row 2.
-  - Field1 must be greater than or equal to 2. character(s). at row 1.
-  - Field1 must be greater than or equal to 2. character(s). at row 2.
+  - Field1 must be greater than or equal to 2. character(s).  at row 1.
+  - Field1 must be greater than or equal to 2. character(s).  at row 2.
 All of the required rules must pass for "Field2".
   - The Field2 field is required at row 1.
   - The Field2 field is required at row 2.
-  - Field2 must be greater than or equal to 3. character(s). at row 1.
-  - Field2 must be greater than or equal to 3. character(s). at row 2.
+  - Field2 must be greater than or equal to 3. character(s).  at row 1.
+  - Field2 must be greater than or equal to 3. character(s).  at row 2.
 */
 ```
 
