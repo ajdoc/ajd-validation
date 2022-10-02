@@ -218,7 +218,7 @@ But if the validation passes any of the rules defined it will not output error. 
 
 ## Passing multiple fields
 - Useful when some fields have the same validation definition
-- You can pass an array of fields in check where the validation will try to find and map the field to the value if the value is a key value pair array. If the value is not an array it will just repeat the validation for the fields.
+- You can pass an array of fields in `$v->check([fields])` where the validation will try to find and map the field to the value if the value is a key value pair array. If the value is not an array it will just repeat the validation for the fields.
 - **Do note this will combine both the promise and validation result for all the fields so if one the field fails the promise and validation result fails.**
 
 ```php
