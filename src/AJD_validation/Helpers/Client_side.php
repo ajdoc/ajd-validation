@@ -191,7 +191,7 @@ class Client_side extends Base_validator
 				static::$registration = $registration;
 			}
 
-			public static function getCLientSideFormat(string $field, string $rule, mixed $satisfier = null, string $error = null, mixed $value = null)
+			public static function getCLientSideFormat(string $field, string $rule, $satisfier = null, string $error = null, $value = null)
 			{
 				if(empty(static::$registration))
 				{
@@ -427,7 +427,7 @@ JS;
 		$err = static::get_errors_instance();
 		$errors = $err->get_errors();
 
-		if( !EMPTY( $this->cacheInstance ) && ISSET( $this->cacheInstance[$orig_field] ) )
+		if( !empty( $this->cacheInstance ) && isset( $this->cacheInstance[$orig_field] ) )
 		{
 			$errors = $err->processExceptions( $rule_name, $ucFirstRule, $this->cacheInstance[$orig_field], $satisfier, $value, false, $errors 
 				);

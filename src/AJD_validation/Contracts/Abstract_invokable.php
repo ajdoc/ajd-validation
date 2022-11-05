@@ -22,4 +22,33 @@ abstract class Abstract_invokable extends Abstract_rule implements Invokable_rul
     {
         
     }
+
+    public function checks($check, array $messages)
+    {
+    	if($this->exception)
+        {
+        	$defaultMessage = $messages['default'] ?? '';
+        	$inverse = $messages['inverse'] ?? $defaultMessage;
+
+        	$realMessage = $messages;
+
+        	if(!empty($defaultMessage))
+        	{
+        		$realMessage[$this->exception::ERR_DEFAULT][$this->exception::STANDARD] = $defaultMessage;
+
+        		unset($realMessage['default']);
+        	}
+
+        	if(!empty($inverse))
+        	{
+        		$realMessage[$this->exception::ERR_NEGATIVE][$this->exception::STANDARD] = $inverse;
+
+        		unset($realMessage['inverse']);
+        	}
+        	
+        	return $this->exception->message($check, $realMessage);
+        }
+
+        return $check;
+    }
 }

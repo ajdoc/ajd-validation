@@ -37,6 +37,7 @@ class Errors extends InvalidArgumentException
     protected static $addExceptionDirectory = [];
     protected static $addRulesMappings = [];
     protected static $anonymousObj = [];
+    protected static $anonymousObjErrorMessages = [];
     protected static $addLangDir = [];
 
 	public function __construct( $lang = null )
@@ -63,6 +64,11 @@ class Errors extends InvalidArgumentException
 	public static function addAnonExceptions($rule, $exception)
 	{
 		static::$anonymousObj[$rule] = $exception;
+	}
+
+	public static function addAnonErrorMessages($rule, $exception)
+	{
+		static::$anonymousObjErrorMessages[$rule] = $exception;
 	}
 
 	public static function addLangDir($lang, $path, $create_write = false)
@@ -167,7 +173,7 @@ EOS;
 		return static::$addExceptionDirectory;
 	}
 
-	public static function stringify($value, $depth = 1)
+	public static function stringify($value, $depth = 1, $jsonEncode = true)
     {
         if ($depth >= static::$maxDepthOfString) 
         {
@@ -200,6 +206,11 @@ EOS;
         	{
         		return 'NaN';
         	}
+        }
+
+        if(!$jsonEncode)
+        {
+        	return $value;
         }
 
         return (@json_encode($value, (JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE)) ?: $value);
@@ -682,35 +693,35 @@ EOS;
 		return $this->replaceErrorPlaceholder( $msg_arr, static::$appendErrorMsgMulti );
 	}
 
-	public static function formatError( array $message_details, $message, $pattern = '/{(\w+)}/' )
+	public static function formatError( array $message_details, $message, $pattern = '/{(\w+)}/', $jsonEncode = true )
 	{
 		$newMessage = preg_replace_callback(
            $pattern,
-            function ($match) use (&$message_details) {
+            function ($match) use (&$message_details, $jsonEncode) {
      			
-                if( !ISSET( $message_details[$match[1]] ) )  
+                if( !isset( $message_details[$match[1]] ) )  
                	{
                     return $match[0];
                 }
 
                 $real_match = $match[0];
 
-                if( ISSET( $match[1] ) )
+                if( isset( $match[1] ) )
                 {
                 	$real_match = $match[1];
                 }
                 
-                if( ISSET( $message_details[ $match[1] ] ) )
+                if( isset( $message_details[ $match[1] ] ) )
                 {
             		$value = $message_details[$match[1]];	
                 }
                 
-                if('name' == $real_match AND is_string( $value ) ) 
+                if('name' == $real_match && is_string( $value ) ) 
                 {
                     return $value;
                 }
 
-                return static::stringify($value);
+                return static::stringify($value, 1, $jsonEncode);
             },
             $message
         );
@@ -811,17 +822,24 @@ EOS;
 				$exception_class_obj = static::$anonymousObj[$called_class];
 
 				$exception_class_obj::setFromRuleName(strtolower($rule_name));
-
-				$rule::getAnonExceptionMessage($exception_class_obj, $rule);
+				
+				if(isset(static::$anonymousObjErrorMessages[$called_class]))
+				{
+					$exception_class_obj = static::$anonymousObjErrorMessages[$called_class];
+				}
+				else
+				{
+					$rule::getAnonExceptionMessage($exception_class_obj, $rule);
+				}
 			}
 			else
 			{
 				$exception_class_obj = Vefja::singleton($exception_class);
 			}
 			
-			if( !EMPTY( $exception_class_obj ) )
+			if( !empty( $exception_class_obj ) )
 			{
-				if( ISSET( $rule_instance[ $called_class ] ) 
+				if( isset( $rule_instance[ $called_class ] ) 
 					|| !empty($passRuleObj)
 				)
 				{

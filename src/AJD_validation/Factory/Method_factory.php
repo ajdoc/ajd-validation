@@ -28,7 +28,7 @@ class Method_factory implements Factory_interface
 
 		if( $accessible ) 
 		{
-			$check_method = ( $ref_meth->isProtected() OR $ref_meth->isPublic() );
+			$check_method = ( $ref_meth->isProtected() || $ref_meth->isPublic() );
 		} 
 		else 
 		{
@@ -37,7 +37,7 @@ class Method_factory implements Factory_interface
 
 		if( $check_method ) 
 		{
-			$ref_meth->setAccessible( TRUE );
+			$ref_meth->setAccessible( true );
 
 			$defaultParams = $ref_meth->getParameters();
 			

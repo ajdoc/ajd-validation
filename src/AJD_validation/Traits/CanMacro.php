@@ -188,7 +188,7 @@ trait CanMacro
      */
     public static function __callStatic($method, $parameters)
     {
-        return static::processCall($method, $parameters);
+        return static::processMacroCall($method, $parameters);
     }
 
     /**
@@ -202,7 +202,7 @@ trait CanMacro
      */
     public function __call($method, $parameters)
     {
-        return static::processCall($method, $parameters);
+        return static::processMacroCall($method, $parameters);
     }
 
     /**
@@ -226,7 +226,7 @@ trait CanMacro
      *
      * @throws \BadMethodCallException
      */
-    protected static function processCall($method, $parameters)
+    protected static function processMacroCall($method, $parameters)
     {
         if (! static::hasMacro($method)) 
         {

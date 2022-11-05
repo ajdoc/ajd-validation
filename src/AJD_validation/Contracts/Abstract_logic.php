@@ -8,11 +8,7 @@ use AJD_validation\Helpers\Database;
 abstract class Abstract_logic implements Logic_interface
 {
 	protected $properties = [];
-
-	public function __invoke($value)
-    {
-    	$this->logic($value);
-    }
+    public $forGetValues = false;
 
     public function __set($name, $value)
     {
@@ -41,7 +37,7 @@ abstract class Abstract_logic implements Logic_interface
 
    		if(!empty($obj))
    		{
-   			$objCheck = $obj::class;
+   			$objCheck = get_class($obj);
    		}
 
    		return ( $db instanceof $objCheck || $db instanceof $objCheckDbHelper );

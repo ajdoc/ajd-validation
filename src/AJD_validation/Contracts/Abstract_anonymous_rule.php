@@ -5,9 +5,10 @@ use AJD_validation\Contracts\Abstract_rule;
 use AJD_validation\Contracts\Abstract_anonymous_rule_exception;
 use AJD_validation\Contracts\Invokable_rule_interface;
 
-
 abstract class Abstract_anonymous_rule extends Abstract_rule implements Invokable_rule_interface
 {
+    public $calledAnonRule;
+    
     protected static $setAnonName;
 
 	abstract public static function getAnonName();

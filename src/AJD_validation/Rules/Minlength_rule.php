@@ -59,7 +59,7 @@ class Minlength_rule extends Abstract_interval
 			$forceString = true;
 			$this->isNumeric = false;
 		}
-
+		
 		if( $forceString )
 		{
 			if ($this->inclusive) 

@@ -105,4 +105,52 @@ class PromiseValidator extends Promise
 
         return $this->validationResult;
     }
+
+    public function eventAlways($event, $callback, $customEvent = null)
+    {
+        return $this->eventSetup($event, $callback, true, null, $customEvent);
+    }
+
+    public function eventFails($event, $callback, $customEvent = null)
+    {
+        return $this->eventSetup($event, $callback, false, false, $customEvent);
+    }
+
+    public function eventPassed($event, $callback, $customEvent = null)
+    {
+        return $this->eventSetup($event, $callback, false, true, $customEvent);
+    }
+
+    protected function eventSetup($event, $callbacks, $always = false, $success = null, $customEvent = null)
+    {
+        $validationResult = $this->getValidationResult();
+
+        if(empty($validationResult))
+        {
+            return $this;
+        }
+
+        $ajd = $validationResult->getAjd();
+        $field = $validationResult->getField();
+        $value = $validationResult->getFieldValue();
+
+        $args = [$value, $field];
+
+        if(
+            $always
+            || ($success === true && $validationResult->isValid())
+            || ($success === false && !$validationResult->isValid())
+        )
+        {
+            $ajd->subscribe($event, $callbacks, $customEvent);
+
+            $obs = $ajd::get_observable_instance();
+            
+            $obs->notify_observer($event, $args);
+
+            $obs->detach_observer($event);
+        }
+        
+        return $this;
+    }
 }

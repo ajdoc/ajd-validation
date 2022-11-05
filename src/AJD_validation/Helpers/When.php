@@ -6,9 +6,14 @@ use AJD_validation\Contracts\Abstract_common;
 use AJD_validation\Helpers\Logics_map;
 use AJD_validation\Helpers\LogicsAddMap;
 use AJD_validation\Factory\Class_factory;
+use AJD_validation\Contracts\AbstractAnonymousLogics;
 
 class When extends AJD_validation
 {
+	const RUNTIMEGIVEN = 'given';
+	const RUNTIMETHEN = 'then';
+	const RUNTIMEOTHERWISE = 'otherwise';
+
 	protected $ajd;
 	protected $obs;
 	protected $testPath;
@@ -24,10 +29,24 @@ class When extends AJD_validation
 	protected static $addTestClassPath = [];
 	protected static $addLogicsMappings = [];
 
+	protected static $customLogics = [];
+
+	protected $currentLogicKey = 0;
+	protected $givenPasses = [];
+
 	protected $currLogic;
 	protected $currRule;
 	protected $whenRuleName;
 	protected $currentRuleKey;
+
+	protected $runtimeType;
+	protected $runtimeLogic;
+
+	protected $validRunTimeType = [
+		'ifAnd', 'ifOr', 'ifXor', 
+		'elseIfAnd', 'elseIfXor', 'elseIfOr', 
+		'then', 'otherwise'
+	];
  
 	public function __construct( AJD_validation $ajd, $obs = null )
 	{
@@ -49,13 +68,77 @@ class When extends AJD_validation
 	{
 		$method = $this->processMethodName( $name );
 
-		$factory = static::get_factory_instance()->get_instance( FALSE, FALSE, TRUE );
+		$factory = static::get_factory_instance()->get_instance( false, false, true );
 
 		$factory->rules( get_class( $this ), $method['method'] );
 
 		array_unshift( $args, $method['name'] );
 		
 		return $factory->process_method( $args, $this );
+	}
+
+	public function endIf($field, $value = null, $operator = null, $check_arr = true, $customMesage = [])
+	{
+		$this->endgiven($field, $value, $operator ?? $this->runtimeLogic, $check_arr, $customMesage);
+
+		return $this;
+	}
+
+	public function endElseIf($field, $value = null, $operator = null, $check_arr = true, $customMesage = [])
+	{
+		$this->endIf($field, $value, $operator ?? $this->runtimeLogic, $check_arr, $customMesage);
+
+		return $this;
+	}
+
+	protected function clearRunTimeVars()
+	{
+		$this->runtimeType = null;
+		$this->runtimeLogic = null;
+	}
+
+	public function runtimeType($runtimeType, $startElseif = false)
+	{
+		if(!in_array($runtimeType, $this->validRunTimeType))
+		{
+			throw new \InvalidArgumentException('Invalid Method.');
+		}
+
+		if($startElseif)
+		{
+			$this->currentLogicKey++;
+		}
+
+		switch($runtimeType)
+		{
+			case 'ifAnd':
+			case 'elseIfAnd':
+				$this->runtimeType = self::RUNTIMEGIVEN;
+				$this->runtimeLogic = Abstract_common::LOG_AND;
+			break;
+
+			case 'ifOr':
+			case 'elseIfOr':
+				$this->runtimeType = self::RUNTIMEGIVEN;
+				$this->runtimeLogic = Abstract_common::LOG_OR;
+			break;
+
+			case 'ifXor':
+			case 'elseIfXor':
+				$this->runtimeType = self::RUNTIMEGIVEN;
+				$this->runtimeLogic = Abstract_common::LOG_XOR;
+			break;
+
+			case 'then':
+				$this->runtimeType = self::RUNTIMETHEN;
+			break;
+
+			case 'otherwise':
+				$this->runtimeType = self::RUNTIMEOTHERWISE;
+			break;
+		}
+
+		return $this;
 	}
 
 	public static function registerLogicsMappings(array $mappings)
@@ -83,60 +166,175 @@ class When extends AJD_validation
 		}
 	}
 
+	public static function registerLogic($name, $function, array $extraArgs = [])
+	{
+		if(isset(static::$customLogics[$name]))
+		{
+			return;
+		}
+
+		if(is_callable($function))
+		{
+			if(is_object($function) && $function instanceof AbstractAnonymousLogics)
+			{
+				if(!method_exists($function, '__invoke') && !method_exists($function, 'filter'))
+				{
+					throw new \InvalidArgumentException('Anonymous logic must have __invoke method or filter method.');
+				}
+
+				static::plotAnonymousLogic($name, $function, $extraArgs);
+
+				return;
+			}
+
+			static::createAnonymousLogic($name, $function, $extraArgs);
+		}
+
+		return;
+	}
+
+	protected static function plotAnonymousLogic($name, $function, array $extraArgs = [])
+	{
+		static::$customLogics[$name]['function'] = $function;
+		static::$customLogics[$name]['extraArgs'] = $extraArgs;
+	}
+
+	protected static function createAnonymousLogic($name, $function, array $extraArgs = [])
+	{
+		$anonClass = new class($function) extends AbstractAnonymousLogics
+		{
+			protected $callback;
+			protected $extraArgs;
+
+			public function __construct($callback, array $extraArgs = [])
+			{
+				$this->callback = $callback;
+				$this->extraArgs = $extraArgs;
+			}
+
+			public function __invoke($value, $parameters = null)
+			{
+				$callback = $this->callback;
+
+				if($callback instanceof \Closure)
+            	{
+            		$callback = $callback->bindTo($this, self::class);
+            	}
+
+            	$args = array_merge(func_get_args(), $this->extraArgs);
+
+            	return \call_user_func_array($callback, $args);
+			}
+		};
+
+		static::plotAnonymousLogic($name, $anonClass, $extraArgs);
+	}
+
+	protected function processMethodRunTimeName($methodName, $matchMain, $matchOr, $prependMain, $prependOr)
+	{
+		$name = $methodName;
+
+		if(!$matchMain)
+		{
+			$name = $prependMain.$methodName;
+		}
+
+		if($matchOr)
+		{
+			$methodName = static::removeWord( $methodName, '/^oR/' );
+			$name = $prependOr.$methodName;
+		}
+
+		return $name;
+	}
+
+	protected function checkPrefix($regex, $name)
+	{
+		return preg_match( $regex, $name );
+	}
+
 	protected function processMethodName( $name )
 	{
 		$ret_name = $name;
 		$method = null;
 
-		if( preg_match( '/^Giv/', $name ) )
+		$checkLogicPrefix = $this->checkPrefix('/^Lg/', $name);
+		$checkGiv = $this->checkPrefix('/^Giv/', $name);
+		$checkThen = $this->checkPrefix('/^Th/', $name);
+		$checkOtherWise = $this->checkPrefix('/^Oth/', $name);
+		$checkOr = $this->checkPrefix('/^oR/', $name);
+
+		if(!empty($this->runtimeType) && !$checkLogicPrefix)
+		{
+			switch($this->runtimeType)
+			{
+				case self::RUNTIMEGIVEN:
+					$name = $this->processMethodRunTimeName($name, $checkGiv, $checkOr, 'Giv', 'OrGiv');
+				break;
+				case self::RUNTIMETHEN:
+					$name = $this->processMethodRunTimeName($name, $checkThen, $checkOr, 'Th', 'OrTh');
+				break;
+				case self::RUNTIMEOTHERWISE:
+					$name = $this->processMethodRunTimeName($name, $checkOtherWise, $checkOr, 'Oth', 'OrOth');
+				break;
+			}
+		}
+
+		if( $this->checkPrefix('/^Giv/', $name) )
 		{
 			$method = 'given';
 			$ret_name = static::removeWord( $name, '/^Giv/' );
 		}
-		if( preg_match( '/^OrGiv/', $name ) )
+		if( $this->checkPrefix('/^OrGiv/', $name) )
 		{
 			$method = 'givenOr';
 			$ret_name = static::removeWord( $name, '/^OrGiv/' );
 		}
-		else if( preg_match( '/^eGiv/', $name ) )
+		else if( $this->checkPrefix('/^eGiv/', $name) )
 		{
 			$method = 'endgiven';
 			$ret_name = static::removeWord( $name, '/^eGiv/' );
 		}
-		else if( preg_match( '/^Th/' , $name ) )
+		else if( $this->checkPrefix('/^Th/', $name) )
 		{
-			$method = 'then';
+			$method = 'mainThen';
 			$ret_name = static::removeWord( $name, '/^Th/' );
 		}
-		else if( preg_match( '/^OrTh/' , $name ) )
+		else if( $this->checkPrefix('/^OrTh/', $name) )
 		{
 			$method = 'thenOr';
 			$ret_name = static::removeWord( $name, '/^OrTh/' );
 		}
-		else if( preg_match('/^eTh/', $name ) )
+		else if( $this->checkPrefix('/^eTh/', $name) )
 		{
 			$method = 'endthen';
 			$ret_name = static::removeWord( $name, '/^eTh/' );	
 		}
-		else if( preg_match('/^Oth/', $name ) )
+		else if( $this->checkPrefix('/^Oth/', $name) )
 		{
-			$method = 'otherwise';
+			$method = 'mainOtherwise';
 			$ret_name = static::removeWord( $name, '/^Oth/' );
 		}
-		else if( preg_match('/^OrOth/', $name ) )
+		else if( $this->checkPrefix('/^OrTh/', $name) )
 		{
 			$method = 'otherwiseOr';
 			$ret_name = static::removeWord( $name, '/^OrOth/' );
 		}
-		else if( preg_match('/^eOth/', $name ) )
+		else if( $this->checkPrefix('/^eOth/', $name) )
 		{
 			$method = 'endotherwise';
 			$ret_name = static::removeWord( $name, '/^eOth/' );
 		}
-		else if( preg_match('/^Lg/', $name ) )
+		else if( $checkLogicPrefix )
 		{
 			$method = 'addLogic';
 			$ret_name = static::removeWord( $name, '/^Lg/' );
+		}
+
+		if(in_array($name, $this->validRunTimeType))
+		{
+			$method = 'runtimeType';
+			$ret_name = $name;
 		}
 
 		return [
@@ -171,7 +369,7 @@ class When extends AJD_validation
 
 		if( is_array( $options['testObj'] ) )
 		{
-			if( ISSET( $options['testObj']['extensionObj'] ) )
+			if( isset( $options['testObj']['extensionObj'] ) )
 			{
 				$this->customTest[spl_object_hash($options['testObj']['extensionObj'])] = $options['testObj'];
 			}
@@ -230,6 +428,16 @@ class When extends AJD_validation
 
 		$isMethod = method_exists( $options['objIns'], $appendTest );
 
+		$isAnon = false;
+
+		$anonObj = null;
+
+		if(isset(static::$customLogics[$rawTest]) && !empty(static::$customLogics[$rawTest]))
+		{
+			$anonObj = static::$customLogics[$rawTest];
+			$isAnon = true;
+		}
+
 		if(!$isClass)
 		{
 			if(!empty(static::$addLogicsMappings))
@@ -267,6 +475,12 @@ class When extends AJD_validation
 		{
 			$options['testKind'] = '_processClass';
 			$options['testObj'] = $this->_processClass( $options );
+		}
+		else if( $isAnon )
+		{
+			$options['testKind'] = '_processAnon';
+			$options['anonObj'] = $anonObj;
+			$options['testObj'] = $this->_processAnon( $options );	
 		}
 		else if( $isMethod )
 		{
@@ -350,6 +564,26 @@ class When extends AJD_validation
 		return $testObj;
 	}
 
+	private function _processAnon( array $options )
+	{
+		if(empty($options['anonObj']))
+		{
+			return null;
+		}
+
+		$anonObj = $options['anonObj'];
+
+		$appendTest = $options['appendTest'];
+
+		$testObj = $anonObj['function'];
+
+		$testObj->setExtraArgs($anonObj['extraArgs']);
+
+		static::$cacheTestInstance[ $appendTest ] = $testObj;
+
+		return $testObj;
+	}
+
 	public function appendTestNameSpace( $classFactory )
 	{
 		foreach( static::$testNamespace as $testNamespace )
@@ -414,6 +648,7 @@ class When extends AJD_validation
 				}
 				else
 				{
+
 					if(!empty($paramaters))
 					{
 						foreach($paramaters as $paramKey => $paramValue)
@@ -422,23 +657,48 @@ class When extends AJD_validation
 						}
 					}
 
-					if( !$test->logic( $value ) )
+					$test->forGetValues = $forGetValues;
+						
+					if($test instanceof AbstractAnonymousLogics)
 					{
-						if(!$forGetValues)
+						if( !$test($value, $test) )
 						{
-							return false;
+							if(!$forGetValues)
+							{
+								return false;
+							}
+						}
+					}
+					else
+					{
+						if( !$test->logic( $value ) )
+						{
+							if(!$forGetValues)
+							{
+								return false;
+							}
 						}
 					}
 
 					if($forGetValues)
 					{
-						$logicValue = $test->getLogicValue($value, $paramaters);
+						if($test instanceof AbstractAnonymousLogics)
+						{
+							$logicValue = $test($value, $test, $paramaters);
+						}
+						else
+						{
+							$logicValue = $test->getLogicValue($value, $paramaters);	
+						}
+						
 						$logicValue = (!is_array($logicValue)) ? [$logicValue] : $logicValue;
 						$logicValues = array_merge($logicValues, $logicValue);	
 					}
 				}
 			}
 		}
+
+		$this->customTest = [];
 
 		return (!$forGetValues) ? true : $logicValues;
 	}
@@ -502,21 +762,22 @@ class When extends AJD_validation
 			$passArr['result'] = $result;
 		}
 
-		if( !EMPTY( $this->given_field ) ) 
+		if( !empty( $this->given_field ) ) 
 		{
-			if( !EMPTY( $operator ) ) 
+			if( !empty( $operator ) ) 
 			{
-				$this->given_field[][ strtolower( $operator ) ] = $passArr;
+				$this->given_field[$this->currentLogicKey][][ strtolower( $operator ) ] = $passArr;
 			} 
 			else 
 			{
-				$this->given_field[][Abstract_common::LOG_AND] = $passArr;
+				$this->given_field[$this->currentLogicKey][][Abstract_common::LOG_AND] = $passArr;
 			}
 
 		} 
 		else 
 		{
-			$this->given_field[][Abstract_common::LOG_AND] = $passArr;
+			$operatorKey = $operator ?? Abstract_common::LOG_AND;
+			$this->given_field[$this->currentLogicKey][][$operatorKey] = $passArr;
 		}
 
 		$this->ajd->checkArr( $field, $value, $customMesage, $check_arr );
@@ -526,19 +787,25 @@ class When extends AJD_validation
 			$this->obs->notify_observer( 'endgiven' );
 		}
 
-		return $this;
+		$this->clearRunTimeVars();
 
+		return $this;
 	}
 
-	private function _check_given()
+	private function _check_given($key = 0)
 	{
+		if(!isset($this->given_field[$key]))
+		{
+			return false;
+		}
+
 		$and = [];
 		$or = [];
 		$xor = [];
 		
-		foreach( $this->given_field as $key => $value ) 
+		foreach( $this->given_field[$key] as $key => $value ) 
 		{
-			if( !EMPTY( $value[Abstract_common::LOG_AND] ) ) 
+			if( !empty( $value[Abstract_common::LOG_AND] ) ) 
 			{
 				$andDetails = $value[Abstract_common::LOG_AND];
 
@@ -552,7 +819,7 @@ class When extends AJD_validation
 				}
 			} 
 
-			if( !EMPTY( $value[Abstract_common::LOG_OR] ) ) 
+			if( !empty( $value[Abstract_common::LOG_OR] ) ) 
 			{
 				$orDetails = $value[Abstract_common::LOG_OR];
 
@@ -565,7 +832,7 @@ class When extends AJD_validation
 				
 			}
 
-			if( !EMPTY( $value[Abstract_common::LOG_XOR] ) ) 
+			if( !empty( $value[Abstract_common::LOG_XOR] ) ) 
 			{
 				$xorDetails = $value[Abstract_common::LOG_XOR];
 
@@ -577,143 +844,107 @@ class When extends AJD_validation
 				}
 			}
 		}
-		
-		$and_check2 = !in_array( 0, $and );
-		
-		// $and_check 		= !in_array( 1, $and );
 
-		$and_check = !in_array( 0, $and );
-		$or_check = in_array( 1, $or );
+		$andResult = false;
+		$xorResult = false;
+		$orResult = false;
 
-		if( count( $xor ) === 1 ) 
+		if(!empty($and))
 		{
-			$xor_check = in_array( 1, $xor );
-		} 
-		else 
-		{
-			$str_func = '';
-			foreach($xor as $xorr)
-			{	
-				if(is_bool($xorr))
-				{
-					$xorr_str_val = ($xorr === true) ? 'true' : 'false';
-					$str_func .= $xorr_str_val.' xor ';
-				}
-			}
-
-			$str_func = rtrim($str_func, ' xor ');
-			$xor_check = eval( "return $str_func;" );
+			$andResult = array_reduce($and, function($carry, $item)
+			{
+				$carry = ($carry && $item);
+				
+				return $carry;
+				
+			}, true);
 		}
 
-		if( !EMPTY( $or ) || !EMPTY( $xor ) ) 
+		if(!empty($xor))
 		{
-			if(!empty($and))
+			$xorResult = array_reduce($xor, function($carry, $item)
 			{
-				if(!empty($xor) && empty($or))
-				{
-					return ( $and_check XOR $xor_check );
-				}
-				else if( !empty($xor) && !empty($or) )
-				{
-					return ( $and_check XOR $or_check XOR $xor_check );
-				}
-				else if( empty($xor) && !empty($or) )
-				{
-					return ( $and_check || $or_check );
-				}
-				else
-				{
-					return $and_check;
-				}
-			}
-			else
-			{
-				if( !empty( $xor ) && !empty($or) ) 
-				{
-					return ( $or_check XOR $xor_check );
-				}
-				else if( empty( $xor ) && !empty($or) )
-				{
-					return $or_check;
-				}
-				else if( !empty( $xor ) && empty($or) )
-				{
-					return $xor_check;
-				}
-				else
-				{
-					if(!empty($and))
-					{
-						return ( $and_check2 OR $or_check );	
-					}
-					else
-					{
-						return $or_check;
-					}
-				}
-			}
-
-			/*if( !EMPTY( $and_check ) ) 
-			{
-				if( !EMPTY( $xor ) ) 
-				{
-					return ( $and_check XOR $xor_check );
-				} 
-				else if(!empty($or))
-				{
-					return ( $and_check XOR $or_check );
-				}
-				else 
-				{
-					return $and_check;
-				}
-			} 
-			else 
-			{
-				if( !EMPTY( $xor ) ) 
-				{
-					return ( $or_check XOR $xor_check );
-				} 
-				else 
-				{
-					if(!empty($and))
-					{
-						return ( $and_check2 OR $or_check );	
-					}
-					else
-					{
-						return $or_check;
-					}
-					
-				}
-			}*/
-		} 
-		else 
-		{
-			return $and_check;
+				$carry = ($carry xor $item);
+				
+				return $carry;
+				
+			}, false);
 		}
 
-		// return in_array( 1, $check );
+		if(!empty($or))
+		{
+			$orResult = array_reduce($or, function($carry, $item)
+			{
+				$carry = ($carry || $item);
+				
+				return $carry;
+				
+			}, false);
+		}
 
+		if(!empty($and) && !empty($xor) && !empty($or))
+		{
+			return $andResult xor $xorResult || $orResult;
+		}
+
+		if(empty($and) && !empty($xor) && !empty($or))
+		{
+			return $xorResult || $orResult;
+		}
+
+		if(!empty($and) && !empty($xor) && empty($or))
+		{
+			return $andResult xor $xorResult;
+		}
+
+		if(!empty($and) && empty($xor) && !empty($or))
+		{
+			return $andResult || $orResult;
+		}
+
+		if(!empty($and) && empty($xor) && empty($or))
+		{
+			return $andResult;
+		}
+
+		if(empty($and) && !empty($xor) && empty($or))
+		{
+			return $xorResult;
+		}
+
+		if(empty($and) && empty($xor) && !empty($or))
+		{
+			return $orResult;
+		}
+
+		return false;
 	}
 
 	public function thenOr( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_OR )
 	{
-		$this->then($rule, $satis, $custom_err, $client_side, $logic);
+		$this->mainThen($rule, $satis, $custom_err, $client_side, $logic);
 
 		return $this;
 
 	}
 
-	public function then( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_AND )
+	public function mainThen($rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_AND)
 	{
+		$checkStop = $this->stopThen();
+
+		if(!empty($checkStop))
+		{
+			return $checkStop;
+		}
+
 		$this->currRule = $rule;
 		$this->currLogic = $logic;
 
 		$this->currentRuleKey = $this->currentRuleKey + 1;
 
-		if( $this->_check_given() ) 
+		if( $this->_check_given($this->currentLogicKey) ) 
 		{
+
 			$addRule = $this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
 
 			$this->currentRuleKey = $addRule->getCurrentRuleKey();
@@ -724,27 +955,68 @@ class When extends AJD_validation
 		}
 
 		return $this;
+	}
 
+	protected function stopThen()
+	{
+		if(!empty($this->givenPasses))
+		{
+			if($this->givenPasses['currentLogicKey'] != $this->currentLogicKey && $this->givenPasses['passes'] === true)
+			{
+				return $this;
+			}
+		}
+
+		return null;
 	}
 
 	public function endthen( $field, $value = null, $check_arr = true, $customMesage = [] )
 	{
-		if( $this->_check_given() ) 
+		$checkStop = $this->stopThen();
+
+		if(!empty($checkStop))
 		{
+			return $checkStop;
+		}
+
+		if( $this->_check_given($this->currentLogicKey) ) 
+		{
+			$this->givenPasses = [
+				'passes' => true,
+				'currentLogicKey' => $this->currentLogicKey
+			];
+
 			$this->ajd->checkArr( $field, $value, $customMesage, $check_arr );
 		}
+
+		$this->clearRunTimeVars();
 
 		return $this;
 	}
 
-	public function otherwise( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_AND )
+	protected function checkAllGivens()
+	{
+		$rangeLogicKeys = range(0, $this->currentLogicKey);
+		$checkGivens = [];
+
+		foreach($rangeLogicKeys as $key)
+		{
+			$checkGivens[] = $this->_check_given($key);
+		}
+
+		return $checkGivens;
+	}
+
+	public function mainOtherwise( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_AND )
 	{
 		$this->currRule = $rule;
 		$this->currLogic = $logic;
 
 		$this->currentRuleKey = $this->currentRuleKey + 1;
 
-		if( !$this->_check_given() ) 
+		$checkGivens = $this->checkAllGivens();
+
+		if( !in_array(true, $checkGivens, true) ) 
 		{
 			$addRule = $this->ajd->addRule( $rule, $satis, $custom_err, $client_side, $logic );
 
@@ -760,17 +1032,21 @@ class When extends AJD_validation
 
 	public function otherwiseOr( $rule, $satis = null, $custom_err = null, $client_side = null, $logic = Abstract_common::LOG_OR )
 	{
-		$this->otherwise($rule, $satis, $custom_err, $client_side, $logic);
+		$this->mainOtherwise($rule, $satis, $custom_err, $client_side, $logic);
 
 		return $this;
 	}
 
 	public function endotherwise( $field, $value = null, $check_arr = true, $customMesage = [] )
 	{
-		if( !$this->_check_given() ) 
+		$checkGivens = $this->checkAllGivens();
+
+		if( !in_array(true, $checkGivens, true) ) 
 		{
 			$this->ajd->checkArr( $field, $value, $customMesage, $check_arr );
 		}
+
+		$this->clearRunTimeVars();
 
 		return $this;
 	}
@@ -788,25 +1064,39 @@ class When extends AJD_validation
 		return $this->ajd::get_promise_validator_instance();
 	}
 
-	public function on( $scenario )
+	public function on( $scenario, $ruleOverride = null, $forJs = false )
 	{
 		$clean_rule = $this->ajd->clean_rule_name( $this->currRule );
 
-		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this, $this->currentRuleKey )->on( $scenario );
+		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, true, $this, $this->currentRuleKey )->on( $scenario, $ruleOverride, $forJs );
 	}
 
-	public function sometimes( $sometimes = Abstract_common::SOMETIMES )
+	public function sometimes( $sometimes = Abstract_common::SOMETIMES, $ruleOverride = null, $forJs = false )
 	{
 		$clean_rule = $this->ajd->clean_rule_name( $this->currRule );
 
-		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this, $this->currentRuleKey )->sometimes( $sometimes );
-	}	
+		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, true, $this, $this->currentRuleKey )->sometimes( $sometimes, $ruleOverride, $forJs );
+	}
+
+	public function stopOnError( $stop = true, $ruleOverride = null, $forJs = false )
+	{
+		$clean_rule = $this->ajd->clean_rule_name( $this->currRule );
+
+		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, true, $this, $this->currentRuleKey )->stopOnError( $stop, $ruleOverride, $forJs );
+	}
 
 	public function getInstance()
 	{
 		$clean_rule = $this->ajd->clean_rule_name( $this->currRule );
 		
-		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, TRUE, $this, $this->currentRuleKey )->getInstance();
+		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, true, $this, $this->currentRuleKey )->getInstance();
+	}
+
+	public function generator(Closure $func)
+	{
+		$clean_rule = $this->ajd->clean_rule_name( $this->currRule );
+		
+		return static::get_scene_ins( $clean_rule['rule'], $this->currLogic, true, $this, $this->currentRuleKey )->generator($func);
 	}
 
 	/*public static function bail()
@@ -817,7 +1107,7 @@ class When extends AJD_validation
 		return $this;
 	}*/
 
-	public function publish($event, \Closure $callback = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = null, $forJs = false)
+	public function publish($event, $callback = null, $customEvent = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = null, $forJs = false)
 	{
 		$logic = static::$ajd_prop[ 'current_logic' ];
 		$curr_field = static::$ajd_prop[ 'current_field' ];
@@ -828,11 +1118,11 @@ class When extends AJD_validation
 		{
 			if(!empty($curr_field))
 			{
-				$this->subscribe($curr_field.'-|'.$event, $callback);
+				$this->subscribe($curr_field.'-|'.$event, $callback, $customEvent);
 			}
 			else
 			{
-				$this->subscribe($event, $callback);
+				$this->subscribe($event, $callback, $customEvent);
 			}
 		}
 
@@ -877,14 +1167,14 @@ class When extends AJD_validation
 		}
 	}
 
-	public function publishSuccess($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
+	public function publishSuccess($event, $callback = null, $customEvent = null, $forJs = false, $ruleOverride = null)
 	{
-		return $this->publish($event, $callback, Abstract_common::EV_SUCCESS, $ruleOverride, $forJs);
+		return $this->publish($event, $callback, $customEvent, Abstract_common::EV_SUCCESS, $ruleOverride, $forJs);
 	}
 
-	public function publishFail($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
+	public function publishFail($event, $callback = null, $customEvent = null, $forJs = false, $ruleOverride = null)
 	{
-		return $this->publish($event, $callback, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
+		return $this->publish($event, $callback, $customEvent, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
 	}
 
 	public function suspend($ruleOverride = null, $forJs = false)

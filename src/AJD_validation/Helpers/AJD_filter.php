@@ -2,6 +2,7 @@
 
 use AJD_validation\Factory\Factory_strategy;
 use AJD_validation\Contracts\Base_validator;
+use AJD_validation\Contracts\AbstractAnonymousFilter;
 use AJD_validation\Helpers\Filters_map;
 use AJD_validation\Factory\Class_factory;
 
@@ -30,6 +31,72 @@ class AJD_filter extends Base_validator
 	protected static $addFilterDirectory = [];
 
 	protected static $addFiltersMappings = [];
+
+	protected static $customFilters = [];
+
+	public static function registerFilter($name, $function, array $extraArgs = [])
+	{
+		if(isset(static::$customFilters[$name]))
+		{
+			return;
+		}
+
+		if(is_callable($function))
+		{
+			if(is_object($function) && $function instanceof AbstractAnonymousFilter)
+			{
+				if(!method_exists($function, '__invoke') && !method_exists($function, 'filter'))
+				{
+					throw new \InvalidArgumentException('Anonymous filter must have __invoke method or filter method.');
+				}
+
+				static::plotAnonymousFilter($name, $function, $extraArgs);
+
+				return;
+			}
+
+			static::createAnonymousFilter($name, $function, $extraArgs);
+		}
+
+		return;
+	}
+
+	protected static function plotAnonymousFilter($name, $function, array $extraArgs = [])
+	{
+		static::$customFilters[$name]['function'] = $function;
+		static::$customFilters[$name]['extraArgs'] = $extraArgs;
+	}
+
+	protected static function createAnonymousFilter($name, $function, array $extraArgs = [])
+	{
+		$anonClass = new class($function) extends AbstractAnonymousFilter
+		{
+			protected $callback;
+			protected $extraArgs;
+
+			public function __construct($callback, array $extraArgs = [])
+			{
+				$this->callback = $callback;
+				$this->extraArgs = $extraArgs;
+			}
+
+			public function __invoke($value, $satisfier = null, $field = null)
+			{
+				$callback = $this->callback;
+
+				if($callback instanceof \Closure)
+            	{
+            		$callback = $callback->bindTo($this, self::class);
+            	}
+
+            	$args = array_merge(func_get_args(), $this->extraArgs);
+
+            	return \call_user_func_array($callback, $args);
+			}
+		};
+
+		static::plotAnonymousFilter($name, $anonClass, $extraArgs);
+	}
 
 	public static function registerFiltersMappings(array $mappings)
 	{
@@ -100,7 +167,7 @@ class AJD_filter extends Base_validator
 
 		$v = static::$value;
 
-		if( !EMPTY( static::$value ) ) 
+		if( !empty( static::$value ) ) 
 		{
 			foreach( $filter_arr as $fil_key => $fil_value ) 
 			{
@@ -148,7 +215,7 @@ class AJD_filter extends Base_validator
 				
 				$satis = static::$satisfier[ $fil_key ];
 
-				if( is_array( $v ) AND $check_arr ) 
+				if( is_array( $v ) && $check_arr ) 
 				{
 					$v 	= $this->flattened_array( $v );
 
@@ -156,7 +223,7 @@ class AJD_filter extends Base_validator
 					
 					foreach ( $v as $k_val => $v_val ) 
 					{
-						$rv = $this->_process_filter( $fil_value, $filter, $v_val, $satis, $field, $pre_fil, TRUE, $k_val, $val_only, $origValue );
+						$rv = $this->_process_filter( $fil_value, $filter, $v_val, $satis, $field, $pre_fil, true, $k_val, $val_only, $origValue );
 
 						$real_val[$k_val] = $rv;	
 
@@ -165,7 +232,7 @@ class AJD_filter extends Base_validator
 				} 
 				else 
 				{
-					$real_val = $this->_process_filter( $fil_value, $filter, $v, $satis, $field, $pre_fil, FALSE, NULL, $val_only, $origValue );
+					$real_val = $this->_process_filter( $fil_value, $filter, $v, $satis, $field, $pre_fil, false, null, $val_only, $origValue );
 
 					$v = $real_val;
 				}
@@ -211,14 +278,27 @@ class AJD_filter extends Base_validator
 				}
 			}
 		}
-
+		
 		$is_function = (!empty($filter)) ? function_exists( $filter ) : false;
+
+		$is_anon = false;
+
+		if(
+			!empty($filter)
+			&&
+			isset(static::$customFilters[$filter])
+			&&
+			!empty(static::$customFilters[$filter])
+		)
+		{
+			$is_anon = true;
+		}
 
 		$is_method = method_exists( $this , $append_filter );
 
 		$is_extension = false;
 
-		if( !EMPTY( static::$extension_filter ) AND ISSET( static::$extension_filter[ $append_filter ] ) )
+		if( !empty( static::$extension_filter ) && isset( static::$extension_filter[ $append_filter ] ) )
 		{
 			$is_extension = true;
 		}
@@ -233,6 +313,10 @@ class AJD_filter extends Base_validator
 		{
 			$real_val = $this->_process_class( $class_filt, $filter, $filter_path, $is_class, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only, $origValue );			
 		} 
+		else if( $is_anon )
+		{
+			$real_val = $this->_process_anon_class($class_filt, $filter, $filter_path, $is_class, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only, $origValue);
+		}
 		else if( $is_function ) 
 		{
 			$real_val = $this->_process_function( $filter, $value, $satisfier, $field, $is_function, $pre_filter, $check_arr, $counter, $val_only, $origValue );
@@ -246,7 +330,30 @@ class AJD_filter extends Base_validator
 		{
 			return $real_val;
 		}
+	}
 
+	private function _process_anon_class( $filter, $filter_name, $filter_path, $is_class, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only = false, $origValue = null )
+	{
+		$filtDetails = static::$customFilters[$filter_name];
+
+		$filter_obj = $filtDetails['function'];
+		$filter_obj->setExtraArgs($filtDetails['extraArgs']);
+
+		static::$cache_instance[ $filter ] = $filter_obj;
+
+		$new_value = null;
+
+		if(!empty($value))
+		{
+			$new_value = \call_user_func_array($filter_obj, [$value, $satisfier, $field, $filter_obj]);
+		}
+		
+		$real_val = $this->_process_filter_values( $field, $new_value, $check_arr, $pre_filter, $counter, $val_only );		
+		
+		if( $val_only )
+		{
+			return $real_val;
+		}
 	}
 
 	private function _process_extension( array $extension_filter, $append_filter, $filter, $is_extension, $field, $value, $satisfier, $pre_filter, $check_arr, $counter, $val_only = false, $origValue = null )

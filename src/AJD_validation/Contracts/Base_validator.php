@@ -156,6 +156,7 @@ abstract class Base_validator extends Abstract_common
 	protected static function createRulesName($rule)
 	{
 		$rule = filter_var($rule, FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_FLAG_NO_ENCODE_QUOTES);
+		$rule = str_replace('_'.static::$rules_suffix, '', $rule);
 		$raw_class_name = strtolower($rule);
 		$class_name = ucfirst($raw_class_name);
 		$append_rule = $class_name.'_'.static::$rules_suffix;

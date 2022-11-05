@@ -2,6 +2,7 @@
 
 use AJD_validation\Contracts\Abstract_invokable;
 use AJD_validation\Constants\Lang;
+use AJD_validation\Contracts\Abstract_exceptions as ex;
 
 class Invokable_required_rule extends Abstract_invokable
 {
@@ -15,28 +16,26 @@ class Invokable_required_rule extends Abstract_invokable
         
         $check = $validator->required()->validate($value);
 
-        if($this->exception)
-        {
+        return $this->checks($check, ['default' => 'The :field* field is required.', 'inverse' => 'The :field* field is not required.']);
 
-            return $this->exception->message($check, [
-                $this->exception::ERR_DEFAULT => [
-                    $this->exception::STANDARD => 'The :field* field is required.'
+        /*return $this->checks($check, 
+            [
+                ex::ERR_DEFAULT => [
+                    ex::STANDARD => 'The :field* field is required.'
                 ],
-                $this->exception::ERR_NEGATIVE      => [
-                    $this->exception::STANDARD          => 'The :field* field is not required.',
+                ex::ERR_NEGATIVE      => [
+                    ex::STANDARD          => 'The :field* field is not required.',
                 ],
                 Lang::FIL => [
-                    $this->exception::ERR_DEFAULT => [
-                        $this->exception::STANDARD => 'The :field* field ay kelangan.'
+                    ex::ERR_DEFAULT => [
+                        ex::STANDARD => 'The :field* field ay kelangan.'
                     ],
-                    $this->exception::ERR_NEGATIVE      => [
-                        $this->exception::STANDARD          => 'The :field* field ay hindi kelangan.',
+                    ex::ERR_NEGATIVE      => [
+                        ex::STANDARD          => 'The :field* field ay hindi kelangan.',
                     ]
                 ]
-            ]);
-        }
-        
-        return $check;
+            ]
+        );*/
     }
 }
 

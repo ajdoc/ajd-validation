@@ -6,6 +6,9 @@ use Closure;
 use AJD_validation\Helpers;
 use AJD_validation\Contracts;
 use AJD_validation\Factory;
+use AJD_validation\Contracts\{
+	AbstractDataSet
+};
 
 trait AjdValExtender
 {
@@ -254,7 +257,7 @@ trait AjdValExtender
 	{
 		$name = $extension->getName();
 
-		if( !ISSET( static::$ajd_prop['extensions'][ $name ] ) )
+		if( !isset( static::$ajd_prop['extensions'][ $name ] ) )
 		{
 			static::$ajd_prop['extensions'][ $name ] = $extension;
 		}
@@ -361,6 +364,249 @@ trait AjdValExtender
 
 			Helpers\Rules_map::flush();
 		}
+	}
+
+	public function createDataSet(callable $callable)
+	{
+		$that = $this;
+
+		$anonClass =  new class($callable, $that) extends AbstractDataSet
+		{
+			protected $dataSet;
+			protected $functions;
+			protected $that;
+
+			protected $invokeInString = 'invoke';
+			protected $explodeString = 'to-';
+
+			public function __construct($dataSet, $that)
+            {
+                $this->dataSet = $dataSet;
+
+                $this->that = $that;
+
+                $this->functions = $this->invoke($this->dataSet, [$this]);
+            }
+
+            protected function parseAnnotations($docComment)
+            {
+            	if(empty($docComment))
+            	{
+            		return [];
+            	}
+
+			    preg_match_all('/@([a-z]+?)\s+(.*?)\n/i', $docComment, $annotations);
+
+			    if(!isset($annotations[1]) || count($annotations[1]) == 0)
+			    {
+			        return [];
+			    }
+
+			    return array_combine(array_map("trim",$annotations[1]), array_map("trim",$annotations[2]));
+			}
+
+			protected function checkHasDocComment(array $docComment)
+			{
+				return !empty($docComment);
+			}
+
+			protected function getReflectionFunction(callable $function)
+			{
+				return new \ReflectionFunction($function);
+			}
+
+			protected function getClosureDocComment(\ReflectionFunction $reflection)
+			{
+				return $reflection->getDocComment();
+			}
+
+            protected function checkInvokeClosure(callable $function, $invokeIn)
+            {
+            	$reflection = $this->getReflectionFunction($function);	
+            	$docComment = $this->parseAnnotations($this->getClosureDocComment($reflection));
+
+            	$checkInvoke = false;
+
+            	if(!isset($docComment[$this->invokeInString]) || empty($docComment[$this->invokeInString]))
+            	{
+            		$checkInvoke = false;
+            	}
+            	else
+            	{
+            		$returnString = $docComment[$this->invokeInString];
+            		$returnStringArr = explode($this->explodeString, $returnString);
+
+            		$stringTo = $returnStringArr[1] ?? $returnStringArr[0];
+
+	            	if(\strtolower($stringTo) === strtolower($invokeIn))
+	            	{
+	            		$checkInvoke = true;
+	            	}
+	            }
+
+            	return [
+            		'checkInvoke' => $checkInvoke,
+            		'checkHasDocComment' => !empty($docComment)
+            	];
+            }
+
+            protected function invoke(callable $closure, array $args)
+            {
+            	if($closure instanceof \Closure)
+            	{
+            		$closure = $closure->bindTo($this, self::class);
+            	}
+
+            	return \call_user_func_array($closure, $args);
+            }
+
+            public function field()
+            {
+            	return $this->commonProxy('field', [$this]);
+            }
+
+            protected function commonProxy($type, array $args = [])
+            {
+            	if($type == 'field')
+            	{
+            		if(!is_array($this->functions) && !is_callable($this->functions) && !is_string($this->functions))
+	            	{
+	            		return null;
+	            	}
+            	}
+            	else
+            	{
+	            	if(!is_array($this->functions) && !is_callable($this->functions))
+	            	{
+	            		return null;
+	            	}
+	            }
+
+	            if($type == 'field')
+            	{
+            		if(is_string($this->functions))
+	            	{
+	            		return $this->functions;
+	            	}
+            	}
+
+            	if(is_callable($this->functions))
+            	{
+            		$checkInvoke = $this->checkInvokeClosure($this->functions, $type);
+
+            		if($checkInvoke['checkInvoke'])
+            		{
+            			return $this->invoke($this->functions, $args);
+            		}
+
+            		return null;
+            	}
+
+				if(isset( $this->functions[$type] ) && !empty($this->functions[$type]))
+            	{
+            		return $this->invoke($this->functions[$type], $args);
+            	}
+
+				return null;
+            }
+
+            public function rules()
+			{
+				return $this->commonProxy('rules', [$this]);
+			}
+
+			public function preValidate($value = null, $field = null, $check_arr = true)
+			{
+				return $this->commonProxy('preValidate', [$value, $field, $check_arr, $this]);
+			}
+
+			public function validation($value = null, $key = null)
+			{
+				if(!is_array($this->functions) && is_callable($this->functions))
+				{
+					$checkInvoke = $this->checkInvokeClosure($this->functions, 'validation');
+					
+					if(!$checkInvoke['checkHasDocComment'] || $checkInvoke['checkInvoke'])
+					{
+						return $this->invoke($this->functions, [$value, $key, $this]);	
+					}
+
+					return false;
+				}
+
+				if(isset( $this->functions['validation'] ) && !empty($this->functions['validation']))
+            	{
+            		return $this->invoke($this->functions['validation'], [$value, $key, $this]);
+            	}
+
+				return false;
+			}
+		};
+
+		return $anonClass;
+	}
+
+	public static function registerDataSet($registerNameDataSet, $dataSet, array $options = [], $inverse = false)
+	{
+		if(!empty($registerNameDataSet))
+		{
+			static::$registerDataSet[$registerNameDataSet]['dataSets'][] = $dataSet;
+			static::$registerDataSet[$registerNameDataSet]['options'][] = $options;
+			static::$registerDataSet[$registerNameDataSet]['inverse'][] = $inverse;
+		}
+
+		return static::get_ajd_instance();
+	}
+
+	public static function registerDataSets($registerNameDataSet, $dataSets, array $options = [], $inverse = false)
+	{
+		return static::addDataSets($dataSets, $options, $inverse, $registerNameDataSet, true);
+	}
+
+	public static function removeSpecificDataSetRegistry(array $names)
+	{
+		static::$removeSpecificDataSetRegistry = $names;
+
+		return static::get_ajd_instance();
+	}
+
+	public static function flushDataSetRegistry()
+	{
+		static::$flushDataSetRegistry = true;
+
+		return static::get_ajd_instance();
+	}
+
+	public static function clearDataSetRegistry(array $names = [])
+	{
+		$ajd = static::get_ajd_instance();
+
+		if(!empty($names))
+		{
+			foreach($names as $name)
+			{
+				if(isset(static::$registerDataSet[$name]))
+				{
+					unset(static::$registerDataSet[$name]);
+				}
+			}
+
+			return $ajd;
+		}
+
+		static::$registerDataSet = [];
+
+		return $ajd;
+	}
+
+	public static function registerFilter($name, $function, array $extraArgs = [])
+	{
+		Helpers\AJD_filter::registerFilter($name, $function, $extraArgs);
+	}
+
+	public static function registerLogic($name, $function, array $extraArgs = [])
+	{
+		Helpers\When::registerLogic($name, $function, $extraArgs);
 	}
 
 	/**

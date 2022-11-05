@@ -1,11 +1,12 @@
 <?php namespace AJD_validation\Helpers;
 
 use AJD_validation\Contracts\{ 
-	Abstract_compound, Abstract_sequential, Abstract_common
+	Abstract_compound, Abstract_sequential, Abstract_common, ExpressionRuleInterface
 };
 
 use AJD_validation\Helpers\When;
 use AJD_validation\AJD_validation;
+use Closure;
 
 class Rule_scenario extends AJD_validation
 {
@@ -94,7 +95,7 @@ class Rule_scenario extends AJD_validation
 	
 	}
 
-	public function publish($event, \Closure $callback = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = null, $forJs = false)
+	public function publish($event, $callback = null, $customEvent = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = null, $forJs = false)
 	{
 		$logic = static::$ajd_prop[ 'current_logic' ];
 		$curr_field = static::$ajd_prop[ 'current_field' ];
@@ -104,11 +105,11 @@ class Rule_scenario extends AJD_validation
 		{
 			if(!empty($curr_field))
 			{
-				$this->subscribe($curr_field.'-|'.$event, $callback);
+				$this->subscribe($curr_field.'-|'.$event, $callback, $customEvent);
 			}
 			else
 			{
-				$this->subscribe($event, $callback);
+				$this->subscribe($event, $callback, $customEvent);
 			}
 		}
 
@@ -153,14 +154,14 @@ class Rule_scenario extends AJD_validation
 		}
 	}
 
-	public function publishSuccess($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
+	public function publishSuccess($event, $callback = null, $customEvent = null, $forJs = false, $ruleOverride = null)
 	{
-		return $this->publish($event, $callback, Abstract_common::EV_SUCCESS, $ruleOverride, $forJs);
+		return $this->publish($event, $callback, $customEvent, Abstract_common::EV_SUCCESS, $ruleOverride, $forJs);
 	}
 
-	public function publishFail($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
+	public function publishFail($event, $callback = null, $customEvent = null, $forJs = false, $ruleOverride = null)
 	{
-		return $this->publish($event, $callback, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
+		return $this->publish($event, $callback, $customEvent, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
 	}
 
 	public function sometimes( $sometimes = Abstract_common::SOMETIMES, $ruleOverride = null, $forJs = false )
@@ -171,7 +172,10 @@ class Rule_scenario extends AJD_validation
 
 		if( !empty( $ruleOverride ) )
 		{
-			$rule = $ruleOverride;
+			if(is_string($ruleOverride))
+			{
+				$rule = $ruleOverride;
+			}
 		}
 
 		if( !$forJs )
@@ -181,10 +185,20 @@ class Rule_scenario extends AJD_validation
 				if(!is_null($this->currentRuleKey))
 				{
 					static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey] = $sometimes;
+
+					if(!empty($ruleOverride) && is_array($ruleOverride))
+					{
+						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes_arguments' ][ $rule ][$this->currentRuleKey] = $ruleOverride;
+					}
 				}
 				else
 				{
 					static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes' ][ $rule ] = $sometimes;	
+
+					if(!empty($ruleOverride) && is_array($ruleOverride))
+					{
+						static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ 'sometimes_arguments' ][ $rule ] = $ruleOverride;
+					}
 				}
 			}
 			else 
@@ -192,10 +206,20 @@ class Rule_scenario extends AJD_validation
 				if(!is_null($this->currentRuleKey))
 				{
 					static::$ajd_prop[ $this->logic ][ 'sometimes' ][ $rule ][$this->currentRuleKey] = $sometimes;
+
+					if(!empty($ruleOverride) && is_array($ruleOverride))
+					{
+						static::$ajd_prop[ $this->logic ][ 'sometimes_arguments' ][ $rule ][$this->currentRuleKey] = $ruleOverride;
+					}
 				}
 				else
 				{
 					static::$ajd_prop[ $this->logic ][ 'sometimes' ][ $rule ] = $sometimes;	
+
+					if(!empty($ruleOverride) && is_array($ruleOverride))
+					{
+						static::$ajd_prop[ $this->logic ][ 'sometimes_arguments' ][ $rule ] = $ruleOverride;	
+					}
 				}
 			}
 		}
@@ -210,7 +234,63 @@ class Rule_scenario extends AJD_validation
 		}
 	}
 
-	public function groups( $groups = null, $ruleOverride = NULL, $forJs = false )
+
+	protected function commonPlots($type, $toPlot = null, $ruleOverride = null, $forJs = false)
+	{
+		$logic = static::$ajd_prop[ 'current_logic' ];
+		$curr_field = static::$ajd_prop[ 'current_field' ];
+		$rule = $this->rule_name;
+
+		if($type == 'groups')
+		{
+			if(!is_array($toPlot))
+			{
+				$toPlot = [$toPlot];
+			}
+		}
+
+		if( !empty( $ruleOverride ) )
+		{
+			$rule = $ruleOverride;
+		}
+
+		if( !$forJs )
+		{
+			if( !empty( $curr_field ) )
+			{ 
+				if(!is_null($this->currentRuleKey))
+				{
+					static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ $type ][ $rule ][$this->currentRuleKey] = $toPlot;
+				}
+				else
+				{
+					static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ $this->logic ][ $type ][ $rule ] = $toPlot;
+				}
+			}
+			else 
+			{	
+				if(!is_null($this->currentRuleKey))
+				{
+					static::$ajd_prop[ $this->logic ][ $type ][ $rule ][$this->currentRuleKey] = $toPlot;
+				}
+				else
+				{
+					static::$ajd_prop[ $this->logic ][ $type ][ $rule ] = $toPlot;
+				}
+			}
+		}
+
+		if( !empty( $this->when ) )
+		{
+			return $this->when;
+		}
+		else
+		{
+			return $this;
+		}
+	}
+
+	public function groups( $groups = null, $ruleOverride = null, $forJs = false )
 	{
 		$logic = static::$ajd_prop[ 'current_logic' ];
 		$curr_field = static::$ajd_prop[ 'current_field' ];
@@ -262,13 +342,18 @@ class Rule_scenario extends AJD_validation
 		}
 	}
 
+	public function stopOnError($stop = true, $ruleOverride = null, $forJs = false)
+	{
+		return $this->commonPlots('stop_on_error', $stop, $ruleOverride, $forJs);
+	}
+
 	public function getInstance()
 	{
 		$ruleKey = $this->getCurrentRuleKey();
 
 		$ruleObj = (!empty($this->when)) ? $this->when : $this;
 
-		$dontRunIn = [Abstract_compound::class, Abstract_sequential::class];
+		$dontRunIn = [Abstract_compound::class, Abstract_sequential::class, ExpressionRuleInterface::class];
 
 		if(isset(static::$currRuleDetails['details'][$ruleKey]) && !empty(static::$currRuleDetails['details'][$ruleKey]))
 		{
@@ -301,6 +386,24 @@ class Rule_scenario extends AJD_validation
 
 		static::$currRuleDetails = [];
 		
+		return $ruleObj;
+	}
+
+	public function generator(Closure $func)
+	{
+		$ruleKey = $this->getCurrentRuleKey();
+
+		$ruleObj = (!empty($this->when)) ? $this->when : $this;
+
+		if(isset(static::$currRuleDetails['details'][$ruleKey]) && !empty(static::$currRuleDetails['details'][$ruleKey]))
+		{
+			$details = [
+				'details' => static::$currRuleDetails['details'][$ruleKey]
+			];
+			
+			static::$generators[$details['details'][1]][$ruleKey] = $func;
+		}
+
 		return $ruleObj;
 	}
 

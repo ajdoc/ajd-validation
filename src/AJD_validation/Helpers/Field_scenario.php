@@ -42,19 +42,27 @@ class Field_scenario extends AJD_validation
 
 		if( !empty( $ruleOverride ) )
 		{
-			$rule = $ruleOverride;
+			if(is_string($ruleOverride))
+			{
+				$rule = $ruleOverride;
+			}
 		}
 		
 		if( !empty( $curr_field ) )
 		{ 
 			static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'sometimes' ][ $this->field_name ] = $sometimes;
+
+			if(!empty($ruleOverride) && is_array($ruleOverride))
+			{
+				static::$ajd_prop[ 'fields' ][ $logic ][ $curr_field ][ Abstract_common::LOG_AND ][ 'sometimes_arguments' ][ $this->field_name ] = $ruleOverride;
+			}
 		}
 
 		return $this;
 
 	}
 
-	public function publish($event, \Closure $callback = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = null, $forJs = false)
+	public function publish($event, $callback = null, $customEvent = null, $eventType = Abstract_common::EV_LOAD, $ruleOverride = null, $forJs = false)
 	{
 		$logic = static::$ajd_prop[ 'current_logic' ];
 		$curr_field = static::$ajd_prop[ 'current_field' ];
@@ -63,7 +71,7 @@ class Field_scenario extends AJD_validation
 		{
 			if(!empty($callback))
 			{
-				$this->subscribe($curr_field.'-|'.$event, $callback);
+				$this->subscribe($curr_field.'-|'.$event, $callback, $customEvent);
 			}
 
 			if( !$forJs )
@@ -82,13 +90,13 @@ class Field_scenario extends AJD_validation
 		}
 	}
 
-	public function publishSuccess($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
+	public function publishSuccess($event, $callback = null, $customEvent = null, $forJs = false, $ruleOverride = null)
 	{
-		return $this->publish($event, $callback, Abstract_common::EV_SUCCESS, $ruleOverride, $forJs);
+		return $this->publish($event, $callback, $customEvent, Abstract_common::EV_SUCCESS, $ruleOverride, $forJs);
 	}
 
-	public function publishFail($event, \Closure $callback = null, $forJs = false, $ruleOverride = null)
+	public function publishFail($event, $callback = null, $customEvent = null, $forJs = false, $ruleOverride = null)
 	{
-		return $this->publish($event, $callback, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
+		return $this->publish($event, $callback, $customEvent, Abstract_common::EV_FAILS, $ruleOverride, $forJs);
 	}
 }

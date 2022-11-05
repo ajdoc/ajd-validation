@@ -123,6 +123,13 @@ trait AjdValidationMacro
 					$defaultMessage = static::$errorMessages[$fromRule]['default'] ?? '';
 					$inverseMessage = static::$errorMessages[$fromRule]['inverse'] ?? $defaultMessage;
 
+					if(empty($defaultMessages) && empty($inverseMessage))
+					{
+						$rule = $fromRule.'_'.ajdv::$rules_suffix;
+						$defaultMessage = static::$errorMessages[$rule]['default'] ?? '';
+						$inverseMessage = static::$errorMessages[$rule]['inverse'] ?? $defaultMessage;
+					}
+
 					$exceptionObj::$defaultMessages 	= [
 						 $exceptionObj::ERR_DEFAULT 			=> [
 						 	$exceptionObj::STANDARD 			=> $defaultMessage,

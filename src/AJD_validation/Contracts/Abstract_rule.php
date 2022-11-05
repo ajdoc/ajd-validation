@@ -3,7 +3,7 @@
 use AJD_validation\Contracts\Rule_interface;
 use AJD_validation\AJD_validation;
 use AJD_validation\Contracts\{
-    Abstract_invokable, Abstract_anonymous_rule, Abstract_exceptions
+    Abstract_invokable, Abstract_anonymous_rule, Abstract_exceptions, AbstractRuleDataSet
 };
 
 use AJD_validation\Helpers\Errors;
@@ -17,6 +17,7 @@ use ReflectionClass;
 abstract class Abstract_rule extends AJD_validation implements Rule_interface
 {
     public $inverseCheck;
+    public $valueKey;
 
     protected $name;
     protected $whenInstance;
@@ -29,11 +30,109 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
 
     protected static $anonRuleExceptions = [];
     protected static $ruleArguments = [];
-
+    protected static $clientSideStorage = [];
+    protected static $validatorCustomErrorMessages = [];
 
     public function __invoke($value, $satisfier = null, $field = null)
     {
         return $this->run($value, $satisfier, $field);
+    }
+
+    public function getValidatorCustomError()
+    {
+        $currentValidatorCustoms = static::$validatorCustomErrorMessages;
+
+        static::$validatorCustomErrorMessages = [];   
+
+        return $currentValidatorCustoms;
+    }
+
+    public function getValidatorClientSide()
+    {
+        $currentValidatorClientSides = static::$clientSideStorage;
+
+        static::$clientSideStorage = [];   
+
+        return $currentValidatorClientSides;
+    }
+
+    public function setError(array $messages)
+    {
+        $rules = $this->getRules();
+        $currentRule = end($rules);
+
+        if(empty($currentRule))
+        {
+            return $this->getReturn();
+        }
+        
+        $className = get_class($currentRule);
+
+        $defaultMessage = $messages['default'] ?? '';
+        $inverse = $messages['inverse'] ?? $defaultMessage;
+
+        static::$validatorCustomErrorMessages[$className]['default'] = $defaultMessage;
+        static::$validatorCustomErrorMessages[$className]['inverse'] = $inverse;
+
+        return $this->getReturn();
+    }
+
+    public function setClientSide(string $custom_err = '', $clientMessageOnly = false, array $satisifer = [])
+    {
+        $rules = $this->getRules();
+        $currentRule = end($rules);
+
+        if(empty($currentRule))
+        {
+            return $this->getReturn();
+        }
+        
+        $className = get_class($currentRule);
+        $nameArr = explode('\\', $className);
+        $name = end($nameArr);
+
+        $rawRule = static::removeWord( $name, '/^!/' );
+        $rule = strtolower( $rawRule );
+        $cleanRule = $this->clean_rule_name( $rule );      
+        $realRule = $this->remove_appended_rule($cleanRule['rule']);
+
+        if(empty($custom_err) && isset(static::$validatorCustomErrorMessages[$className]) && !empty(static::$validatorCustomErrorMessages[$className]))
+        {
+            if(!empty(static::$validatorCustomErrorMessages[$className]['default']))
+            {
+                $custom_err = static::$validatorCustomErrorMessages[$className]['default'];
+            }
+        }
+
+        if(empty($satisifer))
+        {
+            $reflect = new ReflectionClass( $currentRule );
+            $getProperties = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED);
+
+            $ownProps = [];
+
+            foreach($getProperties as $prop) 
+            {
+                if($prop->class === $className) 
+                {
+                    if(property_exists($currentRule, $prop->getName()))
+                    {
+                        $ownProps[] = $currentRule->{$prop->getName()};    
+                    }   
+                }
+            }
+
+            $satisifer = $ownProps;
+        }
+
+        static::$clientSideStorage[$realRule] = [
+            'custom_err' => $custom_err,
+            'clientMessageOnly' => $clientMessageOnly,
+            'satisfier' => $satisifer,
+            'ruleClass' => $className
+        ];
+
+        return $this->getReturn();
     }
 
     public function setCustomErrorMessage(array $customErrorMessage)
@@ -275,22 +374,54 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
         throw $exceptions;
     }
 
-    protected function createException($rule = null, $ruleObj = null)
+    protected function createDataSetError(array $dataSets, $exception)
     {
-        $err = static::get_errors_instance();
-        $ruleStr = null;
+        $no_error_messages = [];
 
-        if( !EMPTY( $rule ) )
+        if(!empty($dataSets))
         {
-            $currentRule = get_class( $rule );
-            $ruleStr = get_class( $rule );
-        }
-        else
-        {
-            $currentRule = get_called_class();
-            $ruleStr = get_called_class();
+            $defaultErrorMessages = '';
+            $inverseErrorMessages = null;
+
+            foreach($dataSets as $dataSet)
+            {
+                $getErrorMessage = $dataSet->getErrorMessage();
+                $getExceptionMessages = $dataSet->getExceptionMessages();
+                    
+                if(!empty($getErrorMessage))
+                {
+                    $defaultErrorMessages .= $dataSet->getErrorMessage().' ';
+
+                    $no_error_messages[] = false;
+                }
+
+                if(!empty($getExceptionMessages))
+                {
+                    $defaultErrorMessages = $getExceptionMessages['default'] ?? '';
+                    $inverseErrorMessages = $getExceptionMessages['inverse'] ?? null;
+
+                    $no_error_messages[] = true;
+                }
+            }
+
+            $defaultErrorMessages = trim($defaultErrorMessages);
+
+            if(!empty($defaultErrorMessages))
+            {
+                $keyErr = $exception::ERR_DEFAULT;
+                $subKeyErr = $exception::STANDARD;
+                $inverseKeyErr = $exception::ERR_NEGATIVE;
+                
+                $exception::$defaultMessages[$keyErr][$subKeyErr] = $defaultErrorMessages;
+                $exception::$defaultMessages[$inverseKeyErr][$subKeyErr] = $inverseErrorMessages ?? $defaultErrorMessages;
+            }
         }
 
+        return !in_array(true, $no_error_messages, true);
+    }
+
+    protected function createExceptionClass($currentRule, $ruleStr = null, $ruleObj = null)
+    {
         $currentRule = str_replace('\\Rules\\', '\\Exceptions\\', $currentRule);
         $currentRule .= '_exception';
 
@@ -306,14 +437,14 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
             }
         }
         
-        if( !EMPTY( Errors::getExceptionDirectory() ) )
+        if( !empty( Errors::getExceptionDirectory() ) )
         {
             foreach( Errors::getExceptionDirectory() as $key => $directory )
             {
                 $namespace = '';
                 $addExceptionNamespace = Errors::getExceptionNamespace();
 
-                if( ISSET( $addExceptionNamespace[ $key ] ) )
+                if( isset( $addExceptionNamespace[ $key ] ) )
                 {
                     $namespace = $addExceptionNamespace[ $key ];
                 }
@@ -323,12 +454,45 @@ abstract class Abstract_rule extends AJD_validation implements Rule_interface
 
                 $search = array_search($exceptionPath, $requiredFiles);
             
-                if( file_exists($exceptionPath) && EMPTY( $search ) )
+                if( file_exists($exceptionPath) && empty( $search ) )
                 {
                     $currentRule = $namespace.$ruleStr.'_exception';
                     $check = require $exceptionPath;
                 }
             }
+        }
+
+        return [
+            'currentRule' => $currentRule,
+            'check' => $check ?? null
+        ];
+    }
+
+    protected function createException($rule = null, $ruleObj = null)
+    {
+        $err = static::get_errors_instance();
+        $ruleStr = null;
+
+        if( !empty( $rule ) )
+        {
+            $currentRule = get_class( $rule );
+            $ruleStr = get_class( $rule );
+        }
+        else
+        {
+            $currentRule = get_called_class();
+            $ruleStr = get_called_class();
+        }
+
+        $exceptionDetails = $this->createExceptionClass($currentRule, $ruleStr, $ruleObj);
+
+        $currentRule = $exceptionDetails['currentRule'];
+
+        if($ruleObj instanceof AbstractRuleDataSet)
+        {
+            $dataSets = $ruleObj->getDataSets();
+
+            $this->createDataSetError($dataSets, $currentRule);
         }
 
         if(class_exists($currentRule))

@@ -17,12 +17,14 @@ class TriggerWhen implements Validation_interface, Trigger_when_interface
 	protected $checker;
 	protected $currentPromise;
 	protected $promiseNull;
+	protected $vars = [];
 
-	public function __construct(AJD_validation $ajd, $checker)
+	public function __construct(AJD_validation $ajd, $checker, array $vars = [])
 	{
 		$this->ajd = $ajd;
 		$this->checker = $checker;
 		$this->promiseNull = new PromiseNull;
+		$this->vars = $vars;
 	}
 
 	public function checker($value = null, $checker = null)
@@ -57,6 +59,8 @@ class TriggerWhen implements Validation_interface, Trigger_when_interface
 			!is_bool($checker)
 			&&
 			!is_callable($checker)
+			&&
+			!is_string($checker)
 			&&
 			!$checker instanceof Validator
 			&&
@@ -97,6 +101,11 @@ class TriggerWhen implements Validation_interface, Trigger_when_interface
 			}
 		}
 
+		if(!empty($this->vars))
+		{
+			$defaultArgs = array_merge($defaultArgs, $this->vars);
+		}
+
 		if(is_bool($checker))
 		{
 			return $checker;
@@ -112,6 +121,10 @@ class TriggerWhen implements Validation_interface, Trigger_when_interface
 		else if(is_callable($callable))
 		{
 			return (bool) call_user_func_array($callable, $defaultArgs);
+		}
+		else if(is_string($checker))
+		{
+			return $this->ajd->processExpression($checker, $this->vars);
 		}
 
 		return false;
